@@ -57,6 +57,16 @@ class SelectClosingRequestDto
      */
     private $denominations = null;
 
+    /**
+     * @var null|int
+     */
+    private $store = null;
+
+    /**
+     * @var null|int
+     */
+    private $terminal = null;
+
     public function setId(?int $id)
     {
         $this->id = $id;
@@ -181,7 +191,8 @@ class SelectClosingRequestDto
         $dto->cashWithdrawn = $request->query->get('cashWithdrawn');
         $dto->data = $request->query->get('data');
         $dto->denominations = $request->query->get('denominations');
-
+        $dto->store = $request->query->get('store') ? (int) $request->query->get('store') : null;
+        $dto->terminal = $request->query->get('terminal') ? (int) $request->query->get('terminal') : null;
 
         return $dto;
     }
@@ -198,5 +209,7 @@ class SelectClosingRequestDto
         $query->setCashWithdrawn($this->cashWithdrawn);
         $query->setData($this->data);
         $query->setDenominations($this->denominations);
+        $query->setStore($this->store);
+        $query->setTerminal($this->terminal);
     }
 }

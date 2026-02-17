@@ -44,6 +44,7 @@ class ReportController extends AbstractController
         ->where('DATE(o.createdAt) >= :dateFrom')
         ->andWhere('DATE(o.createdAt) <= :dateTo')
         ->andWhere('o.isDeleted = false')
+        ->andWhere('o.isSuspended != true OR o.isSuspended IS NULL')
         ->setParameter('dateFrom', $dateFrom)
         ->setParameter('dateTo', $dateTo);
 
@@ -65,6 +66,7 @@ class ReportController extends AbstractController
         ->andWhere('DATE(o.createdAt) <= :dateTo')
         ->andWhere('o.isDeleted = false')
         ->andWhere('o.isReturned = false')
+        ->andWhere('o.isSuspended != true OR o.isSuspended IS NULL')
         ->setParameter('dateFrom', $dateFrom)
         ->setParameter('dateTo', $dateTo);
 
@@ -83,6 +85,8 @@ class ReportController extends AbstractController
         ->where('DATE(o.createdAt) >= :dateFrom')
         ->andWhere('DATE(o.createdAt) <= :dateTo')
         ->andWhere('o.isDeleted = false')
+        ->andWhere('o.isReturned = false')
+        ->andWhere('o.isSuspended != true OR o.isSuspended IS NULL')
         ->groupBy('p.name')
         ->setParameter('dateFrom', $dateFrom)
         ->setParameter('dateTo', $dateTo);
@@ -128,16 +132,16 @@ class ReportController extends AbstractController
         $qb->select(
             'COALESCE(SUM(op.price * op.quantity), 0) as totalRevenue',
             'COALESCE(SUM(op.discount), 0) as totalDiscounts',
-            'COALESCE(SUM(COALESCE(prod.cost, 0) * op.quantity), 0) as totalCost',
+            'COALESCE(SUM(COALESCE(op.costAtSale, 0) * op.quantity), 0) as totalCost',
             'COUNT(DISTINCT o.id) as totalOrders'
         )
         ->from(OrderProduct::class, 'op')
         ->join('op.order', 'o')
-        ->join('op.product', 'prod')
         ->where('DATE(o.createdAt) >= :dateFrom')
         ->andWhere('DATE(o.createdAt) <= :dateTo')
         ->andWhere('o.isDeleted = false')
         ->andWhere('o.isReturned = false')
+        ->andWhere('o.isSuspended != true OR o.isSuspended IS NULL')
         ->setParameter('dateFrom', $dateFrom)
         ->setParameter('dateTo', $dateTo);
 
@@ -160,8 +164,8 @@ class ReportController extends AbstractController
             'prod.name as productName',
             'SUM(op.quantity) as totalQty',
             'SUM(op.price * op.quantity) as revenue',
-            'SUM(COALESCE(prod.cost, 0) * op.quantity) as cost',
-            'SUM((op.price - COALESCE(prod.cost, 0)) * op.quantity) as profit'
+            'SUM(COALESCE(op.costAtSale, 0) * op.quantity) as cost',
+            'SUM((op.price - COALESCE(op.costAtSale, 0)) * op.quantity) as profit'
         )
         ->from(OrderProduct::class, 'op')
         ->join('op.order', 'o')
@@ -170,6 +174,7 @@ class ReportController extends AbstractController
         ->andWhere('DATE(o.createdAt) <= :dateTo')
         ->andWhere('o.isDeleted = false')
         ->andWhere('o.isReturned = false')
+        ->andWhere('o.isSuspended != true OR o.isSuspended IS NULL')
         ->groupBy('prod.id', 'prod.name')
         ->orderBy('profit', 'DESC')
         ->setMaxResults(10)
@@ -214,6 +219,7 @@ class ReportController extends AbstractController
         ->from(Order::class, 'o')
         ->where('DATE(o.createdAt) = :date')
         ->andWhere('o.isDeleted = false')
+        ->andWhere('o.isSuspended != true OR o.isSuspended IS NULL')
         ->setParameter('date', $date);
 
         if ($storeId) {
@@ -227,14 +233,14 @@ class ReportController extends AbstractController
         $qb2->select(
             'COALESCE(SUM(op.price * op.quantity), 0) as grossRevenue',
             'COALESCE(SUM(op.discount), 0) as totalDiscounts',
-            'COALESCE(SUM(COALESCE(prod.cost, 0) * op.quantity), 0) as totalCost'
+            'COALESCE(SUM(COALESCE(op.costAtSale, 0) * op.quantity), 0) as totalCost'
         )
         ->from(OrderProduct::class, 'op')
         ->join('op.order', 'o')
-        ->join('op.product', 'prod')
         ->where('DATE(o.createdAt) = :date')
         ->andWhere('o.isDeleted = false')
         ->andWhere('o.isReturned = false')
+        ->andWhere('o.isSuspended != true OR o.isSuspended IS NULL')
         ->setParameter('date', $date);
 
         if ($storeId) {
@@ -251,6 +257,8 @@ class ReportController extends AbstractController
         ->join('opay.order', 'o')
         ->where('DATE(o.createdAt) = :date')
         ->andWhere('o.isDeleted = false')
+        ->andWhere('o.isReturned = false')
+        ->andWhere('o.isSuspended != true OR o.isSuspended IS NULL')
         ->groupBy('p.name')
         ->setParameter('date', $date);
 
@@ -273,6 +281,7 @@ class ReportController extends AbstractController
         ->where('DATE(o.createdAt) = :date')
         ->andWhere('o.isDeleted = false')
         ->andWhere('o.isReturned = false')
+        ->andWhere('o.isSuspended != true OR o.isSuspended IS NULL')
         ->groupBy('prod.id', 'prod.name')
         ->orderBy('totalQty', 'DESC')
         ->setMaxResults(5)

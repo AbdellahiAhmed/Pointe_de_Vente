@@ -77,6 +77,16 @@ class SelectClosingQuery
     /**
      * @var null|int
      */
+    private $store = null;
+
+    /**
+     * @var null|int
+     */
+    private $terminal = null;
+
+    /**
+     * @var null|int
+     */
     private $limit = null;
 
     /**
@@ -258,5 +268,27 @@ class SelectClosingQuery
     public function getOffset()
     {
         return $this->offset;
+    }
+
+    public function setStore(?int $store)
+    {
+        $this->store = $store;
+        return $this;
+    }
+
+    public function getStore()
+    {
+        return $this->store;
+    }
+
+    public function setTerminal(?int $terminal)
+    {
+        $this->terminal = $terminal;
+        return $this;
+    }
+
+    public function getTerminal()
+    {
+        return $this->terminal;
     }
 }

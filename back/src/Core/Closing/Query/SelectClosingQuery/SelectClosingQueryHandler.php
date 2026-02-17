@@ -62,7 +62,14 @@ class SelectClosingQueryHandler extends EntityRepository implements SelectClosin
             $qb->andWhere('Closing.denominations = :denominations');
             $qb->setParameter('denominations', $query->getDenominations());
         }
-
+        if($query->getStore() !== null){
+            $qb->andWhere('Closing.store = :store');
+            $qb->setParameter('store', $query->getStore());
+        }
+        if($query->getTerminal() !== null){
+            $qb->andWhere('Closing.terminal = :terminal');
+            $qb->setParameter('terminal', $query->getTerminal());
+        }
 
         if($query->getLimit() !== null){
             $qb->setMaxResults($query->getLimit());
