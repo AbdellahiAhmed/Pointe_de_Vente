@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: RBAC and Security** - Establish role hierarchy, Symfony Voters, user migration, and frontend guards before any new endpoint is added
 - [x] **Phase 2: Data Model Corrections** - Fix the three data integrity bugs that corrupt every report if left unresolved
 - [x] **Phase 3: PMP and Purchase Flow** - Wire the existing PMP formula correctly and expose cost data across the system
-- [ ] **Phase 4: Stock Alerts and Payments** - Add low-stock detection with POS badge and seed Mauritanian payment types
+- [x] **Phase 4: Stock Alerts and Payments** - Add low-stock detection with POS badge and seed Mauritanian payment types
 - [ ] **Phase 5: Z-Report and Extended Reports** - Build the full professional Z-Report and enhanced analytics reports
 - [ ] **Phase 6: RTL and Arabic Completion** - Systematically complete Arabic translation and fix the RTL layout infrastructure
 - [ ] **Phase 7: UI Redesign** - Deliver professional POS and admin interfaces designed around complete functionality
@@ -151,7 +151,7 @@ Phases execute in strict dependency order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 1. RBAC and Security | 2/2 | COMPLETE | 2026-02-17 |
 | 2. Data Model Corrections | 2/2 | COMPLETE | 2026-02-17 |
 | 3. PMP and Purchase Flow | 1/1 | COMPLETE | 2026-02-17 |
-| 4. Stock Alerts and Payments | 0/2 | Not started | - |
+| 4. Stock Alerts and Payments | 2/2 | COMPLETE | 2026-02-17 |
 | 5. Z-Report and Extended Reports | 0/3 | Not started | - |
 | 6. RTL and Arabic Completion | 0/2 | Not started | - |
 | 7. UI Redesign | 0/2 | Not started | - |
