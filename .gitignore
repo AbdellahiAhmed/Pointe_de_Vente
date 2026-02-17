@@ -1,0 +1,10 @@
+node_modules/
+vendor/
+.DS_Store
+.env.local
+.env.*.local
+*.log
+front/dist/
+back/var/
+back/public/uploads/media/
+.claude/
