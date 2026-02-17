@@ -19,6 +19,7 @@ import {Profile} from "./containers/dashboard/profile/profile";
 import {SalesReport} from "./containers/reports/sales-report";
 import {ProfitReport} from "./containers/reports/profit-report";
 import {DailyReport} from "./containers/reports/daily-report";
+import {RequireRole} from "../app-common/components/auth/RequireRole";
 
 export interface AppProps {
   bootstrap: () => void;
@@ -77,13 +78,13 @@ const AppComponent: FunctionComponent<AppProps> = (props) => {
         <Route path={DASHBOARD} element={<RequireAuth><Dashboard/></RequireAuth>}/>
         <Route path={PROFILE} element={<RequireAuth><Profile/></RequireAuth>}/>
 
-        <Route path={USERS} element={<RequireAuth><Users/></RequireAuth>}/>
-        <Route path={USERS_CREATE} element={<RequireAuth><Users/></RequireAuth>}/>
-        <Route path={USERS_EDIT} element={<RequireAuth><Users/></RequireAuth>}/>
+        <Route path={USERS} element={<RequireAuth><RequireRole role="ROLE_ADMIN"><Users/></RequireRole></RequireAuth>}/>
+        <Route path={USERS_CREATE} element={<RequireAuth><RequireRole role="ROLE_ADMIN"><Users/></RequireRole></RequireAuth>}/>
+        <Route path={USERS_EDIT} element={<RequireAuth><RequireRole role="ROLE_ADMIN"><Users/></RequireRole></RequireAuth>}/>
 
-        <Route path={REPORTS_SALES} element={<RequireAuth><SalesReport/></RequireAuth>}/>
-        <Route path={REPORTS_PROFIT} element={<RequireAuth><ProfitReport/></RequireAuth>}/>
-        <Route path={REPORTS_DAILY} element={<RequireAuth><DailyReport/></RequireAuth>}/>
+        <Route path={REPORTS_SALES} element={<RequireAuth><RequireRole role="ROLE_MANAGER"><SalesReport/></RequireRole></RequireAuth>}/>
+        <Route path={REPORTS_PROFIT} element={<RequireAuth><RequireRole role="ROLE_MANAGER"><ProfitReport/></RequireRole></RequireAuth>}/>
+        <Route path={REPORTS_DAILY} element={<RequireAuth><RequireRole role="ROLE_MANAGER"><DailyReport/></RequireRole></RequireAuth>}/>
 
         {/*if nothing matches show 404*/}
         <Route path="*" element={<Error404/>}/>

@@ -4,18 +4,21 @@ import { Button } from "../../../../app-common/components/input/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
 import { PRODUCT_DOWNLOAD } from "../../../../api/routing/routes/backend.app";
-import { QueryString } from "../../../../lib/location/query.string";
-import Cookies from "js-cookie";
+import { request } from "../../../../api/request/request";
 
 export const ExportItems = () => {
   const {t} = useTranslation();
   const onClick = async () => {
-    const url = new URL(PRODUCT_DOWNLOAD);
-    url.search = QueryString.stringify({
-      bearer: Cookies.get("JWT"),
-    });
-
-    window.open(url.toString(), "_blank");
+    const response = await request(PRODUCT_DOWNLOAD);
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'products.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (

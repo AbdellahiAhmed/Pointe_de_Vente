@@ -197,10 +197,13 @@ export const CreateUser: FC<CreateUserProps> = ({
                   onChange={props.field.onChange}
                   value={props.field.value}
                   options={[{
-                    label: 'ROLE_USER',
-                    value: 'ROLE_USER'
+                    label: t('Vendeur'),
+                    value: 'ROLE_VENDEUR'
                   }, {
-                    label: 'ROLE_ADMIN',
+                    label: t('Manager'),
+                    value: 'ROLE_MANAGER'
+                  }, {
+                    label: t('Admin'),
                     value: 'ROLE_ADMIN'
                   }]}
                   isMulti
