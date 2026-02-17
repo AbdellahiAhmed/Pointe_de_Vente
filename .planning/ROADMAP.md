@@ -75,11 +75,11 @@ Plans:
   2. The POS screen displays a badge showing the count of low-stock products, visible to the cashier without navigating away.
   3. When processing a sale, the cashier can select Bankily, Masrivi, Sedad, Especes, or Credit as the payment method.
   4. The Z-Report correctly categorizes each payment by type (cash / mobile / credit) for reconciliation.
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 04-01: Backend — StockController GET /api/admin/stock/alerts with RBAC gate, ProductStoreRepository::findBelowReorderLevel(), per-product reOrderLevel config; seed Mauritanian payment types (PAY-01, PAY-02) with cash/mobile/credit attribute
-- [ ] 04-02: Frontend — TanStack Query 60s polling for alerts, Ant Design Badge on inventory nav, stock alert banner in POS, stock alert page in admin with store filter
+- [ ] 04-01-PLAN.md — Backend: Payment.category column + migration + data backfill, StockController GET /api/admin/stock/alerts with RBAC gate, ProductStoreRepository::findBelowReorderLevel()
+- [ ] 04-02-PLAN.md — Frontend: PaymentType model update, StockAlertBadge with 60s polling in POS footer, admin stock alerts page with store filter + sidebar entry
 
 ### Phase 5: Z-Report and Extended Reports
 **Goal**: The end-of-day Z-Report is a complete, immutable, printable document that meets standard retail cash register requirements, and the reports section provides actionable analytics by category, vendeur, and time.
