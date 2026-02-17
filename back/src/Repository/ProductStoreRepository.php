@@ -19,32 +19,24 @@ class ProductStoreRepository extends ServiceEntityRepository
         parent::__construct($registry, ProductStore::class);
     }
 
-    // /**
-    //  * @return ProductStore[] Returns an array of ProductStore objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+     * @return ProductStore[]
+     */
+    public function findBelowReorderLevel(?int $storeId = null): array
     {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('p.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $qb = $this->createQueryBuilder('ps')
+            ->join('ps.product', 'p')
+            ->join('ps.store', 's')
+            ->addSelect('p', 's')
+            ->andWhere('p.manageInventory = true')
+            ->andWhere('ps.quantity < COALESCE(ps.reOrderLevel, 10)')
+            ->orderBy('ps.quantity', 'ASC');
 
-    /*
-    public function findOneBySomeField($value): ?ProductStore
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        if ($storeId !== null) {
+            $qb->andWhere('s.id = :store')
+               ->setParameter('store', $storeId);
+        }
+
+        return $qb->getQuery()->getResult();
     }
-    */
 }

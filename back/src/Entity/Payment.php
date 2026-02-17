@@ -35,6 +35,10 @@ class Payment
     const PAYMENT_TYPE_POINTS = 'points';
     const PAYMENT_TYPE_CREDIT = 'credit';
 
+    const CATEGORY_CASH = 'cash';
+    const CATEGORY_MOBILE = 'mobile';
+    const CATEGORY_CREDIT = 'credit';
+
 
     use ActiveTrait;
     use TimestampableTrait;
@@ -68,6 +72,13 @@ class Payment
      * @Groups({"payment.read"})
      */
     private $canHaveChangeDue;
+
+    /**
+     * @ORM\Column(type="string", length=20, options={"default": "cash"})
+     * @Gedmo\Versioned()
+     * @Groups({"payment.read", "order.read", "customer.read"})
+     */
+    private $category = self::CATEGORY_CASH;
 
     /**
      * @ORM\ManyToMany(targetEntity=Store::class)
@@ -118,6 +129,18 @@ class Payment
     public function setCanHaveChangeDue(?bool $canHaveChangeDue): self
     {
         $this->canHaveChangeDue = $canHaveChangeDue;
+
+        return $this;
+    }
+
+    public function getCategory(): string
+    {
+        return $this->category;
+    }
+
+    public function setCategory(string $category): self
+    {
+        $this->category = $category;
 
         return $this;
     }
