@@ -47,11 +47,11 @@ Plans:
   1. Revenue reports exclude parked/suspended orders — a sale that was suspended but never completed does not appear in daily totals.
   2. The Closing entity stores financial figures as DECIMAL(20,2) — floating-point rounding errors are eliminated from cash reconciliation.
   3. Z-Report queries return only orders belonging to the correct session, with no data leaking from other terminal sessions.
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 02-01: Schema migrations — Product.cost string->decimal, OrderProduct.costAtSale column, Closing float->decimal, User.roles array->json, Core/Discont namespace fix
-- [ ] 02-02: Query fixes — add isSuspended filter to all ReportController revenue queries; verify session scoping on Closing queries
+- [ ] 02-01-PLAN.md — Schema migrations: Closing float->decimal(20,2), OrderProduct.costAtSale column + backfill, User.roles array->json, Closing DTO type hints, Core/Discont->Discount namespace fix, costAtSale snapshot in CreateOrderCommandHandler
+- [ ] 02-02-PLAN.md — Query fixes: isSuspended filter on all ReportController revenue/profit/daily queries, isReturned filter on payment breakdowns, profit queries use op.costAtSale instead of prod.cost, Closing session scoping by terminal
 
 ### Phase 3: PMP and Purchase Flow
 **Goal**: Product cost is tracked precisely using the weighted-average PMP formula, and profit figures in all reports reflect the actual cost at the time of sale.
