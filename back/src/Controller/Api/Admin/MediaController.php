@@ -4,6 +4,7 @@ namespace App\Controller\Api\Admin;
 
 use App\Entity\Media;
 use App\Factory\Controller\ApiResponseFactory;
+use App\Security\Voter\ProductVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,6 +27,7 @@ class MediaController extends AbstractController
         ApiResponseFactory $responseFactory
     ): Response
     {
+        $this->denyAccessUnlessGranted(ProductVoter::MANAGE);
         $file = $request->files->get('file');
         if (!$file) {
             return $responseFactory->json(['error' => 'No file uploaded'], 400);
@@ -85,6 +87,7 @@ class MediaController extends AbstractController
         EntityManagerInterface $em
     ): Response
     {
+        $this->denyAccessUnlessGranted(ProductVoter::VIEW);
         $media = $em->getRepository(Media::class)->find($id);
         if (!$media) {
             return new Response('Not found', 404);

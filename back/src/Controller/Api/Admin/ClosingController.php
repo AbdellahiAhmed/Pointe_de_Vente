@@ -22,6 +22,7 @@ use App\Repository\ClosingRepository;
 use App\Repository\StoreRepository;
 use App\Repository\TerminalRepository;
 use Carbon\Carbon;
+use App\Security\Voter\ClosingVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,6 +38,7 @@ class ClosingController extends AbstractController
      */
     public function list(Request $request, ApiResponseFactory $responseFactory, ApiRequestDtoValidator $requestDtoValidator, SelectClosingQueryHandlerInterface $handler)
     {
+        $this->denyAccessUnlessGranted(ClosingVoter::MANAGE);
         $requestDto = SelectClosingRequestDto::createFromRequest($request);
 
         $query = new SelectClosingQuery();
@@ -55,6 +57,7 @@ class ClosingController extends AbstractController
      */
     public function create(Request $request, ApiRequestDtoValidator $requestDtoValidator, ApiResponseFactory $responseFactory, CreateClosingCommandHandlerInterface $handler)
     {
+        $this->denyAccessUnlessGranted(ClosingVoter::MANAGE);
         $requestDto = CreateClosingRequestDto::createFromRequest($request);
         if(null !== $violations = $requestDtoValidator->validate($requestDto)){
             return $responseFactory->validationError($violations);
@@ -90,6 +93,7 @@ class ClosingController extends AbstractController
         TerminalRepository $terminalRepository
     )
     {
+        $this->denyAccessUnlessGranted(ClosingVoter::MANAGE);
         $store = $storeRepository->find($request->query->get('store'));
         $terminal = $terminalRepository->find($request->query->get('terminal'));
 
@@ -124,6 +128,7 @@ class ClosingController extends AbstractController
      */
     public function getById(Closing $entity, ApiResponseFactory $responseFactory)
     {
+        $this->denyAccessUnlessGranted(ClosingVoter::MANAGE);
         if($entity === null){
             return $responseFactory->notFound('Closing not found');
         }
@@ -138,6 +143,7 @@ class ClosingController extends AbstractController
      */
     public function update(Request $request, ApiRequestDtoValidator $requestDtoValidator, ApiResponseFactory $responseFactory, UpdateClosingCommandHandlerInterface $handler)
     {
+        $this->denyAccessUnlessGranted(ClosingVoter::MANAGE);
         $requestDto = UpdateClosingRequestDto::createFromRequest($request);
         if(null !== $violations = $requestDtoValidator->validate($requestDto)){
             return $responseFactory->validationError($violations);
@@ -166,6 +172,7 @@ class ClosingController extends AbstractController
      */
     public function delete($id, ApiResponseFactory $responseFactory, DeleteClosingCommandHandlerInterface $handler)
     {
+        $this->denyAccessUnlessGranted(ClosingVoter::MANAGE);
         $command = new DeleteClosingCommand();
         $command->setId($id);
 

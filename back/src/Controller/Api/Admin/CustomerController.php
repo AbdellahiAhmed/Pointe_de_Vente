@@ -21,6 +21,7 @@ use App\Core\Customer\Query\SelectCustomerQuery\SelectCustomerQueryHandlerInterf
 use App\Core\Validation\ApiRequestDtoValidator;
 use App\Entity\Customer;
 use App\Factory\Controller\ApiResponseFactory;
+use App\Security\Voter\CustomerVoter;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -66,6 +67,7 @@ class CustomerController extends AbstractController
         SelectCustomerQueryHandlerInterface $handler
     )
     {
+        $this->denyAccessUnlessGranted(CustomerVoter::MANAGE);
         $requestDto = SelectCustomerRequestDto::createFromRequest($request);
 
         $query = new SelectCustomerQuery();
@@ -101,6 +103,7 @@ class CustomerController extends AbstractController
      */
     public function create(Request $request, ApiRequestDtoValidator $requestDtoValidator, ApiResponseFactory $responseFactory, CreateCustomerCommandHandlerInterface $handler)
     {
+        $this->denyAccessUnlessGranted(CustomerVoter::MANAGE);
         $requestDto = CreateCustomerRequestDto::createFromRequest($request);
         if(null !== $violations = $requestDtoValidator->validate($requestDto)){
             return $responseFactory->validationError($violations);
@@ -146,6 +149,7 @@ class CustomerController extends AbstractController
         ApiResponseFactory $responseFactory,
         CreatePaymentCommandHandlerInterface $handler
     ){
+        $this->denyAccessUnlessGranted(CustomerVoter::MANAGE);
         $requestDto = CreateCustomerPaymentRequestDto::createFromRequest($request);
         if(null !== $violations = $requestDtoValidator->validate($requestDto)){
             return $responseFactory->validationError($violations);
@@ -187,6 +191,7 @@ class CustomerController extends AbstractController
      */
     public function getById(Customer $entity, ApiResponseFactory $responseFactory)
     {
+        $this->denyAccessUnlessGranted(CustomerVoter::MANAGE);
         if($entity === null){
             return $responseFactory->notFound('Customer not found');
         }
@@ -218,6 +223,7 @@ class CustomerController extends AbstractController
      */
     public function update(Request $request, ApiRequestDtoValidator $requestDtoValidator, ApiResponseFactory $responseFactory, UpdateCustomerCommandHandlerInterface $handler)
     {
+        $this->denyAccessUnlessGranted(CustomerVoter::MANAGE);
         $requestDto = UpdateCustomerRequestDto::createFromRequest($request);
         if(null !== $violations = $requestDtoValidator->validate($requestDto)){
             return $responseFactory->validationError($violations);
@@ -254,6 +260,7 @@ class CustomerController extends AbstractController
      */
     public function delete($id, ApiResponseFactory $responseFactory, DeleteCustomerCommandHandlerInterface $handler)
     {
+        $this->denyAccessUnlessGranted(CustomerVoter::MANAGE);
         $command = new DeleteCustomerCommand();
         $command->setId($id);
 

@@ -6,6 +6,7 @@ use App\Entity\Order;
 use App\Entity\OrderProduct;
 use App\Entity\OrderPayment;
 use App\Factory\Controller\ApiResponseFactory;
+use App\Security\Voter\ReportVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,6 +29,7 @@ class ReportController extends AbstractController
      */
     public function sales(Request $request, ApiResponseFactory $responseFactory)
     {
+        $this->denyAccessUnlessGranted(ReportVoter::VIEW);
         $dateFrom = $request->query->get('dateFrom', date('Y-m-d'));
         $dateTo = $request->query->get('dateTo', date('Y-m-d'));
         $storeId = $request->query->get('store');
@@ -116,6 +118,7 @@ class ReportController extends AbstractController
      */
     public function profit(Request $request, ApiResponseFactory $responseFactory)
     {
+        $this->denyAccessUnlessGranted(ReportVoter::VIEW);
         $dateFrom = $request->query->get('dateFrom', date('Y-m-d'));
         $dateTo = $request->query->get('dateTo', date('Y-m-d'));
         $storeId = $request->query->get('store');
@@ -198,6 +201,7 @@ class ReportController extends AbstractController
      */
     public function daily(Request $request, ApiResponseFactory $responseFactory)
     {
+        $this->denyAccessUnlessGranted(ReportVoter::VIEW);
         $date = $request->query->get('date', date('Y-m-d'));
         $storeId = $request->query->get('store');
 

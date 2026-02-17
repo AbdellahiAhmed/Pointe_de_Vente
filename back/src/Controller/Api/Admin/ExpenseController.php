@@ -18,6 +18,7 @@ use App\Core\Expense\Query\SelectExpenseQuery\SelectExpenseQueryHandlerInterface
 use App\Core\Validation\ApiRequestDtoValidator;
 use App\Entity\Expense;
 use App\Factory\Controller\ApiResponseFactory;
+use App\Security\Voter\ExpenseVoter;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -76,6 +77,7 @@ class ExpenseController extends AbstractController
      */
     public function list(Request $request, ApiResponseFactory $responseFactory, ApiRequestDtoValidator $requestDtoValidator, SelectExpenseQueryHandlerInterface $handler)
     {
+        $this->denyAccessUnlessGranted(ExpenseVoter::MANAGE);
         $requestDto = SelectExpenseRequestDto::createFromRequest($request);
 
         $query = new SelectExpenseQuery();
@@ -110,6 +112,7 @@ class ExpenseController extends AbstractController
      */
     public function create(Request $request, ApiRequestDtoValidator $requestDtoValidator, ApiResponseFactory $responseFactory, CreateExpenseCommandHandlerInterface $handler)
     {
+        $this->denyAccessUnlessGranted(ExpenseVoter::MANAGE);
         $requestDto = CreateExpenseRequestDto::createFromRequest($request);
         if(null !== $violations = $requestDtoValidator->validate($requestDto)){
             return $responseFactory->validationError($violations);
@@ -147,6 +150,7 @@ class ExpenseController extends AbstractController
      */
     public function getById(Expense $entity, ApiResponseFactory $responseFactory)
     {
+        $this->denyAccessUnlessGranted(ExpenseVoter::MANAGE);
         if($entity === null){
             return $responseFactory->notFound('Expense not found');
         }
@@ -177,6 +181,7 @@ class ExpenseController extends AbstractController
      */
     public function update(Request $request, ApiRequestDtoValidator $requestDtoValidator, ApiResponseFactory $responseFactory, UpdateExpenseCommandHandlerInterface $handler)
     {
+        $this->denyAccessUnlessGranted(ExpenseVoter::MANAGE);
         $requestDto = UpdateExpenseRequestDto::createFromRequest($request);
         if(null !== $violations = $requestDtoValidator->validate($requestDto)){
             return $responseFactory->validationError($violations);
@@ -213,6 +218,7 @@ class ExpenseController extends AbstractController
      */
     public function delete($id, ApiResponseFactory $responseFactory, DeleteExpenseCommandHandlerInterface $handler)
     {
+        $this->denyAccessUnlessGranted(ExpenseVoter::MANAGE);
         $command = new DeleteExpenseCommand();
         $command->setId($id);
 

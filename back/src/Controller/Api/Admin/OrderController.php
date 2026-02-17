@@ -26,6 +26,7 @@ use App\Core\Validation\ApiRequestDtoValidator;
 use App\Entity\Order;
 use App\Factory\Controller\ApiResponseFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Security\Voter\OrderVoter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -46,6 +47,7 @@ class OrderController extends AbstractController
         GetOrdersListQueryHandlerInterface $handler
     )
     {
+        $this->denyAccessUnlessGranted(OrderVoter::MANAGE);
         $requestDto = OrderRequestListDto::createFromRequest($request);
         $requestDto->setUserId($this->getUser()->getId());
 
@@ -69,6 +71,7 @@ class OrderController extends AbstractController
         CreateOrderCommandHandlerInterface $handler
     )
     {
+        $this->denyAccessUnlessGranted(OrderVoter::MANAGE);
         $requestDto = CreateOrderRequestDto::createFromRequest($request);
         $requestDto->setUserId($this->getUser()->getId());
         if(null !== $violations = $requestDtoValidator->validate($requestDto)){
@@ -103,6 +106,7 @@ class OrderController extends AbstractController
         Request $request,
         ApiRequestDtoValidator $requestDtoValidator
     ){
+        $this->denyAccessUnlessGranted(OrderVoter::MANAGE);
         $requestDto = CreateOrderRequestDto::createFromRequest($request);
         $requestDto->setUserId($this->getUser()->getId());
         if(null !== $violations = $requestDtoValidator->validate($requestDto)){
@@ -148,6 +152,7 @@ class OrderController extends AbstractController
         RestoreOrderCommandHandlerInterface $handler
     )
     {
+        $this->denyAccessUnlessGranted(OrderVoter::MANAGE);
         $command = new RestoreOrderCommand();
         $command->setId($id);
 
@@ -171,6 +176,7 @@ class OrderController extends AbstractController
         DispatchOrderCommandHandlerInterface $handler
     )
     {
+        $this->denyAccessUnlessGranted(OrderVoter::MANAGE);
         $command = new DispatchOrderCommand();
         $command->setId($id);
 
@@ -194,6 +200,7 @@ class OrderController extends AbstractController
         RefundOrderCommandHandlerInterface $handler
     )
     {
+        $this->denyAccessUnlessGranted(OrderVoter::MANAGE);
         $command = new RefundOrderCommand();
         $command->setId($id);
 
@@ -217,6 +224,7 @@ class OrderController extends AbstractController
         DeleteOrderCommandHandlerInterface $handler
     )
     {
+        $this->denyAccessUnlessGranted(OrderVoter::MANAGE);
         $command = new DeleteOrderCommand();
         $command->setId($id);
 

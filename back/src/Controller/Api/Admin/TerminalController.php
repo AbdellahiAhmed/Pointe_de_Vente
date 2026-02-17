@@ -18,6 +18,7 @@ use App\Core\Terminal\Query\SelectTerminalQuery\SelectTerminalQueryHandlerInterf
 use App\Core\Validation\ApiRequestDtoValidator;
 use App\Entity\Terminal;
 use App\Factory\Controller\ApiResponseFactory;
+use App\Security\Voter\UserManagementVoter;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -58,6 +59,7 @@ class TerminalController extends AbstractController
      */
     public function list(Request $request, ApiResponseFactory $responseFactory, ApiRequestDtoValidator $requestDtoValidator, SelectTerminalQueryHandlerInterface $handler)
     {
+        $this->denyAccessUnlessGranted(UserManagementVoter::MANAGE);
         $requestDto = SelectTerminalRequestDto::createFromRequest($request);
 
         $query = new SelectTerminalQuery();
@@ -93,6 +95,7 @@ class TerminalController extends AbstractController
      */
     public function create(Request $request, ApiRequestDtoValidator $requestDtoValidator, ApiResponseFactory $responseFactory, CreateTerminalCommandHandlerInterface $handler)
     {
+        $this->denyAccessUnlessGranted(UserManagementVoter::MANAGE);
         $requestDto = CreateTerminalRequestDto::createFromRequest($request);
         if(null !== $violations = $requestDtoValidator->validate($requestDto)){
             return $responseFactory->validationError($violations);
@@ -130,6 +133,7 @@ class TerminalController extends AbstractController
      */
     public function getById(Terminal $entity, ApiResponseFactory $responseFactory)
     {
+        $this->denyAccessUnlessGranted(UserManagementVoter::MANAGE);
         if($entity === null){
             return $responseFactory->notFound('Terminal not found');
         }
@@ -161,6 +165,7 @@ class TerminalController extends AbstractController
      */
     public function update(Request $request, ApiRequestDtoValidator $requestDtoValidator, ApiResponseFactory $responseFactory, UpdateTerminalCommandHandlerInterface $handler)
     {
+        $this->denyAccessUnlessGranted(UserManagementVoter::MANAGE);
         $requestDto = UpdateTerminalRequestDto::createFromRequest($request);
         if(null !== $violations = $requestDtoValidator->validate($requestDto)){
             return $responseFactory->validationError($violations);
@@ -197,6 +202,7 @@ class TerminalController extends AbstractController
      */
     public function delete($id, ApiResponseFactory $responseFactory, DeleteTerminalCommandHandlerInterface $handler)
     {
+        $this->denyAccessUnlessGranted(UserManagementVoter::MANAGE);
         $command = new DeleteTerminalCommand();
         $command->setId($id);
 

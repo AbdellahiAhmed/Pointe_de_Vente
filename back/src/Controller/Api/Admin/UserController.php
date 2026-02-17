@@ -18,6 +18,7 @@ use App\Core\User\Query\SelectUserQuery\SelectUserQueryHandlerInterface;
 use App\Core\Validation\ApiRequestDtoValidator;
 use App\Entity\User;
 use App\Factory\Controller\ApiResponseFactory;
+use App\Security\Voter\UserManagementVoter;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -58,6 +59,7 @@ class UserController extends AbstractController
      */
     public function list(Request $request, ApiResponseFactory $responseFactory, ApiRequestDtoValidator $requestDtoValidator, SelectUserQueryHandlerInterface $handler)
     {
+        $this->denyAccessUnlessGranted(UserManagementVoter::MANAGE);
         $requestDto = SelectUserRequestDto::createFromRequest($request);
 
         $query = new SelectUserQuery();
@@ -92,6 +94,7 @@ class UserController extends AbstractController
      */
     public function create(Request $request, ApiRequestDtoValidator $requestDtoValidator, ApiResponseFactory $responseFactory, CreateUserCommandHandlerInterface $handler)
     {
+        $this->denyAccessUnlessGranted(UserManagementVoter::MANAGE);
         $requestDto = CreateUserRequestDto::createFromRequest($request);
         if(null !== $violations = $requestDtoValidator->validate($requestDto)){
             return $responseFactory->validationError($violations);
@@ -128,6 +131,7 @@ class UserController extends AbstractController
      */
     public function getById(User $entity, ApiResponseFactory $responseFactory)
     {
+        $this->denyAccessUnlessGranted(UserManagementVoter::MANAGE);
         if($entity === null){
             return $responseFactory->notFound('User not found');
         }
@@ -158,6 +162,7 @@ class UserController extends AbstractController
      */
     public function update(Request $request, ApiRequestDtoValidator $requestDtoValidator, ApiResponseFactory $responseFactory, UpdateUserCommandHandlerInterface $handler)
     {
+        $this->denyAccessUnlessGranted(UserManagementVoter::MANAGE);
         $requestDto = UpdateUserRequestDto::createFromRequest($request);
         if(null !== $violations = $requestDtoValidator->validate($requestDto)){
             return $responseFactory->validationError($violations);
@@ -194,6 +199,7 @@ class UserController extends AbstractController
      */
     public function delete($id, ApiResponseFactory $responseFactory, DeleteUserCommandHandlerInterface $handler)
     {
+        $this->denyAccessUnlessGranted(UserManagementVoter::MANAGE);
         $command = new DeleteUserCommand();
         $command->setId($id);
 

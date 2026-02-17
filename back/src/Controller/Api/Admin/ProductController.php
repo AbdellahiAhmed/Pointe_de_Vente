@@ -24,6 +24,7 @@ use App\Core\Product\Query\GetProductsListQuery\GetProductsListQueryHandlerInter
 use App\Core\Validation\ApiRequestDtoValidator;
 use App\Entity\Product;
 use App\Factory\Controller\ApiResponseFactory;
+use App\Security\Voter\ProductVoter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -48,6 +49,7 @@ class ProductController extends AbstractController
         SerializerInterface $serializer
     )
     {
+        $this->denyAccessUnlessGranted(ProductVoter::VIEW);
         $requestDto = ProductListRequestDto::createFromRequest($request);
 
         $query = new GetProductsKeywordsQuery();
@@ -74,6 +76,7 @@ class ProductController extends AbstractController
         GetProductsKeywordsQueryHandlerInterface $productsListQueryHandler,
         SerializerInterface $serializer
     ){
+        $this->denyAccessUnlessGranted(ProductVoter::VIEW);
         $requestDto = ProductListRequestDto::createFromRequest($request);
 
         $query = new GetProductsKeywordsQuery();
@@ -113,6 +116,7 @@ class ProductController extends AbstractController
         GetProductsListQueryHandlerInterface $productsListQueryHandler
     )
     {
+        $this->denyAccessUnlessGranted(ProductVoter::MANAGE);
         $query = new GetProductsListQuery();
         $list = $productsListQueryHandler->handle($query);
 
@@ -147,6 +151,7 @@ class ProductController extends AbstractController
         UpdateProductCommandHandlerInterface $updateProductCommandHandler
     )
     {
+        $this->denyAccessUnlessGranted(ProductVoter::MANAGE);
         $requestDto = UploadProductRequestDto::createFromRequest($request);
 
         if(null !== $data = $validator->validate($requestDto)){
