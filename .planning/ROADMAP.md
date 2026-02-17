@@ -61,11 +61,10 @@ Plans:
   1. After receiving a purchase, the product's cost (PMP) updates automatically using the weighted-average formula without any manual action.
   2. The product detail page in admin displays the current PMP value.
   3. A profit report for a completed sale uses the cost that was in effect when the sale was made, not the current product cost — changing a product cost after a sale does not retroactively alter historical profit figures.
-**Plans**: TBD
+**Plans:** 1 plan
 
 Plans:
-- [ ] 03-01: Backend — wire PMP recalculation as Doctrine postPersist listener, add Gedmo\Versioned audit trail on cost field, update CreateOrderCommandHandler to snapshot costAtSale at order creation
-- [ ] 03-02: Frontend — display PMP on product detail page; update profit report queries to use op.costAtSale
+- [ ] 03-01-PLAN.md — Close remaining gaps: fix PMP round precision (4->2), enable Gedmo loggable audit trail, relabel "Purchase Price" to "PMP (Avg. Cost)" in admin UI + translations
 
 ### Phase 4: Stock Alerts and Payments
 **Goal**: The cashier sees a clear visual indicator when stock is critically low, the admin can view which products need restocking, and the five Mauritanian payment methods are available for selection.
@@ -151,7 +150,7 @@ Phases execute in strict dependency order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 |-------|----------------|--------|-----------|
 | 1. RBAC and Security | 2/2 | COMPLETE | 2026-02-17 |
 | 2. Data Model Corrections | 2/2 | COMPLETE | 2026-02-17 |
-| 3. PMP and Purchase Flow | 0/2 | Not started | - |
+| 3. PMP and Purchase Flow | 0/1 | Not started | - |
 | 4. Stock Alerts and Payments | 0/2 | Not started | - |
 | 5. Z-Report and Extended Reports | 0/3 | Not started | - |
 | 6. RTL and Arabic Completion | 0/2 | Not started | - |
