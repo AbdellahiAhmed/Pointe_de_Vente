@@ -33,11 +33,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. A MANAGER can access reports, stock management, and closing but cannot reach user management or system settings.
   4. All existing users retain their access after deployment (no lockout from the role migration).
   5. Every new API endpoint added in subsequent phases is role-gated by default via the established Voter pattern.
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 01-01: Backend — role hierarchy in security.yaml, user data migration, Symfony Voters for Order/Purchase/Report/UserManagement domains
-- [ ] 01-02: Frontend — useHasRole() hook, route guards, role-gated nav items, fix JWT-in-URL export security hole
+- [ ] 01-01-PLAN.md — Backend: role hierarchy in security.yaml, 7 Voter classes, denyAccessUnlessGranted in all 9 admin controllers, ROLE_USER->ROLE_VENDEUR migration
+- [ ] 01-02-PLAN.md — Frontend: useHasRole() hook, RequireRole component, route guards, role-gated sidebar, user role dropdown update, JWT-in-URL export fix
 
 ### Phase 2: Data Model Corrections
 **Goal**: All financial and reporting data in the database is accurate, correctly typed, and properly filtered so every subsequent feature builds on solid ground.
@@ -50,7 +50,7 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 02-01: Schema migrations — Product.cost string→decimal, OrderProduct.costAtSale column, Closing float→decimal, User.roles array→json, Core/Discont namespace fix
+- [ ] 02-01: Schema migrations — Product.cost string->decimal, OrderProduct.costAtSale column, Closing float->decimal, User.roles array->json, Core/Discont namespace fix
 - [ ] 02-02: Query fixes — add isSuspended filter to all ReportController revenue queries; verify session scoping on Closing queries
 
 ### Phase 3: PMP and Purchase Flow
@@ -111,7 +111,7 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 06-01: Infrastructure — upgrade TailwindCSS 3.1.8 → ^3.3, replace CDN RTL swap with local Bootstrap RTL asset, set dir="rtl" on html element before first render
+- [ ] 06-01: Infrastructure — upgrade TailwindCSS 3.1.8 -> ^3.3, replace CDN RTL swap with local Bootstrap RTL asset, set dir="rtl" on html element before first render
 - [ ] 06-02: Content — audit and fill lang.ar.json gaps, translate all new keys from Phases 1-5, replace ml-*/mr-* with ms-*/me-*/ps-*/pe-* throughout codebase, wrap admin app in ConfigProvider direction="rtl"
 
 ### Phase 7: UI Redesign
@@ -145,11 +145,11 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in strict dependency order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
+Phases execute in strict dependency order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. RBAC and Security | 0/2 | Not started | - |
+| 1. RBAC and Security | 0/2 | Planning complete | - |
 | 2. Data Model Corrections | 0/2 | Not started | - |
 | 3. PMP and Purchase Flow | 0/2 | Not started | - |
 | 4. Stock Alerts and Payments | 0/2 | Not started | - |
