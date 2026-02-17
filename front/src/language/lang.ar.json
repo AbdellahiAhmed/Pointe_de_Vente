@@ -501,5 +501,16 @@
   "of the day": "لهذا اليوم",
   "All": "الكل",
   "Grid view": "عرض شبكي",
-  "List view": "عرض قائمة"
+  "List view": "عرض قائمة",
+
+  "Stock Alerts": "تنبيهات المخزون",
+  "Low Stock Alerts": "تنبيهات انخفاض المخزون",
+  "All Stores": "جميع المتاجر",
+  "products below threshold": "منتجات تحت الحد الأدنى",
+  "No products below stock threshold": "لا توجد منتجات تحت حد المخزون",
+  "Current Stock": "المخزون الحالي",
+  "Reorder Level": "حد إعادة الطلب",
+  "Shortage": "النقص",
+  "Administration": "الإدارة",
+  "Stock insufficient": "المخزون غير كافٍ"
 }

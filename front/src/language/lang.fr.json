@@ -507,5 +507,15 @@
   "of the day": "du jour",
   "All": "Tous",
   "Grid view": "Vue grille",
-  "List view": "Vue liste"
+  "List view": "Vue liste",
+
+  "Stock Alerts": "Alertes de stock",
+  "Low Stock Alerts": "Alertes de stock bas",
+  "All Stores": "Tous les magasins",
+  "products below threshold": "produits sous le seuil",
+  "No products below stock threshold": "Aucun produit sous le seuil de stock",
+  "Current Stock": "Stock actuel",
+  "Reorder Level": "Seuil de réapprovisionnement",
+  "Shortage": "Manque",
+  "Administration": "Administration"
 }

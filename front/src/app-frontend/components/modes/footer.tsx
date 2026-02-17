@@ -5,6 +5,7 @@ import { SaleClosing } from "../sale/sale.closing";
 import { SaleHistory } from "../sale/sale.history";
 import { More } from "../settings/more";
 import { Shortcuts } from "../shortcuts";
+import { StockAlertBadge } from "../stock/stock.alert.badge";
 
 export const Footer = () => {
   return (
@@ -13,6 +14,7 @@ export const Footer = () => {
       <PurchaseTabs />
       <More />
       <span className="w-[2px] bg-gray-500 h-full"></span>
+      <StockAlertBadge />
       <SaleHistory />
       <SaleClosing />
       <span className="w-[2px] bg-gray-500 h-full"></span>

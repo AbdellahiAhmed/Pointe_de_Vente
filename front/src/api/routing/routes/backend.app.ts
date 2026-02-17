@@ -127,5 +127,7 @@ export const REPORT_SALES = scopeUrl('/admin/report/sales');
 export const REPORT_PROFIT = scopeUrl('/admin/report/profit');
 export const REPORT_DAILY = scopeUrl('/admin/report/daily');
 
+export const STOCK_ALERTS = scopeUrl('/admin/stock/alerts');
+
 export const MEDIA_UPLOAD = scopeUrl('/admin/media/upload');
 export const MEDIA_CONTENT = scopeUrl('/media/:id/content');
