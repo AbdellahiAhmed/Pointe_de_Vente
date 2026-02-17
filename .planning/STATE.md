@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-17)
 
 **Core value:** Le caissier peut enregistrer une vente rapidement et de manière fiable, avec un suivi précis du stock et des bénéfices pour le gérant.
-**Current focus:** Phase 3 — PMP and Purchase Flow
+**Current focus:** Phase 4 — Stock Alerts and Payments
 
 ## Current Position
 
-Phase: 3 of 8 (PMP and Purchase Flow)
-Plan: 0 of 1 in current phase
-Status: Ready to execute
-Last activity: 2026-02-17 — Phase 2 COMPLETE (2/2 plans executed)
+Phase: 4 of 8 (Stock Alerts and Payments)
+Plan: 0 of 2 in current phase
+Status: Ready to plan
+Last activity: 2026-02-17 — Phase 3 COMPLETE (1/1 plan executed)
 
-Progress: [██░░░░░░░░] 25%
+Progress: [███░░░░░░░] 37.5%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
+- Total plans completed: 5
 - Average duration: —
 - Total execution time: —
 
@@ -29,6 +29,7 @@ Progress: [██░░░░░░░░] 25%
 |-------|-------|-------|----------|
 | 1. RBAC | 2 | — | — |
 | 2. Data Model | 2 | — | — |
+| 3. PMP | 1 | — | — |
 
 **Recent Trend:**
 - Last 5 plans: —
@@ -68,5 +69,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Phase 2 complete, ready to plan Phase 3
+Stopped at: Phase 3 complete, ready to plan Phase 4
 Resume file: None
