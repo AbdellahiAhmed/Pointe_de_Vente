@@ -91,12 +91,12 @@ Plans:
   3. The Z-Report PDF downloads in both French and Arabic.
   4. The sales report breaks down revenue by payment mode, product category, and vendeur with average basket shown.
   5. The profit report shows margin per product using the cost-at-sale figure, not the current live product cost.
-**Plans**: TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 05-01: Backend — ZReport entity with sequential counter, CreateZReportCommand + handler persisting immutable snapshot, GET/POST /api/admin/report/z-report endpoints, cash reconciliation logic
-- [ ] 05-02: Backend — enhanced report queries: by category (RAPT-05), by vendeur (RAPT-04), top products with profit margin, average basket metric, comparison J-1 for daily report (RAPT-03)
-- [ ] 05-03: Frontend — ZReportDocument.tsx with @react-pdf/renderer + Amiri Arabic font, bilingual PDF output, Z-Report UI page; enhanced report pages with category/vendeur/top-product breakdowns
+- [ ] 05-01-PLAN.md — Backend Z-Report: Closing entity migration (zReportNumber + zReportSnapshot), CloseSessionCommand with immutable snapshot aggregation, POST /close and GET /z-report-data endpoints
+- [ ] 05-02-PLAN.md — Backend extended reports: vendor and category report endpoints, enhanced daily (top vendors + J-1 comparison), enhanced profit (per-product margin %), sales avg basket
+- [ ] 05-03-PLAN.md — Frontend: @react-pdf/renderer + Arabic font, ZReportDocument PDF (FR/AR), Z-Report list page, denomination inputs in POS closing, vendor/category report pages, enhanced daily/profit pages
 
 ### Phase 6: RTL and Arabic Completion
 **Goal**: The application displays correctly in Arabic with proper right-to-left layout on every screen, including all features added in Phases 1-5.
@@ -152,7 +152,7 @@ Phases execute in strict dependency order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 2. Data Model Corrections | 2/2 | COMPLETE | 2026-02-17 |
 | 3. PMP and Purchase Flow | 1/1 | COMPLETE | 2026-02-17 |
 | 4. Stock Alerts and Payments | 2/2 | COMPLETE | 2026-02-17 |
-| 5. Z-Report and Extended Reports | 0/3 | Not started | - |
+| 5. Z-Report and Extended Reports | 0/3 | Planned | - |
 | 6. RTL and Arabic Completion | 0/2 | Not started | - |
 | 7. UI Redesign | 0/2 | Not started | - |
 | 8. Restaurant Documentation | 0/1 | Not started | - |
