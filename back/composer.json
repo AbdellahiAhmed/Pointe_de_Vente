@@ -16,7 +16,7 @@
         "doctrine/doctrine-fixtures-bundle": "^3.4",
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^2.10",
-        "fzaninotto/faker": "^1.9",
+        "fakerphp/faker": "^1.20",
         "gedmo/doctrine-extensions": "^3.4",
         "gesdinet/jwt-refresh-token-bundle": "^1.0",
         "league/glide-symfony": "^2.0",
@@ -75,6 +75,9 @@
             "composer/package-versions-deprecated": true,
             "symfony/flex": true,
             "symfony/runtime": true
+        },
+        "audit": {
+            "block-insecure": false
         },
         "optimize-autoloader": true,
         "preferred-install": {
