@@ -47,7 +47,7 @@ class PurchaseEvent
                     // PMP = (currentStock * currentCost + incomingQty * incomingPrice) / (currentStock + incomingQty)
                     $totalValue = ($currentStock * $currentCost) + ($incomingQty * $incomingPrice);
                     $totalQty = $currentStock + $incomingQty;
-                    $newCost = $totalQty > 0 ? round($totalValue / $totalQty, 4) : $currentCost;
+                    $newCost = $totalQty > 0 ? round($totalValue / $totalQty, 2) : $currentCost;
                 }
 
                 $product->setCost((string) $newCost);

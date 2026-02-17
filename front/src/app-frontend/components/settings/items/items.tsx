@@ -50,7 +50,7 @@ export const Items = () => {
       header: t("Sale Price"),
     }),
     columnHelper.accessor("cost", {
-      header: t("Purchase Price"),
+      header: t("PMP (Avg. Cost)"),
     }),
     columnHelper.accessor("department.name", {
       header: t("Department"),

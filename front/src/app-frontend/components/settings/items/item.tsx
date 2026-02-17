@@ -72,7 +72,7 @@ export const ItemComponent = ({
                         <td>{withCurrency(product.basePrice)} / {product.saleUnit}</td>
                       </tr>
                       <tr>
-                        <th className="text-right w-[200px]">{t("Purchase Price")}</th>
+                        <th className="text-right w-[200px]">{t("PMP (Avg. Cost)")}</th>
                         <td>{withCurrency(product.cost)} / {product.purchaseUnit}</td>
                       </tr>
                       <tr>
