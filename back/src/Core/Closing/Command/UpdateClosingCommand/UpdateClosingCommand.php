@@ -25,22 +25,22 @@ class UpdateClosingCommand
     private $closedAt = null;
 
     /**
-     * @var null|float
+     * @var null|string
      */
     private $openingBalance = null;
 
     /**
-     * @var null|float
+     * @var null|string
      */
     private $closingBalance = null;
 
     /**
-     * @var null|float
+     * @var null|string
      */
     private $cashAdded = null;
 
     /**
-     * @var null|float
+     * @var null|string
      */
     private $cashWithdrawn = null;
 
@@ -55,7 +55,7 @@ class UpdateClosingCommand
     private $denominations = null;
 
     /**
-     * @var null|float
+     * @var null|string
      */
     private $expenses = null;
 
@@ -108,7 +108,7 @@ class UpdateClosingCommand
         return $this->closedAt;
     }
 
-    public function setOpeningBalance(?float $openingBalance)
+    public function setOpeningBalance(?string $openingBalance)
     {
         $this->openingBalance = $openingBalance;
         return $this;
@@ -119,7 +119,7 @@ class UpdateClosingCommand
         return $this->openingBalance;
     }
 
-    public function setClosingBalance(?float $closingBalance)
+    public function setClosingBalance(?string $closingBalance)
     {
         $this->closingBalance = $closingBalance;
         return $this;
@@ -130,7 +130,7 @@ class UpdateClosingCommand
         return $this->closingBalance;
     }
 
-    public function setCashAdded(?float $cashAdded)
+    public function setCashAdded(?string $cashAdded)
     {
         $this->cashAdded = $cashAdded;
         return $this;
@@ -141,7 +141,7 @@ class UpdateClosingCommand
         return $this->cashAdded;
     }
 
-    public function setCashWithdrawn(?float $cashWithdrawn)
+    public function setCashWithdrawn(?string $cashWithdrawn)
     {
         $this->cashWithdrawn = $cashWithdrawn;
         return $this;
@@ -175,17 +175,17 @@ class UpdateClosingCommand
     }
 
     /**
-     * @return float|null
+     * @return string|null
      */
-    public function getExpenses(): ?float
+    public function getExpenses(): ?string
     {
         return $this->expenses;
     }
 
     /**
-     * @param float|null $expenses
+     * @param string|null $expenses
      */
-    public function setExpenses(?float $expenses): void
+    public function setExpenses(?string $expenses): void
     {
         $this->expenses = $expenses;
     }

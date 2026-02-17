@@ -92,6 +92,12 @@ class OrderProduct
     private $discount;
 
     /**
+     * @ORM\Column(type="decimal", precision=20, scale=2, nullable=true)
+     * @Groups({"order.read","customer.read"})
+     */
+    private $costAtSale;
+
+    /**
      * @ORM\ManyToMany(targetEntity=Tax::class)
      * @Groups({"order.read","customer.read"})
      */
@@ -235,6 +241,18 @@ class OrderProduct
     public function removeTax(Tax $tax): self
     {
         $this->taxes->removeElement($tax);
+
+        return $this;
+    }
+
+    public function getCostAtSale(): ?string
+    {
+        return $this->costAtSale;
+    }
+
+    public function setCostAtSale(?string $costAtSale): self
+    {
+        $this->costAtSale = $costAtSale;
 
         return $this;
     }

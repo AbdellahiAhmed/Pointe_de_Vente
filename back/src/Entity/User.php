@@ -96,7 +96,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $passwordResetToken;
 
     /**
-     * @ORM\Column(type="array")
+     * @ORM\Column(type="json")
      * @Groups({"user.read", "order.read", "purchase.read"})
      * @Assert\NotBlank(groups={"create.validation", "update.validation"})
      */

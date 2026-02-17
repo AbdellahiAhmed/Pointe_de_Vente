@@ -46,22 +46,22 @@ class Closing
     private $closedBy;
 
     /**
-     * @ORM\Column(type="float", nullable=true)
+     * @ORM\Column(type="decimal", precision=20, scale=2, nullable=true)
      */
     private $openingBalance;
 
     /**
-     * @ORM\Column(type="float", nullable=true)
+     * @ORM\Column(type="decimal", precision=20, scale=2, nullable=true)
      */
     private $closingBalance;
 
     /**
-     * @ORM\Column(type="float", nullable=true)
+     * @ORM\Column(type="decimal", precision=20, scale=2, nullable=true)
      */
     private $cashAdded;
 
     /**
-     * @ORM\Column(type="float", nullable=true)
+     * @ORM\Column(type="decimal", precision=20, scale=2, nullable=true)
      */
     private $cashWithdrawn;
 
@@ -86,7 +86,7 @@ class Closing
     private $denominations = [];
 
     /**
-     * @ORM\Column(type="float", nullable=true)
+     * @ORM\Column(type="decimal", precision=20, scale=2, nullable=true)
      */
     private $expenses;
 
@@ -153,48 +153,48 @@ class Closing
         return $this;
     }
 
-    public function getOpeningBalance(): ?float
+    public function getOpeningBalance(): ?string
     {
         return $this->openingBalance;
     }
 
-    public function setOpeningBalance(?float $openingBalance): self
+    public function setOpeningBalance(?string $openingBalance): self
     {
         $this->openingBalance = $openingBalance;
 
         return $this;
     }
 
-    public function getClosingBalance(): ?float
+    public function getClosingBalance(): ?string
     {
         return $this->closingBalance;
     }
 
-    public function setClosingBalance(?float $closingBalance): self
+    public function setClosingBalance(?string $closingBalance): self
     {
         $this->closingBalance = $closingBalance;
 
         return $this;
     }
 
-    public function getCashAdded(): ?float
+    public function getCashAdded(): ?string
     {
         return $this->cashAdded;
     }
 
-    public function setCashAdded(?float $cashAdded): self
+    public function setCashAdded(?string $cashAdded): self
     {
         $this->cashAdded = $cashAdded;
 
         return $this;
     }
 
-    public function getCashWithdrawn(): ?float
+    public function getCashWithdrawn(): ?string
     {
         return $this->cashWithdrawn;
     }
 
-    public function setCashWithdrawn(?float $cashWithdrawn): self
+    public function setCashWithdrawn(?string $cashWithdrawn): self
     {
         $this->cashWithdrawn = $cashWithdrawn;
 
@@ -249,12 +249,12 @@ class Closing
         return $this;
     }
 
-    public function getExpenses(): ?float
+    public function getExpenses(): ?string
     {
         return $this->expenses;
     }
 
-    public function setExpenses(?float $expenses): self
+    public function setExpenses(?string $expenses): self
     {
         $this->expenses = $expenses;
 

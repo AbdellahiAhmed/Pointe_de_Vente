@@ -4,7 +4,7 @@
 namespace App\Core\Dto\Controller\Api\Admin\Discount;
 
 
-use App\Core\Discont\Command\CreateDiscountCommand\CreateDiscountCommand;
+use App\Core\Discount\Command\CreateDiscountCommand\CreateDiscountCommand;
 use App\Core\Discount\Command\UpdateDiscountCommand\UpdateDiscountCommand;
 use App\Core\Dto\Common\Common\StoresRequestDtoTrait;
 use Symfony\Component\HttpFoundation\Request;

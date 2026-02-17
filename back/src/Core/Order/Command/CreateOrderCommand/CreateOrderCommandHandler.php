@@ -95,6 +95,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
             $orderProduct = new OrderProduct();
             $product = $this->getRepository(Product::class)->find($itemDto->getProduct()->getId());
             $orderProduct->setProduct($product);
+            $orderProduct->setCostAtSale($product->getCost());
             $orderProduct->setDiscount($itemDto->getDiscount());
             $orderProduct->setPrice($itemDto->getPrice());
             $orderProduct->setQuantity($itemDto->getQuantity());

@@ -25,22 +25,22 @@ class SelectClosingQuery
     private $closedAt = null;
 
     /**
-     * @var null|float
+     * @var null|string
      */
     private $openingBalance = null;
 
     /**
-     * @var null|float
+     * @var null|string
      */
     private $closingBalance = null;
 
     /**
-     * @var null|float
+     * @var null|string
      */
     private $cashAdded = null;
 
     /**
-     * @var null|float
+     * @var null|string
      */
     private $cashWithdrawn = null;
 
@@ -128,7 +128,7 @@ class SelectClosingQuery
         return $this->closedAt;
     }
 
-    public function setOpeningBalance(?float $openingBalance)
+    public function setOpeningBalance(?string $openingBalance)
     {
         $this->openingBalance = $openingBalance;
         return $this;
@@ -139,7 +139,7 @@ class SelectClosingQuery
         return $this->openingBalance;
     }
 
-    public function setClosingBalance(?float $closingBalance)
+    public function setClosingBalance(?string $closingBalance)
     {
         $this->closingBalance = $closingBalance;
         return $this;
@@ -150,7 +150,7 @@ class SelectClosingQuery
         return $this->closingBalance;
     }
 
-    public function setCashAdded(?float $cashAdded)
+    public function setCashAdded(?string $cashAdded)
     {
         $this->cashAdded = $cashAdded;
         return $this;
@@ -161,7 +161,7 @@ class SelectClosingQuery
         return $this->cashAdded;
     }
 
-    public function setCashWithdrawn(?float $cashWithdrawn)
+    public function setCashWithdrawn(?string $cashWithdrawn)
     {
         $this->cashWithdrawn = $cashWithdrawn;
         return $this;

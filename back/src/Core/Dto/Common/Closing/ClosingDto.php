@@ -322,17 +322,17 @@ class ClosingDto
         $dto->dateTo = DateTimeDto::createFromDateTime($closing->getDateTo());
         $dto->closedAt = DateTimeDto::createFromDateTime($closing->getClosedAt());
         $dto->closedBy = UserDto::createFromUser($closing->getClosedBy());
-        $dto->openingBalance = $closing->getOpeningBalance();
-        $dto->closingBalance = $closing->getClosingBalance();
-        $dto->cashAdded = $closing->getCashAdded();
-        $dto->cashWithdrawn = $closing->getCashWithdrawn();
+        $dto->openingBalance = $closing->getOpeningBalance() !== null ? (float) $closing->getOpeningBalance() : null;
+        $dto->closingBalance = $closing->getClosingBalance() !== null ? (float) $closing->getClosingBalance() : null;
+        $dto->cashAdded = $closing->getCashAdded() !== null ? (float) $closing->getCashAdded() : null;
+        $dto->cashWithdrawn = $closing->getCashWithdrawn() !== null ? (float) $closing->getCashWithdrawn() : null;
         $dto->openedBy = UserDto::createFromUser($closing->getOpenedBy());
         $dto->data = $closing->getData();
         $dto->store = StoreDto::createFromStore($closing->getStore());
         $dto->denominations = $closing->getDenominations();
         $dto->uuid = $closing->getUuid();
         $dto->createdAt = DateTimeDto::createFromDateTime($closing->getCreatedAt());
-        $dto->expenses = $closing->getExpenses();
+        $dto->expenses = $closing->getExpenses() !== null ? (float) $closing->getExpenses() : null;
         $dto->terminal = TerminalShortDto::createFromTerminal($closing->getTerminal());
 
         return $dto;

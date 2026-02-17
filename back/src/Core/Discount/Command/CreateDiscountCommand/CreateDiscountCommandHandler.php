@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Core\Discont\Command\CreateDiscountCommand;
+namespace App\Core\Discount\Command\CreateDiscountCommand;
 
 use App\Core\Entity\EntityManager\EntityManager;
 use App\Entity\Discount;

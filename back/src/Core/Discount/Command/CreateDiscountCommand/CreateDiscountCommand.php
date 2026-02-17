@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Core\Discont\Command\CreateDiscountCommand;
+namespace App\Core\Discount\Command\CreateDiscountCommand;
 
 use App\Core\Dto\Common\Common\StoresRequestDtoTrait;
 
