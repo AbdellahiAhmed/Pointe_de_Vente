@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-17)
 
 **Core value:** Le caissier peut enregistrer une vente rapidement et de manière fiable, avec un suivi précis du stock et des bénéfices pour le gérant.
-**Current focus:** Phase 5 — Z-Report and Extended Reports
+**Current focus:** Phase 5 COMPLETE — Z-Report and Extended Reports
 
 ## Current Position
 
-Phase: 5 of 8 (Z-Report and Extended Reports)
-Plan: 2 of 3 in current phase
-Status: Executing phase 5
-Last activity: 2026-02-18 — Plan 05-01 COMPLETE (Z-Report backend)
+Phase: 5 of 8 (Z-Report and Extended Reports) COMPLETE
+Plan: 3 of 3 in current phase (ALL COMPLETE)
+Status: Phase 5 complete, ready for Phase 6
+Last activity: 2026-02-18 — Plan 05-03 COMPLETE (Z-Report frontend + extended report pages)
 
-Progress: [██████░░░░] 62.5%
+Progress: [███████░░░] 68.75%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
+- Total plans completed: 11
 - Average duration: —
 - Total execution time: —
 
@@ -31,7 +31,7 @@ Progress: [██████░░░░] 62.5%
 | 2. Data Model | 2 | — | — |
 | 3. PMP | 1 | — | — |
 | 4. Stock/Pay | 2 | — | — |
-| 5. Z-Report | 2/3 | 7min (01: 4min, 02: 3min) | 3.5min |
+| 5. Z-Report | 3/3 | 16min (01: 4min, 02: 3min, 03: 9min) | 5.3min |
 
 **Recent Trend:**
 - Last 5 plans: —
@@ -56,6 +56,9 @@ Recent decisions affecting current work:
 - [Phase 5-02]: Category report uses ManyToMany Product.categories for full attribution
 - [Phase 5-02]: Per-product margin computed post-query via array_map, not in DQL
 - [Phase 5-02]: J-1 comparison uses separate queries for clarity
+- [Phase 5-03]: Variable Noto Sans Arabic TTF used (static builds unavailable in Google Fonts repo)
+- [Phase 5-03]: Arabic RTL via Unicode RLI prefix (U+202B) workaround for @react-pdf/renderer
+- [Phase 5-03]: Denomination inputs use local state for real-time total, Close day uses CLOSING_CLOSE endpoint
 
 ### Critical Pitfalls (from research)
 
@@ -64,7 +67,7 @@ Recent decisions affecting current work:
 - [Phase 2 DONE]: Closing float→decimal(20,2) migration, OrderProduct.costAtSale backfill, User.roles array→json
 - [Phase 2 DONE]: isSuspended filter on all 9 ReportController queries, costAtSale used in profit calculations
 - [Phase 2 DONE]: Core/Discont→Discount namespace fix
-- [Phase 5]: Verify @react-pdf/renderer Arabic RTL rendering with a test document at install time before building full ZReportDocument.tsx
+- [Phase 5 DONE]: @react-pdf/renderer Arabic RTL verified with Noto Sans Arabic variable font + U+202B prefix
 - [Phase 6]: 185+ occurrences of ml-*/mr-* to replace — scope precisely before starting
 
 ### Pending Todos
@@ -78,5 +81,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 05-01-PLAN.md (Z-Report backend)
+Stopped at: Completed 05-03-PLAN.md (Z-Report frontend + extended report pages) — Phase 5 fully complete
 Resume file: None
