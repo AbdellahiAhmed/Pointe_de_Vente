@@ -71,7 +71,7 @@ export const Shortcut: FC<Props> = ({ children, ...rest }) => {
         <span
           {...rest}
           className={classNames(
-            "text-sm ml-2 bg-black/70 text-white px-1 rounded shadow",
+            "text-sm ms-2 bg-black/70 text-white px-1 rounded shadow",
             rest.className && rest.className
           )}>
           {rest.shortcut}

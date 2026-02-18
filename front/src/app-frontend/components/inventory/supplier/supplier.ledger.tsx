@@ -274,12 +274,12 @@ export const SupplierLedger: FC<SupplierLedgerProps> = ({
               <td>
                 {item.purchaseNumber && (
                   <ViewPurchase purchase={item}>
-                    <FontAwesomeIcon icon={faEye} className="mr-2"/> {item.purchaseNumber}
+                    <FontAwesomeIcon icon={faEye} className="me-2"/> {item.purchaseNumber}
                   </ViewPurchase>
                 )}
                 {item.purchase && (
                   <ViewPurchase purchase={item.purchase}>
-                    <FontAwesomeIcon icon={faEye} className="mr-2"/> {item.purchase.purchaseNumber}
+                    <FontAwesomeIcon icon={faEye} className="me-2"/> {item.purchase.purchaseNumber}
                   </ViewPurchase>
                 )}
               </td>

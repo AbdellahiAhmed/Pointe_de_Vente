@@ -154,7 +154,7 @@ export const SearchTable = (props: SearchTableProps) => {
             />
             {item.barcode && (
               <div className="text-gray-500">
-                <FontAwesomeIcon icon={faBarcode} className="mr-2"/>
+                <FontAwesomeIcon icon={faBarcode} className="me-2"/>
                 <Highlighter
                   highlightClassName="YourHighlightClass"
                   searchWords={[q]}

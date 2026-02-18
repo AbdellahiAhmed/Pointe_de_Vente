@@ -122,7 +122,7 @@ export const Terminals = () => {
             setModal(true);
             setOperation('create');
           }}>
-            <FontAwesomeIcon icon={faPlus} className="mr-2"/> {t("Terminal")}
+            <FontAwesomeIcon icon={faPlus} className="me-2"/> {t("Terminal")}
           </Button>
         }]}
       />
@@ -139,7 +139,7 @@ export const Terminals = () => {
         <div className="flex flex-wrap gap-3">
           {terminalProductsFilter.map(item => (
             <span
-              className="pl-3 rounded-full inline-flex justify-center items-center bg-primary-500 text-white h-[40px] pr-3">
+              className="ps-3 rounded-full inline-flex justify-center items-center bg-primary-500 text-white h-[40px] pe-3">
               {item.name}
               {/*<button className="ml-3 bg-white text-danger-500 rounded-full h-[40px] w-[40px] border-2" title={`Remove ${item.name}?`}>
                 <FontAwesomeIcon icon={faTimes} />

@@ -754,7 +754,7 @@ const ItemRow: FC<ItemRowProps> = ({
         <div className="inline-flex items-center">
           {item.variants.length > 0 && (
             <button
-              className="btn btn-flat sm mr-2 w-[30px]"
+              className="btn btn-flat sm me-2 w-[30px]"
               type="button" onClick={() => setOpen(!open)}
               title={t("Open variants")}
             >

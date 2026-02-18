@@ -118,7 +118,7 @@ export const Categories = () => {
                   setModal(true);
                   setOperation("create");
                 }}>
-                <FontAwesomeIcon icon={faPlus} className="mr-2" /> {t("Category")}
+                <FontAwesomeIcon icon={faPlus} className="me-2" /> {t("Category")}
               </Button>
             ),
           },

@@ -62,7 +62,7 @@ export const SaleBrands: FC<SaleBrandsProps> = ({
         >
           {children || 'Brands'}
           {Object.values(brands).length > 0 && (
-            <span className="shrink-0 ml-1 bg-primary-500 text-white h-5 w-5 rounded-full text-sm font-bold">{Object.values(brands).length}</span>
+            <span className="shrink-0 ms-1 bg-primary-500 text-white h-5 w-5 rounded-full text-sm font-bold">{Object.values(brands).length}</span>
           )}
         </Button>
       </Tooltip>
@@ -74,7 +74,7 @@ export const SaleBrands: FC<SaleBrandsProps> = ({
             <Button variant="primary"
                     key={index}
                     onClick={() => addRemoveBrand(brand)}
-                    className="mr-3 mb-3 h-[100px_!important] min-w-[150px] relative"
+                    className="me-3 mb-3 h-[100px_!important] min-w-[150px] relative"
             >
               {brand.name}
               {!!brands[brand.id] && (

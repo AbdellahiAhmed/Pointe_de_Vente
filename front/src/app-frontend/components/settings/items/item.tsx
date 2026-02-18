@@ -79,7 +79,7 @@ export const ItemComponent = ({
                         <th className="text-right w-[200px]">{t("Taxes")}</th>
                         <td>
                           {product.taxes.map(item => (
-                            <span className="badge bg-primary-100 p-3 rounded-full mr-2">{item.name} {item.rate}%</span>
+                            <span className="badge bg-primary-100 p-3 rounded-full me-2">{item.name} {item.rate}%</span>
                           ))}
                         </td>
                       </tr>
@@ -92,31 +92,31 @@ export const ItemComponent = ({
                       <tr>
                         <th className="text-right w-[200px]">{t("Department")}</th>
                         <td>
-                          <span className="badge bg-primary-100 p-3 rounded-full mr-2">{product?.department?.name}</span>
+                          <span className="badge bg-primary-100 p-3 rounded-full me-2">{product?.department?.name}</span>
                         </td>
                       </tr>
                       <tr>
                         <th className="text-right w-[200px]">{t("Brands")}</th>
                         <td>{product.brands.map(item => (
-                          <span className="badge bg-primary-100 p-3 rounded-full mr-2">{item.name}</span>
+                          <span className="badge bg-primary-100 p-3 rounded-full me-2">{item.name}</span>
                         ))}</td>
                       </tr>
                       <tr>
                         <th className="text-right w-[200px]">{t("Categories")}</th>
                         <td>{product.categories.map(item => (
-                          <span className="badge bg-primary-100 p-3 rounded-full mr-2">{item.name}</span>
+                          <span className="badge bg-primary-100 p-3 rounded-full me-2">{item.name}</span>
                         ))}</td>
                       </tr>
                       <tr>
                         <th className="text-right w-[200px]">{t("Suppliers")}</th>
                         <td>{product.suppliers.map(item => (
-                          <span className="badge bg-primary-100 p-3 rounded-full mr-2">{item.name}</span>
+                          <span className="badge bg-primary-100 p-3 rounded-full me-2">{item.name}</span>
                         ))}</td>
                       </tr>
                       <tr>
                         <th className="text-right w-[200px]">{t("Terminals")}</th>
                         <td>{product.terminals.map(item => (
-                          <span className="badge bg-primary-100 p-3 rounded-full mr-2">{item.code}</span>
+                          <span className="badge bg-primary-100 p-3 rounded-full me-2">{item.code}</span>
                         ))}</td>
                       </tr>
                       </tbody>

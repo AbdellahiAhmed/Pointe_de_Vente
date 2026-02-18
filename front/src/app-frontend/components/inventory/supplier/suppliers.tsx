@@ -107,7 +107,7 @@ export const Suppliers = () => {
             setSupplier(undefined);
             setOperation('create')
           }}>
-            <FontAwesomeIcon icon={faPlus} className="mr-2"/> {t("Supplier")}
+            <FontAwesomeIcon icon={faPlus} className="me-2"/> {t("Supplier")}
           </Button>
         }]}
       />

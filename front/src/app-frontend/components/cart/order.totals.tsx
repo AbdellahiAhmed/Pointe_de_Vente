@@ -51,7 +51,7 @@ export const OrderTotals: FC<OrderTotalsProps> = ({
         <tr className="hover:bg-gray-100">
           <th className="border border-gray-300 p-2 text-left">
             <ApplyTax>
-              {t("Taxes")} <FontAwesomeIcon icon={faPencil} className="ml-2" />
+              {t("Taxes")} <FontAwesomeIcon icon={faPencil} className="ms-2" />
               {tax && (
                 <span className="float-right bg-danger-500 text-white py-1 px-2 rounded-lg text-sm">
                   {tax.rate}%
@@ -66,7 +66,7 @@ export const OrderTotals: FC<OrderTotalsProps> = ({
         <tr className="hover:bg-gray-100">
           <th className="border border-gray-300 p-2 text-left">
             <ApplyDiscount>
-              {t("Discount")} <FontAwesomeIcon icon={faPencil} className="ml-2" />
+              {t("Discount")} <FontAwesomeIcon icon={faPencil} className="ms-2" />
               {discount && (
                 <span className="float-right bg-danger-500 text-white py-1 px-2 rounded-lg text-sm">
                   {discountTotal(added, tax, discountAmount, discountRateType, discount)}
@@ -81,7 +81,7 @@ export const OrderTotals: FC<OrderTotalsProps> = ({
         <tr className="hover:bg-gray-100">
           <th className="border border-gray-300 p-2 text-left">
             <Customers className={"block w-full text-left"}>
-              {t("Customer")} <FontAwesomeIcon icon={faPencil} className="ml-2" />
+              {t("Customer")} <FontAwesomeIcon icon={faPencil} className="ms-2" />
             </Customers>
           </th>
           <td className="border border-gray-300 p-2 text-right">

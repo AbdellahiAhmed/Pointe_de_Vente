@@ -58,7 +58,7 @@ export const ApplyTax: FC<TaxProps> = ({ children }) => {
             }));
             setModal(false);
           }}
-          className="mr-3 mb-3"
+          className="me-3 mb-3"
           size="lg">
           {t("Clear Tax")}
         </Button>
@@ -74,7 +74,7 @@ export const ApplyTax: FC<TaxProps> = ({ children }) => {
               }));
               setModal(false);
             }}
-            className="mr-3 mb-3"
+            className="me-3 mb-3"
             active={taxItem.id === tax?.id}
             size="lg">
             {taxItem.name} {taxItem.rate}%

@@ -52,7 +52,7 @@ export const CloseSale: FC<Props> = ({
         onClick={() => {
           setSaleModal(true);
         }}>
-        <FontAwesomeIcon icon={faCheck} className="mr-2" /> {t("Close")}
+        <FontAwesomeIcon icon={faCheck} className="me-2" /> {t("Close")}
       </Button>
 
       <Modal

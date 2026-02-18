@@ -62,7 +62,7 @@ export const SaleDepartments: FC<SaleDepartmentsProps> = ({
         >
           {children || 'Departments'}
           {Object.values(departments).length > 0 && (
-            <span className="shrink-0 ml-1 bg-primary-500 text-white h-5 w-5 rounded-full text-sm font-bold">{Object.values(departments).length}</span>
+            <span className="shrink-0 ms-1 bg-primary-500 text-white h-5 w-5 rounded-full text-sm font-bold">{Object.values(departments).length}</span>
           )}
         </Button>
       </Tooltip>
@@ -74,7 +74,7 @@ export const SaleDepartments: FC<SaleDepartmentsProps> = ({
             <Button variant="primary"
                     key={index}
                     onClick={() => addRemoveDepartment(department)}
-                    className="mr-3 mb-3 h-[100px_!important] min-w-[150px] relative"
+                    className="me-3 mb-3 h-[100px_!important] min-w-[150px] relative"
             >
               {department.name}
               {!!departments[department.id] && (

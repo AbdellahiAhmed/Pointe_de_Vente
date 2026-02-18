@@ -49,7 +49,7 @@ export const styleConfig = {
 export const classNamePrefix = "rs-";
 
 const LoadingIndicator = (props: any) => {
-  return <img alt="loading..." src={Spinner} className="w-[18px] mr-2" />;
+  return <img alt="loading..." src={Spinner} className="w-[18px] me-2" />;
 };
 
 export function ReactSelect<

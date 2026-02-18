@@ -817,12 +817,12 @@ table th {
 
     &::before {
       content: "";
-      @apply bg-neutral-300 rounded-full inline-block ml-1 mr-0;
+      @apply bg-neutral-300 rounded-full inline-block ms-1 me-0;
       height: 28px;
       width: 28px;
     }
     &:checked::before {
-      @apply bg-primary-500 mr-1 ml-0;
+      @apply bg-primary-500 me-1 ms-0;
     }
     &:checked {
       @apply border-primary-500 justify-end;
@@ -937,5 +937,5 @@ table th {
   }
 }
 .shortcut-btn{
-  @apply shadow min-w-[32px] h-[32px] inline-flex rounded justify-center items-center mr-2 text-sm font-bold bg-white px-2;
+  @apply shadow min-w-[32px] h-[32px] inline-flex rounded justify-center items-center me-2 text-sm font-bold bg-white px-2;
 }

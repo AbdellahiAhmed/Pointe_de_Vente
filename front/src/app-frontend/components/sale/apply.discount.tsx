@@ -100,7 +100,7 @@ export const ApplyDiscount: FC<Props> = ({ children }) => {
             setAskDiscount(false);
             setModal(false);
           }}
-          className="mr-3 mb-3"
+          className="me-3 mb-3"
           size="lg"
           type="button">
           {t("Clear Discount")}
@@ -127,7 +127,7 @@ export const ApplyDiscount: FC<Props> = ({ children }) => {
                 setAskDiscount(false);
               }
             }}
-            className="mr-3 mb-3"
+            className="me-3 mb-3"
             active={discountItem.id === discount?.id}
             size="lg"
             type="button">

@@ -83,7 +83,7 @@ export const SaleHistory: FC<Props> = ({}) => {
       header: t("Order#"),
       cell: (info) => (
         <ViewOrder order={info.row.original}>
-          <FontAwesomeIcon icon={faEye} className="mr-2" /> {info.getValue()}
+          <FontAwesomeIcon icon={faEye} className="me-2" /> {info.getValue()}
         </ViewOrder>
       ),
     }),
@@ -100,11 +100,11 @@ export const SaleHistory: FC<Props> = ({}) => {
             <Tooltip title={t("View this customer")}>
               <span className="text-primary-500 cursor-pointer">
                 <CustomerPayments customer={info.getValue()!}>
-                  <FontAwesomeIcon icon={faEye} className="mr-2" />
+                  <FontAwesomeIcon icon={faEye} className="me-2" />
                   {info.getValue()?.name}
                 </CustomerPayments>
                 {customer?.id === info.getValue()?.id && (
-                  <span className="ml-3 btn btn-success">
+                  <span className="ms-3 btn btn-success">
                     <FontAwesomeIcon icon={faCheck} />
                   </span>
                 )}
@@ -176,7 +176,7 @@ export const SaleHistory: FC<Props> = ({}) => {
           )}>
           <FontAwesomeIcon
             icon={getOrderStatusIcon(info.getValue())}
-            className="mr-1"
+            className="me-1"
           />{" "}
           {orderStatus(info.row.original)}
         </span>
@@ -668,7 +668,7 @@ export const SaleHistory: FC<Props> = ({}) => {
                   t("Searching...")
                 ) : (
                   <>
-                    <FontAwesomeIcon icon={faSearch} className="mr-2" /> {t("Search")}
+                    <FontAwesomeIcon icon={faSearch} className="me-2" /> {t("Search")}
                   </>
                 )}
               </Button>

@@ -199,7 +199,7 @@ export const More: FC<Props> = ({}) => {
                       onClick={() => {
                         clearCache();
                       }}
-                      className="mr-3 flex-grow-0"
+                      className="me-3 flex-grow-0"
                       size="lg"
                       disabled={isLoading}>
                       {isLoading ? t("Clearing...") : t("Refresh Browser Cache")}

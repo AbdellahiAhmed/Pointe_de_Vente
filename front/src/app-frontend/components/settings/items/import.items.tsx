@@ -35,7 +35,7 @@ export const ImportItems = () => {
     <>
       <Button variant="primary" type={"button"} disabled={loading}>
         <label htmlFor="file">
-          <FontAwesomeIcon icon={faUpload} className="mr-2" />{" "}
+          <FontAwesomeIcon icon={faUpload} className="me-2" />{" "}
           {loading ? t("Uploading...") : t("Upload Items")}
         </label>
         <input

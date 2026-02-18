@@ -113,7 +113,7 @@ export const Brands = () => {
                   setModal(true);
                   setOperation("create");
                 }}>
-                <FontAwesomeIcon icon={faPlus} className="mr-2"/> {t("Brand")}
+                <FontAwesomeIcon icon={faPlus} className="me-2"/> {t("Brand")}
               </Button>
             ),
           },

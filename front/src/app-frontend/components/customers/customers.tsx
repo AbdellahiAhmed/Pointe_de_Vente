@@ -282,7 +282,7 @@ export const Customers: FC<Props> = ({ children, className }) => {
         tabIndex={-1}>
         {children || (
           <>
-            <FontAwesomeIcon icon={faUsers} className="mr-2" /> {t("Customers")}
+            <FontAwesomeIcon icon={faUsers} className="me-2" /> {t("Customers")}
           </>
         )}
         <Shortcut shortcut="ctrl+shift+c" handler={() => setModal(true)} />
@@ -369,7 +369,7 @@ export const Customers: FC<Props> = ({ children, className }) => {
               {operation === "update" && (
                 <Button
                   variant="secondary"
-                  className="ml-3"
+                  className="ms-3"
                   type="button"
                   onClick={() => {
                     setOperation("create");

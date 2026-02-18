@@ -62,7 +62,7 @@ export const SaleCategories: FC<SaleCategoriesProps> = ({
         >
           {children || 'Categories'}
           {Object.values(categories).length > 0 && (
-            <span className="shrink-0 ml-1 bg-primary-500 text-white h-5 w-5 rounded-full text-sm font-bold">{Object.values(categories).length}</span>
+            <span className="shrink-0 ms-1 bg-primary-500 text-white h-5 w-5 rounded-full text-sm font-bold">{Object.values(categories).length}</span>
           )}
         </Button>
       </Tooltip>
@@ -74,7 +74,7 @@ export const SaleCategories: FC<SaleCategoriesProps> = ({
             <Button variant="primary"
                     key={index}
                     onClick={() => addRemoveCategory(category)}
-                    className="mr-3 mb-3 h-[100px_!important] min-w-[150px] relative"
+                    className="me-3 mb-3 h-[100px_!important] min-w-[150px] relative"
             >
               {category.name}
               {!!categories[category.id] && (

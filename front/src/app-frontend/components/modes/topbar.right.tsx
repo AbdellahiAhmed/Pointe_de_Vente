@@ -36,11 +36,11 @@ export const TopbarRight = () => {
     <>
       <div className="flex gap-2">
         <Button size="lg" variant="secondary" onClick={toggleLocale} title={locale === 'fr' ? 'العربية' : 'Français'}>
-          <FontAwesomeIcon icon={faGlobe} className="mr-2"/>
+          <FontAwesomeIcon icon={faGlobe} className="me-2"/>
           {locale === 'fr' ? 'AR' : 'FR'}
         </Button>
         <Button size="lg" variant="primary" onClick={() => setModal(true)}>
-          <FontAwesomeIcon icon={faPenToSquare} className="mr-3"/>
+          <FontAwesomeIcon icon={faPenToSquare} className="me-3"/>
           {defaultMode} {t("mode")}
         </Button>
       </div>
@@ -72,7 +72,7 @@ export const TopbarRight = () => {
               }}
               size="lg">
               {item.value === defaultMode && (
-                <FontAwesomeIcon icon={faCheck} className="mr-3"/>
+                <FontAwesomeIcon icon={faCheck} className="me-3"/>
               )}
               {item.label}
             </Button>

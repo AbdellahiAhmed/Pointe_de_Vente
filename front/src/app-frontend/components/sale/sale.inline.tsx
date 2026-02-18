@@ -674,7 +674,7 @@ export const CloseSaleInline: FC<Props> = ({
                             adjustment: 0,
                           }));
                         }}>
-                        <FontAwesomeIcon icon={faTrash} className="mr-2"/>{" "}
+                        <FontAwesomeIcon icon={faTrash} className="me-2"/>{" "}
                         {t("Adjustment")}
                       </Button>
                     ) : (

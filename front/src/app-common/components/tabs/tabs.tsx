@@ -64,7 +64,7 @@ interface TabNavProps extends PropsWithChildren {
 }
 export const TabNav = (props: TabNavProps) => {
   let classes =
-    "flex flex-col w-[220px] flex-shrink-0 ml-[-20px] bg-primary-500 py-5 pl-3 min-h-[100ex]";
+    "flex flex-col w-[220px] flex-shrink-0 ms-[-20px] bg-primary-500 py-5 ps-3 min-h-[100ex]";
 
   if (props.position === "top") {
     classes = "flex flex-shrink-0 p-1 rounded-lg";

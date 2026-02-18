@@ -127,7 +127,7 @@ export const PaymentTypes = () => {
                   setModal(true);
                   setOperation("create");
                 }}>
-                <FontAwesomeIcon icon={faPlus} className="mr-2" /> {t("Payment type")}
+                <FontAwesomeIcon icon={faPlus} className="me-2" /> {t("Payment type")}
               </Button>
             ),
           },

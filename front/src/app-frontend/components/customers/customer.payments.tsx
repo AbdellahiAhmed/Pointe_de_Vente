@@ -275,12 +275,12 @@ export const CustomerPayments: FC<Props> = ({
               <td>
                 {item.orderId && (
                   <ViewOrder order={item}>
-                    <FontAwesomeIcon icon={faEye} className="mr-2"/> {item.orderId}
+                    <FontAwesomeIcon icon={faEye} className="me-2"/> {item.orderId}
                   </ViewOrder>
                 )}
                 {item.order && (
                   <ViewOrder order={item.order}>
-                    <FontAwesomeIcon icon={faEye} className="mr-2"/> {item.order.orderId}
+                    <FontAwesomeIcon icon={faEye} className="me-2"/> {item.order.orderId}
                   </ViewOrder>
                 )}
               </td>

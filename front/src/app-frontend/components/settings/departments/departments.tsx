@@ -116,7 +116,7 @@ export const Departments = () => {
                   setModal(true);
                   setOperation("create");
                 }}>
-                <FontAwesomeIcon icon={faPlus} className="mr-2" /> {t("Department")}
+                <FontAwesomeIcon icon={faPlus} className="me-2" /> {t("Department")}
               </Button>
             ),
           },

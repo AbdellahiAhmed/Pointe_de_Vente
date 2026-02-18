@@ -461,33 +461,8 @@
     margin-right: auto;
   }
 
-  .mr-auto {
-    margin-right: unset !important;
-    margin-left: auto !important;
-  }
-
-  .mr-2, .mr-3 {
-    margin-right: unset !important;
-    margin-left: 0.5rem !important;
-  }
-
-  .ml-2, .ml-3 {
-    margin-left: unset !important;
-    margin-right: 0.5rem !important;
-  }
-
   .text-end {
     text-align: left !important;
-  }
-
-  .ps-3 {
-    padding-left: unset !important;
-    padding-right: 1rem !important;
-  }
-
-  .me-2, .me-3 {
-    margin-right: unset !important;
-    margin-left: 0.5rem !important;
   }
 
   .image-upload-preview .image-upload-remove {

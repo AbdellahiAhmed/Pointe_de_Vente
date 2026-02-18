@@ -69,7 +69,7 @@ export const SaleFind = ({
           }}
           size="lg"
           active={active}
-        ><FontAwesomeIcon icon={icon} className={displayLabel ? 'mr-2' : ''}/>{displayLabel && title}</Button>
+        ><FontAwesomeIcon icon={icon} className={displayLabel ? 'me-2' : ''}/>{displayLabel && title}</Button>
       </Tooltip>
       <Modal open={modal} title={title} onClose={() => {
         setModal(false)

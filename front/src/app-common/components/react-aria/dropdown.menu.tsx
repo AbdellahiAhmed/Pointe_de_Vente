@@ -33,7 +33,7 @@ export function DropdownMenuItem(props:
         `cursor-pointer px-5 py-1 hover:bg-primary-100 hover:text-primary-500 active:bg-primary-500 active:text-white border-b last:border-b-0 ${isFocused ? 'focused' : ''}`}
     >
       {icon && (
-        <FontAwesomeIcon icon={icon} className="w-[24px] mr-3"/>
+        <FontAwesomeIcon icon={icon} className="w-[24px] me-3"/>
       )}
       {children}
     </MenuItem>

@@ -100,7 +100,7 @@ export const Users = () => {
             setModal(true);
             setOperation('create');
           }}>
-            <FontAwesomeIcon icon={faPlus} className="mr-2"/> {t("User")}
+            <FontAwesomeIcon icon={faPlus} className="me-2"/> {t("User")}
           </Button>
         }]}
       />

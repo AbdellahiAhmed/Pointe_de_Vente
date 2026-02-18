@@ -118,7 +118,7 @@ export const TaxTypes = () => {
                   setModal(true);
                   setOperation("create");
                 }}>
-                <FontAwesomeIcon icon={faPlus} className="mr-2" /> {t("Tax")}
+                <FontAwesomeIcon icon={faPlus} className="me-2" /> {t("Tax")}
               </Button>
             ),
           },

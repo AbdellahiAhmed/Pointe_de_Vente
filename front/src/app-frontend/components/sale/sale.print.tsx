@@ -288,7 +288,7 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
                   {item.product.name}
                   {item.variant && (
                     <>
-                      <div className="ml-1">- {item.variant.attributeValue}</div>
+                      <div className="ms-1">- {item.variant.attributeValue}</div>
                     </>
                   )}
                 </td>

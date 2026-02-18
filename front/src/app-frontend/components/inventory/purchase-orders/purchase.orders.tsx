@@ -117,7 +117,7 @@ export const PurchaseOrders = () => {
             setPurchaseOrder(undefined);
             setOperation('create')
           }}>
-            <FontAwesomeIcon icon={faPlus} className="mr-2"/> {t("Purchase order")}
+            <FontAwesomeIcon icon={faPlus} className="me-2"/> {t("Purchase order")}
           </Button>
         }]}
       />

@@ -35,7 +35,7 @@ export const Purchases = () => {
     columnHelper.accessor('purchaseNumber', {
       header: t('Purchase number'),
       cell: info => <ViewPurchase purchase={info.row.original}>
-        <FontAwesomeIcon icon={faEye} className="mr-2"/>
+        <FontAwesomeIcon icon={faEye} className="me-2"/>
         {info.getValue()}
       </ViewPurchase>
     }),
@@ -123,7 +123,7 @@ export const Purchases = () => {
             setAddModal(true);
             setOperation('create');
           }}>
-            <FontAwesomeIcon icon={faPlus} className="mr-2"/> {t("Purchase")}
+            <FontAwesomeIcon icon={faPlus} className="me-2"/> {t("Purchase")}
           </Button>
         }]}
         useLoadList={useLoadHook}

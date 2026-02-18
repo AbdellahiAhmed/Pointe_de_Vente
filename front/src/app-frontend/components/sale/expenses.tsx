@@ -191,7 +191,7 @@ export const Expenses: FC<ExpensesProps> = (props) => {
                       disabled={creating}>
                 {creating ? t('Adding...') : (
                   <>
-                    <FontAwesomeIcon icon={faPlus} className="mr-2" /> {t("Expense")}
+                    <FontAwesomeIcon icon={faPlus} className="me-2" /> {t("Expense")}
                   </>
                 )}
               </Button>
@@ -220,7 +220,7 @@ export const Expenses: FC<ExpensesProps> = (props) => {
               <Button variant="primary" className="w-full" type="submit"
                       disabled={isLoading}>{isLoading ? t('Loading...') : (
                 <>
-                  <FontAwesomeIcon icon={faSearch} className="mr-2" /> {t("Search expenses")}
+                  <FontAwesomeIcon icon={faSearch} className="me-2" /> {t("Search expenses")}
                 </>
               )}</Button>
             </div>

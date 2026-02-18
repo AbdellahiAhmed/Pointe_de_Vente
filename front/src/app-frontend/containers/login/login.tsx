@@ -239,7 +239,7 @@ const Login = () => {
               variant="primary"
               key={index}
               onClick={() => setStore(str)}
-              className="mr-3 mb-3 h-[100px_!important] min-w-[150px] relative"
+              className="me-3 mb-3 h-[100px_!important] min-w-[150px] relative"
               active={store === str}>
               {str.name}
             </Button>
@@ -255,7 +255,7 @@ const Login = () => {
                   variant="primary"
                   key={index}
                   onClick={() => selectTerminal(terminal, store)}
-                  className="mr-3 mb-3 h-[100px_!important] min-w-[150px] relative">
+                  className="me-3 mb-3 h-[100px_!important] min-w-[150px] relative">
                   {terminal.code}
                 </Button>
               ))}

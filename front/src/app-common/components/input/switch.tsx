@@ -12,7 +12,7 @@ export const Switch: FC<Props> = ({children, ...rest}) => {
       <label htmlFor={id}>
         <input {...rest} type="checkbox" id={rest.id || id}/>
         {children && (
-          <span className="ml-3 select-none">
+          <span className="ms-3 select-none">
             {children}
           </span>
         )}

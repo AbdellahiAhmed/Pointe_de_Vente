@@ -24,7 +24,7 @@ export const ExportItems = () => {
   return (
     <>
       <Button type="button" variant="primary" onClick={onClick}>
-        <FontAwesomeIcon icon={faDownload} className="mr-2" /> {t("Export items")}
+        <FontAwesomeIcon icon={faDownload} className="me-2" /> {t("Export items")}
       </Button>
     </>
   );

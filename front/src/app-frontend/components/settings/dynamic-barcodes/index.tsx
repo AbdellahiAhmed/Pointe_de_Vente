@@ -38,7 +38,7 @@ export const DynamicBarcodes = () => {
           {info.getValue()}{' '}
           <Button onClick={async () => {
             await navigator.clipboard.writeText(info.getValue())
-          }} variant="secondary" className="ml-2">
+          }} variant="secondary" className="ms-2">
             <FontAwesomeIcon icon={faCopy} />
           </Button>
         </>
