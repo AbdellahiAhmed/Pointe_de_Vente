@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faGlobe } from "@fortawesome/free-solid-svg-icons";
 import classNames from "classnames";
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
-import i18next from "../../../i18next";
+import { applyLocale } from "../../../lib/rtl";
 
 export const TopbarRight = () => {
   const { t } = useTranslation();
@@ -29,21 +29,7 @@ export const TopbarRight = () => {
   const toggleLocale = () => {
     const newLocale = locale === 'fr' ? 'ar' : 'fr';
     setLocale(newLocale);
-    localStorage.setItem('locale', newLocale);
-    i18next.changeLanguage(newLocale);
-
-    const bootstrapCss = document.querySelector('#bootstrap-css');
-    if (newLocale === 'ar') {
-      document.dir = 'rtl';
-      if (bootstrapCss) {
-        bootstrapCss.setAttribute('href', 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.rtl.min.css');
-      }
-    } else {
-      document.dir = 'ltr';
-      if (bootstrapCss) {
-        bootstrapCss.setAttribute('href', 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css');
-      }
-    }
+    applyLocale(newLocale);
   };
 
   return (

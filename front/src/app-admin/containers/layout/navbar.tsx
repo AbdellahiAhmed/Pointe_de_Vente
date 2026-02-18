@@ -6,7 +6,7 @@ import {useNavigate} from "react-router";
 import {LOGIN, PROFILE} from "../../routes/frontend.routes";
 import {useTranslation} from "react-i18next";
 import {Link} from "react-router-dom";
-import i18next from "../../../i18next";
+import { applyLocale } from "../../../lib/rtl";
 import classNames from "classnames";
 import {jsonRequest} from "../../../api/request/request";
 import {UPDATE_LOCALE} from "../../../api/routing/routes/backend.app";
@@ -24,30 +24,12 @@ const Navigation = () => {
 
   const updateLocale = async (lang: string) => {
     setLocale(lang);
-    localStorage.setItem('locale', lang);
-
-    //set on server
+    // set on server
     await jsonRequest(UPDATE_LOCALE, {
       method: 'POST',
-      body: JSON.stringify({
-        locale: lang
-      })
+      body: JSON.stringify({ locale: lang })
     });
-
-    //update i18n
-    i18next.changeLanguage(lang);
-
-
-    const bootstrapCss = document.querySelector('#bootstrap-css');
-    //update app direction
-    if (lang === 'ar') {
-      document.dir = 'rtl';
-      bootstrapCss!.setAttribute('href', 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.rtl.min.css');
-
-    } else {
-      document.dir = 'ltr';
-      bootstrapCss!.setAttribute('href', 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css');
-    }
+    await applyLocale(lang);
   };
 
 

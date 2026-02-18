@@ -42,6 +42,18 @@
   src: url("../assets/fonts/Manrope-Medium.ttf");
 }
 
+@font-face {
+  font-family: 'NotoSansArabic';
+  src: url('../assets/fonts/NotoSansArabic-Regular.ttf') format('truetype');
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'NotoSansArabic';
+  src: url('../assets/fonts/NotoSansArabic-Bold.ttf') format('truetype');
+  font-weight: 700;
+}
+
 html,
 body {
   background-color: #f3f3f3;
