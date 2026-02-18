@@ -7,6 +7,8 @@ use App\Core\Dto\Controller\Api\Admin\Closing\SelectClosingListResponseDto;
 use App\Core\Dto\Controller\Api\Admin\Closing\SelectClosingRequestDto;
 use App\Core\Dto\Controller\Api\Admin\Closing\SelectClosingResponseDto;
 use App\Core\Dto\Controller\Api\Admin\Closing\UpdateClosingRequestDto;
+use App\Core\Closing\Command\CloseSessionCommand\CloseSessionCommand;
+use App\Core\Closing\Command\CloseSessionCommand\CloseSessionCommandHandlerInterface;
 use App\Core\Closing\Command\CreateClosingCommand\CreateClosingCommand;
 use App\Core\Closing\Command\CreateClosingCommand\CreateClosingCommandHandlerInterface;
 use App\Core\Closing\Command\DeleteClosingCommand\DeleteClosingCommand;
@@ -124,7 +126,67 @@ class ClosingController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", methods={"GET"}, name="get")
+     * @Route("/{id}/close", methods={"POST"}, name="close", requirements={"id"="\d+"})
+     */
+    public function closeSession(
+        $id,
+        Request $request,
+        ApiResponseFactory $responseFactory,
+        CloseSessionCommandHandlerInterface $handler,
+        ClosingRepository $closingRepository
+    )
+    {
+        $this->denyAccessUnlessGranted(ClosingVoter::MANAGE);
+
+        $body = json_decode($request->getContent(), true) ?? [];
+
+        $command = new CloseSessionCommand();
+        $command->setId((int) $id);
+        $command->setClosedBy($this->getUser()->getId());
+        $command->setClosingBalance($body['closingBalance'] ?? null);
+        $command->setDenominations($body['denominations'] ?? null);
+
+        $result = $handler->handle($command);
+
+        if ($result->isNotFound()) {
+            return $responseFactory->notFound($result->getNotFoundMessage());
+        }
+
+        if ($result->hasValidationError()) {
+            return $responseFactory->validationError($result->getValidationError());
+        }
+
+        return $responseFactory->json(
+            SelectClosingResponseDto::createFromClosing($result->getClosing())
+        );
+    }
+
+    /**
+     * @Route("/{id}/z-report-data", methods={"GET"}, name="z_report_data", requirements={"id"="\d+"})
+     */
+    public function zReportData(
+        $id,
+        ApiResponseFactory $responseFactory,
+        ClosingRepository $closingRepository
+    )
+    {
+        $this->denyAccessUnlessGranted(ClosingVoter::MANAGE);
+
+        $closing = $closingRepository->find($id);
+
+        if ($closing === null) {
+            return $responseFactory->notFound('Closing not found');
+        }
+
+        if ($closing->getZReportSnapshot() === null) {
+            return $responseFactory->validationError('Z-Report not generated yet');
+        }
+
+        return $responseFactory->json($closing->getZReportSnapshot());
+    }
+
+    /**
+     * @Route("/{id}", methods={"GET"}, name="get", requirements={"id"="\d+"})
      */
     public function getById(Closing $entity, ApiResponseFactory $responseFactory)
     {
