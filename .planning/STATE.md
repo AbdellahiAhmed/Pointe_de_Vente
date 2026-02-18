@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-17)
 
 **Core value:** Le caissier peut enregistrer une vente rapidement et de manière fiable, avec un suivi précis du stock et des bénéfices pour le gérant.
-**Current focus:** Phase 5 COMPLETE — Z-Report and Extended Reports
+**Current focus:** Phase 6 IN PROGRESS — RTL and Arabic Completion
 
 ## Current Position
 
-Phase: 5 of 8 (Z-Report and Extended Reports) COMPLETE
-Plan: 3 of 3 in current phase (ALL COMPLETE)
-Status: Phase 5 complete, ready for Phase 6
-Last activity: 2026-02-18 — Plan 05-03 COMPLETE (Z-Report frontend + extended report pages)
+Phase: 6 of 8 (RTL and Arabic Completion) IN PROGRESS
+Plan: 1 of 3 in current phase (COMPLETE)
+Status: Phase 6 Plan 01 complete — RTL infrastructure in place
+Last activity: 2026-02-18 — Plan 06-01 COMPLETE (RTL infrastructure: Tailwind upgrade, local Bootstrap, applyLocale utility, ConfigProvider)
 
-Progress: [███████░░░] 68.75%
+Progress: [████████░░] 75.00%
 
 ## Performance Metrics
 
@@ -32,6 +32,7 @@ Progress: [███████░░░] 68.75%
 | 3. PMP | 1 | — | — |
 | 4. Stock/Pay | 2 | — | — |
 | 5. Z-Report | 3/3 | 16min (01: 4min, 02: 3min, 03: 9min) | 5.3min |
+| 6. RTL/Arabic | 1/? | 3min (01: 3min) | 3min |
 
 **Recent Trend:**
 - Last 5 plans: —
@@ -59,6 +60,9 @@ Recent decisions affecting current work:
 - [Phase 5-03]: Variable Noto Sans Arabic TTF used (static builds unavailable in Google Fonts repo)
 - [Phase 5-03]: Arabic RTL via Unicode RLI prefix (U+202B) workaround for @react-pdf/renderer
 - [Phase 5-03]: Denomination inputs use local state for real-time total, Close day uses CLOSING_CLOSE endpoint
+- [Phase 6-01]: applyLocale() uses i18n.dir(lang) from i18next (not hardcoded 'rtl'/'ltr')
+- [Phase 6-01]: document.documentElement.dir used for <html> direction (not document.dir which targets <body>)
+- [Phase 6-01]: Bootstrap CSS served locally from public/css/ to eliminate CDN race conditions on language switch
 
 ### Critical Pitfalls (from research)
 
@@ -69,6 +73,7 @@ Recent decisions affecting current work:
 - [Phase 2 DONE]: Core/Discont→Discount namespace fix
 - [Phase 5 DONE]: @react-pdf/renderer Arabic RTL verified with Noto Sans Arabic variable font + U+202B prefix
 - [Phase 6]: 185+ occurrences of ml-*/mr-* to replace — scope precisely before starting
+- [Phase 6-01 DONE]: RTL infrastructure complete — applyLocale() shared utility, local Bootstrap, ConfigProvider, NotoSansArabic font
 
 ### Pending Todos
 
@@ -81,5 +86,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 05-03-PLAN.md (Z-Report frontend + extended report pages) — Phase 5 fully complete
+Stopped at: Completed 06-01-PLAN.md (RTL infrastructure) — Phase 6 Plan 01 complete
 Resume file: None
