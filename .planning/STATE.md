@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-17)
 ## Current Position
 
 Phase: 6 of 8 (RTL and Arabic Completion) IN PROGRESS
-Plan: 1 of 3 in current phase (COMPLETE)
-Status: Phase 6 Plan 01 complete — RTL infrastructure in place
-Last activity: 2026-02-18 — Plan 06-01 COMPLETE (RTL infrastructure: Tailwind upgrade, local Bootstrap, applyLocale utility, ConfigProvider)
+Plan: 2 of 3 in current phase (COMPLETE)
+Status: Phase 6 Plan 02 complete — Arabic translations complete, all physical direction classes migrated to logical properties
+Last activity: 2026-02-18 — Plan 06-02 COMPLETE (Arabic completion: 0 missing keys; ml-*/mr-* migration: 73+ occurrences across 43 files; RTL CSS block cleaned up)
 
-Progress: [████████░░] 75.00%
+Progress: [████████░░] 78.57%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
+- Total plans completed: 12
 - Average duration: —
 - Total execution time: —
 
@@ -32,7 +32,7 @@ Progress: [████████░░] 75.00%
 | 3. PMP | 1 | — | — |
 | 4. Stock/Pay | 2 | — | — |
 | 5. Z-Report | 3/3 | 16min (01: 4min, 02: 3min, 03: 9min) | 5.3min |
-| 6. RTL/Arabic | 1/? | 3min (01: 3min) | 3min |
+| 6. RTL/Arabic | 2/? | 10min (01: 3min, 02: 7min) | 5min |
 
 **Recent Trend:**
 - Last 5 plans: —
@@ -63,6 +63,9 @@ Recent decisions affecting current work:
 - [Phase 6-01]: applyLocale() uses i18n.dir(lang) from i18next (not hardcoded 'rtl'/'ltr')
 - [Phase 6-01]: document.documentElement.dir used for <html> direction (not document.dir which targets <body>)
 - [Phase 6-01]: Bootstrap CSS served locally from public/css/ to eliminate CDN race conditions on language switch
+- [Phase 6-02]: Logical properties pattern established: ms-*/me-* for all icon spacing, ms-*/me-*/ps-*/pe-* for all spacing utilities
+- [Phase 6-02]: RTL CSS override block minimized to 5 custom component rules only — generic utility overrides removed as Tailwind logical properties handle them automatically
+- [Phase 6-02]: Arabic file gap was 2 keys at execution (not 20 from research) — available/in cart; rest had already been added
 
 ### Critical Pitfalls (from research)
 
@@ -74,6 +77,7 @@ Recent decisions affecting current work:
 - [Phase 5 DONE]: @react-pdf/renderer Arabic RTL verified with Noto Sans Arabic variable font + U+202B prefix
 - [Phase 6]: 185+ occurrences of ml-*/mr-* to replace — scope precisely before starting
 - [Phase 6-01 DONE]: RTL infrastructure complete — applyLocale() shared utility, local Bootstrap, ConfigProvider, NotoSansArabic font
+- [Phase 6-02 DONE]: All physical direction Tailwind classes migrated (73 occurrences in 43 files); Arabic translations complete (0 missing keys); RTL CSS block minimized
 
 ### Pending Todos
 
@@ -86,5 +90,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 06-01-PLAN.md (RTL infrastructure) — Phase 6 Plan 01 complete
+Stopped at: Completed 06-02-PLAN.md (Arabic completion + ml-*/mr-* migration) — Phase 6 Plan 02 complete
 Resume file: None
