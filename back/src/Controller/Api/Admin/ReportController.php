@@ -188,6 +188,15 @@ class ReportController extends AbstractController
 
         $topProducts = $qb2->getQuery()->getResult();
 
+        $topProducts = array_map(function ($row) {
+            $revenue = (float) $row['revenue'];
+            $cost = (float) $row['cost'];
+            $row['margin'] = $revenue > 0
+                ? round((($revenue - $cost) / $revenue) * 100, 2)
+                : 0;
+            return $row;
+        }, $topProducts);
+
         return $responseFactory->json([
             'dateFrom' => $dateFrom,
             'dateTo' => $dateTo,
@@ -294,11 +303,76 @@ class ReportController extends AbstractController
 
         $topProducts = $qb4->getQuery()->getResult();
 
+        // Top 5 vendors of the day
+        $qb5 = $this->em->createQueryBuilder();
+        $qb5->select(
+            'u.displayName as vendorName',
+            'COUNT(DISTINCT o.id) as totalOrders',
+            'COALESCE(SUM(op.price * op.quantity), 0) as revenue'
+        )
+        ->from(OrderProduct::class, 'op')
+        ->join('op.order', 'o')
+        ->join('o.user', 'u')
+        ->where('DATE(o.createdAt) = :date')
+        ->andWhere('o.isDeleted = false')
+        ->andWhere('o.isReturned = false')
+        ->andWhere('o.isSuspended != true OR o.isSuspended IS NULL')
+        ->groupBy('u.id, u.displayName')
+        ->orderBy('revenue', 'DESC')
+        ->setMaxResults(5)
+        ->setParameter('date', $date);
+
+        if ($storeId) {
+            $qb5->andWhere('o.store = :store')->setParameter('store', $storeId);
+        }
+
+        $topVendors = $qb5->getQuery()->getResult();
+
+        // J-1 (yesterday) comparison
+        $yesterday = (new \DateTime($date))->modify('-1 day')->format('Y-m-d');
+
+        $qb6 = $this->em->createQueryBuilder();
+        $qb6->select(
+            'COALESCE(SUM(op.price * op.quantity), 0) as grossRevenue',
+            'COALESCE(SUM(op.discount), 0) as totalDiscounts'
+        )
+        ->from(OrderProduct::class, 'op')
+        ->join('op.order', 'o')
+        ->where('DATE(o.createdAt) = :yesterday')
+        ->andWhere('o.isDeleted = false')
+        ->andWhere('o.isReturned = false')
+        ->andWhere('o.isSuspended != true OR o.isSuspended IS NULL')
+        ->setParameter('yesterday', $yesterday);
+
+        if ($storeId) {
+            $qb6->andWhere('o.store = :store')->setParameter('store', $storeId);
+        }
+
+        $yesterdayRevenue = $qb6->getQuery()->getSingleResult();
+
+        $qb7 = $this->em->createQueryBuilder();
+        $qb7->select('COUNT(o.id) as totalOrders')
+        ->from(Order::class, 'o')
+        ->where('DATE(o.createdAt) = :yesterday')
+        ->andWhere('o.isDeleted = false')
+        ->andWhere('o.isReturned = false')
+        ->andWhere('o.isSuspended != true OR o.isSuspended IS NULL')
+        ->setParameter('yesterday', $yesterday);
+
+        if ($storeId) {
+            $qb7->andWhere('o.store = :store')->setParameter('store', $storeId);
+        }
+
+        $yesterdayOrders = $qb7->getQuery()->getSingleResult();
+
         $grossRevenue = (float) $revenueSummary['grossRevenue'];
         $totalDiscounts = (float) $revenueSummary['totalDiscounts'];
         $totalCost = (float) $revenueSummary['totalCost'];
         $netRevenue = $grossRevenue - $totalDiscounts;
         $grossProfit = $netRevenue - $totalCost;
+
+        $completedOrders = (int) $orderSummary['totalOrders'] - (int) $orderSummary['returnedOrders'];
+        $avgBasket = $completedOrders > 0 ? round($netRevenue / $completedOrders, 2) : 0;
 
         return $responseFactory->json([
             'date' => $date,
@@ -310,8 +384,16 @@ class ReportController extends AbstractController
             'totalCost' => round($totalCost, 2),
             'grossProfit' => round($grossProfit, 2),
             'profitMargin' => $netRevenue > 0 ? round(($grossProfit / $netRevenue) * 100, 2) : 0,
+            'averageBasket' => $avgBasket,
             'payments' => $payments,
             'topProducts' => $topProducts,
+            'topVendors' => $topVendors,
+            'yesterday' => [
+                'date' => $yesterday,
+                'grossRevenue' => round((float) $yesterdayRevenue['grossRevenue'], 2),
+                'netRevenue' => round((float) $yesterdayRevenue['grossRevenue'] - (float) $yesterdayRevenue['totalDiscounts'], 2),
+                'totalOrders' => (int) $yesterdayOrders['totalOrders'],
+            ],
         ]);
     }
 
