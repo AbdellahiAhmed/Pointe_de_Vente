@@ -95,6 +95,16 @@ class Closing
      */
     private $terminal;
 
+    /**
+     * @ORM\Column(type="integer", nullable=true, unique=true)
+     */
+    private $zReportNumber;
+
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $zReportSnapshot;
+
     public function __construct()
     {
         $this->uuid = Uuid::uuid4();
@@ -269,6 +279,30 @@ class Closing
     public function setTerminal(?Terminal $terminal): self
     {
         $this->terminal = $terminal;
+
+        return $this;
+    }
+
+    public function getZReportNumber(): ?int
+    {
+        return $this->zReportNumber;
+    }
+
+    public function setZReportNumber(?int $zReportNumber): self
+    {
+        $this->zReportNumber = $zReportNumber;
+
+        return $this;
+    }
+
+    public function getZReportSnapshot(): ?array
+    {
+        return $this->zReportSnapshot;
+    }
+
+    public function setZReportSnapshot(?array $zReportSnapshot): self
+    {
+        $this->zReportSnapshot = $zReportSnapshot;
 
         return $this;
     }

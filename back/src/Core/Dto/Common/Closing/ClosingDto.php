@@ -86,6 +86,16 @@ class ClosingDto
     private $terminal;
 
     /**
+     * @var int|null
+     */
+    private $zReportNumber;
+
+    /**
+     * @var array|null
+     */
+    private $zReportSnapshot;
+
+    /**
      * @return DateTimeDto
      */
     public function getDateFrom(): DateTimeDto
@@ -309,6 +319,38 @@ class ClosingDto
         $this->terminal = $terminal;
     }
 
+    /**
+     * @return int|null
+     */
+    public function getZReportNumber(): ?int
+    {
+        return $this->zReportNumber;
+    }
+
+    /**
+     * @param int|null $zReportNumber
+     */
+    public function setZReportNumber(?int $zReportNumber): void
+    {
+        $this->zReportNumber = $zReportNumber;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getZReportSnapshot(): ?array
+    {
+        return $this->zReportSnapshot;
+    }
+
+    /**
+     * @param array|null $zReportSnapshot
+     */
+    public function setZReportSnapshot(?array $zReportSnapshot): void
+    {
+        $this->zReportSnapshot = $zReportSnapshot;
+    }
+
     public static function createFromClosing(?Closing $closing): ?self
     {
         if($closing === null){
@@ -334,6 +376,8 @@ class ClosingDto
         $dto->createdAt = DateTimeDto::createFromDateTime($closing->getCreatedAt());
         $dto->expenses = $closing->getExpenses() !== null ? (float) $closing->getExpenses() : null;
         $dto->terminal = TerminalShortDto::createFromTerminal($closing->getTerminal());
+        $dto->zReportNumber = $closing->getZReportNumber();
+        $dto->zReportSnapshot = $closing->getZReportSnapshot();
 
         return $dto;
     }
