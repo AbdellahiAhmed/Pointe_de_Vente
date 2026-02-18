@@ -19,4 +19,6 @@ export interface Closing extends HydraId, HydraType{
   denominations?: any;
   createdAt: {datetime: string};
   terminal: Terminal;
+  zReportNumber?: number;
+  zReportSnapshot?: any;
 }

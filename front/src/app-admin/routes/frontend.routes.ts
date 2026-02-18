@@ -21,5 +21,8 @@ export const REPORTS = staticRoute('/reports');
 export const REPORTS_SALES = staticRoute('/reports/sales');
 export const REPORTS_PROFIT = staticRoute('/reports/profit');
 export const REPORTS_DAILY = staticRoute('/reports/daily');
+export const REPORTS_VENDOR = staticRoute('/reports/vendor');
+export const REPORTS_CATEGORY = staticRoute('/reports/category');
+export const Z_REPORTS = staticRoute('/reports/z-reports');
 
 export const INVENTORY_ALERTS = staticRoute('/inventory/alerts');

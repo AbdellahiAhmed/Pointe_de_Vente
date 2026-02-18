@@ -22,3 +22,4 @@ interface ImportMeta {
 
 declare module 'react-mousetrap';
 declare module 'mousetrap';
+declare module '*.ttf';

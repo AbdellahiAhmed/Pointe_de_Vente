@@ -129,5 +129,11 @@ export const REPORT_DAILY = scopeUrl('/admin/report/daily');
 
 export const STOCK_ALERTS = scopeUrl('/admin/stock/alerts');
 
+export const CLOSING_CLOSE = scopeUrl('/admin/closing/:id/close');
+export const CLOSING_ZREPORT_DATA = scopeUrl('/admin/closing/:id/z-report-data');
+export const CLOSING_LIST = scopeUrl('/admin/closing/list');
+export const REPORT_VENDOR = scopeUrl('/admin/report/vendor');
+export const REPORT_CATEGORY = scopeUrl('/admin/report/category');
+
 export const MEDIA_UPLOAD = scopeUrl('/admin/media/upload');
 export const MEDIA_CONTENT = scopeUrl('/media/:id/content');

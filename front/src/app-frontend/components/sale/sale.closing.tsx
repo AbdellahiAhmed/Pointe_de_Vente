@@ -3,7 +3,7 @@ import { Modal } from "../../../app-common/components/modal/modal";
 import { Closing } from "../../../api/model/closing";
 import { QueryString } from "../../../lib/location/query.string";
 import { fetchJson, jsonRequest } from "../../../api/request/request";
-import { CLOSING_EDIT, CLOSING_OPENED, EXPENSE_LIST, ORDER_LIST } from "../../../api/routing/routes/backend.app";
+import { CLOSING_EDIT, CLOSING_CLOSE, CLOSING_OPENED, EXPENSE_LIST, ORDER_LIST } from "../../../api/routing/routes/backend.app";
 import { Button } from "../../../app-common/components/input/button";
 import { Input } from "../../../app-common/components/input/input";
 import { Controller, useForm } from "react-hook-form";
@@ -26,6 +26,8 @@ import useApi from "../../../api/hooks/use.api";
 import { Order } from "../../../api/model/order";
 import { withCurrency } from "../../../lib/currency/currency";
 import {useTranslation} from "react-i18next";
+
+const MRU_DENOMINATIONS = [500, 200, 100, 50, 20, 10, 5, 1] as const;
 
 interface TaxProps extends PropsWithChildren {
 
@@ -115,6 +117,13 @@ export const SaleClosing: FC<TaxProps> = (props) => {
   const { reset, register, handleSubmit, control, watch, getValues } = useForm();
   const [saving, setSaving] = useState(false);
   const [expenses, setExpenses] = useState(0);
+  const [denomCounts, setDenomCounts] = useState<Record<number, number>>(
+    () => Object.fromEntries(MRU_DENOMINATIONS.map(d => [d, 0]))
+  );
+
+  const denomTotal = useMemo(() => {
+    return MRU_DENOMINATIONS.reduce((sum, d) => sum + d * (denomCounts[d] || 0), 0);
+  }, [denomCounts]);
 
   const user = useSelector(getAuthorizedUser);
 
@@ -138,21 +147,48 @@ export const SaleClosing: FC<TaxProps> = (props) => {
         values.openingBalance = 0;
       }
 
-      if( !values.updateOnly ) {
-        values.closedAt = {
-          datetime: DateTime.now().toISO()
+      const isClosingDay = !values.updateOnly && values.openingBalance !== null && closing?.openingBalance !== null;
+
+      if (isClosingDay) {
+        // Use the new close endpoint with denominations
+        const denominations = MRU_DENOMINATIONS
+          .filter(d => (denomCounts[d] || 0) > 0)
+          .map(d => ({
+            value: d,
+            count: denomCounts[d] || 0,
+            total: d * (denomCounts[d] || 0),
+          }));
+
+        const closeBody = {
+          closingBalance: denomTotal > 0 ? denomTotal : cashInHand,
+          denominations: denominations.length > 0 ? denominations : null,
+        };
+
+        const response = await jsonRequest(CLOSING_CLOSE.replace(':id', closing?.id as string), {
+          method: 'POST',
+          body: JSON.stringify(closeBody)
+        });
+        const json = await response.json();
+
+        setClosing(json.closing);
+      } else {
+        // Update only or start day — use existing endpoint
+        if( !values.updateOnly ) {
+          values.closedAt = {
+            datetime: DateTime.now().toISO()
+          }
         }
+
+        values.terminal = terminal?.id;
+
+        const response = await jsonRequest(CLOSING_EDIT.replace(':id', closing?.id as string), {
+          method: 'POST',
+          body: JSON.stringify(values)
+        });
+        const json = await response.json();
+
+        setClosing(json.closing);
       }
-
-      values.terminal = terminal?.id;
-
-      const response = await jsonRequest(CLOSING_EDIT.replace(':id', closing?.id as string), {
-        method: 'POST',
-        body: JSON.stringify(values)
-      });
-      const json = await response.json();
-
-      setClosing(json.closing);
 
       setHideCloseButton(false);
       setModal(false);
@@ -310,6 +346,34 @@ export const SaleClosing: FC<TaxProps> = (props) => {
                     <Input {...register('cashWithdrawn', {
                       valueAsNumber: true
                     })} type="number" className="w-full" tabIndex={0} selectable={true}/>
+                  </td>
+                </tr>
+                <tr>
+                  <th colSpan={2} className="text-center bg-light">
+                    <strong>{t("Denomination Count")}</strong>
+                  </th>
+                </tr>
+                {MRU_DENOMINATIONS.map(denom => (
+                  <tr key={denom}>
+                    <th className="text-right">{denom} MRU</th>
+                    <td>
+                      <Input
+                        type="number"
+                        min={0}
+                        className="w-full"
+                        value={denomCounts[denom]?.toString() || '0'}
+                        onChange={(e) => setDenomCounts(prev => ({
+                          ...prev,
+                          [denom]: parseInt(e.target.value) || 0
+                        }))}
+                      />
+                    </td>
+                  </tr>
+                ))}
+                <tr>
+                  <th className="text-right">{t("Denomination Total")}</th>
+                  <td className="text-xl font-bold text-success-500">
+                    {withCurrency(denomTotal)}
                   </td>
                 </tr>
               </>
