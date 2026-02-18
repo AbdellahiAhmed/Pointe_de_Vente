@@ -107,11 +107,11 @@ Plans:
   2. All new screens added in Phases 1-5 (roles UI, stock alerts, Z-Report, enhanced reports) display translated Arabic strings with no missing translation keys.
   3. The Bootstrap RTL asset loads from a local file with no CDN race conditions.
   4. Ant Design admin components (tables, forms, menus) use direction="rtl" when Arabic is active.
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 06-01: Infrastructure — upgrade TailwindCSS 3.1.8 -> ^3.3, replace CDN RTL swap with local Bootstrap RTL asset, set dir="rtl" on html element before first render
-- [ ] 06-02: Content — audit and fill lang.ar.json gaps, translate all new keys from Phases 1-5, replace ml-*/mr-* with ms-*/me-*/ps-*/pe-* throughout codebase, wrap admin app in ConfigProvider direction="rtl"
+- [ ] 06-01-PLAN.md — Infrastructure: upgrade TailwindCSS 3.1.8 -> ^3.3, install Bootstrap locally, create shared applyLocale() utility, add Arabic web font, wrap app in ConfigProvider direction="rtl"
+- [ ] 06-02-PLAN.md — Content: fill 20 missing Arabic translation keys from Phases 1-5, migrate ~73 ml-*/mr-* to ms-*/me-* logical properties across 44 files, clean up redundant [dir="rtl"] CSS overrides
 
 ### Phase 7: UI Redesign
 **Goal**: The POS interface is touch-optimized and visually professional, and the admin dashboard surfaces real KPIs immediately on login.
