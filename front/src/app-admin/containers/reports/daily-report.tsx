@@ -15,8 +15,16 @@ interface DailyData {
   totalCost: number;
   grossProfit: number;
   profitMargin: number;
+  averageBasket: number;
   payments: Array<{ paymentType: string; amount: number }>;
   topProducts: Array<{ productName: string; totalQty: string; revenue: string }>;
+  topVendors: Array<{ vendorName: string; totalOrders: string; revenue: string }>;
+  yesterday: {
+    date: string;
+    grossRevenue: number;
+    netRevenue: number;
+    totalOrders: number;
+  };
 }
 
 export const DailyReport: FunctionComponent = () => {
@@ -169,6 +177,75 @@ export const DailyReport: FunctionComponent = () => {
             </div>
           </div>
 
+          {/* Average Basket + Yesterday Comparison */}
+          <div className="row">
+            <div className="col-md-6">
+              <div className="card info-card">
+                <div className="card-body">
+                  <h5 className="card-title">{t('Average Basket')}</h5>
+                  <div className="d-flex align-items-center">
+                    <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i className="bi bi-basket"></i>
+                    </div>
+                    <div className="ps-3">
+                      <h6>{formatCurrency(data.averageBasket)}</h6>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {data.yesterday && (
+              <div className="col-md-6">
+                <div className="card">
+                  <div className="card-body">
+                    <h5 className="card-title">{t('Comparison J-1')}</h5>
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th></th>
+                          <th className="text-end">{t('Today')}</th>
+                          <th className="text-end">{t('Yesterday')}</th>
+                          <th className="text-end">{t('Change')}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>{t('Net Revenue')}</td>
+                          <td className="text-end">{formatCurrency(data.netRevenue)}</td>
+                          <td className="text-end">{formatCurrency(data.yesterday.netRevenue)}</td>
+                          <td className={`text-end fw-bold ${
+                            ((data.netRevenue - data.yesterday.netRevenue) / Math.max(data.yesterday.netRevenue, 1)) * 100 >= 0
+                              ? 'text-success' : 'text-danger'
+                          }`}>
+                            {(() => {
+                              const delta = ((data.netRevenue - data.yesterday.netRevenue) / Math.max(data.yesterday.netRevenue, 1)) * 100;
+                              return `${delta >= 0 ? '+' : ''}${delta.toFixed(1)}%`;
+                            })()}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>{t('Orders')}</td>
+                          <td className="text-end">{data.totalOrders}</td>
+                          <td className="text-end">{data.yesterday.totalOrders}</td>
+                          <td className={`text-end fw-bold ${
+                            ((data.totalOrders - data.yesterday.totalOrders) / Math.max(data.yesterday.totalOrders, 1)) * 100 >= 0
+                              ? 'text-success' : 'text-danger'
+                          }`}>
+                            {(() => {
+                              const delta = ((data.totalOrders - data.yesterday.totalOrders) / Math.max(data.yesterday.totalOrders, 1)) * 100;
+                              return `${delta >= 0 ? '+' : ''}${delta.toFixed(1)}%`;
+                            })()}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="row">
             {/* Payment Breakdown */}
             <div className="col-md-6">
@@ -240,6 +317,39 @@ export const DailyReport: FunctionComponent = () => {
               </div>
             </div>
           </div>
+
+          {/* Top Vendors */}
+          {data.topVendors && data.topVendors.length > 0 && (
+            <div className="row">
+              <div className="col-md-6">
+                <div className="card">
+                  <div className="card-body">
+                    <h5 className="card-title">{t('Top Vendors')} {t('of the day')}</h5>
+                    <table className="table table-striped">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>{t('Vendor')}</th>
+                          <th className="text-end">{t('Orders')}</th>
+                          <th className="text-end">{t('Revenue')}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.topVendors.map((v, i) => (
+                          <tr key={i}>
+                            <td>{i + 1}</td>
+                            <td>{v.vendorName}</td>
+                            <td className="text-end">{Number(v.totalOrders).toFixed(0)}</td>
+                            <td className="text-end fw-bold">{formatCurrency(Number(v.revenue))}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Financial Summary Table */}
           <div className="row">

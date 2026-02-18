@@ -21,6 +21,7 @@ interface ProfitData {
     revenue: string;
     cost: string;
     profit: string;
+    margin: number;
   }>;
 }
 
@@ -185,6 +186,7 @@ export const ProfitReport: FunctionComponent = () => {
                           <th className="text-end">{t('Revenue')}</th>
                           <th className="text-end">{t('Cost Price')}</th>
                           <th className="text-end">{t('Profit')}</th>
+                          <th className="text-end">{t('Margin')} %</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -197,6 +199,9 @@ export const ProfitReport: FunctionComponent = () => {
                             <td className="text-end">{formatCurrency(Number(p.cost))}</td>
                             <td className={`text-end fw-bold ${Number(p.profit) >= 0 ? 'text-success' : 'text-danger'}`}>
                               {formatCurrency(Number(p.profit))}
+                            </td>
+                            <td className={`text-end ${Number(p.margin) >= 0 ? 'text-success' : 'text-danger'}`}>
+                              {Number(p.margin).toFixed(1)}%
                             </td>
                           </tr>
                         ))}
