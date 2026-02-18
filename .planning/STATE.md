@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-17)
 
 **Core value:** Le caissier peut enregistrer une vente rapidement et de manière fiable, avec un suivi précis du stock et des bénéfices pour le gérant.
-**Current focus:** Phase 6 IN PROGRESS — RTL and Arabic Completion
+**Current focus:** Phase 7 NEXT — UI Redesign
 
 ## Current Position
 
-Phase: 6 of 8 (RTL and Arabic Completion) IN PROGRESS
-Plan: 2 of 3 in current phase (COMPLETE)
-Status: Phase 6 Plan 02 complete — Arabic translations complete, all physical direction classes migrated to logical properties
-Last activity: 2026-02-18 — Plan 06-02 COMPLETE (Arabic completion: 0 missing keys; ml-*/mr-* migration: 73+ occurrences across 43 files; RTL CSS block cleaned up)
+Phase: 7 of 8 (UI Redesign) NOT STARTED
+Plan: 0 of 2 in current phase
+Status: Phase 6 COMPLETE — all RTL infrastructure and Arabic translations delivered
+Last activity: 2026-02-18 — Phase 6 COMPLETE (2 plans: RTL infrastructure + Arabic completion)
 
-Progress: [████████░░] 78.57%
+Progress: [████████░░] 85.71%
 
 ## Performance Metrics
 
@@ -32,7 +32,7 @@ Progress: [████████░░] 78.57%
 | 3. PMP | 1 | — | — |
 | 4. Stock/Pay | 2 | — | — |
 | 5. Z-Report | 3/3 | 16min (01: 4min, 02: 3min, 03: 9min) | 5.3min |
-| 6. RTL/Arabic | 2/? | 10min (01: 3min, 02: 7min) | 5min |
+| 6. RTL/Arabic | 2/2 | 10min (01: 3min, 02: 7min) | 5min |
 
 **Recent Trend:**
 - Last 5 plans: —
@@ -90,5 +90,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 06-02-PLAN.md (Arabic completion + ml-*/mr-* migration) — Phase 6 Plan 02 complete
+Stopped at: Phase 6 COMPLETE — moving to Phase 7 (UI Redesign)
 Resume file: None
