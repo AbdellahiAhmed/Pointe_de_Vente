@@ -13,14 +13,14 @@
     <link rel="manifest" href="/manifest.json" />
     <title>POS System</title>
 
-    <link id="bootstrap-css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" />
+    <link id="bootstrap-css" rel="stylesheet" href="/css/bootstrap.min.css" />
     <script>
       (function() {
         var locale = localStorage.getItem('locale');
         if (locale === 'ar') {
           document.documentElement.setAttribute('dir', 'rtl');
           document.documentElement.setAttribute('lang', 'ar');
-          document.getElementById('bootstrap-css').setAttribute('href', 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.rtl.min.css');
+          document.getElementById('bootstrap-css').setAttribute('href', '/css/bootstrap.rtl.min.css');
         } else {
           document.documentElement.setAttribute('lang', 'fr');
         }
