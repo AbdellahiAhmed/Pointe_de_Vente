@@ -12,14 +12,14 @@ See: .planning/PROJECT.md (updated 2026-02-17)
 Phase: 5 of 8 (Z-Report and Extended Reports)
 Plan: 2 of 3 in current phase
 Status: Executing phase 5
-Last activity: 2026-02-18 — Plan 05-02 COMPLETE (extended reports)
+Last activity: 2026-02-18 — Plan 05-01 COMPLETE (Z-Report backend)
 
-Progress: [██████░░░░] 60.0%
+Progress: [██████░░░░] 62.5%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
+- Total plans completed: 10
 - Average duration: —
 - Total execution time: —
 
@@ -31,7 +31,7 @@ Progress: [██████░░░░] 60.0%
 | 2. Data Model | 2 | — | — |
 | 3. PMP | 1 | — | — |
 | 4. Stock/Pay | 2 | — | — |
-| 5. Z-Report | 2/3 | 3min (plan 02) | — |
+| 5. Z-Report | 2/3 | 7min (01: 4min, 02: 3min) | 3.5min |
 
 **Recent Trend:**
 - Last 5 plans: —
@@ -49,6 +49,9 @@ Recent decisions affecting current work:
 - [Roadmap]: RBAC must be first — every subsequent phase adds new endpoints that need denyAccessUnlessGranted(); adding it retroactively creates a security window
 - [Roadmap]: Data model fixes (Phase 2) must precede all reporting phases — three confirmed bugs (no costAtSale, no isSuspended filter, float financial columns) corrupt Z-Report and profit reports
 - [Roadmap]: UI redesign (Phase 7) placed after all features (Phase 6) — avoids designing around incomplete functionality
+- [Phase 5-01]: Sequential zReportNumber via MAX+1 inside DB transaction for uniqueness
+- [Phase 5-01]: Immutable snapshot JSON frozen at close time, never recalculated from live data
+- [Phase 5-01]: Cash reconciliation formula: expected = opening + cashReceived + cashAdded - cashWithdrawn - expenses
 - [Phase 5-02]: Vendor report groups by User.displayName via Order.user join
 - [Phase 5-02]: Category report uses ManyToMany Product.categories for full attribution
 - [Phase 5-02]: Per-product margin computed post-query via array_map, not in DQL
@@ -75,5 +78,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 05-02-PLAN.md
+Stopped at: Completed 05-01-PLAN.md (Z-Report backend)
 Resume file: None
