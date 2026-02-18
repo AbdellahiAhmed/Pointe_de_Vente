@@ -5,6 +5,7 @@ namespace App\Controller\Api\Admin;
 use App\Entity\Order;
 use App\Entity\OrderProduct;
 use App\Entity\OrderPayment;
+use App\Entity\User;
 use App\Factory\Controller\ApiResponseFactory;
 use App\Security\Voter\ReportVoter;
 use Doctrine\ORM\EntityManagerInterface;
@@ -311,6 +312,133 @@ class ReportController extends AbstractController
             'profitMargin' => $netRevenue > 0 ? round(($grossProfit / $netRevenue) * 100, 2) : 0,
             'payments' => $payments,
             'topProducts' => $topProducts,
+        ]);
+    }
+
+    /**
+     * @Route("/vendor", name="vendor", methods={"GET"})
+     */
+    public function vendor(Request $request, ApiResponseFactory $responseFactory)
+    {
+        $this->denyAccessUnlessGranted(ReportVoter::VIEW);
+        $dateFrom = $request->query->get('dateFrom', date('Y-m-d'));
+        $dateTo = $request->query->get('dateTo', date('Y-m-d'));
+        $storeId = $request->query->get('store');
+
+        $qb = $this->em->createQueryBuilder();
+        $qb->select(
+            'u.id as vendorId',
+            'u.displayName as vendorName',
+            'COUNT(DISTINCT o.id) as totalOrders',
+            'COALESCE(SUM(op.price * op.quantity), 0) as grossRevenue',
+            'COALESCE(SUM(op.discount), 0) as totalDiscounts'
+        )
+        ->from(OrderProduct::class, 'op')
+        ->join('op.order', 'o')
+        ->join('o.user', 'u')
+        ->where('DATE(o.createdAt) >= :dateFrom')
+        ->andWhere('DATE(o.createdAt) <= :dateTo')
+        ->andWhere('o.isDeleted = false')
+        ->andWhere('o.isReturned = false')
+        ->andWhere('o.isSuspended != true OR o.isSuspended IS NULL')
+        ->groupBy('u.id, u.displayName')
+        ->orderBy('grossRevenue', 'DESC')
+        ->setParameter('dateFrom', $dateFrom)
+        ->setParameter('dateTo', $dateTo);
+
+        if ($storeId) {
+            $qb->andWhere('o.store = :store')->setParameter('store', $storeId);
+        }
+
+        $results = $qb->getQuery()->getResult();
+
+        $vendors = array_map(function ($row) {
+            $grossRevenue = (float) $row['grossRevenue'];
+            $totalDiscounts = (float) $row['totalDiscounts'];
+            $netRevenue = $grossRevenue - $totalDiscounts;
+            $totalOrders = (int) $row['totalOrders'];
+
+            return [
+                'vendorId' => (int) $row['vendorId'],
+                'vendorName' => $row['vendorName'],
+                'totalOrders' => $totalOrders,
+                'grossRevenue' => round($grossRevenue, 2),
+                'totalDiscounts' => round($totalDiscounts, 2),
+                'netRevenue' => round($netRevenue, 2),
+                'averageBasket' => $totalOrders > 0 ? round($netRevenue / $totalOrders, 2) : 0,
+            ];
+        }, $results);
+
+        return $responseFactory->json([
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+            'vendors' => $vendors,
+        ]);
+    }
+
+    /**
+     * @Route("/category", name="category", methods={"GET"})
+     */
+    public function category(Request $request, ApiResponseFactory $responseFactory)
+    {
+        $this->denyAccessUnlessGranted(ReportVoter::VIEW);
+        $dateFrom = $request->query->get('dateFrom', date('Y-m-d'));
+        $dateTo = $request->query->get('dateTo', date('Y-m-d'));
+        $storeId = $request->query->get('store');
+
+        $qb = $this->em->createQueryBuilder();
+        $qb->select(
+            'cat.id as categoryId',
+            'cat.name as categoryName',
+            'COUNT(DISTINCT o.id) as totalOrders',
+            'COALESCE(SUM(op.price * op.quantity), 0) as grossRevenue',
+            'COALESCE(SUM(op.discount), 0) as totalDiscounts',
+            'COALESCE(SUM(COALESCE(op.costAtSale, 0) * op.quantity), 0) as totalCost'
+        )
+        ->from(OrderProduct::class, 'op')
+        ->join('op.order', 'o')
+        ->join('op.product', 'prod')
+        ->join('prod.categories', 'cat')
+        ->where('DATE(o.createdAt) >= :dateFrom')
+        ->andWhere('DATE(o.createdAt) <= :dateTo')
+        ->andWhere('o.isDeleted = false')
+        ->andWhere('o.isReturned = false')
+        ->andWhere('o.isSuspended != true OR o.isSuspended IS NULL')
+        ->groupBy('cat.id, cat.name')
+        ->orderBy('grossRevenue', 'DESC')
+        ->setParameter('dateFrom', $dateFrom)
+        ->setParameter('dateTo', $dateTo);
+
+        if ($storeId) {
+            $qb->andWhere('o.store = :store')->setParameter('store', $storeId);
+        }
+
+        $results = $qb->getQuery()->getResult();
+
+        $categories = array_map(function ($row) {
+            $grossRevenue = (float) $row['grossRevenue'];
+            $totalDiscounts = (float) $row['totalDiscounts'];
+            $totalCost = (float) $row['totalCost'];
+            $netRevenue = $grossRevenue - $totalDiscounts;
+            $grossProfit = $netRevenue - $totalCost;
+
+            return [
+                'categoryId' => (int) $row['categoryId'],
+                'categoryName' => $row['categoryName'],
+                'totalOrders' => (int) $row['totalOrders'],
+                'grossRevenue' => round($grossRevenue, 2),
+                'totalDiscounts' => round($totalDiscounts, 2),
+                'netRevenue' => round($netRevenue, 2),
+                'totalCost' => round($totalCost, 2),
+                'grossProfit' => round($grossProfit, 2),
+                'profitMargin' => $netRevenue > 0 ? round(($grossProfit / $netRevenue) * 100, 2) : 0,
+            ];
+        }, $results);
+
+        return $responseFactory->json([
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+            'categories' => $categories,
         ]);
     }
 }
