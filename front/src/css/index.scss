@@ -194,7 +194,7 @@
 .category-chip {
   display: inline-flex;
   align-items: center;
-  padding: 5px 14px;
+  padding: 8px 16px;
   border-radius: 100px;
   border: 1px solid var(--pos-border);
   background: var(--pos-surface);
@@ -223,7 +223,7 @@
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 8px;
   overflow-y: auto;
   flex: 1;
@@ -249,6 +249,8 @@
   cursor: pointer;
   transition: all 0.12s ease;
   overflow: hidden;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 
   &:hover {
     border-color: var(--pos-accent);
@@ -355,6 +357,39 @@
     font-size: 13px;
     font-weight: 500;
   }
+}
+
+/* Stock badge positioning */
+.product-grid-badge {
+  position: absolute;
+  top: 6px;
+  inset-inline-end: 6px;
+  padding: 3px 8px;
+  border-radius: var(--pos-radius-sm);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #fff;
+  z-index: 1;
+
+  &.out {
+    background: var(--pos-danger);
+  }
+  &.low {
+    background: #f59e0b;
+  }
+}
+
+/* Product count badge */
+.product-grid-count {
+  font-size: 11px;
+  color: var(--pos-text-faint);
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 4px 12px;
+  border-radius: var(--pos-radius-sm);
+  background: var(--pos-bg);
+  flex-shrink: 0;
 }
 
 /* ─── Image Upload ─── */
