@@ -135,7 +135,10 @@
   "Unsuspend order?": "استئناف الطلب؟",
   "Delete order?": "حذف الطلب؟",
   "Delete Product": "حذف المنتج",
+  "Delete Products": "حذف المنتجات",
   "Are you sure you want to permanently delete this product?": "هل أنت متأكد من حذف هذا المنتج نهائياً؟",
+  "Are you sure you want to permanently delete these products?": "هل أنت متأكد من حذف هذه المنتجات نهائياً؟",
+  "Deleting": "جاري الحذف",
   "Uncategorized": "غير مصنف",
   "Restore order?": "استعادة الطلب؟",
 

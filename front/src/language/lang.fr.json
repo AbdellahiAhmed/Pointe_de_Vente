@@ -135,7 +135,10 @@
   "Unsuspend order?": "Reprendre la commande ?",
   "Delete order?": "Supprimer la commande ?",
   "Delete Product": "Supprimer le produit",
+  "Delete Products": "Supprimer les produits",
   "Are you sure you want to permanently delete this product?": "Êtes-vous sûr de vouloir supprimer définitivement ce produit ?",
+  "Are you sure you want to permanently delete these products?": "Êtes-vous sûr de vouloir supprimer définitivement ces produits ?",
+  "Deleting": "Suppression en cours",
   "Uncategorized": "Non catégorisé",
   "Restore order?": "Restaurer la commande ?",
 

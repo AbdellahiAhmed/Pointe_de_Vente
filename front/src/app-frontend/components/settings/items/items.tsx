@@ -5,7 +5,7 @@ import {
   faPlus,
   faEllipsis, faEye, faPencil, faTrash
 } from "@fortawesome/free-solid-svg-icons";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Product } from "../../../../api/model/product";
 import {
   PRODUCT_GET,
@@ -36,12 +36,36 @@ export const Items = () => {
   const [modal, setModal] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const { t } = useTranslation();
 
   const columnHelper = createColumnHelper<Product>();
 
   const columns: any[] = [
+    {
+      id: 'select',
+      header: ({ table }: any) => (
+        <input
+          type="checkbox"
+          className="form-check-input"
+          checked={table.getIsAllPageRowsSelected()}
+          onChange={table.getToggleAllPageRowsSelectedHandler()}
+        />
+      ),
+      cell: ({ row }: any) => (
+        <input
+          type="checkbox"
+          className="form-check-input"
+          checked={row.getIsSelected()}
+          onChange={row.getToggleSelectedHandler()}
+        />
+      ),
+      enableSorting: false,
+      enableColumnFilter: false,
+    },
     columnHelper.accessor("name", {
       header: t("Name"),
     }),
@@ -186,11 +210,42 @@ export const Items = () => {
     await useLoadHook.fetchData();
   }
 
+  async function bulkDeleteItems() {
+    setBulkDeleting(true);
+    for (const product of selectedProducts) {
+      await jsonRequest(PRODUCT_GET.replace(":id", product.id.toString()), {
+        method: "DELETE",
+      });
+    }
+    setBulkDeleting(false);
+    setShowBulkDeleteConfirm(false);
+    setSelectedProducts([]);
+    await useLoadHook.fetchData();
+  }
+
+  const handleSelectedRowsChange = useCallback((rows: any[]) => {
+    setSelectedProducts(rows as Product[]);
+  }, []);
+
   return (
     <>
       <TableComponent
         columns={columns}
         useLoadList={useLoadHook}
+        enableRowSelection={true}
+        onSelectedRowsChange={handleSelectedRowsChange}
+        selectionButtons={[
+          {
+            html: (
+              <Button
+                variant="danger"
+                onClick={() => setShowBulkDeleteConfirm(true)}>
+                <FontAwesomeIcon icon={faTrash} className="me-2" />
+                {t("Delete")} ({selectedProducts.length})
+              </Button>
+            ),
+          },
+        ]}
         buttons={[
           {
             html: <ImportItems />,
@@ -248,6 +303,39 @@ export const Items = () => {
                   <button type="button" className="btn btn-danger" onClick={() => hardDeleteItem(deleteTarget.id.toString())}>
                     <FontAwesomeIcon icon={faTrash} className="me-2" />
                     {t('Delete')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {showBulkDeleteConfirm && selectedProducts.length > 0 && (
+        <>
+          <div className="modal-backdrop fade show" />
+          <div className="modal fade show d-block" tabIndex={-1} role="dialog">
+            <div className="modal-dialog modal-dialog-centered" role="document">
+              <div className="modal-content">
+                <div className="modal-header bg-danger text-white">
+                  <h5 className="modal-title">{t('Delete Products')}</h5>
+                  <button type="button" className="btn-close btn-close-white" onClick={() => setShowBulkDeleteConfirm(false)} />
+                </div>
+                <div className="modal-body">
+                  <p>{t('Are you sure you want to permanently delete these products?')}</p>
+                  <ul className="mb-0">
+                    {selectedProducts.map(p => (
+                      <li key={p.id} className="fw-bold">{p.name}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowBulkDeleteConfirm(false)} disabled={bulkDeleting}>
+                    {t('Cancel')}
+                  </button>
+                  <button type="button" className="btn btn-danger" onClick={bulkDeleteItems} disabled={bulkDeleting}>
+                    <FontAwesomeIcon icon={faTrash} className="me-2" />
+                    {bulkDeleting ? `${t('Deleting')}...` : `${t('Delete')} (${selectedProducts.length})`}
                   </button>
                 </div>
               </div>

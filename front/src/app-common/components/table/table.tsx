@@ -51,6 +51,8 @@ interface TableComponentProps {
   dataKey?: string;
   totalKey?: string;
   enableSearch?: boolean;
+  enableRowSelection?: boolean;
+  onSelectedRowsChange?: (rows: any[]) => void;
 }
 
 export const TableComponent: FC<TableComponentProps> = ({
@@ -64,6 +66,8 @@ export const TableComponent: FC<TableComponentProps> = ({
   dataKey,
   totalKey,
   enableSearch,
+  enableRowSelection,
+  onSelectedRowsChange,
 }) => {
   const { t } = useTranslation();
 
@@ -130,6 +134,7 @@ export const TableComponent: FC<TableComponentProps> = ({
       pagination,
       rowSelection,
     },
+    enableRowSelection: enableRowSelection ?? false,
     onRowSelectionChange: setRowSelection,
     onPaginationChange: setPagination,
     onSortingChange: setSorting,
@@ -141,10 +146,11 @@ export const TableComponent: FC<TableComponentProps> = ({
     manualFiltering: true,
   });
 
-  const ids = useMemo(() => {
-    // return table.getSelectedRowModel().rows.map(item => (item.original as any).uuid)
-
-    return [];
+  useEffect(() => {
+    if (onSelectedRowsChange) {
+      const selectedRows = table.getSelectedRowModel().rows.map(row => row.original);
+      onSelectedRowsChange(selectedRows);
+    }
   }, [rowSelection]);
 
   const [isLoading, setLoading] = useState(false);
