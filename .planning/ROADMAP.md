@@ -123,11 +123,11 @@ Plans:
   3. The admin dashboard shows today's revenue, number of tickets, average basket, and low-stock count as KPI cards immediately on login.
   4. Report pages display data as charts rather than raw tables.
   5. The user management page reflects the three-role system (VENDEUR/MANAGER/ADMIN) with role assignment integrated into the interface.
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 07-01: POS UI redesign — touch-optimized product grid with professional image display, redesigned cart and checkout panel, tactile payment method buttons (UIPOS-01, UIPOS-02, UIPOS-03, UIPOS-04)
-- [ ] 07-02: Admin UI redesign — dashboard KPI cards (CA, tickets, panier moyen, stock bas), Nivo chart integration on report pages, role-integrated user management page (UIADM-01, UIADM-02, UIADM-03)
+- [ ] 07-01-PLAN.md — POS UI redesign: refactor ProductGrid to CSS classes, touch-optimize product cards/cart/checkout/payment buttons, fix viewport meta tag, add tablet responsive breakpoints (UIPOS-01, UIPOS-02, UIPOS-03, UIPOS-04)
+- [ ] 07-02-PLAN.md — Admin UI redesign: add Average Basket + Low Stock KPI cards to dashboard, integrate Nivo charts on all 5 report pages, build complete Users page with role management (UIADM-01, UIADM-02, UIADM-03)
 
 ### Phase 8: Restaurant Documentation
 **Goal**: A professional bilingual document describes the restaurant extension concept in sufficient detail for academic presentation, demonstrating architectural thinking without any code implementation.
