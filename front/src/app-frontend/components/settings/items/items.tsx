@@ -34,6 +34,8 @@ export const Items = () => {
   const [entity, setEntity] = useState<Product>();
   const [operation, setOperation] = useState("create");
   const [modal, setModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const { t } = useTranslation();
 
@@ -150,11 +152,13 @@ export const Items = () => {
                 setOperation("update");
                 setModal(true);
               }
-              if(key === 'view'){
-                // <ItemComponent product={info.row.original}/>
+              if(key === 'delete'){
+                setDeleteTarget(info.row.original);
+                setShowDeleteConfirm(true);
               }
             }}>
               <DropdownMenuItem id="edit" icon={faPencil}>{t("Edit")}</DropdownMenuItem>
+              <DropdownMenuItem id="delete" icon={faTrash}>{t("Delete")}</DropdownMenuItem>
             </DropdownMenu>
           </div>
         );
@@ -170,6 +174,15 @@ export const Items = () => {
       }),
     });
 
+    await useLoadHook.fetchData();
+  }
+
+  async function hardDeleteItem(id: string) {
+    await jsonRequest(PRODUCT_GET.replace(":id", id), {
+      method: "DELETE",
+    });
+    setShowDeleteConfirm(false);
+    setDeleteTarget(null);
     await useLoadHook.fetchData();
   }
 
@@ -213,6 +226,35 @@ export const Items = () => {
         }}
         operation={operation}
       />
+
+      {showDeleteConfirm && deleteTarget && (
+        <>
+          <div className="modal-backdrop fade show" />
+          <div className="modal fade show d-block" tabIndex={-1} role="dialog">
+            <div className="modal-dialog modal-dialog-centered" role="document">
+              <div className="modal-content">
+                <div className="modal-header bg-danger text-white">
+                  <h5 className="modal-title">{t('Delete Product')}</h5>
+                  <button type="button" className="btn-close btn-close-white" onClick={() => { setShowDeleteConfirm(false); setDeleteTarget(null); }} />
+                </div>
+                <div className="modal-body">
+                  <p>{t('Are you sure you want to permanently delete this product?')}</p>
+                  <p className="fw-bold mb-0">{deleteTarget.name}</p>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-secondary" onClick={() => { setShowDeleteConfirm(false); setDeleteTarget(null); }}>
+                    {t('Cancel')}
+                  </button>
+                  <button type="button" className="btn btn-danger" onClick={() => hardDeleteItem(deleteTarget.id.toString())}>
+                    <FontAwesomeIcon icon={faTrash} className="me-2" />
+                    {t('Delete')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 };

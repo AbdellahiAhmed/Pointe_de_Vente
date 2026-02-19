@@ -134,6 +134,9 @@
   "Refund order?": "Rembourser la commande ?",
   "Unsuspend order?": "Reprendre la commande ?",
   "Delete order?": "Supprimer la commande ?",
+  "Delete Product": "Supprimer le produit",
+  "Are you sure you want to permanently delete this product?": "Êtes-vous sûr de vouloir supprimer définitivement ce produit ?",
+  "Uncategorized": "Non catégorisé",
   "Restore order?": "Restaurer la commande ?",
 
   "Charts": "Graphiques",

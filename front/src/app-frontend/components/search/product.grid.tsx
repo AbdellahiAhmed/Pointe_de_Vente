@@ -4,7 +4,7 @@ import {getRealProductPrice} from "../../containers/dashboard/pos";
 import {useTranslation} from "react-i18next";
 import {Category} from "../../../api/model/category";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faBoxOpen, faLayerGroup} from "@fortawesome/free-solid-svg-icons";
+import {faBoxOpen, faLayerGroup, faTag} from "@fortawesome/free-solid-svg-icons";
 import classNames from "classnames";
 
 interface ProductGridProps {
@@ -47,6 +47,14 @@ const ProductCard = React.memo(({product, onClick}: {
     >
       {/* ── Image area ── */}
       <div className="product-grid-image">
+        {/* Placeholder always visible as base layer */}
+        {noImg && (
+          <div className="product-grid-placeholder">
+            <FontAwesomeIcon icon={faBoxOpen} />
+          </div>
+        )}
+
+        {/* Image overlays placeholder via absolute positioning */}
         {mediaUrl && !imgErr && (
           <img
             src={mediaUrl}
@@ -57,11 +65,6 @@ const ProductCard = React.memo(({product, onClick}: {
             style={{ opacity: imgOk ? 1 : 0 }}
           />
         )}
-
-        {/* Placeholder icon */}
-        <div className={classNames("product-grid-placeholder", { hidden: !noImg })}>
-          <FontAwesomeIcon icon={faBoxOpen} />
-        </div>
 
         {/* Stock badges */}
         {out && (
@@ -116,6 +119,31 @@ export const ProductGrid = ({items, addItem, categories, setCategories}: Product
 
   const clearCategories = useCallback(() => setCategories({}), [setCategories]);
 
+  // Group products by category
+  const groupedProducts = useMemo(() => {
+    const groups = new Map<string, { category: Category | null; products: Product[] }>();
+    const assigned = new Set<number>();
+
+    // Group by categories present in the items
+    availableCategories.forEach(cat => {
+      const catProducts = items.filter(item =>
+        item.categories?.some(c => c.id === cat.id)
+      );
+      if (catProducts.length > 0) {
+        groups.set(cat.id.toString(), { category: cat, products: catProducts });
+        catProducts.forEach(p => assigned.add(p.id));
+      }
+    });
+
+    // Uncategorized products
+    const uncategorized = items.filter(item => !assigned.has(item.id));
+    if (uncategorized.length > 0) {
+      groups.set('_uncategorized', { category: null, products: uncategorized });
+    }
+
+    return Array.from(groups.values());
+  }, [items, availableCategories]);
+
   return (
     <div className="product-grid-container">
       {/* ─── Category bar ─── */}
@@ -140,15 +168,26 @@ export const ProductGrid = ({items, addItem, categories, setCategories}: Product
         </div>
       </div>
 
-      {/* ─── Product grid — scrollable ─── */}
-      <div className="product-grid pg-scroll">
+      {/* ─── Products grouped by category — scrollable ─── */}
+      <div className="product-grid-scroll pg-scroll">
         {items.length > 0 ? (
-          items.map((item) => (
-            <ProductCard
-              key={item.id}
-              product={item}
-              onClick={() => addItem(item, 1)}
-            />
+          groupedProducts.map(({ category, products }) => (
+            <div key={category ? category.id : '_uncategorized'} className="product-category-group">
+              <div className="product-category-header">
+                <FontAwesomeIcon icon={faTag} className="product-category-icon" />
+                <span>{category ? category.name : t('Uncategorized')}</span>
+                <span className="product-category-count">{products.length}</span>
+              </div>
+              <div className="product-grid">
+                {products.map((item) => (
+                  <ProductCard
+                    key={item.id}
+                    product={item}
+                    onClick={() => addItem(item, 1)}
+                  />
+                ))}
+              </div>
+            </div>
           ))
         ) : (
           <div className="product-grid-empty">

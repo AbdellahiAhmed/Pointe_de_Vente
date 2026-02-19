@@ -134,6 +134,9 @@
   "Refund order?": "استرجاع الطلب؟",
   "Unsuspend order?": "استئناف الطلب؟",
   "Delete order?": "حذف الطلب؟",
+  "Delete Product": "حذف المنتج",
+  "Are you sure you want to permanently delete this product?": "هل أنت متأكد من حذف هذا المنتج نهائياً؟",
+  "Uncategorized": "غير مصنف",
   "Restore order?": "استعادة الطلب؟",
 
   "Charts": "الرسوم البيانية",
