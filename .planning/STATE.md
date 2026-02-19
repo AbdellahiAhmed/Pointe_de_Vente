@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-17)
 
 **Core value:** Le caissier peut enregistrer une vente rapidement et de manière fiable, avec un suivi précis du stock et des bénéfices pour le gérant.
-**Current focus:** Phase 7 COMPLETE — UI Redesign
+**Current focus:** Phase 8 COMPLETE — Restaurant Documentation
 
 ## Current Position
 
-Phase: 7 of 8 (UI Redesign) COMPLETE
-Plan: 2 of 2 in current phase
-Status: Phase 7 COMPLETE — POS touch-optimization + admin dashboard KPI/charts/users delivered
-Last activity: 2026-02-19 — Phase 7 Plan 2 COMPLETE (Nivo 0.87, 5 KPI cards, 5 report charts, Users CRUD page)
+Phase: 8 of 8 (Restaurant Documentation) COMPLETE
+Plan: 1 of 1 in current phase
+Status: ALL PHASES COMPLETE — docs/restaurant-extension.md bilingual FR/AR technical specification delivered
+Last activity: 2026-02-19 — Phase 8 Plan 1 COMPLETE (822-line restaurant extension design document, 4 Mermaid diagrams, REST-01/REST-02)
 
-Progress: [█████████░] 93.75%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -34,6 +34,7 @@ Progress: [█████████░] 93.75%
 | 5. Z-Report | 3/3 | 16min (01: 4min, 02: 3min, 03: 9min) | 5.3min |
 | 6. RTL/Arabic | 2/2 | 10min (01: 3min, 02: 7min) | 5min |
 | 7. UI Redesign | 2/2 | ~29min (01: 4min, 02: ~25min) | 14.5min |
+| 8. Restaurant Documentation | 1/1 | 10min (01: 10min) | 10min |
 
 **Recent Trend:**
 - Last 5 plans: —
@@ -75,6 +76,10 @@ Recent decisions affecting current work:
 - [Phase 7-02]: Dashboard KPI layout: 3 cards row 1 (Sales/Revenue/Profit), 2 cards row 2 (Avg Basket/Low Stock) — Bootstrap has no 5-col grid
 - [Phase 7-02]: Admin Users page uses Bootstrap modal via conditional render + modal-backdrop (no JS modal.show() dependency)
 - [Phase 7-02]: Password field optional on edit (leave empty = keep current), Nivo 0.87 uses label prop not labelFormat
+- [Phase 8-01]: Single-level modifiers only (not nested) — simplicity for initial restaurant support; nested modifiers as future extension
+- [Phase 8-01]: List-based table UI (cards in grid) not drag-and-drop floor plan — achievable with existing React/Tailwind stack
+- [Phase 8-01]: Feature flag Store.hasRestaurantMode enables progressive rollout without breaking existing POS stores
+- [Phase 8-01]: Restaurant orders are standard Order entities — existing Z-Report and profit reports include them automatically
 
 ### Critical Pitfalls (from research)
 
@@ -89,6 +94,7 @@ Recent decisions affecting current work:
 - [Phase 6-02 DONE]: All physical direction Tailwind classes migrated (73 occurrences in 43 files); Arabic translations complete (0 missing keys); RTL CSS block minimized
 - [Phase 7-01 DONE]: ProductGrid const T tokens removed; viewport meta fixed; touch CSS added; tablet breakpoints at 1024px/768px
 - [Phase 7-02 DONE]: Nivo 0.87 installed (React 18 compatible); 5-card dashboard; 5 report pages with charts; admin Users CRUD page
+- [Phase 8-01 DONE]: 822-line bilingual restaurant extension document; 4 Mermaid diagrams; REST-01/REST-02 complete
 
 ### Pending Todos
 
@@ -101,5 +107,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Phase 7 COMPLETE — moving to Phase 8
+Stopped at: Phase 8 COMPLETE — ALL 8 PHASES DONE — docs/restaurant-extension.md delivered
 Resume file: None
