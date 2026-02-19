@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-17)
 
 ## Current Position
 
-Phase: 7 of 8 (UI Redesign) NOT STARTED
-Plan: 0 of 2 in current phase
-Status: Phase 6 COMPLETE — all RTL infrastructure and Arabic translations delivered
-Last activity: 2026-02-18 — Phase 6 COMPLETE (2 plans: RTL infrastructure + Arabic completion)
+Phase: 7 of 8 (UI Redesign) IN PROGRESS
+Plan: 1 of 2 in current phase
+Status: Phase 7 Plan 1 COMPLETE — POS touch-optimization and ProductGrid CSS refactor delivered
+Last activity: 2026-02-19 — Phase 7 Plan 1 COMPLETE (viewport fix, ProductGrid refactor, touch CSS, tablet responsive)
 
-Progress: [████████░░] 85.71%
+Progress: [████████░░] 87.5%
 
 ## Performance Metrics
 
@@ -33,6 +33,7 @@ Progress: [████████░░] 85.71%
 | 4. Stock/Pay | 2 | — | — |
 | 5. Z-Report | 3/3 | 16min (01: 4min, 02: 3min, 03: 9min) | 5.3min |
 | 6. RTL/Arabic | 2/2 | 10min (01: 3min, 02: 7min) | 5min |
+| 7. UI Redesign | 1/2 | 4min (01: 4min) | 4min |
 
 **Recent Trend:**
 - Last 5 plans: —
@@ -66,6 +67,10 @@ Recent decisions affecting current work:
 - [Phase 6-02]: Logical properties pattern established: ms-*/me-* for all icon spacing, ms-*/me-*/ps-*/pe-* for all spacing utilities
 - [Phase 6-02]: RTL CSS override block minimized to 5 custom component rules only — generic utility overrides removed as Tailwind logical properties handle them automatically
 - [Phase 6-02]: Arabic file gap was 2 keys at execution (not 20 from research) — available/in cart; rest had already been added
+- [Phase 7-01]: ProductGrid refactored from inline const T tokens to CSS design system classes — hover state tracking removed (CSS handles natively)
+- [Phase 7-01]: product-grid-badge uses inset-inline-end (not right) for RTL compatibility
+- [Phase 7-01]: Cart table layout preserved as-is — only touchAction and py-3 padding added to avoid disrupting CartItem
+- [Phase 7-01]: pos-payment-btn applied to payment type row buttons, Done button, and Hold button (3 occurrences)
 
 ### Critical Pitfalls (from research)
 
@@ -78,6 +83,7 @@ Recent decisions affecting current work:
 - [Phase 6]: 185+ occurrences of ml-*/mr-* to replace — scope precisely before starting
 - [Phase 6-01 DONE]: RTL infrastructure complete — applyLocale() shared utility, local Bootstrap, ConfigProvider, NotoSansArabic font
 - [Phase 6-02 DONE]: All physical direction Tailwind classes migrated (73 occurrences in 43 files); Arabic translations complete (0 missing keys); RTL CSS block minimized
+- [Phase 7-01 DONE]: ProductGrid const T tokens removed; viewport meta fixed; touch CSS added; tablet breakpoints at 1024px/768px
 
 ### Pending Todos
 
@@ -89,6 +95,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-18
-Stopped at: Phase 6 COMPLETE — moving to Phase 7 (UI Redesign)
+Last session: 2026-02-19
+Stopped at: Completed 07-01-PLAN.md — moving to Phase 7 Plan 2
 Resume file: None
