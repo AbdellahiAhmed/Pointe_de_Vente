@@ -514,5 +514,19 @@
   "Reorder Level": "حد إعادة الطلب",
   "Shortage": "النقص",
   "Administration": "الإدارة",
-  "Stock insufficient": "المخزون غير كافٍ"
+  "Stock insufficient": "المخزون غير كافٍ",
+
+  "per order": "لكل طلب",
+  "Low Stock": "مخزون منخفض",
+  "Now": "الآن",
+  "Revenue by Category": "الإيرادات حسب الفئة",
+  "Revenue by Vendor": "الإيرادات حسب البائع",
+  "Profit by Product": "الربح حسب المنتج",
+  "Vendor": "بائع",
+  "Manager": "مدير",
+  "Admin": "مسؤول",
+  "Role": "الدور",
+  "Display Name": "الاسم المعروض",
+  "Create User": "إنشاء مستخدم",
+  "Edit User": "تعديل المستخدم"
 }

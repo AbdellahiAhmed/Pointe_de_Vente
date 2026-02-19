@@ -2,7 +2,7 @@ import React, {FunctionComponent, useEffect, useState} from 'react';
 import {DashboardLayout} from "../layout/dashboard.layout";
 import {useTranslation} from "react-i18next";
 import {jsonRequest} from "../../../api/request/request";
-import {REPORT_DAILY} from "../../../api/routing/routes/backend.app";
+import {REPORT_DAILY, STOCK_ALERTS} from "../../../api/routing/routes/backend.app";
 import {Link} from "react-router-dom";
 import {REPORTS_SALES, REPORTS_PROFIT, REPORTS_DAILY} from "../../routes/frontend.routes";
 
@@ -12,6 +12,7 @@ export const Dashboard: FunctionComponent<DashboardProps> = () => {
   const {t} = useTranslation();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [lowStockCount, setLowStockCount] = useState<number>(0);
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -25,7 +26,17 @@ export const Dashboard: FunctionComponent<DashboardProps> = () => {
         setLoading(false);
       }
     };
+
+    const fetchLowStock = async () => {
+      try {
+        const response = await jsonRequest(STOCK_ALERTS);
+        const json = await response.json();
+        setLowStockCount(json['hydra:totalItems'] ?? json.count ?? 0);
+      } catch (e) { /* ignore */ }
+    };
+
     fetchDashboard();
+    fetchLowStock();
   }, []);
 
   const formatCurrency = (value: number) => {
@@ -40,63 +51,103 @@ export const Dashboard: FunctionComponent<DashboardProps> = () => {
         {title: t('Dashboard'), current: true},
       ]}
     >
+      {/* KPI Cards - Row 1 */}
       <div className="row">
-        <div className="col-lg-8">
-          <div className="row">
-            <div className="col-xxl-4 col-md-6">
-              <div className="card info-card sales-card">
-                <div className="card-body">
-                  <h5 className="card-title">{t("Sales")} <span>| {t("Today")}</span></h5>
-                  <div className="d-flex align-items-center">
-                    <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i className="bi bi-cart"></i>
-                    </div>
-                    <div className="ps-3">
-                      <h6>{loading ? '...' : (data?.totalOrders ?? 0)}</h6>
-                      <span className="text-muted small">{t('Completed Orders').toLowerCase()}</span>
-                    </div>
-                  </div>
+        <div className="col-xxl-4 col-md-4">
+          <div className="card info-card sales-card">
+            <div className="card-body">
+              <h5 className="card-title">{t("Sales")} <span>| {t("Today")}</span></h5>
+              <div className="d-flex align-items-center">
+                <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                  <i className="bi bi-cart"></i>
                 </div>
-              </div>
-            </div>
-
-            <div className="col-xxl-4 col-md-6">
-              <div className="card info-card revenue-card">
-                <div className="card-body">
-                  <h5 className="card-title">{t("Revenue")} <span>| {t("Today")}</span></h5>
-                  <div className="d-flex align-items-center">
-                    <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i className="bi bi-currency-exchange"></i>
-                    </div>
-                    <div className="ps-3">
-                      <h6>{loading ? '...' : formatCurrency(data?.netRevenue ?? 0)}</h6>
-                      <span className="text-muted small">{t('Net Revenue').toLowerCase()}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="col-xxl-4 col-xl-12">
-              <div className="card info-card customers-card">
-                <div className="card-body">
-                  <h5 className="card-title">{t("Profit")} <span>| {t("Today")}</span></h5>
-                  <div className="d-flex align-items-center">
-                    <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i className="bi bi-graph-up-arrow"></i>
-                    </div>
-                    <div className="ps-3">
-                      <h6 className={!loading && data?.grossProfit >= 0 ? 'text-success' : 'text-danger'}>
-                        {loading ? '...' : formatCurrency(data?.grossProfit ?? 0)}
-                      </h6>
-                      <span className="text-muted small">{t('Gross Profit').toLowerCase()}</span>
-                    </div>
-                  </div>
+                <div className="ps-3">
+                  <h6>{loading ? '...' : (data?.totalOrders ?? 0)}</h6>
+                  <span className="text-muted small">{t('Completed Orders').toLowerCase()}</span>
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
+        <div className="col-xxl-4 col-md-4">
+          <div className="card info-card revenue-card">
+            <div className="card-body">
+              <h5 className="card-title">{t("Revenue")} <span>| {t("Today")}</span></h5>
+              <div className="d-flex align-items-center">
+                <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                  <i className="bi bi-currency-exchange"></i>
+                </div>
+                <div className="ps-3">
+                  <h6>{loading ? '...' : formatCurrency(data?.netRevenue ?? 0)}</h6>
+                  <span className="text-muted small">{t('Net Revenue').toLowerCase()}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-xxl-4 col-md-4">
+          <div className="card info-card customers-card">
+            <div className="card-body">
+              <h5 className="card-title">{t("Profit")} <span>| {t("Today")}</span></h5>
+              <div className="d-flex align-items-center">
+                <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                  <i className="bi bi-graph-up-arrow"></i>
+                </div>
+                <div className="ps-3">
+                  <h6 className={!loading && data?.grossProfit >= 0 ? 'text-success' : 'text-danger'}>
+                    {loading ? '...' : formatCurrency(data?.grossProfit ?? 0)}
+                  </h6>
+                  <span className="text-muted small">{t('Gross Profit').toLowerCase()}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* KPI Cards - Row 2 */}
+      <div className="row">
+        <div className="col-md-6">
+          <div className="card info-card">
+            <div className="card-body">
+              <h5 className="card-title">{t("Average Basket")} <span>| {t("Today")}</span></h5>
+              <div className="d-flex align-items-center">
+                <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                  <i className="bi bi-basket"></i>
+                </div>
+                <div className="ps-3">
+                  <h6>{loading ? '...' : formatCurrency(data?.averageBasket ?? 0)}</h6>
+                  <span className="text-muted small">{t('per order').toLowerCase()}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-md-6">
+          <div className="card info-card" style={{borderLeft: '4px solid #f59e0b'}}>
+            <div className="card-body">
+              <h5 className="card-title">{t("Low Stock")} <span>| {t("Now")}</span></h5>
+              <div className="d-flex align-items-center">
+                <div className="card-icon rounded-circle d-flex align-items-center justify-content-center" style={{background: '#fef3c7'}}>
+                  <i className="bi bi-exclamation-triangle" style={{color: '#f59e0b'}}></i>
+                </div>
+                <div className="ps-3">
+                  <h6 className={lowStockCount > 0 ? 'text-warning' : 'text-success'}>
+                    {loading ? '...' : lowStockCount}
+                  </h6>
+                  <span className="text-muted small">{t('products').toLowerCase()}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="row">
+        <div className="col-lg-8">
           {/* Payment Breakdown */}
           {!loading && data?.payments?.length > 0 && (
             <div className="card">

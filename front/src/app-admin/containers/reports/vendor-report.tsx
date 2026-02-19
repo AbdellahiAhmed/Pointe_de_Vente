@@ -4,6 +4,7 @@ import {useTranslation} from "react-i18next";
 import {jsonRequest} from "../../../api/request/request";
 import {REPORT_VENDOR} from "../../../api/routing/routes/backend.app";
 import {DASHBOARD, REPORTS_VENDOR} from "../../routes/frontend.routes";
+import {ResponsiveBar} from '@nivo/bar';
 
 interface VendorData {
   dateFrom: string;
@@ -92,63 +93,100 @@ export const VendorReport: FunctionComponent = () => {
           <p className="mt-2">{t('Loading...')}</p>
         </div>
       ) : data ? (
-        <div className="row">
-          <div className="col-12">
-            <div className="card">
-              <div className="card-body">
-                <h5 className="card-title">{t('Vendor Performance')}</h5>
-                {data.vendors.length > 0 ? (
-                  <table className="table table-striped">
-                    <thead>
-                      <tr>
-                        <th>#</th>
-                        <th>{t('Vendor')}</th>
-                        <th className="text-end">{t('Orders')}</th>
-                        <th className="text-end">{t('Gross Revenue')}</th>
-                        <th className="text-end">{t('Discounts')}</th>
-                        <th className="text-end">{t('Net Revenue')}</th>
-                        <th className="text-end">{t('Avg Basket')}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {data.vendors.map((v, i) => (
-                        <tr key={v.vendorId}>
-                          <td>{i + 1}</td>
-                          <td>{v.vendorName}</td>
-                          <td className="text-end">{v.totalOrders}</td>
-                          <td className="text-end">{formatCurrency(v.grossRevenue)}</td>
-                          <td className="text-end text-danger">-{formatCurrency(v.totalDiscounts)}</td>
-                          <td className="text-end fw-bold">{formatCurrency(v.netRevenue)}</td>
-                          <td className="text-end">{formatCurrency(v.averageBasket)}</td>
+        <>
+          {/* Bar chart for vendor revenue */}
+          {data.vendors.length > 0 && (
+            <div className="row mb-4">
+              <div className="col-12">
+                <div className="card">
+                  <div className="card-body">
+                    <h5 className="card-title">{t('Revenue by Vendor')}</h5>
+                    <div style={{ height: Math.max(200, data.vendors.length * 50) }}>
+                      <ResponsiveBar
+                        data={data.vendors.map(v => ({
+                          vendor: v.vendorName,
+                          revenue: v.netRevenue,
+                        }))}
+                        keys={['revenue']}
+                        indexBy="vendor"
+                        layout="horizontal"
+                        margin={{ top: 10, right: 40, bottom: 30, left: 120 }}
+                        padding={0.3}
+                        colors={{ scheme: 'paired' }}
+                        enableLabel={true}
+                        label={(d) => new Intl.NumberFormat('fr-FR').format(Number(d.value))}
+                        tooltip={({ indexValue, value }) => (
+                          <div style={{ padding: 8, background: '#fff', border: '1px solid #ccc', borderRadius: 4 }}>
+                            <strong>{indexValue}</strong>: {new Intl.NumberFormat('fr-FR').format(value as number)} MRU
+                          </div>
+                        )}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Vendor Performance Table */}
+          <div className="row">
+            <div className="col-12">
+              <div className="card">
+                <div className="card-body">
+                  <h5 className="card-title">{t('Vendor Performance')}</h5>
+                  {data.vendors.length > 0 ? (
+                    <table className="table table-striped">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>{t('Vendor')}</th>
+                          <th className="text-end">{t('Orders')}</th>
+                          <th className="text-end">{t('Gross Revenue')}</th>
+                          <th className="text-end">{t('Discounts')}</th>
+                          <th className="text-end">{t('Net Revenue')}</th>
+                          <th className="text-end">{t('Avg Basket')}</th>
                         </tr>
-                      ))}
-                    </tbody>
-                    <tfoot>
-                      <tr className="table-primary">
-                        <td colSpan={2} className="fw-bold">{t('Total')}</td>
-                        <td className="text-end fw-bold">
-                          {data.vendors.reduce((s, v) => s + v.totalOrders, 0)}
-                        </td>
-                        <td className="text-end fw-bold">
-                          {formatCurrency(data.vendors.reduce((s, v) => s + v.grossRevenue, 0))}
-                        </td>
-                        <td className="text-end fw-bold text-danger">
-                          -{formatCurrency(data.vendors.reduce((s, v) => s + v.totalDiscounts, 0))}
-                        </td>
-                        <td className="text-end fw-bold">
-                          {formatCurrency(data.vendors.reduce((s, v) => s + v.netRevenue, 0))}
-                        </td>
-                        <td className="text-end">-</td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                ) : (
-                  <p className="text-muted">{t('No data available')}</p>
-                )}
+                      </thead>
+                      <tbody>
+                        {data.vendors.map((v, i) => (
+                          <tr key={v.vendorId}>
+                            <td>{i + 1}</td>
+                            <td>{v.vendorName}</td>
+                            <td className="text-end">{v.totalOrders}</td>
+                            <td className="text-end">{formatCurrency(v.grossRevenue)}</td>
+                            <td className="text-end text-danger">-{formatCurrency(v.totalDiscounts)}</td>
+                            <td className="text-end fw-bold">{formatCurrency(v.netRevenue)}</td>
+                            <td className="text-end">{formatCurrency(v.averageBasket)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot>
+                        <tr className="table-primary">
+                          <td colSpan={2} className="fw-bold">{t('Total')}</td>
+                          <td className="text-end fw-bold">
+                            {data.vendors.reduce((s, v) => s + v.totalOrders, 0)}
+                          </td>
+                          <td className="text-end fw-bold">
+                            {formatCurrency(data.vendors.reduce((s, v) => s + v.grossRevenue, 0))}
+                          </td>
+                          <td className="text-end fw-bold text-danger">
+                            -{formatCurrency(data.vendors.reduce((s, v) => s + v.totalDiscounts, 0))}
+                          </td>
+                          <td className="text-end fw-bold">
+                            {formatCurrency(data.vendors.reduce((s, v) => s + v.netRevenue, 0))}
+                          </td>
+                          <td className="text-end">-</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  ) : (
+                    <p className="text-muted">{t('No data available')}</p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </>
       ) : (
         <p className="text-muted">{t('No data available')}</p>
       )}

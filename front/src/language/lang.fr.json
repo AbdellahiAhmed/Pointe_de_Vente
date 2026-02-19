@@ -517,5 +517,19 @@
   "Current Stock": "Stock actuel",
   "Reorder Level": "Seuil de réapprovisionnement",
   "Shortage": "Manque",
-  "Administration": "Administration"
+  "Administration": "Administration",
+
+  "per order": "par commande",
+  "Low Stock": "Stock faible",
+  "Now": "Maintenant",
+  "Revenue by Category": "Revenu par catégorie",
+  "Revenue by Vendor": "Revenu par vendeur",
+  "Profit by Product": "Bénéfice par produit",
+  "Vendor": "Vendeur",
+  "Manager": "Gestionnaire",
+  "Admin": "Administrateur",
+  "Role": "Rôle",
+  "Display Name": "Nom d'affichage",
+  "Create User": "Créer un utilisateur",
+  "Edit User": "Modifier l'utilisateur"
 }

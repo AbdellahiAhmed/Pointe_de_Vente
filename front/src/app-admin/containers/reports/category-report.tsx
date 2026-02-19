@@ -4,6 +4,7 @@ import {useTranslation} from "react-i18next";
 import {jsonRequest} from "../../../api/request/request";
 import {REPORT_CATEGORY} from "../../../api/routing/routes/backend.app";
 import {DASHBOARD, REPORTS_CATEGORY} from "../../routes/frontend.routes";
+import {ResponsivePie} from '@nivo/pie';
 
 interface CategoryData {
   dateFrom: string;
@@ -94,79 +95,117 @@ export const CategoryReport: FunctionComponent = () => {
           <p className="mt-2">{t('Loading...')}</p>
         </div>
       ) : data ? (
-        <div className="row">
-          <div className="col-12">
-            <div className="card">
-              <div className="card-body">
-                <h5 className="card-title">{t('Category Performance')}</h5>
-                {data.categories.length > 0 ? (
-                  <table className="table table-striped">
-                    <thead>
-                      <tr>
-                        <th>#</th>
-                        <th>{t('Category')}</th>
-                        <th className="text-end">{t('Orders')}</th>
-                        <th className="text-end">{t('Gross Revenue')}</th>
-                        <th className="text-end">{t('Cost Price')}</th>
-                        <th className="text-end">{t('Profit')}</th>
-                        <th className="text-end">{t('Margin')} %</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {data.categories.map((c, i) => (
-                        <tr key={c.categoryId}>
-                          <td>{i + 1}</td>
-                          <td>{c.categoryName}</td>
-                          <td className="text-end">{c.totalOrders}</td>
-                          <td className="text-end">{formatCurrency(c.grossRevenue)}</td>
-                          <td className="text-end">{formatCurrency(c.totalCost)}</td>
-                          <td className={`text-end fw-bold ${c.grossProfit >= 0 ? 'text-success' : 'text-danger'}`}>
-                            {formatCurrency(c.grossProfit)}
-                          </td>
-                          <td className={`text-end ${c.profitMargin >= 0 ? 'text-success' : 'text-danger'}`}>
-                            {Number(c.profitMargin).toFixed(1)}%
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                    <tfoot>
-                      {(() => {
-                        const totals = data.categories.reduce(
-                          (acc, c) => ({
-                            orders: acc.orders + c.totalOrders,
-                            revenue: acc.revenue + c.grossRevenue,
-                            cost: acc.cost + c.totalCost,
-                            profit: acc.profit + c.grossProfit,
-                          }),
-                          { orders: 0, revenue: 0, cost: 0, profit: 0 }
-                        );
-                        const totalMargin = totals.revenue > 0
-                          ? ((totals.profit / totals.revenue) * 100)
-                          : 0;
-                        return (
-                          <tr className="table-primary">
-                            <td colSpan={2} className="fw-bold">{t('Total')}</td>
-                            <td className="text-end fw-bold">{totals.orders}</td>
-                            <td className="text-end fw-bold">{formatCurrency(totals.revenue)}</td>
-                            <td className="text-end fw-bold">{formatCurrency(totals.cost)}</td>
-                            <td className={`text-end fw-bold ${totals.profit >= 0 ? 'text-success' : 'text-danger'}`}>
-                              {formatCurrency(totals.profit)}
-                            </td>
-                            <td className={`text-end fw-bold ${totalMargin >= 0 ? 'text-success' : 'text-danger'}`}>
-                              {totalMargin.toFixed(1)}%
-                            </td>
-                          </tr>
-                        );
-                      })()}
-                    </tfoot>
-                  </table>
-                ) : (
-                  <p className="text-muted">{t('No data available')}</p>
-                )}
+        <>
+          {/* Pie chart for revenue distribution */}
+          <div className="row mb-4">
+            <div className="col-12">
+              <div className="card">
+                <div className="card-body">
+                  <h5 className="card-title">{t('Revenue by Category')}</h5>
+                  {data.categories.length > 0 && (
+                    <div style={{ height: 350 }}>
+                      <ResponsivePie
+                        data={data.categories.map(c => ({
+                          id: c.categoryName,
+                          label: c.categoryName,
+                          value: c.netRevenue,
+                        }))}
+                        margin={{ top: 20, right: 80, bottom: 20, left: 80 }}
+                        innerRadius={0.5}
+                        padAngle={0.7}
+                        cornerRadius={3}
+                        colors={{ scheme: 'paired' }}
+                        borderWidth={1}
+                        borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
+                        arcLinkLabelsSkipAngle={10}
+                        arcLabelsSkipAngle={10}
+                        arcLinkLabelsTextColor="#333"
+                        arcLinkLabelsThickness={2}
+                        arcLinkLabelsColor={{ from: 'color' }}
+                        valueFormat={(v) => new Intl.NumberFormat('fr-FR').format(v) + ' MRU'}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+
+          {/* Category Performance Table */}
+          <div className="row">
+            <div className="col-12">
+              <div className="card">
+                <div className="card-body">
+                  <h5 className="card-title">{t('Category Performance')}</h5>
+                  {data.categories.length > 0 ? (
+                    <table className="table table-striped">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>{t('Category')}</th>
+                          <th className="text-end">{t('Orders')}</th>
+                          <th className="text-end">{t('Gross Revenue')}</th>
+                          <th className="text-end">{t('Cost Price')}</th>
+                          <th className="text-end">{t('Profit')}</th>
+                          <th className="text-end">{t('Margin')} %</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.categories.map((c, i) => (
+                          <tr key={c.categoryId}>
+                            <td>{i + 1}</td>
+                            <td>{c.categoryName}</td>
+                            <td className="text-end">{c.totalOrders}</td>
+                            <td className="text-end">{formatCurrency(c.grossRevenue)}</td>
+                            <td className="text-end">{formatCurrency(c.totalCost)}</td>
+                            <td className={`text-end fw-bold ${c.grossProfit >= 0 ? 'text-success' : 'text-danger'}`}>
+                              {formatCurrency(c.grossProfit)}
+                            </td>
+                            <td className={`text-end ${c.profitMargin >= 0 ? 'text-success' : 'text-danger'}`}>
+                              {Number(c.profitMargin).toFixed(1)}%
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot>
+                        {(() => {
+                          const totals = data.categories.reduce(
+                            (acc, c) => ({
+                              orders: acc.orders + c.totalOrders,
+                              revenue: acc.revenue + c.grossRevenue,
+                              cost: acc.cost + c.totalCost,
+                              profit: acc.profit + c.grossProfit,
+                            }),
+                            { orders: 0, revenue: 0, cost: 0, profit: 0 }
+                          );
+                          const totalMargin = totals.revenue > 0
+                            ? ((totals.profit / totals.revenue) * 100)
+                            : 0;
+                          return (
+                            <tr className="table-primary">
+                              <td colSpan={2} className="fw-bold">{t('Total')}</td>
+                              <td className="text-end fw-bold">{totals.orders}</td>
+                              <td className="text-end fw-bold">{formatCurrency(totals.revenue)}</td>
+                              <td className="text-end fw-bold">{formatCurrency(totals.cost)}</td>
+                              <td className={`text-end fw-bold ${totals.profit >= 0 ? 'text-success' : 'text-danger'}`}>
+                                {formatCurrency(totals.profit)}
+                              </td>
+                              <td className={`text-end fw-bold ${totalMargin >= 0 ? 'text-success' : 'text-danger'}`}>
+                                {totalMargin.toFixed(1)}%
+                              </td>
+                            </tr>
+                          );
+                        })()}
+                      </tfoot>
+                    </table>
+                  ) : (
+                    <p className="text-muted">{t('No data available')}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
       ) : (
         <p className="text-muted">{t('No data available')}</p>
       )}

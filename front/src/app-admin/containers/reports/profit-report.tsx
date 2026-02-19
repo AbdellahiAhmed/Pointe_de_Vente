@@ -4,6 +4,7 @@ import {useTranslation} from "react-i18next";
 import {jsonRequest} from "../../../api/request/request";
 import {REPORT_PROFIT} from "../../../api/routing/routes/backend.app";
 import {DASHBOARD, REPORTS_PROFIT} from "../../routes/frontend.routes";
+import {ResponsiveBar} from '@nivo/bar';
 
 interface ProfitData {
   dateFrom: string;
@@ -169,6 +170,52 @@ export const ProfitReport: FunctionComponent = () => {
               </div>
             </div>
           </div>
+
+          {/* Top Products Bar Chart */}
+          {data.topProducts.length > 0 && (
+            <div className="row mb-4">
+              <div className="col-12">
+                <div className="card">
+                  <div className="card-body">
+                    <h5 className="card-title">{t('Profit by Product')}</h5>
+                    <div style={{ height: 350 }}>
+                      <ResponsiveBar
+                        data={data.topProducts.slice(0, 10).map(p => ({
+                          product: p.productName.length > 20 ? p.productName.substring(0, 20) + '...' : p.productName,
+                          profit: Number(p.profit),
+                          revenue: Number(p.revenue),
+                        }))}
+                        keys={['profit', 'revenue']}
+                        indexBy="product"
+                        groupMode="grouped"
+                        margin={{ top: 10, right: 20, bottom: 60, left: 80 }}
+                        padding={0.2}
+                        colors={['#10b981', '#3b82f6']}
+                        axisBottom={{ tickRotation: -45 }}
+                        enableLabel={false}
+                        legends={[
+                          {
+                            dataFrom: 'keys',
+                            anchor: 'top-right',
+                            direction: 'row',
+                            translateY: -10,
+                            itemWidth: 80,
+                            itemHeight: 20,
+                            symbolSize: 12,
+                          }
+                        ]}
+                        tooltip={({ id, indexValue, value }) => (
+                          <div style={{ padding: 8, background: '#fff', border: '1px solid #ccc', borderRadius: 4 }}>
+                            <strong>{indexValue}</strong> - {id}: {new Intl.NumberFormat('fr-FR').format(value as number)} MRU
+                          </div>
+                        )}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Top Products Table */}
           <div className="row">

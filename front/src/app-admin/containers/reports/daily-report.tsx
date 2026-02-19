@@ -4,6 +4,8 @@ import {useTranslation} from "react-i18next";
 import {jsonRequest} from "../../../api/request/request";
 import {REPORT_DAILY} from "../../../api/routing/routes/backend.app";
 import {DASHBOARD, REPORTS_DAILY} from "../../routes/frontend.routes";
+import {ResponsiveBar} from '@nivo/bar';
+import {ResponsivePie} from '@nivo/pie';
 
 interface DailyData {
   date: string;
@@ -247,36 +249,53 @@ export const DailyReport: FunctionComponent = () => {
           </div>
 
           <div className="row">
-            {/* Payment Breakdown */}
+            {/* Payment Breakdown with chart */}
             <div className="col-md-6">
               <div className="card">
                 <div className="card-body">
                   <h5 className="card-title">{t('Payment Breakdown')}</h5>
                   {data.payments.length > 0 ? (
-                    <table className="table table-striped">
-                      <thead>
-                        <tr>
-                          <th>{t('Payment type')}</th>
-                          <th className="text-end">{t('Amount')}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {data.payments.map((p, i) => (
-                          <tr key={i}>
-                            <td>{p.paymentType}</td>
-                            <td className="text-end fw-bold">{formatCurrency(Number(p.amount))}</td>
+                    <>
+                      <div style={{ height: 250 }} className="mb-3">
+                        <ResponsiveBar
+                          data={data.payments.map(p => ({
+                            type: p.paymentType,
+                            amount: Number(p.amount),
+                          }))}
+                          keys={['amount']}
+                          indexBy="type"
+                          margin={{ top: 10, right: 20, bottom: 40, left: 80 }}
+                          padding={0.3}
+                          colors={{ scheme: 'paired' }}
+                          enableLabel={false}
+                          axisLeft={{ format: (v: number) => new Intl.NumberFormat('fr-FR').format(v) }}
+                        />
+                      </div>
+                      <table className="table table-striped">
+                        <thead>
+                          <tr>
+                            <th>{t('Payment type')}</th>
+                            <th className="text-end">{t('Amount')}</th>
                           </tr>
-                        ))}
-                      </tbody>
-                      <tfoot>
-                        <tr className="table-primary">
-                          <td className="fw-bold">{t('Total')}</td>
-                          <td className="text-end fw-bold">
-                            {formatCurrency(data.payments.reduce((s, p) => s + Number(p.amount), 0))}
-                          </td>
-                        </tr>
-                      </tfoot>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {data.payments.map((p, i) => (
+                            <tr key={i}>
+                              <td>{p.paymentType}</td>
+                              <td className="text-end fw-bold">{formatCurrency(Number(p.amount))}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                        <tfoot>
+                          <tr className="table-primary">
+                            <td className="fw-bold">{t('Total')}</td>
+                            <td className="text-end fw-bold">
+                              {formatCurrency(data.payments.reduce((s, p) => s + Number(p.amount), 0))}
+                            </td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </>
                   ) : (
                     <p className="text-muted">{t('No data available')}</p>
                   )}
@@ -284,32 +303,50 @@ export const DailyReport: FunctionComponent = () => {
               </div>
             </div>
 
-            {/* Top Products */}
+            {/* Top Products with pie chart */}
             <div className="col-md-6">
               <div className="card">
                 <div className="card-body">
                   <h5 className="card-title">{t('Top Products')} {t('of the day')}</h5>
                   {data.topProducts.length > 0 ? (
-                    <table className="table table-striped">
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>{t('Product')}</th>
-                          <th className="text-end">{t('Qty Sold')}</th>
-                          <th className="text-end">{t('Revenue')}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {data.topProducts.map((p, i) => (
-                          <tr key={i}>
-                            <td>{i + 1}</td>
-                            <td>{p.productName}</td>
-                            <td className="text-end">{Number(p.totalQty).toFixed(0)}</td>
-                            <td className="text-end fw-bold">{formatCurrency(Number(p.revenue))}</td>
+                    <>
+                      <div style={{ height: 250 }} className="mb-3">
+                        <ResponsivePie
+                          data={data.topProducts.map(p => ({
+                            id: p.productName,
+                            label: p.productName,
+                            value: Number(p.revenue),
+                          }))}
+                          margin={{ top: 10, right: 60, bottom: 10, left: 60 }}
+                          innerRadius={0.4}
+                          padAngle={0.7}
+                          colors={{ scheme: 'paired' }}
+                          arcLinkLabelsSkipAngle={10}
+                          arcLabelsSkipAngle={10}
+                          valueFormat={(v) => new Intl.NumberFormat('fr-FR').format(v) + ' MRU'}
+                        />
+                      </div>
+                      <table className="table table-striped">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>{t('Product')}</th>
+                            <th className="text-end">{t('Qty Sold')}</th>
+                            <th className="text-end">{t('Revenue')}</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {data.topProducts.map((p, i) => (
+                            <tr key={i}>
+                              <td>{i + 1}</td>
+                              <td>{p.productName}</td>
+                              <td className="text-end">{Number(p.totalQty).toFixed(0)}</td>
+                              <td className="text-end fw-bold">{formatCurrency(Number(p.revenue))}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </>
                   ) : (
                     <p className="text-muted">{t('No data available')}</p>
                   )}

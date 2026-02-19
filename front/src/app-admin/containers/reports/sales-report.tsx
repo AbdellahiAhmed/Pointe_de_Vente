@@ -4,6 +4,7 @@ import {useTranslation} from "react-i18next";
 import {jsonRequest} from "../../../api/request/request";
 import {REPORT_SALES} from "../../../api/routing/routes/backend.app";
 import {DASHBOARD, REPORTS_SALES} from "../../routes/frontend.routes";
+import {ResponsiveBar} from '@nivo/bar';
 
 interface SalesData {
   dateFrom: string;
@@ -172,30 +173,58 @@ export const SalesReport: FunctionComponent = () => {
                 <div className="card-body">
                   <h5 className="card-title">{t('Payment Breakdown')}</h5>
                   {data.payments.length > 0 ? (
-                    <table className="table table-striped">
-                      <thead>
-                        <tr>
-                          <th>{t('Payment type')}</th>
-                          <th className="text-end">{t('Amount')}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {data.payments.map((p, i) => (
-                          <tr key={i}>
-                            <td>{p.paymentType}</td>
-                            <td className="text-end fw-bold">{formatCurrency(Number(p.amount))}</td>
+                    <>
+                      {/* Bar chart for payment breakdown */}
+                      <div style={{ height: 300 }} className="mt-3">
+                        <ResponsiveBar
+                          data={data.payments.map(p => ({
+                            paymentType: p.paymentType,
+                            amount: Number(p.amount),
+                          }))}
+                          keys={['amount']}
+                          indexBy="paymentType"
+                          margin={{ top: 10, right: 20, bottom: 50, left: 80 }}
+                          padding={0.3}
+                          colors={{ scheme: 'paired' }}
+                          axisBottom={{ tickRotation: -45 }}
+                          axisLeft={{
+                            format: (v: number) => new Intl.NumberFormat('fr-FR').format(v),
+                          }}
+                          enableLabel={false}
+                          tooltip={({ indexValue, value }) => (
+                            <div style={{ padding: 8, background: '#fff', border: '1px solid #ccc', borderRadius: 4 }}>
+                              <strong>{indexValue}</strong>: {new Intl.NumberFormat('fr-FR').format(value as number)} MRU
+                            </div>
+                          )}
+                        />
+                      </div>
+
+                      {/* Table below chart */}
+                      <table className="table table-striped mt-3">
+                        <thead>
+                          <tr>
+                            <th>{t('Payment type')}</th>
+                            <th className="text-end">{t('Amount')}</th>
                           </tr>
-                        ))}
-                      </tbody>
-                      <tfoot>
-                        <tr className="table-primary">
-                          <td className="fw-bold">{t('Total')}</td>
-                          <td className="text-end fw-bold">
-                            {formatCurrency(data.payments.reduce((sum, p) => sum + Number(p.amount), 0))}
-                          </td>
-                        </tr>
-                      </tfoot>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {data.payments.map((p, i) => (
+                            <tr key={i}>
+                              <td>{p.paymentType}</td>
+                              <td className="text-end fw-bold">{formatCurrency(Number(p.amount))}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                        <tfoot>
+                          <tr className="table-primary">
+                            <td className="fw-bold">{t('Total')}</td>
+                            <td className="text-end fw-bold">
+                              {formatCurrency(data.payments.reduce((sum, p) => sum + Number(p.amount), 0))}
+                            </td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </>
                   ) : (
                     <p className="text-muted">{t('No data available')}</p>
                   )}
