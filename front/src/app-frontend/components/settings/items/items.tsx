@@ -25,7 +25,6 @@ import { Switch } from "../../../../app-common/components/input/switch";
 import { ItemComponent } from "./item";
 import { Menu, MenuItem } from "react-aria-components";
 import { DropdownMenu, DropdownMenuItem } from "../../../../app-common/components/react-aria/dropdown.menu";
-import localforage from "../../../../lib/localforage/localforage";
 
 export const Items = () => {
   const useLoadHook = useApi<HydraCollection<Product>>(
@@ -191,6 +190,10 @@ export const Items = () => {
     }),
   ];
 
+  function notifyProductsChanged() {
+    window.dispatchEvent(new Event('products-changed'));
+  }
+
   async function deleteItem(id: string, status: boolean) {
     await jsonRequest(PRODUCT_GET.replace(":id", id), {
       method: "PUT",
@@ -199,18 +202,18 @@ export const Items = () => {
       }),
     });
 
-    await localforage.removeItem('list');
     await useLoadHook.fetchData();
+    notifyProductsChanged();
   }
 
   async function hardDeleteItem(id: string) {
     await jsonRequest(PRODUCT_GET.replace(":id", id), {
       method: "DELETE",
     });
-    await localforage.removeItem('list');
     setShowDeleteConfirm(false);
     setDeleteTarget(null);
     await useLoadHook.fetchData();
+    notifyProductsChanged();
   }
 
   async function bulkDeleteItems() {
@@ -220,11 +223,11 @@ export const Items = () => {
         method: "DELETE",
       });
     }
-    await localforage.removeItem('list');
     setBulkDeleting(false);
     setShowBulkDeleteConfirm(false);
     setSelectedProducts([]);
     await useLoadHook.fetchData();
+    notifyProductsChanged();
   }
 
   const handleSelectedRowsChange = useCallback((rows: any[]) => {
@@ -280,9 +283,9 @@ export const Items = () => {
         onClose={() => {
           setModal(false);
           setOperation("create");
-          localforage.removeItem('list');
           useLoadHook.fetchData();
           setEntity(undefined);
+          notifyProductsChanged();
         }}
         operation={operation}
       />

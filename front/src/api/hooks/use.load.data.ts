@@ -66,26 +66,25 @@ export const useLoadData = (): [ReturnState, ReturnAction] => {
   const [settingList, setSettingList] = useState<HomeProps['settingList']>(initialData);
   const dispatch = useDispatch();
 
-  const loadProducts = async (offset = 1, limit = 100) => {
+  const loadProducts = async (offset = 1, limit = 100, accumulator: Product[] = []) => {
     const res = await jsonRequest(`${PRODUCT_LIST}?itemsPerPage=${limit}&page=${offset}&isActive=true`);
     const l = await res.json();
+    const merged = [...accumulator, ...l['hydra:member']];
 
-    offset += 1;
-
-    setList(prev => {
-      localforage.setItem('list', {
-        list: [...prev.list, ...l['hydra:member']]
-      });
-
-      return {
-        ...prev,
-        list: [...prev.list, ...l['hydra:member']]
-      }
-    });
+    setList({ list: merged });
+    await localforage.setItem('list', { list: merged });
 
     if(l['hydra:member'].length > 0) {
-      await loadProducts(offset);
+      await loadProducts(offset + 1, limit, merged);
     }
+  };
+
+  const reloadProducts = async () => {
+    setList(initialData);
+    await localforage.removeItem('list');
+    dispatch(progressAction('Products'));
+    await loadProducts();
+    dispatch(progressAction('Done'));
   };
 
   const loadData = async () => {
@@ -201,6 +200,13 @@ export const useLoadData = (): [ReturnState, ReturnAction] => {
 
   useEffect(() => {
     loadData();
+  }, []);
+
+  // Listen for product mutations from admin panel
+  useEffect(() => {
+    const handler = () => { reloadProducts(); };
+    window.addEventListener('products-changed', handler);
+    return () => window.removeEventListener('products-changed', handler);
   }, []);
 
   return [
