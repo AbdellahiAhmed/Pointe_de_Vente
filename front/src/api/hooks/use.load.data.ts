@@ -79,14 +79,6 @@ export const useLoadData = (): [ReturnState, ReturnAction] => {
     }
   };
 
-  const reloadProducts = async () => {
-    setList(initialData);
-    await localforage.removeItem('list');
-    dispatch(progressAction('Products'));
-    await loadProducts();
-    dispatch(progressAction('Done'));
-  };
-
   const loadData = async () => {
     const localList: HomeProps['list'] | null = await localforage.getItem('list');
     if (localList === null) {
@@ -200,13 +192,6 @@ export const useLoadData = (): [ReturnState, ReturnAction] => {
 
   useEffect(() => {
     loadData();
-  }, []);
-
-  // Listen for product mutations from admin panel
-  useEffect(() => {
-    const handler = () => { reloadProducts(); };
-    window.addEventListener('products-changed', handler);
-    return () => window.removeEventListener('products-changed', handler);
   }, []);
 
   return [

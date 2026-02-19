@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, } from "react";
 import { useTranslation } from "react-i18next";
 import { HomeProps, initialData, useLoadData, } from "../../../api/hooks/use.load.data";
 import { getStore } from "../../../duck/store/store.selector";
@@ -11,8 +11,8 @@ import { useAtom } from "jotai";
 import localforage from "localforage";
 import { Controller, useForm } from "react-hook-form";
 import { CartItem } from "../../../api/model/cart.item";
-import { fetchJson } from "../../../api/request/request";
-import { BARCODE_LIST, } from "../../../api/routing/routes/backend.app";
+import { fetchJson, jsonRequest } from "../../../api/request/request";
+import { BARCODE_LIST, PRODUCT_LIST, } from "../../../api/routing/routes/backend.app";
 import { notify } from "../../../app-common/components/confirm/notification";
 import { getRealProductPrice, scrollToBottom, } from "../../containers/dashboard/pos";
 import { CartContainer } from "../cart/cart.container";
@@ -75,6 +75,29 @@ export const PosMode = () => {
     setList(state.list);
     setPaymentTypesList(state.paymentTypesList);
   }, [state.list, state.paymentTypesList]);
+
+  // Reload products directly from API when admin panel mutates products
+  const reloadProductsFromApi = useCallback(async () => {
+    const products: Product[] = [];
+    const fetchPage = async (page: number) => {
+      const res = await jsonRequest(`${PRODUCT_LIST}?itemsPerPage=100&page=${page}&isActive=true`);
+      const data = await res.json();
+      products.push(...data['hydra:member']);
+      if (data['hydra:member'].length > 0) {
+        await fetchPage(page + 1);
+      }
+    };
+    await fetchPage(1);
+    const freshList = { list: products };
+    await localforage.setItem('list', freshList);
+    setList(freshList);
+  }, []);
+
+  useEffect(() => {
+    const handler = () => { reloadProductsFromApi(); };
+    window.addEventListener('products-changed', handler);
+    return () => window.removeEventListener('products-changed', handler);
+  }, [reloadProductsFromApi]);
 
   const searchField = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
