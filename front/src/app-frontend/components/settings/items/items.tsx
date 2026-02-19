@@ -25,6 +25,7 @@ import { Switch } from "../../../../app-common/components/input/switch";
 import { ItemComponent } from "./item";
 import { Menu, MenuItem } from "react-aria-components";
 import { DropdownMenu, DropdownMenuItem } from "../../../../app-common/components/react-aria/dropdown.menu";
+import localforage from "../../../../lib/localforage/localforage";
 
 export const Items = () => {
   const useLoadHook = useApi<HydraCollection<Product>>(
@@ -198,6 +199,7 @@ export const Items = () => {
       }),
     });
 
+    await localforage.removeItem('list');
     await useLoadHook.fetchData();
   }
 
@@ -205,6 +207,7 @@ export const Items = () => {
     await jsonRequest(PRODUCT_GET.replace(":id", id), {
       method: "DELETE",
     });
+    await localforage.removeItem('list');
     setShowDeleteConfirm(false);
     setDeleteTarget(null);
     await useLoadHook.fetchData();
@@ -217,6 +220,7 @@ export const Items = () => {
         method: "DELETE",
       });
     }
+    await localforage.removeItem('list');
     setBulkDeleting(false);
     setShowBulkDeleteConfirm(false);
     setSelectedProducts([]);
@@ -276,6 +280,7 @@ export const Items = () => {
         onClose={() => {
           setModal(false);
           setOperation("create");
+          localforage.removeItem('list');
           useLoadHook.fetchData();
           setEntity(undefined);
         }}
