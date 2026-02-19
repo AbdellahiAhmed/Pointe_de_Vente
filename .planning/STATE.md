@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-17)
 
 **Core value:** Le caissier peut enregistrer une vente rapidement et de manière fiable, avec un suivi précis du stock et des bénéfices pour le gérant.
-**Current focus:** Phase 7 NEXT — UI Redesign
+**Current focus:** Phase 7 COMPLETE — UI Redesign
 
 ## Current Position
 
-Phase: 7 of 8 (UI Redesign) IN PROGRESS
-Plan: 1 of 2 in current phase
-Status: Phase 7 Plan 1 COMPLETE — POS touch-optimization and ProductGrid CSS refactor delivered
-Last activity: 2026-02-19 — Phase 7 Plan 1 COMPLETE (viewport fix, ProductGrid refactor, touch CSS, tablet responsive)
+Phase: 7 of 8 (UI Redesign) COMPLETE
+Plan: 2 of 2 in current phase
+Status: Phase 7 COMPLETE — POS touch-optimization + admin dashboard KPI/charts/users delivered
+Last activity: 2026-02-19 — Phase 7 Plan 2 COMPLETE (Nivo 0.87, 5 KPI cards, 5 report charts, Users CRUD page)
 
-Progress: [████████░░] 87.5%
+Progress: [█████████░] 93.75%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
+- Total plans completed: 14
 - Average duration: —
 - Total execution time: —
 
@@ -33,7 +33,7 @@ Progress: [████████░░] 87.5%
 | 4. Stock/Pay | 2 | — | — |
 | 5. Z-Report | 3/3 | 16min (01: 4min, 02: 3min, 03: 9min) | 5.3min |
 | 6. RTL/Arabic | 2/2 | 10min (01: 3min, 02: 7min) | 5min |
-| 7. UI Redesign | 1/2 | 4min (01: 4min) | 4min |
+| 7. UI Redesign | 2/2 | ~29min (01: 4min, 02: ~25min) | 14.5min |
 
 **Recent Trend:**
 - Last 5 plans: —
@@ -71,6 +71,10 @@ Recent decisions affecting current work:
 - [Phase 7-01]: product-grid-badge uses inset-inline-end (not right) for RTL compatibility
 - [Phase 7-01]: Cart table layout preserved as-is — only touchAction and py-3 padding added to avoid disrupting CartItem
 - [Phase 7-01]: pos-payment-btn applied to payment type row buttons, Done button, and Hold button (3 occurrences)
+- [Phase 7-02]: Used backend.app.ts USER_LIST/CREATE/EDIT routes (not admin.backend.app.ts which is a different messaging project)
+- [Phase 7-02]: Dashboard KPI layout: 3 cards row 1 (Sales/Revenue/Profit), 2 cards row 2 (Avg Basket/Low Stock) — Bootstrap has no 5-col grid
+- [Phase 7-02]: Admin Users page uses Bootstrap modal via conditional render + modal-backdrop (no JS modal.show() dependency)
+- [Phase 7-02]: Password field optional on edit (leave empty = keep current), Nivo 0.87 uses label prop not labelFormat
 
 ### Critical Pitfalls (from research)
 
@@ -84,6 +88,7 @@ Recent decisions affecting current work:
 - [Phase 6-01 DONE]: RTL infrastructure complete — applyLocale() shared utility, local Bootstrap, ConfigProvider, NotoSansArabic font
 - [Phase 6-02 DONE]: All physical direction Tailwind classes migrated (73 occurrences in 43 files); Arabic translations complete (0 missing keys); RTL CSS block minimized
 - [Phase 7-01 DONE]: ProductGrid const T tokens removed; viewport meta fixed; touch CSS added; tablet breakpoints at 1024px/768px
+- [Phase 7-02 DONE]: Nivo 0.87 installed (React 18 compatible); 5-card dashboard; 5 report pages with charts; admin Users CRUD page
 
 ### Pending Todos
 
@@ -96,5 +101,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 07-01-PLAN.md — moving to Phase 7 Plan 2
+Stopped at: Phase 7 COMPLETE — moving to Phase 8
 Resume file: None
