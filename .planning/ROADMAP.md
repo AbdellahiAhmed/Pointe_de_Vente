@@ -136,10 +136,10 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. The document describes table management, modifier system, kitchen order flow, and kitchen display screen at a level of detail sufficient for a technical reviewer to understand how the system would work.
   2. The document is formatted professionally and is available in French (and Arabic section headers where applicable).
-**Plans**: TBD
+**Plans:** 1 plan
 
 Plans:
-- [ ] 08-01: Write restaurant extension design document covering table management, modifiers, kitchen ticket flow, and kitchen display screen — bilingual format (FR/AR headers)
+- [ ] 08-01-PLAN.md — Write restaurant extension design document covering table management, modifiers, kitchen ticket flow, and kitchen display screen — bilingual format (FR/AR headers)
 
 ## Progress
 
