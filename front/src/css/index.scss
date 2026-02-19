@@ -477,6 +477,122 @@
   }
 }
 
+/* ─── Touch Optimization ─── */
+.pos-payment-btn {
+  min-height: 56px;
+  min-width: 80px;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: var(--pos-radius);
+  transition: all 0.12s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.pos-cart-qty-btn {
+  min-width: 36px;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--pos-radius-sm);
+  border: 1px solid var(--pos-border);
+  background: var(--pos-surface);
+  color: var(--pos-text);
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.1s ease;
+
+  &:hover {
+    background: var(--pos-surface-hover);
+    border-color: var(--pos-accent);
+  }
+
+  &:active {
+    transform: scale(0.92);
+    background: var(--pos-accent-light);
+  }
+}
+
+.pos-cart-qty-input {
+  min-height: 36px;
+  width: 48px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  border: 1px solid var(--pos-border);
+  border-radius: var(--pos-radius-sm);
+  background: var(--pos-surface);
+  color: var(--pos-text);
+  -moz-appearance: textfield;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+/* iOS zoom prevention for all POS inputs */
+.pos-layout input,
+.pos-layout textarea,
+.pos-layout select,
+.pos-topbar input,
+.pos-topbar textarea {
+  font-size: 16px !important;
+}
+
+/* ─── Tablet Responsive ─── */
+@media (max-width: 1024px) {
+  .pos-layout-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr auto;
+    height: auto;
+    min-height: calc(100vh - 56px);
+  }
+
+  .pos-layout-grid > .pos-panel:first-child {
+    grid-column: 1 / -1;
+    max-height: 50vh;
+  }
+
+  .pos-topbar {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 12px;
+  }
+
+  .pos-topbar-search {
+    order: -1;
+    width: 100%;
+    flex-basis: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .pos-layout-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .pos-layout-grid > .pos-panel:first-child {
+    max-height: 40vh;
+  }
+
+  .pos-layout-list {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ─── RTL Support ─── */
 [dir="rtl"] {
   html, body, button, input, optgroup, select, textarea {

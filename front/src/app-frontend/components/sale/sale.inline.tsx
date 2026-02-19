@@ -569,7 +569,7 @@ export const CloseSaleInline: FC<Props> = ({
                   onClick={() => {
                     setPayment(pt);
                   }}
-                  className="btn-primary flex-grow flex-shrink-0 w-auto"
+                  className="btn-primary flex-grow flex-shrink-0 w-auto pos-payment-btn"
                   active={payment?.id === pt.id}
                   type="button"
                   size="lg"
@@ -703,7 +703,7 @@ export const CloseSaleInline: FC<Props> = ({
 
             <div className="flex gap-3 flex-wrap">
               <Button
-                className="btn-success w-full"
+                className="btn-success w-full pos-payment-btn"
                 type="submit"
                 disabled={added.length === 0 || isSaleClosing || changeDue < 0}
                 size="lg"
@@ -716,7 +716,7 @@ export const CloseSaleInline: FC<Props> = ({
                 type="submit"
                 disabled={added.length === 0 || isSaleClosing}
                 size="lg"
-                className="btn-warning flex-1"
+                className="btn-warning flex-1 pos-payment-btn"
                 onClick={() => setHold(true)}>
                 <FontAwesomeIcon icon={faPause} size="lg"/>
               </Button>

@@ -257,10 +257,10 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
   );
 
   return (
-    <div className="table w-full">
+    <div className="table w-full" style={{ touchAction: 'manipulation' }}>
       <div className="table-header-group sticky top-0 z-10 bg-gray-200">
         <div className="table-row">
-          <div className="table-cell p-2 w-[30px]">
+          <div className="table-cell p-2 py-3 w-[30px]">
             <Checkbox
               indeterminate={indeterminate}
               checked={allChecked}
@@ -269,23 +269,23 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
               className="align-middle"
             />
           </div>
-          <div className="table-cell p-2 text-left font-bold">{t("Item")}</div>
-          <div className="table-cell p-2 text-center font-bold w-[100px]">
+          <div className="table-cell p-2 py-3 text-left text-sm font-bold">{t("Item")}</div>
+          <div className="table-cell p-2 py-3 text-center text-sm font-bold w-[100px]">
             {t("Stock")}
           </div>
-          <div className="table-cell p-2 text-center font-bold w-[100px]">
+          <div className="table-cell p-2 py-3 text-center text-sm font-bold w-[100px]">
             {t("QTY")}
           </div>
-          <div className="table-cell p-2 text-center font-bold w-[100px]">
+          <div className="table-cell p-2 py-3 text-center text-sm font-bold w-[100px]">
             {t("Disc.")}
           </div>
-          <div className="table-cell p-2 text-center font-bold w-[100px]">
+          <div className="table-cell p-2 py-3 text-center text-sm font-bold w-[100px]">
             {t("Taxes")}
           </div>
-          <div className="table-cell p-2 text-center font-bold w-[100px]">
+          <div className="table-cell p-2 py-3 text-center text-sm font-bold w-[100px]">
             {t("Rate")}
           </div>
-          <div className="table-cell p-2 text-right font-bold w-[100px]">
+          <div className="table-cell p-2 py-3 text-right text-sm font-bold w-[100px]">
             {t("Total")}
           </div>
           {/*<div className="table-cell w-[80px]"/>*/}
