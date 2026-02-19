@@ -528,5 +528,9 @@
   "Role": "الدور",
   "Display Name": "الاسم المعروض",
   "Create User": "إنشاء مستخدم",
-  "Edit User": "تعديل المستخدم"
+  "Edit User": "تعديل المستخدم",
+  "Saving...": "جاري الحفظ...",
+  "Leave empty to keep current": "اتركه فارغاً للإبقاء على الحالي",
+  "Activate": "تفعيل",
+  "Deactivate": "تعطيل"
 }

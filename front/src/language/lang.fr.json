@@ -531,5 +531,9 @@
   "Role": "Rôle",
   "Display Name": "Nom d'affichage",
   "Create User": "Créer un utilisateur",
-  "Edit User": "Modifier l'utilisateur"
+  "Edit User": "Modifier l'utilisateur",
+  "Saving...": "Enregistrement...",
+  "Leave empty to keep current": "Laisser vide pour conserver",
+  "Activate": "Activer",
+  "Deactivate": "Désactiver"
 }
