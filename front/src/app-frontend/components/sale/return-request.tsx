@@ -452,8 +452,8 @@ export const ReturnRequest: FC<ReturnRequestProps> = ({ open, onClose }) => {
                     <thead>
                       <tr>
                         <th style={{ width: 36 }}></th>
-                        <th className="text-left">{t("Product")}</th>
-                        <th className="text-right" style={{ width: 90 }}>
+                        <th className="text-start">{t("Product")}</th>
+                        <th className="text-end" style={{ width: 90 }}>
                           {t("Price")}
                         </th>
                         <th className="text-center" style={{ width: 80 }}>
@@ -462,7 +462,7 @@ export const ReturnRequest: FC<ReturnRequestProps> = ({ open, onClose }) => {
                         <th className="text-center" style={{ width: 100 }}>
                           {t("Return Qty")}
                         </th>
-                        <th className="text-left" style={{ minWidth: 140 }}>
+                        <th className="text-start" style={{ minWidth: 140 }}>
                           {t("Reason (optional)")}
                         </th>
                       </tr>
@@ -506,7 +506,7 @@ export const ReturnRequest: FC<ReturnRequestProps> = ({ open, onClose }) => {
 
                             {/* Price */}
                             <td
-                              className="text-right"
+                              className="text-end"
                               style={{ verticalAlign: "middle" }}
                             >
                               {withCurrency(item.price)}
@@ -627,17 +627,17 @@ export const ReturnRequest: FC<ReturnRequestProps> = ({ open, onClose }) => {
                 <table className="table border border-collapse" style={{ width: "100%" }}>
                   <thead>
                     <tr>
-                      <th className="text-left">{t("Product")}</th>
-                      <th className="text-right" style={{ width: 90 }}>
+                      <th className="text-start">{t("Product")}</th>
+                      <th className="text-end" style={{ width: 90 }}>
                         {t("Unit Price")}
                       </th>
                       <th className="text-center" style={{ width: 80 }}>
                         {t("Qty")}
                       </th>
-                      <th className="text-right" style={{ width: 110 }}>
+                      <th className="text-end" style={{ width: 110 }}>
                         {t("Subtotal")}
                       </th>
-                      <th className="text-left">{t("Reason")}</th>
+                      <th className="text-start">{t("Reason")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -646,9 +646,9 @@ export const ReturnRequest: FC<ReturnRequestProps> = ({ open, onClose }) => {
                       return (
                         <tr key={item.id}>
                           <td>{displayName(item)}</td>
-                          <td className="text-right">{withCurrency(item.price)}</td>
+                          <td className="text-end">{withCurrency(item.price)}</td>
                           <td className="text-center">{line.quantity}</td>
-                          <td className="text-right">
+                          <td className="text-end">
                             {withCurrency(item.price * line.quantity)}
                           </td>
                           <td
@@ -667,10 +667,10 @@ export const ReturnRequest: FC<ReturnRequestProps> = ({ open, onClose }) => {
                   </tbody>
                   <tfoot>
                     <tr>
-                      <th className="text-left" colSpan={3}>
+                      <th className="text-start" colSpan={3}>
                         {t("Total return value")}
                       </th>
-                      <th className="text-right text-danger-600">
+                      <th className="text-end text-danger-600">
                         {withCurrency(
                           includedItems.reduce(
                             (sum, item) => sum + item.price * lines[item.id].quantity,

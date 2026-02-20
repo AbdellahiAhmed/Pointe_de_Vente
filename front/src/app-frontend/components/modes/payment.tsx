@@ -222,7 +222,7 @@ export const PaymentMode = () => {
         <div className="basis-auto p-2 w-[70px]">{item.orderId}</div>
         <div className="basis-auto p-2 w-[75px]">{item.terminal.code}</div>
         <div className="basis-auto p-2 w-[190px] max-w-[190px] whitespace-nowrap overflow-hidden overflow-ellipsis" title={item?.customer?.name}>{item?.customer?.name}</div>
-        <div className="basis-auto p-2 flex-1 text-right">{withCurrency(orderTotal(item.payments))}</div>
+        <div className="basis-auto p-2 flex-1 text-end">{withCurrency(orderTotal(item.payments))}</div>
       </div>
     );
   }
@@ -297,18 +297,18 @@ export const PaymentMode = () => {
                   <table className="table table-fixed table-bordered">
                     <tbody>
                     <tr>
-                      <th className="text-left text-xl">
+                      <th className="text-start text-xl">
                         {DateTime.fromISO(order.createdAt).toFormat(
                           import.meta.env.VITE_DATE_TIME_FORMAT
                         )}
                       </th>
-                      <th className="text-right text-xl">
+                      <th className="text-end text-xl">
                         {order.store?.name}
                       </th>
-                      <th className="text-right text-xl">
+                      <th className="text-end text-xl">
                         {order.terminal?.code}
                       </th>
-                      <th className="text-right text-xl">
+                      <th className="text-end text-xl">
                         {order.user?.displayName}
                       </th>
                     </tr>

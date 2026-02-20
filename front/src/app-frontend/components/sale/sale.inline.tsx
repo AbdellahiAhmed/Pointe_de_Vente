@@ -485,7 +485,7 @@ export const CloseSaleInline: FC<Props> = ({
                 <tr>
                   <th
                     className={classNames(
-                      `border border-gray-300 p-2 text-left text-3xl font-bold digital bg-black`,
+                      `border border-gray-300 p-2 text-start text-3xl font-bold digital bg-black`,
                       ft % 10 < 5
                         ? "text-danger-500"
                         : " text-success-500"
@@ -494,7 +494,7 @@ export const CloseSaleInline: FC<Props> = ({
                   </th>
                   <td
                     className={classNames(
-                      `border border-gray-300 p-2 text-right text-3xl font-bold digital bg-black`,
+                      `border border-gray-300 p-2 text-end text-3xl font-bold digital bg-black`,
                       ft % 10 < 5
                         ? "text-danger-500"
                         : " text-success-500"
@@ -506,14 +506,14 @@ export const CloseSaleInline: FC<Props> = ({
               <tr>
                 <th
                   className={classNames(
-                    `border border-gray-300 p-2 text-left text-3xl font-bold digital bg-black`,
+                    `border border-gray-300 p-2 text-start text-3xl font-bold digital bg-black`,
                     changeDue < 0 ? "text-danger-500" : " text-success-500"
                   )}>
                   {changeDue < 0 ? t("Receivable") : t("Change Due")}
                 </th>
                 <td
                   className={classNames(
-                    `border border-gray-300 p-2 text-right text-3xl font-bold digital bg-black`,
+                    `border border-gray-300 p-2 text-end text-3xl font-bold digital bg-black`,
                     changeDue < 0 ? "text-danger-500" : " text-success-500"
                   )}>
                   {withCurrency(changeDue)}

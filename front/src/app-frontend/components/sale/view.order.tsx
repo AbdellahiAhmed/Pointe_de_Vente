@@ -63,7 +63,7 @@ export const ViewOrder: FunctionComponent<ViewOrderProps> = ({
             <div className="text-sm font-bold uppercase">{t("Payments")}</div>
             <ul className="font-normal">
               {order.payments.map(item => (
-                <li key={item["@id"]} className="font-bold">{item.type?.name}: <span className="float-right">{withCurrency(item.received)}</span></li>
+                <li key={item["@id"]} className="font-bold">{item.type?.name}: <span className="float-end">{withCurrency(item.received)}</span></li>
               ))}
             </ul>
           </div>
@@ -79,12 +79,12 @@ export const ViewOrder: FunctionComponent<ViewOrderProps> = ({
         <table className="table border border-collapse">
           <thead>
           <tr>
-            <th className="text-left">{t("Item")}</th>
-            <th className="text-right">{t("Quantity")}</th>
-            <th className="text-right">{t("Tax")}</th>
-            <th className="text-right">{t("Discount")}</th>
-            <th className="text-right">{t("Price")}</th>
-            <th className="text-right">{t("Total")}</th>
+            <th className="text-start">{t("Item")}</th>
+            <th className="text-end">{t("Quantity")}</th>
+            <th className="text-end">{t("Tax")}</th>
+            <th className="text-end">{t("Discount")}</th>
+            <th className="text-end">{t("Price")}</th>
+            <th className="text-end">{t("Total")}</th>
           </tr>
           </thead>
           <tbody>
@@ -99,24 +99,24 @@ export const ViewOrder: FunctionComponent<ViewOrderProps> = ({
                   </>
                 )}
               </td>
-              <td className="text-right">{item.quantity}</td>
-              <td className="text-right">
+              <td className="text-end">{item.quantity}</td>
+              <td className="text-end">
                 {withCurrency(itemTax(item))}
               </td>
-              <td className="text-right">{withCurrency(item.discount)}</td>
-              <td className="text-right">{withCurrency(item.price)}</td>
-              <td className="text-right">{withCurrency((item.price * item.quantity) + itemTax(item) - item.discount)}</td>
+              <td className="text-end">{withCurrency(item.discount)}</td>
+              <td className="text-end">{withCurrency(item.price)}</td>
+              <td className="text-end">{withCurrency((item.price * item.quantity) + itemTax(item) - item.discount)}</td>
             </tr>
           ))}
           </tbody>
           <tfoot>
             <tr>
-              <th className="text-left">{t("Total")}</th>
-              <th className="text-right">{(order.items.reduce((prev, item) => prev + Number(item.quantity), 0))}</th>
+              <th className="text-start">{t("Total")}</th>
+              <th className="text-end">{(order.items.reduce((prev, item) => prev + Number(item.quantity), 0))}</th>
               <th></th>
               <th></th>
               <th></th>
-              <th className="text-right">{withCurrency(itemsTotal)}</th>
+              <th className="text-end">{withCurrency(itemsTotal)}</th>
             </tr>
           </tfoot>
         </table>

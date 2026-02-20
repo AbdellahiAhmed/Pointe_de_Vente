@@ -83,11 +83,11 @@ export const SearchVariants = ({
         <div className="table w-full">
           <div className="table-header-group">
             <div className="table-row">
-              <div className="table-cell p-5 text-left font-bold">Item</div>
-              <div className="table-cell p-5 text-left font-bold">
+              <div className="table-cell p-5 text-start font-bold">Item</div>
+              <div className="table-cell p-5 text-start font-bold">
                 Variant
               </div>
-              <div className="table-cell p-5 text-right font-bold">Rate</div>
+              <div className="table-cell p-5 text-end font-bold">Rate</div>
             </div>
           </div>
           <div className="table-row-group">
@@ -106,7 +106,7 @@ export const SearchVariants = ({
                   )}
                 </div>
                 <div className="table-cell p-5">{item.attributeValue}</div>
-                <div className="table-cell p-5 text-right">
+                <div className="table-cell p-5 text-end">
                   {item.price === null ? (
                     <>{getRealProductPrice(latest!)}</>
                   ) : (

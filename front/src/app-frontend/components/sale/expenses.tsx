@@ -237,7 +237,7 @@ export const Expenses: FC<ExpensesProps> = (props) => {
           <div className="grid grid-cols-4 gap-4 mb-5">
             <div className="border border-danger-500 p-5 font-bold text-danger-500 rounded">
               {t("Expenses")}
-              <span className="float-right">
+              <span className="float-end">
                 {withCurrency(list.reduce((prev, item) => prev + item.amount , 0))}
               </span>
             </div>

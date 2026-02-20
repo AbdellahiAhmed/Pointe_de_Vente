@@ -655,6 +655,11 @@ table th {
 .login-bg {
   background-image: url(../assets/images/background.svg);
   background-size: cover;
+  /* Ensure full viewport coverage — override any parent padding */
+  margin: -20px;
+  padding: 20px;
+  width: calc(100% + 40px);
+  min-height: calc(100vh);
 }
 .card {
   background-color: rgba(255, 255, 255, 0.2);
@@ -833,14 +838,14 @@ table th {
   z-index: 1000;
 }
 .quick-cash-badge {
-  @apply rounded-full absolute left-0 bg-danger-500 text-white;
+  @apply rounded-full absolute bg-danger-500 text-white;
   width: 22px;
   height: 22px;
   padding: 0;
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  left: -5px;
+  inset-inline-start: -5px;
   top: -5px;
   font-size: 12px;
   font-weight: bold;

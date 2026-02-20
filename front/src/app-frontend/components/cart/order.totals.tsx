@@ -32,59 +32,59 @@ export const OrderTotals: FC<OrderTotalsProps> = ({
       <tbody>
         <tr className="hover:bg-gray-100">
           <th
-            className="border border-gray-300 p-2 text-left"
+            className="border border-gray-300 p-2 text-start"
             style={{ width: "50%" }}>
             {t("Sub total")}
           </th>
-          <td className="border border-gray-300 p-2 text-right">
+          <td className="border border-gray-300 p-2 text-end">
             {withCurrency(subTotal(added))}
           </td>
         </tr>
         <tr className="hover:bg-gray-100">
-          <th className="border border-gray-300 p-2 text-left">
+          <th className="border border-gray-300 p-2 text-start">
             {t("Taxable amount")}
           </th>
-          <td className="border border-gray-300 p-2 text-right">
+          <td className="border border-gray-300 p-2 text-end">
             {withCurrency(exclusiveSubTotal)}
           </td>
         </tr>
         <tr className="hover:bg-gray-100">
-          <th className="border border-gray-300 p-2 text-left">
+          <th className="border border-gray-300 p-2 text-start">
             <ApplyTax>
               {t("Taxes")} <FontAwesomeIcon icon={faPencil} className="ms-2" />
               {tax && (
-                <span className="float-right bg-danger-500 text-white py-1 px-2 rounded-lg text-sm">
+                <span className="float-end bg-danger-500 text-white py-1 px-2 rounded-lg text-sm">
                   {tax.rate}%
                 </span>
               )}
             </ApplyTax>
           </th>
-          <td className="border border-gray-300 p-2 text-right">
+          <td className="border border-gray-300 p-2 text-end">
             {withCurrency(taxTotal(added, tax))}
           </td>
         </tr>
         <tr className="hover:bg-gray-100">
-          <th className="border border-gray-300 p-2 text-left">
+          <th className="border border-gray-300 p-2 text-start">
             <ApplyDiscount>
               {t("Discount")} <FontAwesomeIcon icon={faPencil} className="ms-2" />
               {discount && (
-                <span className="float-right bg-danger-500 text-white py-1 px-2 rounded-lg text-sm">
+                <span className="float-end bg-danger-500 text-white py-1 px-2 rounded-lg text-sm">
                   {discountTotal(added, tax, discountAmount, discountRateType, discount)}
                 </span>
               )}
             </ApplyDiscount>
           </th>
-          <td className="border border-gray-300 p-2 text-right">
+          <td className="border border-gray-300 p-2 text-end">
             {withCurrency(discountTotal(added, tax, discountAmount, discountRateType, discount))}
           </td>
         </tr>
         <tr className="hover:bg-gray-100">
-          <th className="border border-gray-300 p-2 text-left">
-            <Customers className={"block w-full text-left"}>
+          <th className="border border-gray-300 p-2 text-start">
+            <Customers className={"block w-full text-start"}>
               {t("Customer")} <FontAwesomeIcon icon={faPencil} className="ms-2" />
             </Customers>
           </th>
-          <td className="border border-gray-300 p-2 text-right">
+          <td className="border border-gray-300 p-2 text-end">
             {customer && (
               <div className="flex justify-between items-center">
                 <ConfirmAlert
@@ -106,7 +106,7 @@ export const OrderTotals: FC<OrderTotalsProps> = ({
                   {customer && (
                     <span
                       className={classNames(
-                        "float-right",
+                        "float-end",
                         customer.outstanding <= 0
                           ? "text-success-700"
                           : "text-danger-500"
@@ -124,10 +124,10 @@ export const OrderTotals: FC<OrderTotalsProps> = ({
           </td>
         </tr>
         <tr className="hover:bg-gray-100">
-          <th className="border border-gray-300 p-2 text-left text-3xl font-bold text-success-500 digital bg-black">
+          <th className="border border-gray-300 p-2 text-start text-3xl font-bold text-success-500 digital bg-black">
             {t("Total")}
           </th>
-          <td className="border border-gray-300 p-2 text-right text-3xl font-bold text-success-500 digital bg-black">
+          <td className="border border-gray-300 p-2 text-end text-3xl font-bold text-success-500 digital bg-black">
             {withCurrency(finalTotal(added, tax, discountAmount, discountRateType, discount))}
           </td>
         </tr>

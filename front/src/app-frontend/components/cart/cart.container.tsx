@@ -269,7 +269,7 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
               className="align-middle"
             />
           </div>
-          <div className="table-cell p-2 py-3 text-left text-sm font-bold">{t("Item")}</div>
+          <div className="table-cell p-2 py-3 text-start text-sm font-bold">{t("Item")}</div>
           <div className="table-cell p-2 py-3 text-center text-sm font-bold w-[100px]">
             {t("Stock")}
           </div>
@@ -285,7 +285,7 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
           <div className="table-cell p-2 py-3 text-center text-sm font-bold w-[100px]">
             {t("Rate")}
           </div>
-          <div className="table-cell p-2 py-3 text-right text-sm font-bold w-[100px]">
+          <div className="table-cell p-2 py-3 text-end text-sm font-bold w-[100px]">
             {t("Total")}
           </div>
           {/*<div className="table-cell w-[80px]"/>*/}
@@ -318,7 +318,7 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
           <div className="table-cell"></div>
           <div className="table-cell"></div>
           <div className="table-cell"></div>
-          <div className="table-cell text-right p-2">
+          <div className="table-cell text-end p-2">
             {withCurrency(subTotal(added))}
           </div>
         </div>

@@ -69,7 +69,7 @@ export const ApplyDiscount: FC<Props> = ({ children }) => {
   return (
     <>
       <button
-        className="block w-full text-left"
+        className="block w-full text-start"
         disabled={added.length === 0}
         onClick={() => {
           setModal(true);

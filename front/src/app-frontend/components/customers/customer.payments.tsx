@@ -207,15 +207,15 @@ export const CustomerPayments: FC<Props> = ({
         <div className="grid grid-cols-5 gap-3 mb-5">
           <div className="border border-primary-500 p-5 font-bold text-primary-500 rounded">
             {t("Opening Balance")}
-            <span className="float-right">{withCurrency(customer.openingBalance)}</span>
+            <span className="float-end">{withCurrency(customer.openingBalance)}</span>
           </div>
           <div className="border border-primary-500 p-5 font-bold text-primary-500 rounded">
             {t("Total Credit Sale")}
-            <span className="float-right">{withCurrency(customer.sale)}</span>
+            <span className="float-end">{withCurrency(customer.sale)}</span>
           </div>
           <div className="border border-success-500 p-5 font-bold text-success-900 bg-success-100 rounded">
             {t("Total Payments")}
-            <span className="float-right">{withCurrency(customer.paid)}</span>
+            <span className="float-end">{withCurrency(customer.paid)}</span>
           </div>
           <div className={
             classNames(
@@ -224,7 +224,7 @@ export const CustomerPayments: FC<Props> = ({
             )
           }>
             {t("Outstanding")}
-            <span className="float-right">{withCurrency(diff)}</span>
+            <span className="float-end">{withCurrency(diff)}</span>
           </div>
           <div className={
             classNames(
@@ -233,7 +233,7 @@ export const CustomerPayments: FC<Props> = ({
             )
           }>
             {t("Credit limit")}
-            <span className="float-right">{customer?.creditLimit ? withCurrency(customer?.creditLimit) : t('no limit')}</span>
+            <span className="float-end">{customer?.creditLimit ? withCurrency(customer?.creditLimit) : t('no limit')}</span>
           </div>
         </div>
 

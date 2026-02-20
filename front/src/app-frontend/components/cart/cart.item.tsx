@@ -202,7 +202,7 @@ export const CartItem: FunctionComponent<CartItemProps> = ({
           <span className="line-through">{withCurrency(taxTotal)}</span>
         )}
       </div>
-      <div className="table-cell text-right p-1">
+      <div className="table-cell text-end p-1">
         <Input
           value={item.price}
           type="number"
@@ -212,7 +212,7 @@ export const CartItem: FunctionComponent<CartItemProps> = ({
           disabled
         />
       </div>
-      <div className="table-cell p-2 text-right">{formatNumber(getRowTotal(item))}</div>
+      <div className="table-cell p-2 text-end">{formatNumber(getRowTotal(item))}</div>
     </div>
   );
 };

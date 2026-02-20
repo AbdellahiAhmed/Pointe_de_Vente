@@ -219,15 +219,15 @@ export const SupplierLedger: FC<SupplierLedgerProps> = ({
         <div className="grid grid-cols-4 gap-4 mb-5">
           <div className="border border-primary-500 p-5 font-bold text-primary-500 rounded">
             {t("Opening Balance")}
-            <span className="float-right">{withCurrency(supplier.openingBalance)}</span>
+            <span className="float-end">{withCurrency(supplier.openingBalance)}</span>
           </div>
           <div className="border border-primary-500 p-5 font-bold text-primary-500 rounded">
             {t("Total Credit Purchase")}
-            <span className="float-right">{withCurrency(purchaseTotal)}</span>
+            <span className="float-end">{withCurrency(purchaseTotal)}</span>
           </div>
           <div className="border border-success-500 p-5 font-bold text-success-500 rounded">
             {t("Total Payments")}
-            <span className="float-right">{withCurrency(paymentTotal)}</span>
+            <span className="float-end">{withCurrency(paymentTotal)}</span>
           </div>
           <div className={
             classNames(
@@ -236,7 +236,7 @@ export const SupplierLedger: FC<SupplierLedgerProps> = ({
             )
           }>
             {t("Outstanding payments")}
-            <span className="float-right">{withCurrency(diff)}</span>
+            <span className="float-end">{withCurrency(diff)}</span>
           </div>
         </div>
 

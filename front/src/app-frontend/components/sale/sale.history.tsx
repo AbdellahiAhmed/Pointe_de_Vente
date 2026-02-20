@@ -770,19 +770,19 @@ export const SaleHistory: FC<Props> = ({}) => {
             <div className="grid grid-cols-5 gap-4 mb-5">
               <div className="border border-primary-500 p-5 font-bold text-primary-500 rounded">
                 {t("Total Bills")}
-                <span className="float-right">{list.length}</span>
+                <span className="float-end">{list.length}</span>
               </div>
               <div className="border border-primary-500 p-5 font-bold text-primary-500 rounded">
                 {t("Total Amount")}
-                <span className="float-right">{withCurrency(totalAmount)}</span>
+                <span className="float-end">{withCurrency(totalAmount)}</span>
               </div>
               <div className="border border-warning-500 p-5 font-bold text-warning-500 rounded">
                 {t("Total Cost")}
-                <span className="float-right">{withCurrency(totalCost)}</span>
+                <span className="float-end">{withCurrency(totalCost)}</span>
               </div>
               <div className="border border-danger-500 p-5 font-bold text-danger-500 rounded">
                 {t("Expenses")}
-                <span className="float-right">
+                <span className="float-end">
                   {withCurrency(totalExpenses)}
                 </span>
               </div>
@@ -797,7 +797,7 @@ export const SaleHistory: FC<Props> = ({}) => {
                 {totalAmount - totalCost - totalExpenses <= 0
                   ? t("Loss")
                   : t("Profit")}
-                <span className="float-right">
+                <span className="float-end">
                   {withCurrency(totalAmount - totalCost - totalExpenses)}
                 </span>
               </div>

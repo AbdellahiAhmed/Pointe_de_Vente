@@ -33,7 +33,7 @@ export const ApplyTax: FC<TaxProps> = ({ children }) => {
   return (
     <>
       <button
-        className="block w-full text-left"
+        className="block w-full text-start"
         onClick={() => {
           setModal(true);
         }}

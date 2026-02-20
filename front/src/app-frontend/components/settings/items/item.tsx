@@ -60,23 +60,23 @@ export const ItemComponent = ({
                     <table className="table table-hover">
                       <tbody>
                       <tr>
-                        <th className="text-right w-[200px]">{t("Item name")}</th>
+                        <th className="text-end w-[200px]">{t("Item name")}</th>
                         <td>{product.name}</td>
                       </tr>
                       <tr>
-                        <th className="text-right w-[200px]">{t("Barcode")}</th>
+                        <th className="text-end w-[200px]">{t("Barcode")}</th>
                         <td>{product.barcode}</td>
                       </tr>
                       <tr>
-                        <th className="text-right w-[200px]">{t("Sale Price")}</th>
+                        <th className="text-end w-[200px]">{t("Sale Price")}</th>
                         <td>{withCurrency(product.basePrice)} / {product.saleUnit}</td>
                       </tr>
                       <tr>
-                        <th className="text-right w-[200px]">{t("PMP (Avg. Cost)")}</th>
+                        <th className="text-end w-[200px]">{t("PMP (Avg. Cost)")}</th>
                         <td>{withCurrency(product.cost)} / {product.purchaseUnit}</td>
                       </tr>
                       <tr>
-                        <th className="text-right w-[200px]">{t("Taxes")}</th>
+                        <th className="text-end w-[200px]">{t("Taxes")}</th>
                         <td>
                           {product.taxes.map(item => (
                             <span className="badge bg-primary-100 p-3 rounded-full me-2">{item.name} {item.rate}%</span>
@@ -90,31 +90,31 @@ export const ItemComponent = ({
                     <table className="table table-hover">
                       <tbody>
                       <tr>
-                        <th className="text-right w-[200px]">{t("Department")}</th>
+                        <th className="text-end w-[200px]">{t("Department")}</th>
                         <td>
                           <span className="badge bg-primary-100 p-3 rounded-full me-2">{product?.department?.name}</span>
                         </td>
                       </tr>
                       <tr>
-                        <th className="text-right w-[200px]">{t("Brands")}</th>
+                        <th className="text-end w-[200px]">{t("Brands")}</th>
                         <td>{product.brands.map(item => (
                           <span className="badge bg-primary-100 p-3 rounded-full me-2">{item.name}</span>
                         ))}</td>
                       </tr>
                       <tr>
-                        <th className="text-right w-[200px]">{t("Categories")}</th>
+                        <th className="text-end w-[200px]">{t("Categories")}</th>
                         <td>{product.categories.map(item => (
                           <span className="badge bg-primary-100 p-3 rounded-full me-2">{item.name}</span>
                         ))}</td>
                       </tr>
                       <tr>
-                        <th className="text-right w-[200px]">{t("Suppliers")}</th>
+                        <th className="text-end w-[200px]">{t("Suppliers")}</th>
                         <td>{product.suppliers.map(item => (
                           <span className="badge bg-primary-100 p-3 rounded-full me-2">{item.name}</span>
                         ))}</td>
                       </tr>
                       <tr>
-                        <th className="text-right w-[200px]">{t("Terminals")}</th>
+                        <th className="text-end w-[200px]">{t("Terminals")}</th>
                         <td>{product.terminals.map(item => (
                           <span className="badge bg-primary-100 p-3 rounded-full me-2">{item.code}</span>
                         ))}</td>

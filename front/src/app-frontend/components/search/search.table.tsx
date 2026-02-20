@@ -165,7 +165,7 @@ export const SearchTable = (props: SearchTableProps) => {
             )}
           </div>
           <div
-            className="flex-1 p-2 text-right font-bold"
+            className="flex-1 p-2 text-end font-bold"
             onClick={() => {
               addItem(item, quantity);
               if( searchBox ) {

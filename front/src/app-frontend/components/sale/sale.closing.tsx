@@ -270,27 +270,27 @@ export const SaleClosing: FC<TaxProps> = (props) => {
           <table className="table table-borderless table-hover table-fixed">
             <tbody>
             <tr>
-              <th className="text-right">{t("Store")}</th>
+              <th className="text-end">{t("Store")}</th>
               <td>{closing?.store?.name}</td>
             </tr>
             <tr>
-              <th className="text-right">{t("Terminal")}</th>
+              <th className="text-end">{t("Terminal")}</th>
               <td>{closing?.terminal?.code}</td>
             </tr>
             <tr>
-              <th className="text-right">{t("Day started by")}</th>
+              <th className="text-end">{t("Day started by")}</th>
               <td>{closing?.openedBy?.displayName}</td>
             </tr>
             <tr>
-              <th className="text-right">{t("Day started at")}</th>
+              <th className="text-end">{t("Day started at")}</th>
               <td>{closing?.createdAt?.datetime && DateTime.fromISO(closing?.createdAt?.datetime || '').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT as string)}</td>
             </tr>
             <tr>
-              <th className="text-right">{t("Previous closing")}</th>
+              <th className="text-end">{t("Previous closing")}</th>
               <td>{withCurrency(0)}</td>
             </tr>
             <tr>
-              <th className="text-right">{t("Opening balance")}</th>
+              <th className="text-end">{t("Opening balance")}</th>
               <td>
                 <Controller
                   render={(props) => (
@@ -308,7 +308,7 @@ export const SaleClosing: FC<TaxProps> = (props) => {
               </td>
             </tr>
             <tr>
-              <th className="text-right">{t("Cash added")}</th>
+              <th className="text-end">{t("Cash added")}</th>
               <td>
                 <Input {...register('cashAdded', {
                   valueAsNumber: true
@@ -318,7 +318,7 @@ export const SaleClosing: FC<TaxProps> = (props) => {
             {closing?.openingBalance !== null && (
               <>
                 <tr>
-                  <th className="text-right">
+                  <th className="text-end">
                     {t("Expenses")}
                   </th>
                   <td>
@@ -341,7 +341,7 @@ export const SaleClosing: FC<TaxProps> = (props) => {
                   </td>
                 </tr>
                 <tr>
-                  <th className="text-right">{t("Cash withdrawn")}</th>
+                  <th className="text-end">{t("Cash withdrawn")}</th>
                   <td>
                     <Input {...register('cashWithdrawn', {
                       valueAsNumber: true
@@ -355,7 +355,7 @@ export const SaleClosing: FC<TaxProps> = (props) => {
                 </tr>
                 {MRU_DENOMINATIONS.map(denom => (
                   <tr key={denom}>
-                    <th className="text-right">{denom} MRU</th>
+                    <th className="text-end">{denom} MRU</th>
                     <td>
                       <Input
                         type="number"
@@ -371,7 +371,7 @@ export const SaleClosing: FC<TaxProps> = (props) => {
                   </tr>
                 ))}
                 <tr>
-                  <th className="text-right">{t("Denomination Total")}</th>
+                  <th className="text-end">{t("Denomination Total")}</th>
                   <td className="text-xl font-bold text-success-500">
                     {withCurrency(denomTotal)}
                   </td>
@@ -380,7 +380,7 @@ export const SaleClosing: FC<TaxProps> = (props) => {
             )}
             {Object.keys(payments).map(paymentType => (
               <tr key={paymentType}>
-                <th className="text-right">{paymentType.toUpperCase()} {t("sale")}</th>
+                <th className="text-end">{paymentType.toUpperCase()} {t("sale")}</th>
                 <td>
                   {withCurrency(payments[paymentType])}
                   <input type="hidden" {...register(`data.${paymentType}`)} value={payments[paymentType]}/>
@@ -388,7 +388,7 @@ export const SaleClosing: FC<TaxProps> = (props) => {
               </tr>
             ))}
             <tr>
-              <th className="text-right">{t("Cash in hand")}</th>
+              <th className="text-end">{t("Cash in hand")}</th>
               <td className={
                 classNames(
                   'text-2xl font-bold',
