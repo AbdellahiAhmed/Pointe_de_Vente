@@ -400,6 +400,63 @@ export const PosMode = () => {
     scrollToBottom(containerRef.current);
   };
 
+  // Add base product directly (skipping variant check), used from variant modal
+  const addItemDirect = async (item: Product, quantity: number) => {
+    let newPrice = item.basePrice || 0;
+
+    if( rate ) {
+      newPrice = rate;
+    }
+
+    // Stock validation
+    if( item.manageInventory ) {
+      const availableStock = getProductStock(item);
+      const alreadyInCart = added.find(a => a.item.id === item.id && !a.variant)?.quantity || 0;
+      if( alreadyInCart + quantity > availableStock ) {
+        notify({
+          type: "error",
+          title: t("Stock insufficient"),
+          description: `${item.name}: ${t("available")} ${availableStock}, ${t("in cart")} ${alreadyInCart}`,
+          placement: "top",
+          duration: 3,
+        });
+        return false;
+      }
+    }
+
+    const oldItems = added;
+    let index = oldItems.findIndex((addItem) => addItem.item.id === item.id && !addItem.variant);
+    if( index !== -1 ) {
+      oldItems[index].quantity += quantity;
+      setAppState((prev) => ({ ...prev, latestIndex: index }));
+    } else {
+      oldItems.push({
+        quantity: quantity,
+        item: item,
+        price: newPrice,
+        discount: 0,
+        taxes: item.taxes,
+        taxIncluded: true,
+        stock: 0,
+      });
+      setAppState((prev) => ({ ...prev, latestIndex: oldItems.length - 1 }));
+    }
+
+    setAppState((prev) => ({
+      ...prev,
+      added: oldItems,
+      q: "",
+      quantity: 1,
+      latest: item,
+      latestVariant: undefined,
+    }));
+
+    setModal(false);
+    setVariants([]);
+
+    scrollToBottom(containerRef.current);
+  };
+
   const addItemVariant = async (
     item: Product,
     variant: ProductVariant,
@@ -845,6 +902,7 @@ export const PosMode = () => {
         }}
         variants={variants}
         addItemVariant={addItemVariant}
+        addItemBase={addItemDirect}
         items={items}
       />
       <QuantityChangeModal
