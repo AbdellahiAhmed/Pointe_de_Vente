@@ -26,6 +26,6 @@ class UserManagementVoter extends Voter
 
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        return $this->security->isGranted('ROLE_ADMIN');
+        return $this->security->isGranted('ROLE_MANAGER');
     }
 }
