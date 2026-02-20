@@ -89,7 +89,7 @@
     transition: all 0.15s ease;
 
     &:not(:last-child) {
-      border-right: 1px solid var(--pos-border);
+      border-inline-end: 1px solid var(--pos-border);
     }
 
     &:hover {
@@ -504,7 +504,7 @@
   .image-upload-remove {
     position: absolute;
     top: 6px;
-    right: 6px;
+    inset-inline-end: 6px;
     width: 28px;
     height: 28px;
     border-radius: 50%;
@@ -1102,8 +1102,7 @@
   }
 
   .image-upload-preview .image-upload-remove {
-    right: auto;
-    left: 6px;
+    inset-inline-end: 6px;
   }
 }
 
