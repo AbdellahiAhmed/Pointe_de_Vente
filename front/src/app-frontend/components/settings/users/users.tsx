@@ -68,7 +68,7 @@ export const Users = () => {
               confirmText={t("Yes, please")}
               cancelText={t("No, wait")}
               title={t("Confirmation")}
-              description={t(`Are you sure to ${info.row.original.isActive ? 'de-' : ''}activate this user?`)}
+              description={info.row.original.isActive ? t('Are you sure to deactivate this user?') : t('Are you sure to activate this user?')}
             >
               <Switch checked={info.row.original.isActive} readOnly/>
             </ConfirmAlert>

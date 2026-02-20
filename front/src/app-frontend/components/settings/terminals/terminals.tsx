@@ -90,7 +90,7 @@ export const Terminals = () => {
               confirmText={t("Yes, please")}
               cancelText={t("No, wait")}
               title={t("Confirmation")}
-              description={t(`Are you sure to ${info.row.original.isActive ? 'de-' : ''}activate this terminal?`)}
+              description={info.row.original.isActive ? t('Are you sure to deactivate this terminal?') : t('Are you sure to activate this terminal?')}
             >
               <Switch checked={info.row.original.isActive} readOnly/>
             </ConfirmAlert>

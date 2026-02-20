@@ -92,7 +92,7 @@ export const DiscountTypes = () => {
               confirmText={t("Yes, please")}
               cancelText={t("No, wait")}
               title={t("Confirmation")}
-              description={t(`Are you sure to ${info.row.original.isActive ? 'de-' : ''}activate this discount type?`)}
+              description={info.row.original.isActive ? t('Are you sure to deactivate this discount type?') : t('Are you sure to activate this discount type?')}
             >
               <Switch checked={info.row.original.isActive} readOnly />
             </ConfirmAlert>

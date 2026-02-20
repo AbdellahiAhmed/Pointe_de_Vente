@@ -164,9 +164,7 @@ export const Items = () => {
               confirmText={t("Yes, please")}
               cancelText={t("No, wait")}
               title={t("Confirmation")}
-              description={t(`Are you sure to ${
-                info.row.original.isActive ? "de-" : ""
-              }activate this item?`)}
+              description={info.row.original.isActive ? t('Are you sure to deactivate this item?') : t('Are you sure to activate this item?')}
             >
               <Switch checked={info.row.original.isActive}></Switch>
             </ConfirmAlert>
