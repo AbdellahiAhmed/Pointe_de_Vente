@@ -776,5 +776,11 @@
   "Join us on Our Social Platforms for latest news & Updates": "انضم إلينا على منصاتنا الاجتماعية لآخر الأخبار والتحديثات",
   "Out of stock": "نفاذ المخزون",
   "An error occurred while loading data": "حدث خطأ أثناء تحميل البيانات",
-  "An error occurred while initializing application": "حدث خطأ أثناء تهيئة التطبيق"
+  "An error occurred while initializing application": "حدث خطأ أثناء تهيئة التطبيق",
+  "Total Stock": "إجمالي المخزون",
+  "No variants": "لا توجد متغيرات",
+  "Classification": "التصنيف",
+  "Supply Chain": "سلسلة التوريد",
+  "Unavailable": "غير متوفر",
+  "Min Price": "الحد الأدنى للسعر"
 }

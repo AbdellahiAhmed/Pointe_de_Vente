@@ -779,5 +779,11 @@
   "Join us on Our Social Platforms for latest news & Updates": "Rejoignez-nous sur nos réseaux sociaux",
   "Out of stock": "Rupture de stock",
   "An error occurred while loading data": "Une erreur est survenue lors du chargement des données",
-  "An error occurred while initializing application": "Une erreur est survenue lors de l'initialisation de l'application"
+  "An error occurred while initializing application": "Une erreur est survenue lors de l'initialisation de l'application",
+  "Total Stock": "Stock total",
+  "No variants": "Aucune variante",
+  "Classification": "Classification",
+  "Supply Chain": "Approvisionnement",
+  "Unavailable": "Indisponible",
+  "Min Price": "Prix minimum"
 }
