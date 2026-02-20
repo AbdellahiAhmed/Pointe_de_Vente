@@ -30,10 +30,16 @@ export const Profile: FunctionComponent = () => {
     setLoading(true);
     setErrorMessage(undefined);
 
+    // Strip empty password — only send if user typed a new one
+    const payload = {...values};
+    if (!payload.password || payload.password.trim() === '') {
+      delete payload.password;
+    }
+
     try{
       const res = await jsonRequest(PROFILE, {
         method: 'POST',
-        body: JSON.stringify(values)
+        body: JSON.stringify(payload)
       });
       const json = await res.json();
 
@@ -142,19 +148,24 @@ export const Profile: FunctionComponent = () => {
                   {getErrors(errors.username)}
                 </div>
                 <div>
-                  <label htmlFor="password" className="form-label">{t('Password')}</label>
+                  <label htmlFor="password" className="form-label">{t('New password')}</label>
                   <Controller
                     render={(props) => (
                       <input
                         {...props.field}
+                        value={props.field.value || ''}
                         className="form-control"
                         type="password"
                         id="password"
+                        placeholder={t('Leave blank to keep current password')}
+                        autoComplete="new-password"
                       />
                     )}
                     name="password"
                     control={control}
+                    defaultValue=""
                   />
+                  <small className="text-muted">{t('Leave blank to keep current password')}</small>
                   {getErrors(errors.password)}
                 </div>
                 <div className="col-12">
