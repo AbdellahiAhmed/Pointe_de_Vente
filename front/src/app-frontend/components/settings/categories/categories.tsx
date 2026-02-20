@@ -119,6 +119,7 @@ export const Categories = () => {
     });
 
     await useLoadHook.fetchData();
+    window.dispatchEvent(new Event('categories-changed'));
   }
 
   async function deleteCategory(id: string) {
@@ -127,6 +128,7 @@ export const Categories = () => {
     });
 
     await useLoadHook.fetchData();
+    window.dispatchEvent(new Event('categories-changed'));
   }
 
   return (
@@ -158,6 +160,7 @@ export const Categories = () => {
           setOperation("create");
           setModal(false);
           fetchData();
+          window.dispatchEvent(new Event('categories-changed'));
         }}
         operation={operation}
         addModal={modal}

@@ -104,27 +104,31 @@ export const ProductGrid = ({items, addItem, setCategories}: ProductGridProps) =
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [allCategories, setAllCategories] = useState<Category[]>([]);
 
-  // Fetch ALL categories from API on mount
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await jsonRequest(`${CATEGORY_LIST}?isActive=true`);
-        const data = await res.json();
-        const cats: Category[] = data['hydra:member'] || data.list || [];
-        setAllCategories(cats);
-      } catch (e) {
-        // Fallback: derive from products if API fails
-        const cats = new Map<number, Category>();
-        items.forEach(item => {
-          item.categories?.forEach(cat => {
-            if (!cats.has(cat.id)) cats.set(cat.id, cat);
-          });
+  // Fetch ALL categories from API
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await jsonRequest(`${CATEGORY_LIST}?isActive=true`);
+      const data = await res.json();
+      const cats: Category[] = data['hydra:member'] || data.list || [];
+      setAllCategories(cats);
+    } catch (e) {
+      const cats = new Map<number, Category>();
+      items.forEach(item => {
+        item.categories?.forEach(cat => {
+          if (!cats.has(cat.id)) cats.set(cat.id, cat);
         });
-        setAllCategories(Array.from(cats.values()));
-      }
-    };
-    fetchCategories();
+      });
+      setAllCategories(Array.from(cats.values()));
+    }
   }, []);
+
+  // Load on mount + listen for changes from admin panel
+  useEffect(() => {
+    fetchCategories();
+    const handler = () => { fetchCategories(); };
+    window.addEventListener('categories-changed', handler);
+    return () => window.removeEventListener('categories-changed', handler);
+  }, [fetchCategories]);
 
   // Count how many items belong to each category
   const categoryCountMap = useMemo(() => {
