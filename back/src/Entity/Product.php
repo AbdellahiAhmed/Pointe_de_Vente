@@ -98,6 +98,13 @@ class Product
     /**
      * @ORM\Column(type="decimal", precision=20, scale=2, nullable=true)
      * @Gedmo\Versioned()
+     * @Groups({"product.read", "order.read", "terminal.read", "purchaseItem.read", "purchase.read", "purchaseOrder.read", "product.write"})
+     */
+    private $minPrice;
+
+    /**
+     * @ORM\Column(type="decimal", precision=20, scale=2, nullable=true)
+     * @Gedmo\Versioned()
      * @Groups({"product.read", "order.read", "terminal.read", "purchaseItem.read", "purchase.read", "purchaseOrder.read", "keyword", "product.write"})
      */
     private $quantity;
@@ -382,6 +389,18 @@ class Product
     public function setCost(?string $cost): self
     {
         $this->cost = $cost;
+
+        return $this;
+    }
+
+    public function getMinPrice(): ?string
+    {
+        return $this->minPrice;
+    }
+
+    public function setMinPrice(?string $minPrice): self
+    {
+        $this->minPrice = $minPrice;
 
         return $this;
     }
