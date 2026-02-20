@@ -2,7 +2,7 @@ import {useSelector} from "react-redux";
 import {isUserLoggedIn} from "../../../duck/auth/auth.selector";
 import React from "react";
 import {Link, useLocation} from "react-router-dom";
-import {DASHBOARD, REPORTS_SALES, REPORTS_PROFIT, REPORTS_DAILY, REPORTS_VENDOR, REPORTS_CATEGORY, Z_REPORTS, USERS, INVENTORY_ALERTS} from "../../routes/frontend.routes";
+import {DASHBOARD, REPORTS_SALES, REPORTS_PROFIT, REPORTS_DAILY, REPORTS_VENDOR, REPORTS_CATEGORY, Z_REPORTS, USERS, INVENTORY_ALERTS, RETURN_REQUESTS} from "../../routes/frontend.routes";
 import classNames from "classnames";
 import {useTranslation} from "react-i18next";
 import {useHasRole} from "../../../duck/auth/hooks/useHasRole";
@@ -100,6 +100,15 @@ export const Sidebar = () => {
               )} to={INVENTORY_ALERTS}>
                 <i className="bi bi-exclamation-triangle"></i>
                 <span>{t('Stock Alerts')}</span>
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link className={classNames(
+                "nav-link", location.pathname === RETURN_REQUESTS ? 'active' : 'collapsed'
+              )} to={RETURN_REQUESTS}>
+                <i className="bi bi-arrow-return-left"></i>
+                <span>{t('Return Requests')}</span>
               </Link>
             </li>
           </>

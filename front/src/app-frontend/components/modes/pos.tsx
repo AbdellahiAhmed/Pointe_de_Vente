@@ -38,6 +38,7 @@ import { SearchVariants } from "../search/search.variants";
 import { ProductGrid } from "../search/product.grid";
 import { QuantityChangeModal } from "../sale/quantity-change.modal";
 import { PriceChangeModal } from "../sale/price-change.modal";
+import { ReturnRequest } from "../sale/return-request";
 
 enum SearchModes {
   sale = "sale",
@@ -107,6 +108,7 @@ export const PosMode = () => {
   const [quantityModalOpen, setQuantityModalOpen] = useState(false);
   const [priceModalOpen, setPriceModalOpen] = useState(false);
   const [selectedCartItem, setSelectedCartItem] = useState<CartItem | null>(null);
+  const [returnRequestOpen, setReturnRequestOpen] = useState(false);
   const [brands, setBrands] = useState<{ [key: string]: Brand }>({});
   const [categories, setCategories] = useState<{ [key: string]: Category }>({});
   const [departments, setDepartment] = useState<{ [key: string]: Department }>(
@@ -522,6 +524,12 @@ export const PosMode = () => {
       searchField.current?.focus();
     });
 
+    // F8 - Open return request
+    Mousetrap.bind("f8", (e) => {
+      e.preventDefault();
+      setReturnRequestOpen(true);
+    });
+
     // F12 - Trigger pay (click the settle button)
     Mousetrap.bind("f12", (e) => {
       e.preventDefault();
@@ -550,6 +558,8 @@ export const PosMode = () => {
         setQuantityModalOpen(false);
       } else if (priceModalOpen) {
         setPriceModalOpen(false);
+      } else if (returnRequestOpen) {
+        setReturnRequestOpen(false);
       } else if (modal) {
         setModal(false);
         setVariants([]);
@@ -561,9 +571,9 @@ export const PosMode = () => {
     });
 
     return () => {
-      Mousetrap.unbind(["f1", "f2", "f3", "f12", "del", "escape"]);
+      Mousetrap.unbind(["f1", "f2", "f3", "f8", "f12", "del", "escape"]);
     };
-  }, [getSelectedCartItem, added, appState.cartItem, quantityModalOpen, priceModalOpen, modal]);
+  }, [getSelectedCartItem, added, appState.cartItem, quantityModalOpen, priceModalOpen, returnRequestOpen, modal]);
 
   const handleQuantityConfirm = useCallback((newQuantity: number) => {
     if (!selectedCartItem) return;
@@ -843,6 +853,10 @@ export const PosMode = () => {
         cartItem={selectedCartItem}
         onClose={() => { setPriceModalOpen(false); setSelectedCartItem(null); }}
         onConfirm={handlePriceConfirm}
+      />
+      <ReturnRequest
+        open={returnRequestOpen}
+        onClose={() => setReturnRequestOpen(false)}
       />
     </>
   );

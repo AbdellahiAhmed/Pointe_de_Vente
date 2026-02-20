@@ -26,3 +26,5 @@ export const REPORTS_CATEGORY = staticRoute('/reports/category');
 export const Z_REPORTS = staticRoute('/reports/z-reports');
 
 export const INVENTORY_ALERTS = staticRoute('/inventory/alerts');
+
+export const RETURN_REQUESTS = staticRoute('/returns');
