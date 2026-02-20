@@ -74,7 +74,7 @@ export const Categories = () => {
             <span className="mx-2 text-gray-300">|</span>
             <ConfirmAlert
               onConfirm={() => {
-                deleteCategory(
+                toggleCategory(
                   info.getValue().toString(),
                   !info.row.original.isActive
                 );
@@ -86,18 +86,44 @@ export const Categories = () => {
             >
               <Switch checked={info.row.original.isActive} readOnly />
             </ConfirmAlert>
+            <span className="mx-2 text-gray-300">|</span>
+            <ConfirmAlert
+              onConfirm={() => {
+                deleteCategory(info.getValue().toString());
+              }}
+              confirmText={t("Yes, please")}
+              cancelText={t("No, wait")}
+              title={t("Confirmation")}
+              description={t("Are you sure to delete this category?")}
+            >
+              <Button
+                type="button"
+                variant="danger"
+                className="w-[40px]"
+                tabIndex={-1}>
+                <FontAwesomeIcon icon={faTrash} />
+              </Button>
+            </ConfirmAlert>
           </>
         );
       },
     }),
   ];
 
-  async function deleteCategory(id: string, status: boolean) {
+  async function toggleCategory(id: string, status: boolean) {
     await jsonRequest(CATEGORY_GET.replace(":id", id), {
       method: "PUT",
       body: JSON.stringify({
         isActive: status,
       }),
+    });
+
+    await useLoadHook.fetchData();
+  }
+
+  async function deleteCategory(id: string) {
+    await jsonRequest(CATEGORY_GET.replace(":id", id), {
+      method: "DELETE",
     });
 
     await useLoadHook.fetchData();
