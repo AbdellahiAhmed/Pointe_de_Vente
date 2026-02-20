@@ -23,8 +23,6 @@ import { ReactSelectOptionProps } from "../../../../../api/model/common";
 import { withCurrency } from "../../../../../lib/currency/currency";
 import classNames from "classnames";
 import { getErrorClass, getErrors, hasErrors } from "../../../../../lib/error/error";
-import { ProductVariants } from "../products/variants";
-import { CreateVariants } from "../products/create.variants";
 import { Tax } from "../../../../../api/model/tax";
 import { StoresInput } from "../../../../../app-common/components/input/stores";
 import { Modal } from "../../../../../app-common/components/modal/modal";
@@ -54,7 +52,6 @@ const ValidationSchema = yup.object({
   taxes: yup.array(),
   stores: yup.array(),
   categories: yup.array(),
-  variants: yup.array(yup.object({})).typeError('Please add valid variants'),
 });
 
 export const CreateItem = ({
@@ -286,7 +283,6 @@ export const CreateItem = ({
       name: null,
       prices: [],
       quantity: null,
-      variants: [],
       stores: [],
       taxes: [],
       manageInventory: false
@@ -478,25 +474,23 @@ export const CreateItem = ({
               {getErrors(errors.manageInventory)}
             </div>
 
-            {/* Row 5: Stores / Stock (shown when manage inventory is on or for editing) */}
+            {/* Row 5: Stores / Stock */}
             <div className="col-span-3">
               <StoresInput control={control} errors={errors} name="storesDropdown" />
             </div>
             {getValues('storesDropdown')?.length > 0 && (
               <div className="col-span-3">
-                <div className="grid grid-cols-4 gap-3 font-bold">
+                <div className="grid grid-cols-2 gap-3 font-bold">
                   <div>{t("Store")}</div>
                   <div>{t("Stock")}</div>
-                  <div>{t("Location")}</div>
-                  <div>{t("Re Order Level")}</div>
                 </div>
               </div>
             )}
 
             <div className="col-span-3">
               {stores?.map((store: any, index: number) => (
-                <div key={index} className="grid grid-cols-4 mb-3 gap-3 hover:bg-gray-200">
-                  <div>
+                <div key={index} className="grid grid-cols-2 mb-3 gap-3 hover:bg-gray-200">
+                  <div className="flex items-center">
                     <input type="hidden" {...register(`stores.${index}.store`)} value={store.value} />
                     {store.label}
                   </div>
@@ -509,39 +503,8 @@ export const CreateItem = ({
                       control={control}
                     />
                   </div>
-                  <div>
-                    <Controller
-                      render={({field}) => (
-                        <Input placeholder={t("Location")} onChange={field.onChange} value={field.value} className="w-full" />
-                      )}
-                      name={`stores.${index}.location`}
-                      control={control}
-                    />
-                  </div>
-                  <div>
-                    <Controller
-                      render={({field}) => (
-                        <Input type="number" placeholder={t("Re Order Level")} onChange={field.onChange} value={field.value} className="w-full" />
-                      )}
-                      name={`stores.${index}.reOrderLevel`}
-                      control={control}
-                    />
-                  </div>
                 </div>
               ))}
-            </div>
-
-            {/* Row 6: Variants */}
-            <div className="col-span-3">
-              <h4 className="text-lg">{t("Variants")}</h4>
-            </div>
-            {getErrors(errors.variants)}
-            <div className="col-span-3">
-              {entity ? (
-                <ProductVariants useForm={useFormHook}/>
-              ) : (
-                <CreateVariants useForm={useFormHook}/>
-              )}
             </div>
           </div>
           <Button variant="primary" type="submit"
