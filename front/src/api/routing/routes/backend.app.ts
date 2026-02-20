@@ -106,6 +106,7 @@ export const USER_LIST = scopeUrl('/users');
 export const USER_GET = scopeUrl('/users/:id');
 export const USER_CREATE = scopeUrl('/admin/user/create');
 export const USER_EDIT = scopeUrl('/admin/user/:id');
+export const USER_DELETE = scopeUrl('/admin/user/:id');
 
 export const CLOSING_EDIT = scopeUrl('/admin/closing/:id');
 export const CLOSING_OPENED = scopeUrl('/admin/closing/opened');
