@@ -545,7 +545,8 @@ export const CreateItem = ({
                   {t("Variants")} <span className="text-muted text-sm font-normal">({t("Optional")})</span>
                 </label>
                 <Button type="button" variant="primary" onClick={() => addVariant({
-                  name: '', attributeName: '', attributeValue: '', price: '', quantity: '0', barcode: ''
+                  name: '', price: '', quantity: '0',
+                  barcode: String(Math.floor(Math.random() * 9_000_000_000) + 1_000_000_000),
                 })}>
                   <FontAwesomeIcon icon={faPlus} className="me-2" />
                   {t("Add variant")}
@@ -554,28 +555,20 @@ export const CreateItem = ({
 
               {variantFields.length > 0 && (
                 <div className="grid grid-cols-12 gap-2 mb-2 font-bold text-sm">
-                  <div className="col-span-2">{t("Variant name")}</div>
-                  <div className="col-span-2">{t("Attribute")}</div>
-                  <div className="col-span-2">{t("Value")}</div>
-                  <div className="col-span-2">{t("Price")}</div>
+                  <div className="col-span-4">{t("Variant name")}</div>
+                  <div className="col-span-3">{t("Price")}</div>
                   <div className="col-span-2">{t("Stock")}</div>
-                  <div className="col-span-1">{t("Barcode")}</div>
+                  <div className="col-span-2">{t("Barcode")}</div>
                   <div className="col-span-1"></div>
                 </div>
               )}
 
               {variantFields.map((field, index) => (
                 <div key={field.id} className="grid grid-cols-12 gap-2 mb-2 items-center">
-                  <div className="col-span-2">
-                    <Input {...register(`variants.${index}.name`)} placeholder={t("ex: Small")} className="w-full" />
+                  <div className="col-span-4">
+                    <Input {...register(`variants.${index}.name`)} placeholder={t("ex: 10kg, Large, Red...")} className="w-full" />
                   </div>
-                  <div className="col-span-2">
-                    <Input {...register(`variants.${index}.attributeName`)} placeholder={t("ex: Size")} className="w-full" />
-                  </div>
-                  <div className="col-span-2">
-                    <Input {...register(`variants.${index}.attributeValue`)} placeholder={t("ex: S")} className="w-full" />
-                  </div>
-                  <div className="col-span-2">
+                  <div className="col-span-3">
                     <div className="input-group">
                       <span className="input-addon">{withCurrency(undefined)}</span>
                       <Input {...register(`variants.${index}.price`)} placeholder="0" className="w-full" />
@@ -584,8 +577,8 @@ export const CreateItem = ({
                   <div className="col-span-2">
                     <Input {...register(`variants.${index}.quantity`)} type="number" placeholder="0" className="w-full" />
                   </div>
-                  <div className="col-span-1">
-                    <Input {...register(`variants.${index}.barcode`)} placeholder={t("Barcode")} className="w-full" />
+                  <div className="col-span-2">
+                    <Input {...register(`variants.${index}.barcode`)} className="w-full" />
                   </div>
                   <div className="col-span-1">
                     <Button type="button" variant="danger" className="w-[40px]" onClick={() => removeVariant(index)}>
