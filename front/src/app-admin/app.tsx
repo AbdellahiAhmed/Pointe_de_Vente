@@ -2,6 +2,7 @@ import Login from './containers/login/login';
 import {BrowserRouter as Router, Route, useLocation} from "react-router-dom";
 import {DASHBOARD, FORGOT_PASSWORD, LOGIN, PROFILE, USERS, USERS_CREATE, USERS_EDIT, REPORTS_SALES, REPORTS_PROFIT, REPORTS_DAILY, REPORTS_VENDOR, REPORTS_CATEGORY, Z_REPORTS, INVENTORY_ALERTS, RETURN_REQUESTS, CUSTOMERS_REPORT} from "./routes/frontend.routes";
 import {connect, useSelector} from "react-redux";
+import {useTranslation} from "react-i18next";
 import {RootState} from "../duck/_root/root.state";
 import {isUserLoggedIn} from "../duck/auth/auth.selector";
 import {getBootstrapError, hasBootstrapped} from "../duck/app/app.selector";
@@ -37,6 +38,7 @@ export interface AppProps {
 
 
 const AppComponent: FunctionComponent<AppProps> = (props) => {
+  const {t} = useTranslation();
 
   const [logoutState, logoutAction] = useLogout();
 
@@ -57,7 +59,7 @@ const AppComponent: FunctionComponent<AppProps> = (props) => {
   const {isLoggedIn, hasBootstrapped, bootstrapError} = props;
 
   if (!!bootstrapError) {
-    return <div>An error occurred while initializing application</div>;
+    return <div>{t('An error occurred while initializing application')}</div>;
   }
 
   if (!hasBootstrapped) {

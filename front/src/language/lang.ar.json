@@ -739,5 +739,7 @@
   "Contact": "اتصل بنا",
   "Connect With Us": "تواصل معنا",
   "Join us on Our Social Platforms for latest news & Updates": "انضم إلينا على منصاتنا الاجتماعية لآخر الأخبار والتحديثات",
-  "Out of stock": "نفاذ المخزون"
+  "Out of stock": "نفاذ المخزون",
+  "An error occurred while loading data": "حدث خطأ أثناء تحميل البيانات",
+  "An error occurred while initializing application": "حدث خطأ أثناء تهيئة التطبيق"
 }

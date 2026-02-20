@@ -12,10 +12,12 @@ export const ZReportPage: FunctionComponent = () => {
   const {t} = useTranslation();
   const [closings, setClosings] = useState<Closing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState<string | null>(null);
 
   const fetchClosings = async () => {
     setLoading(true);
+    setError(null);
     try {
       const response = await jsonRequest(CLOSING_LIST);
       const json = await response.json();
@@ -26,6 +28,7 @@ export const ZReportPage: FunctionComponent = () => {
       setClosings(closed);
     } catch (e) {
       console.error(e);
+      setError(t('An error occurred while loading data'));
     } finally {
       setLoading(false);
     }
@@ -71,6 +74,10 @@ export const ZReportPage: FunctionComponent = () => {
         {title: t('Z-Reports'), current: true},
       ]}
     >
+      {error && (
+        <div className="alert alert-danger">{error}</div>
+      )}
+
       {loading ? (
         <div className="text-center py-5">
           <div className="spinner-border text-primary" role="status"></div>

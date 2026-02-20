@@ -26,10 +26,12 @@ export const StockAlerts: FunctionComponent = () => {
   const [stores, setStores] = useState<StoreOption[]>([]);
   const [selectedStore, setSelectedStore] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [count, setCount] = useState(0);
 
   const fetchAlerts = async (storeId?: string) => {
     setLoading(true);
+    setError(null);
     try {
       const url = storeId ? `${STOCK_ALERTS}?store=${storeId}` : STOCK_ALERTS;
       const response = await jsonRequest(url);
@@ -38,6 +40,7 @@ export const StockAlerts: FunctionComponent = () => {
       setCount(json.count || 0);
     } catch (e) {
       console.error(e);
+      setError(t('An error occurred while loading data'));
     } finally {
       setLoading(false);
     }
@@ -106,6 +109,9 @@ export const StockAlerts: FunctionComponent = () => {
         <div className="col-12">
           <div className="card">
             <div className="card-body">
+              {error && (
+                <div className="alert alert-danger">{error}</div>
+              )}
               {loading ? (
                 <div className="text-center py-4">
                   <div className="spinner-border" role="status">

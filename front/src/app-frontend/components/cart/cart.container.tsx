@@ -148,7 +148,17 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
   };
 
   const copyLastItem = () => {
-
+    if (added.length === 0) return;
+    const last = added[added.length - 1];
+    const copy: CartItemModel = {
+      ...last,
+      quantity: 1,
+      checked: false,
+    };
+    setAppState((prev) => ({
+      ...prev,
+      added: [...prev.added, copy],
+    }));
   }
 
   const updateCartItemType = useCallback(

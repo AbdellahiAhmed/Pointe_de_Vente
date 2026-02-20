@@ -28,15 +28,18 @@ export const CustomerReport: FunctionComponent = () => {
   const {t} = useTranslation();
   const [data, setData] = useState<CustomerReportData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchReport = async () => {
     setLoading(true);
+    setError(null);
     try {
       const response = await jsonRequest(REPORT_CUSTOMERS);
       const json = await response.json();
       setData(json);
     } catch (e) {
       console.error(e);
+      setError(t('An error occurred while loading data'));
     } finally {
       setLoading(false);
     }
@@ -71,6 +74,10 @@ export const CustomerReport: FunctionComponent = () => {
         {title: t('Customers & Credit'), current: true},
       ]}
     >
+      {error && (
+        <div className="alert alert-danger">{error}</div>
+      )}
+
       {loading ? (
         <div className="text-center py-5">
           <div className="spinner-border text-primary" role="status"></div>
