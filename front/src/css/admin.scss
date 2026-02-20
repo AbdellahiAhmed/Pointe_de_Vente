@@ -46,33 +46,121 @@ body:has(#sidebar) {
 
 }
 
-/* ─── Override POS global `a` and `.btn` styles for admin ─── */
-/* ltr.scss sets `a { display: inline-flex; text-decoration: underline; }`
-   and `.btn { @apply ... }` which break the admin layout.
-   We use high-specificity selectors + !important to win. */
+/* ═══════════════════════════════════════════════════════════
+   ADMIN CSS ISOLATION — Override POS global styles
+   ltr.scss defines destructive global selectors (a, .btn, .card,
+   .form-control, .dropdown::after) with Tailwind @apply that
+   break Bootstrap-based admin layout. These overrides use
+   ID-scoped selectors (#main, #header, #sidebar) to win
+   specificity over bare class selectors.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── Links ─── */
+/* POS sets: a { display:inline-flex; justify-content:center;
+   align-items:center; text-decoration:underline; color:black } */
 #sidebar a,
 #header a,
 #main a {
-  display: block !important;
-  justify-content: flex-start !important;
-  align-items: center !important;
   text-decoration: none !important;
   color: inherit !important;
 }
 
+/* Sidebar nav links: flex for icon + text */
 #sidebar a.nav-link {
   display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
 }
 
+/* Other sidebar links */
+#sidebar a:not(.nav-link) {
+  display: block !important;
+}
+
+/* Header nav links & dropdown items */
+#header a.nav-link,
+#header a.dropdown-item,
+#header button.dropdown-item,
+#main a.dropdown-item {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+}
+
+/* Header non-nav links */
+#header a:not(.nav-link):not(.dropdown-item):not(.btn) {
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Button-links in main content */
+#main a.btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* d-grid button-links: left-aligned, full-width */
+#main .d-grid a.btn,
+#main .d-grid button.btn {
+  display: flex !important;
+  justify-content: flex-start !important;
+}
+
+/* Regular links in main: inline (for text, breadcrumbs, etc.) */
+#main a:not(.btn):not(.dropdown-item):not(.nav-link) {
+  display: inline !important;
+}
+
+/* ─── Buttons ─── */
+/* POS sets: .btn { @apply bg-white uppercase font-bold border-2 h-[40px]
+   inline-flex justify-center items-center } */
 #main .btn,
 #header .btn {
-  display: inline-block !important;
   font-family: 'Open Sans', system-ui, sans-serif !important;
   text-transform: none !important;
   font-weight: 500 !important;
   border-width: 1px !important;
   height: auto !important;
-  background-color: transparent !important;
+  /* background-color: transparent beats POS .btn{bg-white} by specificity
+     (ID+class > class). NO !important so hover states can override. */
+  background-color: transparent;
+  line-height: 1.5;
+}
+
+/* ─── Cards ─── */
+/* POS sets: .card { background:rgba(255,255,255,0.2); backdrop-filter:blur(5px);
+   color:white; border:none } */
+#main .card {
+  color: var(--adm-text-body) !important;
+  backdrop-filter: none !important;
+}
+
+/* ─── Dropdown overlay ─── */
+/* POS sets: .dropdown::after { position:fixed; width:100%; height:100%; content:"" }
+   to close dropdowns on outside click. Kill it in admin. */
+#main .dropdown::after,
+#header .dropdown::after {
+  display: none !important;
+}
+
+/* ─── Form controls ─── */
+/* POS sets: .form-control,.input { @apply border-primary-500 border-2 h-[40px]
+   rounded-lg text-gray-500 } — breaks Bootstrap form styling */
+#main .form-control,
+#main select.form-select,
+#main .form-control:focus {
+  border-color: var(--adm-border) !important;
+  border-width: 1px !important;
+  border-radius: 6px !important;
+  height: auto !important;
+  font-family: 'Open Sans', system-ui, sans-serif !important;
+  color: var(--adm-text-body) !important;
+}
+
+#main .form-control:focus {
+  border-color: var(--adm-primary) !important;
+  box-shadow: 0 0 0 0.25rem rgba(65, 84, 241, 0.15) !important;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -452,6 +540,8 @@ main.main:not(#main) {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
   margin-bottom: 20px;
   overflow: hidden;
+  color: var(--adm-text-body);
+  backdrop-filter: none;
 
   .card-body {
     padding: 20px;
@@ -577,32 +667,99 @@ main.main:not(#main) {
 }
 
 #main .btn-outline-primary {
-  color: var(--adm-primary);
-  border-color: var(--adm-primary);
+  color: var(--adm-primary) !important;
+  border-color: var(--adm-primary) !important;
 
-  &:hover {
-    background: var(--adm-primary);
-    color: #fff;
+  &:hover,
+  &:focus {
+    background-color: var(--adm-primary) !important;
+    color: #fff !important;
   }
 }
 
 #main .btn-outline-success {
-  &:hover {
-    background: #198754;
-    color: #fff;
+  color: #198754 !important;
+  border-color: #198754 !important;
+
+  &:hover,
+  &:focus {
+    background-color: #198754 !important;
+    color: #fff !important;
   }
 }
 
 #main .btn-outline-info {
-  &:hover {
-    background: #0dcaf0;
-    color: #fff;
+  color: #0dcaf0 !important;
+  border-color: #0dcaf0 !important;
+
+  &:hover,
+  &:focus {
+    background-color: #0dcaf0 !important;
+    color: #fff !important;
   }
 }
 
-/* ─── d-grid gap-2 fix inside cards ─── */
-#main .d-grid.gap-2 .btn {
-  text-align: start;
+#main .btn-outline-danger {
+  color: #dc3545 !important;
+  border-color: #dc3545 !important;
+
+  &:hover,
+  &:focus {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+  }
+}
+
+#main .btn-outline-warning {
+  color: #ffc107 !important;
+  border-color: #ffc107 !important;
+
+  &:hover,
+  &:focus {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+  }
+}
+
+/* Solid button variants */
+#main .btn-primary:not([class*="outline"]) {
+  background-color: var(--adm-primary) !important;
+  border-color: var(--adm-primary) !important;
+  color: #fff !important;
+
+  &:hover { background-color: var(--adm-primary-dark) !important; }
+}
+
+#main .btn-success:not([class*="outline"]) {
+  background-color: #198754 !important;
+  border-color: #198754 !important;
+  color: #fff !important;
+
+  &:hover { background-color: #157347 !important; }
+}
+
+#main .btn-danger:not([class*="outline"]) {
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+  color: #fff !important;
+
+  &:hover { background-color: #bb2d3b !important; }
+}
+
+#main .btn-warning:not([class*="outline"]) {
+  background-color: #ffc107 !important;
+  border-color: #ffc107 !important;
+  color: #000 !important;
+
+  &:hover { background-color: #ffca2c !important; }
+}
+
+#main .btn-info:not([class*="outline"]) {
+  background-color: #0dcaf0 !important;
+  border-color: #0dcaf0 !important;
+  color: #000 !important;
+
+  &:hover { background-color: #31d2f2 !important; }
 }
 
 /* ═══════════════════════════════════════════════════════════
