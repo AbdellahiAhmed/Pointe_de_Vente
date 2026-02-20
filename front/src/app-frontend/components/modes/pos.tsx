@@ -661,7 +661,7 @@ export const PosMode = () => {
               <form
                 className="flex gap-2 flex-1"
                 onSubmit={handleSubmit(searchAction)}>
-                <div className="pos-search-group">
+                <div className="input-group flex-1 flex-nowrap">
                   <Tooltip title={t("Barcode search")}>
                     <Button
                       variant="primary"
@@ -680,7 +680,7 @@ export const PosMode = () => {
                         ref={searchField}
                         autoFocus
                         type="search"
-                        className="pos-search-input mousetrap"
+                        className="search-field mousetrap lg flex-1"
                         value={field.value}
                         onChange={field.onChange}
                       />
@@ -695,7 +695,7 @@ export const PosMode = () => {
                       <Input
                         type="number"
                         placeholder={t("Qty")}
-                        className="pos-qty-input mousetrap"
+                        className="pos-qty-input mousetrap lg"
                         value={field.value}
                         onChange={field.onChange}
                       />

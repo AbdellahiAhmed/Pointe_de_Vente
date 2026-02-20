@@ -46,81 +46,20 @@
 
 .pos-topbar-search {
   display: flex;
-  flex: 1 1 0%;
+  flex: 1;
   gap: 8px;
   align-items: center;
-  min-width: 200px;
-}
-
-/* Force the search form input-group to NEVER wrap */
-.pos-topbar-search form {
-  display: flex;
-  flex: 1 1 0%;
-  gap: 8px;
   min-width: 0;
 }
 
-.pos-topbar-search .input-group {
-  flex-wrap: nowrap !important;
-  flex-shrink: 0;
-}
-
-/* Fused search group: [barcode btn | search input | qty field] */
-.pos-search-group {
-  display: flex;
-  align-items: center;
-  flex: 1 1 0%;
-  min-width: 180px;
-  border: 1px solid var(--pos-border);
-  border-radius: var(--pos-radius-sm);
-  overflow: hidden;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  background: var(--pos-surface);
-}
-
-.pos-search-group:focus-within {
-  border-color: var(--pos-accent);
-  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.12);
-}
-
-.pos-search-group .btn {
-  border: none !important;
-  border-radius: 0 !important;
-  flex-shrink: 0;
-  min-width: 44px;
-  height: 42px;
-}
-
-.pos-search-group input {
-  border: none !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  height: 42px;
-  outline: none;
-  background: transparent;
-}
-
-.pos-search-group input:focus {
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-.pos-search-group .pos-search-input {
-  flex: 1 1 0%;
-  min-width: 0;
-  width: 100%;
-  border-inline-start: 1px solid var(--pos-border) !important;
-}
-
-.pos-search-group .pos-qty-input {
+/* Qty input — fixed small width */
+.pos-qty-input {
   width: 56px !important;
-  max-width: 56px;
-  flex: 0 0 56px;
-  text-align: center;
+  max-width: 56px !important;
+  min-width: 56px !important;
+  text-align: center !important;
   font-weight: 600;
   color: var(--pos-accent-dark);
-  border-inline-start: 1px solid var(--pos-border) !important;
-  font-size: 15px !important;
 }
 
 .pos-topbar-actions {
