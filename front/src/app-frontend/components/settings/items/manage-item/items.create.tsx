@@ -1,4 +1,4 @@
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -14,7 +14,7 @@ import { HttpException, UnprocessableEntityException } from "../../../../../lib/
 import { ConstraintViolation } from "../../../../../lib/validator/validation.result";
 import { Input } from "../../../../../app-common/components/input/input";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCloudUploadAlt, faPlus, faRefresh, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faCloudUploadAlt, faPlus, faRefresh, faTimes, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "../../../../../app-common/components/input/button";
 import { Category } from "../../../../../api/model/category";
 import { Product } from "../../../../../api/model/product";
@@ -62,6 +62,10 @@ export const CreateItem = ({
   });
 
   const { register, handleSubmit, setError, formState: { errors }, reset, getValues, control, watch } = useFormHook;
+  const { fields: variantFields, append: addVariant, remove: removeVariant } = useFieldArray({
+    control,
+    name: "variants"
+  });
   const {t} = useTranslation();
   const [creating, setCreating] = useState(false);
   const [modal, setModal] = useState(false);
@@ -123,15 +127,32 @@ export const CreateItem = ({
         method = 'PUT';
         url = PRODUCT_GET.replace(':id', values.id);
         if( values.variants ) {
-          values.variants = values.variants
-            .filter((variant: any) => variant['@id'] || variant.id)
-            .map((variant: any) => variant['@id'] || `/api/product_variants/${variant.id}`);
+          values.variants = values.variants.map((variant: any) => {
+            if (variant['@id'] || variant.id) {
+              // Existing variant — send as IRI
+              return variant['@id'] || `/api/product_variants/${variant.id}`;
+            }
+            // New variant — send as nested object
+            return {
+              name: variant.name,
+              attributeName: variant.attributeName,
+              attributeValue: variant.attributeValue,
+              price: variant.price || null,
+              quantity: variant.quantity || '0',
+              barcode: variant.barcode || null,
+            };
+          });
         }
       } else {
         delete values.id;
         if( values.variants ) {
           values.variants = values.variants.map((variant: any) => ({
-            ...variant
+            name: variant.name,
+            attributeName: variant.attributeName,
+            attributeValue: variant.attributeValue,
+            price: variant.price || null,
+            quantity: variant.quantity || '0',
+            barcode: variant.barcode || null,
           }));
         }
       }
@@ -259,6 +280,16 @@ export const CreateItem = ({
           label: `${item.name} ${item.rate}%`,
           value: item['@id']
         })),
+        variants: (entity as any).variants?.map((v: any) => ({
+          '@id': v['@id'],
+          id: v.id,
+          name: v.name || '',
+          attributeName: v.attributeName || '',
+          attributeValue: v.attributeValue || '',
+          price: v.price || '',
+          quantity: v.quantity || '0',
+          barcode: v.barcode || '',
+        })) || [],
       });
 
       // Restore existing product image
@@ -285,6 +316,7 @@ export const CreateItem = ({
       quantity: null,
       stores: [],
       taxes: [],
+      variants: [],
       manageInventory: false
     });
   };
@@ -505,6 +537,67 @@ export const CreateItem = ({
                   </div>
                 </div>
               ))}
+            </div>
+            {/* ─── Variants (optional) ─── */}
+            <div className="col-span-3 border-t pt-4 mt-2">
+              <div className="flex justify-between items-center mb-3">
+                <label className="font-bold text-lg">
+                  {t("Variants")} <span className="text-muted text-sm font-normal">({t("Optional")})</span>
+                </label>
+                <Button type="button" variant="primary" onClick={() => addVariant({
+                  name: '', attributeName: '', attributeValue: '', price: '', quantity: '0', barcode: ''
+                })}>
+                  <FontAwesomeIcon icon={faPlus} className="me-2" />
+                  {t("Add variant")}
+                </Button>
+              </div>
+
+              {variantFields.length > 0 && (
+                <div className="grid grid-cols-12 gap-2 mb-2 font-bold text-sm">
+                  <div className="col-span-2">{t("Variant name")}</div>
+                  <div className="col-span-2">{t("Attribute")}</div>
+                  <div className="col-span-2">{t("Value")}</div>
+                  <div className="col-span-2">{t("Price")}</div>
+                  <div className="col-span-2">{t("Stock")}</div>
+                  <div className="col-span-1">{t("Barcode")}</div>
+                  <div className="col-span-1"></div>
+                </div>
+              )}
+
+              {variantFields.map((field, index) => (
+                <div key={field.id} className="grid grid-cols-12 gap-2 mb-2 items-center">
+                  <div className="col-span-2">
+                    <Input {...register(`variants.${index}.name`)} placeholder={t("ex: Small")} className="w-full" />
+                  </div>
+                  <div className="col-span-2">
+                    <Input {...register(`variants.${index}.attributeName`)} placeholder={t("ex: Size")} className="w-full" />
+                  </div>
+                  <div className="col-span-2">
+                    <Input {...register(`variants.${index}.attributeValue`)} placeholder={t("ex: S")} className="w-full" />
+                  </div>
+                  <div className="col-span-2">
+                    <div className="input-group">
+                      <span className="input-addon">{withCurrency(undefined)}</span>
+                      <Input {...register(`variants.${index}.price`)} placeholder="0" className="w-full" />
+                    </div>
+                  </div>
+                  <div className="col-span-2">
+                    <Input {...register(`variants.${index}.quantity`)} type="number" placeholder="0" className="w-full" />
+                  </div>
+                  <div className="col-span-1">
+                    <Input {...register(`variants.${index}.barcode`)} placeholder={t("Barcode")} className="w-full" />
+                  </div>
+                  <div className="col-span-1">
+                    <Button type="button" variant="danger" className="w-[40px]" onClick={() => removeVariant(index)}>
+                      <FontAwesomeIcon icon={faTrash} />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+
+              {variantFields.length === 0 && (
+                <p className="text-muted text-sm">{t("No variants added. Click 'Add variant' to create size, color or other variations.")}</p>
+              )}
             </div>
           </div>
           <Button variant="primary" type="submit"
