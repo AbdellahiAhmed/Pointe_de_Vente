@@ -96,7 +96,7 @@ export const Users = () => {
         });
         if (!response.ok) {
           const body = await response.json().catch(() => ({}));
-          setError(body?.['hydra:description'] ?? body?.message ?? t('An error occurred. Please try again.'));
+          setError(t(body?.['hydra:description'] ?? body?.message ?? 'An error occurred. Please try again.'));
           return;
         }
       } else {
@@ -113,7 +113,7 @@ export const Users = () => {
         });
         if (!response.ok) {
           const body = await response.json().catch(() => ({}));
-          setError(body?.['hydra:description'] ?? body?.message ?? t('An error occurred. Please try again.'));
+          setError(t(body?.['hydra:description'] ?? body?.message ?? 'An error occurred. Please try again.'));
           return;
         }
       }

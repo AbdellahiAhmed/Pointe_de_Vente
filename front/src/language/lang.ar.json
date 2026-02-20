@@ -6,6 +6,8 @@
   "Invalid credentials.": "اسم المستخدم أو كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى.",
   "Your account has been disabled by the administrator. Please contact the administrator to reactivate it.": "تم تعطيل حسابك من قبل المسؤول. يرجى التواصل مع المسؤول لإعادة تفعيله.",
   "Username cannot be changed": "لا يمكن تغيير اسم المستخدم",
+  "This value is already used.": "هذه القيمة مستخدمة بالفعل.",
+  "Unprocessable Content": "خطأ في التحقق. يرجى مراجعة الحقول.",
   "Forgot Password": "نسيت كلمة المرور",
   "Forgot Password?": "نسيت كلمة المرور؟",
   "Choose a store": "اختر متجراً",

@@ -101,20 +101,11 @@ export const CreateUser: FC<CreateUserProps> = ({
 
       onModalClose();
     } catch ( exception: any ) {
-      if( exception instanceof HttpException ) {
-        if( exception.message ) {
-          notify({
-            type: 'error',
-            description: exception.message
-          });
-        }
-      }
-
       if( exception instanceof UnprocessableEntityException ) {
         const e: ValidationResult = await exception.response.json();
         e.violations.forEach((item: ConstraintViolation) => {
           setError(item.propertyPath, {
-            message: item.message,
+            message: t(item.message),
             type: 'server'
           });
         });
@@ -122,11 +113,20 @@ export const CreateUser: FC<CreateUserProps> = ({
         if( e.errorMessage ) {
           notify({
             type: 'error',
-            description: e.errorMessage
+            description: t(e.errorMessage)
           });
         }
 
         return false;
+      }
+
+      if( exception instanceof HttpException ) {
+        if( exception.message ) {
+          notify({
+            type: 'error',
+            description: t(exception.message)
+          });
+        }
       }
 
       throw exception;

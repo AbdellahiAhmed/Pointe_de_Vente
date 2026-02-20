@@ -6,6 +6,8 @@
   "Invalid credentials.": "Nom d'utilisateur ou mot de passe incorrect. Veuillez réessayer.",
   "Your account has been disabled by the administrator. Please contact the administrator to reactivate it.": "Votre compte a été désactivé par l'administrateur. Veuillez contacter l'administrateur pour le réactiver.",
   "Username cannot be changed": "Le nom d'utilisateur ne peut pas être modifié",
+  "This value is already used.": "Cette valeur est déjà utilisée.",
+  "Unprocessable Content": "Erreur de validation. Veuillez vérifier les champs.",
   "Forgot Password": "Mot de passe oublié",
   "Forgot Password?": "Mot de passe oublié ?",
   "Choose a store": "Choisir un magasin",
