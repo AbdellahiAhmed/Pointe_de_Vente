@@ -625,5 +625,11 @@
   "Manage product return requests from vendors": "Gérer les demandes de retour produits des vendeurs",
   "Cache": "Cache",
   "Display": "Affichage",
-  "Vendeur": "Vendeur"
+  "Vendeur": "Vendeur",
+  "Are you sure to delete this store?": "Êtes-vous sûr de vouloir supprimer ce magasin ?",
+  "Are you sure to delete this brand?": "Êtes-vous sûr de vouloir supprimer cette marque ?",
+  "Are you sure to delete this payment type?": "Êtes-vous sûr de vouloir supprimer ce type de paiement ?",
+  "Are you sure to delete this discount?": "Êtes-vous sûr de vouloir supprimer cette remise ?",
+  "Are you sure to delete this tax?": "Êtes-vous sûr de vouloir supprimer cette taxe ?",
+  "Are you sure to delete this terminal?": "Êtes-vous sûr de vouloir supprimer ce terminal ?"
 }

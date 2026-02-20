@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencilAlt, faPlus, } from "@fortawesome/free-solid-svg-icons";
+import { faPencilAlt, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "../../../../app-common/components/input/button";
 import React, { useState } from "react";
 import { BRAND_EDIT, BRAND_LIST, } from "../../../../api/routing/routes/backend.app";
@@ -69,7 +69,7 @@ export const Brands = () => {
             <span className="mx-2 text-gray-300">|</span>
             <ConfirmAlert
               onConfirm={() => {
-                deleteBrand(
+                toggleBrand(
                   info.getValue().toString(),
                   !info.row.original.isActive
                 );
@@ -81,18 +81,40 @@ export const Brands = () => {
             >
               <Switch checked={info.row.original.isActive} readOnly/>
             </ConfirmAlert>
+            <span className="mx-2 text-gray-300">|</span>
+            <ConfirmAlert
+              onConfirm={() => {
+                deleteBrand(info.getValue().toString());
+              }}
+              confirmText={t("Yes, please")}
+              cancelText={t("No, wait")}
+              title={t("Confirmation")}
+              description={t("Are you sure to delete this brand?")}
+            >
+              <Button type="button" variant="danger" className="w-[40px]" tabIndex={-1}>
+                <FontAwesomeIcon icon={faTrash} />
+              </Button>
+            </ConfirmAlert>
           </>
         );
       },
     }),
   ];
 
-  async function deleteBrand(id: string, status: boolean) {
+  async function toggleBrand(id: string, status: boolean) {
     await jsonRequest(BRAND_EDIT.replace(":id", id), {
       method: "PUT",
       body: JSON.stringify({
         isActive: status,
       }),
+    });
+
+    await useLoadHook.fetchData();
+  }
+
+  async function deleteBrand(id: string) {
+    await jsonRequest(BRAND_EDIT.replace(":id", id), {
+      method: "DELETE",
     });
 
     await useLoadHook.fetchData();

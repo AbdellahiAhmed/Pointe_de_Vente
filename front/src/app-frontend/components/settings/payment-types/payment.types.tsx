@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Button } from "../../../../app-common/components/input/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencilAlt, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPencilAlt, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { TableComponent } from "../../../../app-common/components/table/table";
 import { PaymentType } from "../../../../api/model/payment.type";
 import { useSelector } from "react-redux";
@@ -82,7 +82,7 @@ export const PaymentTypes = () => {
             <span className="mx-2 text-gray-300">|</span>
             <ConfirmAlert
               onConfirm={() => {
-                deletePaymentType(
+                togglePaymentType(
                   info.getValue().toString(),
                   !info.row.original.isActive
                 );
@@ -95,18 +95,40 @@ export const PaymentTypes = () => {
               }activate this payment type?`)}>
               <Switch checked={info.row.original.isActive} readOnly />
             </ConfirmAlert>
+            <span className="mx-2 text-gray-300">|</span>
+            <ConfirmAlert
+              onConfirm={() => {
+                deletePaymentType(info.getValue().toString());
+              }}
+              confirmText={t("Yes, please")}
+              cancelText={t("No, wait")}
+              title={t("Confirmation")}
+              description={t("Are you sure to delete this payment type?")}
+            >
+              <Button type="button" variant="danger" className="w-[40px]" tabIndex={-1}>
+                <FontAwesomeIcon icon={faTrash} />
+              </Button>
+            </ConfirmAlert>
           </>
         );
       },
     }),
   ];
 
-  async function deletePaymentType(id: string, status: boolean) {
+  async function togglePaymentType(id: string, status: boolean) {
     await jsonRequest(PAYMENT_TYPE_GET.replace(":id", id), {
       method: "PUT",
       body: JSON.stringify({
         isActive: status,
       }),
+    });
+
+    await useLoadHook.fetchData();
+  }
+
+  async function deletePaymentType(id: string) {
+    await jsonRequest(PAYMENT_TYPE_GET.replace(":id", id), {
+      method: "DELETE",
     });
 
     await useLoadHook.fetchData();

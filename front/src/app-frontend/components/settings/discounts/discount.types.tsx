@@ -84,7 +84,7 @@ export const DiscountTypes = () => {
             <span className="mx-2 text-gray-300">|</span>
             <ConfirmAlert
               onConfirm={() => {
-                deleteDiscount(
+                toggleDiscount(
                   info.getValue().toString(),
                   !info.row.original.isActive
                 );
@@ -96,18 +96,40 @@ export const DiscountTypes = () => {
             >
               <Switch checked={info.row.original.isActive} readOnly />
             </ConfirmAlert>
+            <span className="mx-2 text-gray-300">|</span>
+            <ConfirmAlert
+              onConfirm={() => {
+                deleteDiscount(info.getValue().toString());
+              }}
+              confirmText={t("Yes, please")}
+              cancelText={t("No, wait")}
+              title={t("Confirmation")}
+              description={t("Are you sure to delete this discount?")}
+            >
+              <Button type="button" variant="danger" className="w-[40px]" tabIndex={-1}>
+                <FontAwesomeIcon icon={faTrash} />
+              </Button>
+            </ConfirmAlert>
           </>
         );
       },
     }),
   ];
 
-  async function deleteDiscount(id: string, status: boolean) {
+  async function toggleDiscount(id: string, status: boolean) {
     await jsonRequest(DISCOUNT_GET.replace(":id", id), {
       method: "PUT",
       body: JSON.stringify({
         isActive: status,
       }),
+    });
+
+    await useLoadHook.fetchData();
+  }
+
+  async function deleteDiscount(id: string) {
+    await jsonRequest(DISCOUNT_GET.replace(":id", id), {
+      method: "DELETE",
     });
 
     await useLoadHook.fetchData();

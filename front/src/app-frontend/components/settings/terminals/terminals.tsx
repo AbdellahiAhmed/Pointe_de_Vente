@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Button } from "../../../../app-common/components/input/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencilAlt, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPencilAlt, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Input } from "../../../../app-common/components/input/input";
 import { TableComponent } from "../../../../app-common/components/table/table";
 import { Terminal } from '../../../../api/model/terminal';
@@ -85,7 +85,7 @@ export const Terminals = () => {
             <span className="mx-2 text-gray-300">|</span>
             <ConfirmAlert
               onConfirm={() => {
-                deleteTerminal(info.getValue().toString(), !info.row.original.isActive);
+                toggleTerminal(info.getValue().toString(), !info.row.original.isActive);
               }}
               confirmText={t("Yes, please")}
               cancelText={t("No, wait")}
@@ -94,18 +94,40 @@ export const Terminals = () => {
             >
               <Switch checked={info.row.original.isActive} readOnly/>
             </ConfirmAlert>
+            <span className="mx-2 text-gray-300">|</span>
+            <ConfirmAlert
+              onConfirm={() => {
+                deleteTerminal(info.getValue().toString());
+              }}
+              confirmText={t("Yes, please")}
+              cancelText={t("No, wait")}
+              title={t("Confirmation")}
+              description={t("Are you sure to delete this terminal?")}
+            >
+              <Button type="button" variant="danger" className="w-[40px]" tabIndex={-1}>
+                <FontAwesomeIcon icon={faTrash} />
+              </Button>
+            </ConfirmAlert>
           </>
         )
       }
     })
   ];
 
-  async function deleteTerminal(id: string, status: boolean) {
+  async function toggleTerminal(id: string, status: boolean) {
     await jsonRequest(TERMINAL_GET.replace(':id', id), {
       method: 'PUT',
       body: JSON.stringify({
         isActive: status
       })
+    });
+
+    await useLoadHook.fetchData();
+  }
+
+  async function deleteTerminal(id: string) {
+    await jsonRequest(TERMINAL_GET.replace(':id', id), {
+      method: 'DELETE',
     });
 
     await useLoadHook.fetchData();

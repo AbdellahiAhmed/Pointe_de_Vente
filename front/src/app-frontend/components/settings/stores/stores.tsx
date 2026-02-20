@@ -50,7 +50,7 @@ export const Stores = () => {
             <span className="mx-2 text-gray-300">|</span>
             <ConfirmAlert
               onConfirm={() => {
-                deleteStore(info.getValue().toString(), !info.row.original.isActive);
+                toggleStore(info.getValue().toString(), !info.row.original.isActive);
               }}
               confirmText={t("Yes, please")}
               cancelText={t("No, wait")}
@@ -59,18 +59,40 @@ export const Stores = () => {
             >
               <Switch checked={info.row.original.isActive} readOnly />
             </ConfirmAlert>
+            <span className="mx-2 text-gray-300">|</span>
+            <ConfirmAlert
+              onConfirm={() => {
+                deleteStore(info.getValue().toString());
+              }}
+              confirmText={t("Yes, please")}
+              cancelText={t("No, wait")}
+              title={t("Confirmation")}
+              description={t("Are you sure to delete this store?")}
+            >
+              <Button type="button" variant="danger" className="w-[40px]" tabIndex={-1}>
+                <FontAwesomeIcon icon={faTrash} />
+              </Button>
+            </ConfirmAlert>
           </>
         )
       }
     })
   ];
 
-  async function deleteStore(id: string, status: boolean) {
+  async function toggleStore(id: string, status: boolean) {
     await jsonRequest(STORE_EDIT.replace(':id', id), {
       method: 'PUT',
       body: JSON.stringify({
         isActive: status
       })
+    });
+
+    await useLoadHook.fetchData();
+  }
+
+  async function deleteStore(id: string) {
+    await jsonRequest(STORE_EDIT.replace(':id', id), {
+      method: 'DELETE',
     });
 
     await useLoadHook.fetchData();
