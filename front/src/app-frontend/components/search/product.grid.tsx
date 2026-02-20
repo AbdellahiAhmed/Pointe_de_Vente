@@ -1,4 +1,4 @@
-import React, {useMemo, useState, useCallback} from "react";
+import React, {useEffect, useMemo, useState, useCallback} from "react";
 import {Product} from "../../../api/model/product";
 import {getRealProductPrice} from "../../containers/dashboard/pos";
 import {useTranslation} from "react-i18next";
@@ -6,6 +6,8 @@ import {Category} from "../../../api/model/category";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBoxOpen, faLayerGroup, faTag} from "@fortawesome/free-solid-svg-icons";
 import classNames from "classnames";
+import {jsonRequest} from "../../../api/request/request";
+import {CATEGORY_LIST} from "../../../api/routing/routes/backend.app";
 
 interface ProductGridProps {
   items: Product[];
@@ -100,17 +102,29 @@ export const ProductGrid = ({items, addItem, setCategories}: ProductGridProps) =
 
   // null = "All" selected
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [allCategories, setAllCategories] = useState<Category[]>([]);
 
-  // Collect all unique categories present in current items
-  const availableCategories = useMemo(() => {
-    const cats = new Map<number, Category>();
-    items.forEach(item => {
-      item.categories?.forEach(cat => {
-        if (!cats.has(cat.id)) cats.set(cat.id, cat);
-      });
-    });
-    return Array.from(cats.values());
-  }, [items]);
+  // Fetch ALL categories from API on mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await jsonRequest(`${CATEGORY_LIST}?isActive=true`);
+        const data = await res.json();
+        const cats: Category[] = data['hydra:member'] || data.list || [];
+        setAllCategories(cats);
+      } catch (e) {
+        // Fallback: derive from products if API fails
+        const cats = new Map<number, Category>();
+        items.forEach(item => {
+          item.categories?.forEach(cat => {
+            if (!cats.has(cat.id)) cats.set(cat.id, cat);
+          });
+        });
+        setAllCategories(Array.from(cats.values()));
+      }
+    };
+    fetchCategories();
+  }, []);
 
   // Count how many items belong to each category
   const categoryCountMap = useMemo(() => {
@@ -170,7 +184,7 @@ export const ProductGrid = ({items, addItem, setCategories}: ProductGridProps) =
         </div>
 
         {/* Category tiles */}
-        {availableCategories.map((cat, index) => {
+        {allCategories.map((cat, index) => {
           const colorIndex = ((index % 12) + 1).toString();
           const isActive = selectedCategoryId === cat.id;
           const count = categoryCountMap.get(cat.id) ?? 0;
