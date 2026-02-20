@@ -3,6 +3,7 @@
   "Username": "Nom d'utilisateur",
   "Password": "Mot de passe",
   "Login": "Connexion",
+  "Invalid credentials.": "Nom d'utilisateur ou mot de passe incorrect. Veuillez réessayer.",
   "Forgot Password": "Mot de passe oublié",
   "Forgot Password?": "Mot de passe oublié ?",
   "Choose a store": "Choisir un magasin",
