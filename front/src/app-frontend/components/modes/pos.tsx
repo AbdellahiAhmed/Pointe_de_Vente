@@ -276,7 +276,12 @@ export const PosMode = () => {
           });
         }
       } catch ( e ) {
-        console.log(e);
+        notify({
+          type: 'error',
+          description: t('An error occurred'),
+          placement: 'top',
+          duration: 3,
+        });
       }
     }
 

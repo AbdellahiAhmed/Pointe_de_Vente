@@ -59,6 +59,9 @@ export const Users = () => {
       username: user.username ?? '',
       email: user.email ?? '',
       password: '',
+      // The form exposes a single role dropdown, so we pick the highest-privilege
+      // role from the array (first element as returned by the API) and wrap it
+      // back in an array so the payload always sends `roles: [string]`.
       roles: user.roles?.length > 0 ? [user.roles[0]] : ['ROLE_VENDEUR'],
     });
     setError(null);
@@ -88,13 +91,18 @@ export const Users = () => {
         if (formData.password) {
           payload.password = formData.password;
         }
-        await jsonRequest(USER_EDIT.replace(':id', String(editUser.id)), {
+        const response = await jsonRequest(USER_EDIT.replace(':id', String(editUser.id)), {
           method: 'PUT',
           body: JSON.stringify(payload),
         });
+        if (!response.ok) {
+          const body = await response.json().catch(() => ({}));
+          setError(body?.['hydra:description'] ?? body?.message ?? t('An error occurred. Please try again.'));
+          return;
+        }
       } else {
         // Create new user
-        await jsonRequest(USER_CREATE, {
+        const response = await jsonRequest(USER_CREATE, {
           method: 'POST',
           body: JSON.stringify({
             displayName: formData.displayName,
@@ -104,6 +112,11 @@ export const Users = () => {
             roles: formData.roles,
           }),
         });
+        if (!response.ok) {
+          const body = await response.json().catch(() => ({}));
+          setError(body?.['hydra:description'] ?? body?.message ?? t('An error occurred. Please try again.'));
+          return;
+        }
       }
       closeModal();
       fetchUsers();

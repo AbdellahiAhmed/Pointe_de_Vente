@@ -279,7 +279,7 @@ export const CloseSaleInline: FC<Props> = ({
   const changeDue = useMemo(() => {
     //get a total of payments
     if( payments.length === 0 ) {
-      return Number(watch("received")) - ft - adjustment;
+      return Number(watch("received")) - ft + adjustment;
     }
 
     return (
@@ -403,10 +403,14 @@ export const CloseSaleInline: FC<Props> = ({
     }
 
     const prevPayments = [...payments];
+    const prevTotal = prevPayments.reduce(
+      (sum, p) => sum + Number(p.received),
+      0
+    );
     prevPayments.push({
       total: ft,
       received: amount,
-      due: amount - ft,
+      due: ft - (prevTotal + amount),
       type: payment,
     });
 

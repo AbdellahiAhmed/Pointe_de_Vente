@@ -24,6 +24,7 @@
   "Update profile": "تحديث الملف الشخصي",
   "New password": "كلمة المرور الجديدة",
   "Leave blank to keep current password": "اتركه فارغاً للاحتفاظ بكلمة المرور الحالية",
+  "Profile updated successfully": "تم تحديث الملف الشخصي بنجاح",
 
   "Sales": "المبيعات",
   "Sale": "بيع",
@@ -737,5 +738,6 @@
   "Disclaimer": "إخلاء المسؤولية",
   "Contact": "اتصل بنا",
   "Connect With Us": "تواصل معنا",
-  "Join us on Our Social Platforms for latest news & Updates": "انضم إلينا على منصاتنا الاجتماعية لآخر الأخبار والتحديثات"
+  "Join us on Our Social Platforms for latest news & Updates": "انضم إلينا على منصاتنا الاجتماعية لآخر الأخبار والتحديثات",
+  "Out of stock": "نفاذ المخزون"
 }

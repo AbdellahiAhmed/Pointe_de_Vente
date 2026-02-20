@@ -17,6 +17,7 @@ import {
 import {ConstraintViolation} from "../../../../lib/validator/validation.result";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheckCircle} from "@fortawesome/free-solid-svg-icons";
+import {notify} from "../../../../app-common/components/confirm/notification";
 
 
 export const Profile: FunctionComponent = () => {
@@ -44,6 +45,7 @@ export const Profile: FunctionComponent = () => {
       const json = await res.json();
 
       dispatch(userAuthenticated(json.user));
+      notify({ type: 'success', description: t('Profile updated successfully') });
     }catch (e){
       if(e instanceof HttpException){
         setErrorMessage(e.message);
@@ -66,7 +68,6 @@ export const Profile: FunctionComponent = () => {
           });
         }
       }
-      throw e;
     }finally {
       setLoading(false);
     }

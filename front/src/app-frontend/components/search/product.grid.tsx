@@ -27,6 +27,7 @@ const getMediaUrl = (product: Product): string | null => {
 const ProductCard = React.memo(({product, onClick}: {
   product: Product; onClick: () => void;
 }) => {
+  const {t} = useTranslation();
   const price = getRealProductPrice(product);
   const mediaUrl = getMediaUrl(product);
   const [imgOk, setImgOk] = useState(false);
@@ -71,7 +72,7 @@ const ProductCard = React.memo(({product, onClick}: {
         {/* Stock badges */}
         {out && (
           <div className="product-grid-badge out">
-            Rupture
+            {t('Out of stock')}
           </div>
         )}
         {low && !out && (

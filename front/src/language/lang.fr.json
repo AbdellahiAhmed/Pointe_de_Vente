@@ -24,6 +24,7 @@
   "Update profile": "Mettre à jour le profil",
   "New password": "Nouveau mot de passe",
   "Leave blank to keep current password": "Laisser vide pour garder le mot de passe actuel",
+  "Profile updated successfully": "Profil mis à jour avec succès",
 
   "Sales": "Ventes",
   "Sale": "Vente",
@@ -740,5 +741,6 @@
   "Disclaimer": "Avertissement",
   "Contact": "Contact",
   "Connect With Us": "Rejoignez-nous",
-  "Join us on Our Social Platforms for latest news & Updates": "Rejoignez-nous sur nos réseaux sociaux"
+  "Join us on Our Social Platforms for latest news & Updates": "Rejoignez-nous sur nos réseaux sociaux",
+  "Out of stock": "Rupture de stock"
 }
