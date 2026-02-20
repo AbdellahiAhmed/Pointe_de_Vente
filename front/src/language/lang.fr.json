@@ -4,6 +4,7 @@
   "Password": "Mot de passe",
   "Login": "Connexion",
   "Invalid credentials.": "Nom d'utilisateur ou mot de passe incorrect. Veuillez réessayer.",
+  "Username cannot be changed": "Le nom d'utilisateur ne peut pas être modifié",
   "Forgot Password": "Mot de passe oublié",
   "Forgot Password?": "Mot de passe oublié ?",
   "Choose a store": "Choisir un magasin",

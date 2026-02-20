@@ -84,7 +84,6 @@ export const Users = () => {
         // Edit existing user
         const payload: any = {
           displayName: formData.displayName,
-          username: formData.username,
           email: formData.email,
           roles: formData.roles,
         };
@@ -256,7 +255,9 @@ export const Users = () => {
                         value={formData.username}
                         onChange={e => setFormData({...formData, username: e.target.value})}
                         required
+                        disabled={!!editUser}
                       />
+                      {editUser && <small className="text-muted">{t('Username cannot be changed')}</small>}
                     </div>
                     <div className="mb-3">
                       <label className="form-label">{t('Email')}</label>

@@ -4,6 +4,7 @@
   "Password": "كلمة المرور",
   "Login": "تسجيل الدخول",
   "Invalid credentials.": "اسم المستخدم أو كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى.",
+  "Username cannot be changed": "لا يمكن تغيير اسم المستخدم",
   "Forgot Password": "نسيت كلمة المرور",
   "Forgot Password?": "نسيت كلمة المرور؟",
   "Choose a store": "اختر متجراً",
