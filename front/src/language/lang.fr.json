@@ -693,5 +693,19 @@
   "Vendor Report": "Rapport par vendeur",
   "Yesterday": "Hier",
   "Z-Report": "Rapport Z",
-  "Z-Reports": "Rapports Z"
+  "Z-Reports": "Rapports Z",
+  "Credit sales not allowed for this customer": "Les ventes à crédit ne sont pas autorisées pour ce client",
+  "Credit limit exceeded": "Limite de crédit dépassée",
+  "Customers & Credit": "Clients et crédit",
+  "Customer Report": "Rapport clients",
+  "Total Outstanding": "Total des créances",
+  "Credit Enabled": "Crédit activé",
+  "Credit Status": "Statut crédit",
+  "Healthy": "Sain",
+  "Warning": "Attention",
+  "Over Limit": "Hors limite",
+  "Customers with Credit": "Clients avec crédit",
+  "No customers found": "Aucun client trouvé",
+  "Credit Sales": "Ventes à crédit",
+  "Payments Received": "Paiements reçus"
 }

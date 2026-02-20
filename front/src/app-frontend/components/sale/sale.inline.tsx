@@ -163,6 +163,23 @@ export const CloseSaleInline: FC<Props> = ({
         },
       ];
     }
+    const creditPayments = paymentsAdded.filter(p => p.type?.type === 'credit');
+    if (creditPayments.length > 0 && customer) {
+      const totalCredit = creditPayments.reduce((sum, p) => sum + Number(p.received), 0);
+      if (!customer.allowCreditSale) {
+        notify({ type: 'error', description: t('Credit sales not allowed for this customer') });
+        setSaleClosing(false);
+        return;
+      }
+      if (customer.creditLimit && Number(customer.creditLimit) > 0) {
+        const currentDebt = customer.outstanding + Number(customer.openingBalance || 0);
+        if (currentDebt + totalCredit > Number(customer.creditLimit)) {
+          notify({ type: 'error', description: t('Credit limit exceeded') });
+          setSaleClosing(false);
+          return;
+        }
+      }
+    }
     try {
       const formValues: any = {
         items: added,
@@ -556,6 +573,16 @@ export const CloseSaleInline: FC<Props> = ({
           )}
         </div>
       </div>
+      {customer && customer.allowCreditSale && (defaultMode === PosModes.payment || defaultMode === PosModes.pos) && (
+        <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded px-3 py-2 mb-2 text-sm">
+          <span className="text-amber-800">
+            {t('Outstanding')}: <strong>{new Intl.NumberFormat('fr-FR', {minimumFractionDigits: 2}).format(customer.outstanding + Number(customer.openingBalance || 0))} MRU</strong>
+            {customer.creditLimit && Number(customer.creditLimit) > 0 && (
+              <> / {t('Limit')}: <strong>{new Intl.NumberFormat('fr-FR', {minimumFractionDigits: 2}).format(Number(customer.creditLimit))} MRU</strong></>
+            )}
+          </span>
+        </div>
+      )}
       {(defaultMode === PosModes.payment || defaultMode === PosModes.pos) && (
         <div>
           <ScrollContainer
@@ -574,8 +601,13 @@ export const CloseSaleInline: FC<Props> = ({
                   type="button"
                   size="lg"
                   disabled={
-                    (pt.type === "credit" &&
-                      (customer === undefined || customer === null)) ||
+                    (pt.type === "credit" && (
+                      customer === undefined ||
+                      customer === null ||
+                      !customer.allowCreditSale ||
+                      (customer.creditLimit && Number(customer.creditLimit) > 0 &&
+                       (customer.outstanding + Number(customer.openingBalance || 0) + ft) > Number(customer.creditLimit))
+                    )) ||
                     added.length === 0
                   }>
                   {pt.name}

@@ -1,6 +1,6 @@
 import Login from './containers/login/login';
 import {BrowserRouter as Router, Route, useLocation} from "react-router-dom";
-import {DASHBOARD, FORGOT_PASSWORD, LOGIN, PROFILE, USERS, USERS_CREATE, USERS_EDIT, REPORTS_SALES, REPORTS_PROFIT, REPORTS_DAILY, REPORTS_VENDOR, REPORTS_CATEGORY, Z_REPORTS, INVENTORY_ALERTS, RETURN_REQUESTS} from "./routes/frontend.routes";
+import {DASHBOARD, FORGOT_PASSWORD, LOGIN, PROFILE, USERS, USERS_CREATE, USERS_EDIT, REPORTS_SALES, REPORTS_PROFIT, REPORTS_DAILY, REPORTS_VENDOR, REPORTS_CATEGORY, Z_REPORTS, INVENTORY_ALERTS, RETURN_REQUESTS, CUSTOMERS_REPORT} from "./routes/frontend.routes";
 import {connect, useSelector} from "react-redux";
 import {RootState} from "../duck/_root/root.state";
 import {isUserLoggedIn} from "../duck/auth/auth.selector";
@@ -25,6 +25,7 @@ import {ZReportPage} from "./containers/closing/z-report-page";
 import {VendorReport} from "./containers/reports/vendor-report";
 import {CategoryReport} from "./containers/reports/category-report";
 import {ReturnRequests} from "./containers/returns/return-requests";
+import {CustomerReport} from "./containers/reports/customer-report";
 
 export interface AppProps {
   bootstrap: () => void;
@@ -96,6 +97,7 @@ const AppComponent: FunctionComponent<AppProps> = (props) => {
 
         <Route path={INVENTORY_ALERTS} element={<RequireAuth><RequireRole role="ROLE_MANAGER"><StockAlerts/></RequireRole></RequireAuth>}/>
         <Route path={RETURN_REQUESTS} element={<RequireAuth><RequireRole role="ROLE_MANAGER"><ReturnRequests/></RequireRole></RequireAuth>}/>
+        <Route path={CUSTOMERS_REPORT} element={<RequireAuth><RequireRole role="ROLE_MANAGER"><CustomerReport/></RequireRole></RequireAuth>}/>
 
         {/*if nothing matches show 404*/}
         <Route path="*" element={<Error404/>}/>

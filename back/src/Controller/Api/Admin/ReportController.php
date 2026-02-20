@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api\Admin;
 
+use App\Entity\Customer;
 use App\Entity\Order;
 use App\Entity\OrderProduct;
 use App\Entity\OrderPayment;
@@ -521,6 +522,45 @@ class ReportController extends AbstractController
             'dateFrom' => $dateFrom,
             'dateTo' => $dateTo,
             'categories' => $categories,
+        ]);
+    }
+
+    /**
+     * @Route("/customers", name="customers", methods={"GET"})
+     */
+    public function customers(Request $request, ApiResponseFactory $responseFactory)
+    {
+        $this->denyAccessUnlessGranted(ReportVoter::VIEW);
+
+        $customers = $this->em->getRepository(Customer::class)->findBy([], ['name' => 'ASC']);
+
+        $data = [];
+        $totalOutstanding = 0;
+        $creditCustomers = 0;
+        foreach ($customers as $customer) {
+            $outstanding = $customer->getOutstanding() + (float) $customer->getOpeningBalance();
+            $totalOutstanding += $outstanding;
+            if ($customer->getAllowCreditSale()) {
+                $creditCustomers++;
+            }
+            $data[] = [
+                'id' => $customer->getId(),
+                'name' => $customer->getName(),
+                'phone' => $customer->getPhone(),
+                'allowCreditSale' => $customer->getAllowCreditSale(),
+                'creditLimit' => (float) $customer->getCreditLimit(),
+                'totalSales' => $customer->getSale(),
+                'totalPayments' => $customer->getPaid(),
+                'openingBalance' => (float) $customer->getOpeningBalance(),
+                'outstanding' => round($outstanding, 2),
+            ];
+        }
+
+        return $responseFactory->json([
+            'customers' => $data,
+            'totalOutstanding' => round($totalOutstanding, 2),
+            'totalCustomers' => count($data),
+            'creditCustomers' => $creditCustomers,
         ]);
     }
 }

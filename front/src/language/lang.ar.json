@@ -690,5 +690,19 @@
   "Vendor Report": "تقرير البائعين",
   "Yesterday": "أمس",
   "Z-Report": "تقرير Z",
-  "Z-Reports": "تقارير Z"
+  "Z-Reports": "تقارير Z",
+  "Credit sales not allowed for this customer": "مبيعات الأجل غير مسموح بها لهذا العميل",
+  "Credit limit exceeded": "تم تجاوز حد الائتمان",
+  "Customers & Credit": "العملاء والائتمان",
+  "Customer Report": "تقرير العملاء",
+  "Total Outstanding": "إجمالي المستحقات",
+  "Credit Enabled": "الأجل مفعّل",
+  "Credit Status": "حالة الائتمان",
+  "Healthy": "جيد",
+  "Warning": "تحذير",
+  "Over Limit": "تجاوز الحد",
+  "Customers with Credit": "عملاء بالأجل",
+  "No customers found": "لا يوجد عملاء",
+  "Credit Sales": "مبيعات بالأجل",
+  "Payments Received": "مدفوعات مستلمة"
 }
