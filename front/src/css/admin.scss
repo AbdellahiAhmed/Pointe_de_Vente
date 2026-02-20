@@ -1,0 +1,753 @@
+/* ═══════════════════════════════════════════════════════════
+   Admin Panel — NiceAdmin-compatible Theme
+   Primary: #4154f1  |  Sidebar text: #012970
+   Scoped to #header, #sidebar, #main to avoid POS conflicts
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── Design Tokens ─── */
+:root {
+  --adm-primary:        #4154f1;
+  --adm-primary-light:  #e8eafc;
+  --adm-primary-dark:   #3140d4;
+  --adm-text-dark:      #012970;
+  --adm-text-body:      #444444;
+  --adm-text-muted:     #6c757d;
+  --adm-sidebar-width:  300px;
+  --adm-header-height:  60px;
+  --adm-bg:             #f6f9ff;
+  --adm-surface:        #ffffff;
+  --adm-border:         #e0e6ed;
+  --adm-shadow:         0 2px 15px rgba(0, 0, 0, 0.1);
+  --adm-radius:         8px;
+
+  /* Card icon colors */
+  --adm-icon-blue-bg:   #e8eafc;
+  --adm-icon-blue:      #4154f1;
+  --adm-icon-green-bg:  #dcf6ec;
+  --adm-icon-green:     #2eca6a;
+  --adm-icon-purple-bg: #f1e6ff;
+  --adm-icon-purple:    #9a4fe0;
+  --adm-icon-orange-bg: #fef3c7;
+  --adm-icon-orange:    #f59e0b;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GLOBAL ADMIN BODY BASELINE
+   Applied only when admin layout mounts (#header or #sidebar)
+   ═══════════════════════════════════════════════════════════ */
+
+body:has(#header),
+body:has(#sidebar) {
+  font-family: 'Open Sans', system-ui, -apple-system, sans-serif;
+  background: var(--adm-bg);
+  color: var(--adm-text-body);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   1. HEADER / TOP NAVBAR
+   ═══════════════════════════════════════════════════════════ */
+
+#header.header {
+  background: var(--adm-surface);
+  box-shadow: var(--adm-shadow);
+  height: var(--adm-header-height);
+  z-index: 997;
+  padding: 0 20px;
+  gap: 0;
+
+  /* Logo area */
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    padding-inline-end: 20px;
+    border-inline-end: 1px solid var(--adm-border);
+
+    img {
+      max-height: 32px;
+      width: auto;
+    }
+
+    span {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--adm-text-dark);
+      white-space: nowrap;
+    }
+  }
+
+  /* Sidebar toggle icon */
+  .toggle-sidebar-btn {
+    font-size: 22px;
+    color: var(--adm-text-dark);
+    cursor: pointer;
+    margin-inline-start: 16px;
+    line-height: 1;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: var(--adm-primary);
+    }
+  }
+}
+
+/* ─── Header Nav ─── */
+#header .header-nav {
+  .nav-item {
+    position: relative;
+
+    /* Generic nav links in header */
+    .nav-link {
+      color: var(--adm-text-body);
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      transition: color 0.2s ease;
+
+      &:hover,
+      &:focus {
+        color: var(--adm-primary);
+      }
+
+      img.rounded-circle {
+        width: 36px;
+        height: 36px;
+        object-fit: cover;
+        border: 2px solid var(--adm-border);
+      }
+
+      .dropdown-toggle::after {
+        display: none;
+      }
+    }
+  }
+}
+
+/* ─── Generic dropdown arrow style ─── */
+#header .dropdown-menu-arrow {
+  top: calc(100% + 4px);
+  border: 1px solid var(--adm-border);
+  border-radius: var(--adm-radius);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+  padding: 6px 0;
+  min-width: 160px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    inset-inline-end: 14px;
+    border-width: 0 6px 6px;
+    border-style: solid;
+    border-color: transparent transparent var(--adm-border);
+  }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 16px;
+    font-size: 13.5px;
+    color: var(--adm-text-body);
+    transition: background 0.15s ease, color 0.15s ease;
+
+    i {
+      font-size: 15px;
+      color: var(--adm-text-muted);
+      width: 18px;
+      text-align: center;
+    }
+
+    &:hover {
+      background: var(--adm-primary-light);
+      color: var(--adm-primary);
+
+      i {
+        color: var(--adm-primary);
+      }
+    }
+
+    &.active {
+      background: var(--adm-primary-light);
+      color: var(--adm-primary);
+      font-weight: 600;
+    }
+  }
+
+  .dropdown-divider {
+    margin: 4px 0;
+    border-color: var(--adm-border);
+  }
+}
+
+/* ─── Profile dropdown (wider, with header) ─── */
+#header .dropdown-menu.profile {
+  min-width: 200px;
+
+  .dropdown-header {
+    padding: 10px 16px 6px;
+
+    h6 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--adm-text-dark);
+      margin: 0;
+    }
+
+    span {
+      font-size: 12px;
+      color: var(--adm-text-muted);
+    }
+  }
+
+  /* Button inside dropdown — matches .dropdown-item visually */
+  button.dropdown-item {
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: start;
+    cursor: pointer;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   2. SIDEBAR
+   ═══════════════════════════════════════════════════════════ */
+
+#sidebar.sidebar {
+  position: fixed;
+  inset-block-start: var(--adm-header-height);
+  inset-inline-start: 0;
+  inset-block-end: 0;
+  width: var(--adm-sidebar-width);
+  background: var(--adm-surface);
+  box-shadow: 0 0 20px rgba(1, 41, 112, 0.08);
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 996;
+  transition: inset-inline-start 0.3s ease, width 0.3s ease;
+  scrollbar-width: thin;
+  scrollbar-color: var(--adm-border) transparent;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--adm-border);
+    border-radius: 3px;
+  }
+}
+
+/* ─── Sidebar Nav List ─── */
+#sidebar .sidebar-nav {
+  padding: 20px 0 30px;
+  margin: 0;
+  list-style: none;
+}
+
+/* ─── Section Heading ─── */
+#sidebar .nav-heading {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--adm-text-muted);
+  padding: 18px 20px 6px;
+  user-select: none;
+}
+
+/* ─── Nav Items ─── */
+#sidebar .nav-item {
+  margin-bottom: 2px;
+}
+
+/* ─── Nav Links ─── */
+#sidebar .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  color: var(--adm-text-dark);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  border-inline-start: 3px solid transparent;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+
+  i {
+    font-size: 16px;
+    color: var(--adm-text-dark);
+    transition: color 0.2s ease;
+    flex-shrink: 0;
+    width: 20px;
+    text-align: center;
+  }
+
+  span {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Collapsed (default inactive) state */
+  &.collapsed {
+    color: #4a5568;
+
+    i {
+      color: #718096;
+    }
+
+    &:hover {
+      background: var(--adm-bg);
+      color: var(--adm-primary);
+      border-inline-start-color: rgba(65, 84, 241, 0.3);
+
+      i {
+        color: var(--adm-primary);
+      }
+    }
+  }
+
+  /* Active state */
+  &.active {
+    background: var(--adm-primary-light);
+    color: var(--adm-primary);
+    border-inline-start-color: var(--adm-primary);
+    font-weight: 600;
+
+    i {
+      color: var(--adm-primary);
+    }
+
+    &:hover {
+      background: var(--adm-primary-light);
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   3. MAIN CONTENT AREA
+   ═══════════════════════════════════════════════════════════ */
+
+main.main#main {
+  margin-inline-start: var(--adm-sidebar-width);
+  padding: 20px 24px 24px;
+  padding-top: calc(var(--adm-header-height) + 20px);
+  min-height: 100vh;
+  background: var(--adm-bg);
+  transition: margin-inline-start 0.3s ease;
+}
+
+/* When user is not logged in, no sidebar offset */
+main.main:not(#main) {
+  margin-inline-start: 0;
+  padding: 20px;
+  padding-top: 20px;
+  min-height: 100vh;
+  background: var(--adm-bg);
+}
+
+/* ─── Page Title ─── */
+.pagetitle {
+  margin-bottom: 20px;
+
+  h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--adm-text-dark);
+    margin: 0 0 4px;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    font-size: 13px;
+
+    .breadcrumb-item {
+      color: var(--adm-text-muted);
+
+      a {
+        color: var(--adm-primary);
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+
+      &.active {
+        color: var(--adm-text-muted);
+      }
+
+      + .breadcrumb-item::before {
+        color: var(--adm-border);
+      }
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   4. SECTION & DASHBOARD
+   ═══════════════════════════════════════════════════════════ */
+
+.section {
+  padding: 0;
+}
+
+.section.dashboard {
+  padding-top: 20px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   5. CARDS — General
+   ═══════════════════════════════════════════════════════════ */
+
+#main .card {
+  background: var(--adm-surface);
+  border: 1px solid var(--adm-border);
+  border-radius: var(--adm-radius);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  margin-bottom: 20px;
+  overflow: hidden;
+
+  .card-body {
+    padding: 20px;
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--adm-text-dark);
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--adm-border);
+
+    span {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--adm-text-muted);
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   6. INFO CARDS (KPI Cards)
+   ═══════════════════════════════════════════════════════════ */
+
+#main .info-card {
+  h6 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--adm-text-dark);
+    margin: 0 0 2px;
+    line-height: 1.2;
+  }
+
+  .text-muted {
+    font-size: 12.5px;
+  }
+}
+
+/* ─── Card Icon Circle ─── */
+#main .card-icon {
+  width: 44px;
+  height: 44px;
+  font-size: 20px;
+  flex-shrink: 0;
+  /* default: same as sales */
+  background: var(--adm-icon-blue-bg);
+
+  i {
+    color: var(--adm-icon-blue);
+  }
+}
+
+/* ─── Colored card variants ─── */
+#main .sales-card .card-icon {
+  background: var(--adm-icon-blue-bg);
+
+  i { color: var(--adm-icon-blue); }
+}
+
+#main .revenue-card .card-icon {
+  background: var(--adm-icon-green-bg);
+
+  i { color: var(--adm-icon-green); }
+}
+
+#main .customers-card .card-icon {
+  background: var(--adm-icon-purple-bg);
+
+  i { color: var(--adm-icon-purple); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   7. TABLES — inside admin main
+   ═══════════════════════════════════════════════════════════ */
+
+#main .table {
+  font-size: 13.5px;
+  color: var(--adm-text-body);
+
+  thead th {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--adm-text-muted);
+    border-bottom-width: 1px;
+    border-color: var(--adm-border);
+    background: var(--adm-bg);
+    padding: 10px 12px;
+  }
+
+  tbody td {
+    padding: 10px 12px;
+    vertical-align: middle;
+    border-color: var(--adm-border);
+  }
+
+  &.table-striped tbody tr:nth-of-type(odd) {
+    background: rgba(241, 245, 255, 0.5);
+  }
+
+  &.table-sm thead th,
+  &.table-sm tbody td {
+    padding: 7px 10px;
+  }
+
+  .table-success td {
+    background: rgba(46, 202, 106, 0.08);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   8. BUTTONS — scoped to admin main
+   ═══════════════════════════════════════════════════════════ */
+
+#main .btn {
+  font-size: 13.5px;
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 7px 18px;
+  transition: all 0.2s ease;
+}
+
+#main .btn-outline-primary {
+  color: var(--adm-primary);
+  border-color: var(--adm-primary);
+
+  &:hover {
+    background: var(--adm-primary);
+    color: #fff;
+  }
+}
+
+#main .btn-outline-success {
+  &:hover {
+    background: #198754;
+    color: #fff;
+  }
+}
+
+#main .btn-outline-info {
+  &:hover {
+    background: #0dcaf0;
+    color: #fff;
+  }
+}
+
+/* ─── d-grid gap-2 fix inside cards ─── */
+#main .d-grid.gap-2 .btn {
+  text-align: start;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   9. BADGES
+   ═══════════════════════════════════════════════════════════ */
+
+#main .badge.bg-primary {
+  background: var(--adm-primary) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   10. TOGGLE SIDEBAR (body class)
+   ═══════════════════════════════════════════════════════════ */
+
+body.toggle-sidebar {
+  #sidebar.sidebar {
+    inset-inline-start: calc(-1 * var(--adm-sidebar-width));
+    width: var(--adm-sidebar-width);
+  }
+
+  main.main#main {
+    margin-inline-start: 0;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   11. LOGIN / UNAUTHENTICATED PAGES
+   ═══════════════════════════════════════════════════════════ */
+
+/* Login page — centered card when there is no #sidebar */
+body:has(#header):not(:has(#sidebar)) main.main {
+  margin-inline-start: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   12. RESPONSIVE — MOBILE OVERLAY SIDEBAR
+   ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 1199px) {
+  /* On tablet/mobile, sidebar is hidden by default */
+  #sidebar.sidebar {
+    inset-inline-start: calc(-1 * var(--adm-sidebar-width));
+    box-shadow: none;
+  }
+
+  /* When sidebar is toggled ON, slide in + overlay */
+  body.toggle-sidebar {
+    #sidebar.sidebar {
+      inset-inline-start: 0;
+      box-shadow: 0 0 0 100vw rgba(0, 0, 0, 0.3);
+    }
+
+    main.main#main {
+      margin-inline-start: 0;
+    }
+  }
+
+  main.main#main {
+    margin-inline-start: 0;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   13. RTL SUPPORT
+   ═══════════════════════════════════════════════════════════ */
+
+[dir="rtl"] {
+  /* Sidebar slides in from the right */
+  #sidebar.sidebar {
+    inset-inline-start: 0;
+    inset-inline-end: unset;
+    right: 0;
+    left: unset;
+  }
+
+  /* Logo border flips */
+  #header .logo {
+    border-inline-end: none;
+    border-inline-start: 1px solid var(--adm-border);
+  }
+
+  /* Toggle button visual tweak */
+  #header .toggle-sidebar-btn {
+    margin-inline-start: 0;
+    margin-inline-end: 16px;
+  }
+
+  /* Active nav border on the right in RTL */
+  #sidebar .nav-link {
+    border-inline-start: none;
+    border-inline-end: 3px solid transparent;
+
+    &.active {
+      border-inline-end-color: var(--adm-primary);
+    }
+
+    &.collapsed:hover {
+      border-inline-end-color: rgba(65, 84, 241, 0.3);
+    }
+  }
+
+  /* Dropdown arrow flips */
+  #header .dropdown-menu-arrow::before {
+    inset-inline-end: unset;
+    inset-inline-start: 14px;
+  }
+
+  /* Main content offset flips */
+  main.main#main {
+    margin-inline-start: 0;
+    margin-inline-end: var(--adm-sidebar-width);
+    transition: margin-inline-end 0.3s ease;
+  }
+
+  &.toggle-sidebar main.main#main,
+  body.toggle-sidebar main.main#main {
+    margin-inline-end: 0;
+  }
+
+  @media (max-width: 1199px) {
+    main.main#main {
+      margin-inline-end: 0;
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   14. SCROLLBAR — global thin style for admin layout
+   ═══════════════════════════════════════════════════════════ */
+
+#main,
+#main * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--adm-border) transparent;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--adm-border);
+    border-radius: 3px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   15. UTILITY — misc helpers used in admin components
+   ═══════════════════════════════════════════════════════════ */
+
+/* text-warning / text-success inside info cards */
+#main .text-warning { color: #f59e0b !important; }
+#main .text-success { color: #198754 !important; }
+#main .text-danger  { color: #dc3545 !important; }
+
+/* Small muted label under a KPI value */
+#main .info-card .text-muted.small,
+#main .info-card span.text-muted {
+  font-size: 12px;
+  display: block;
+  margin-top: 2px;
+}
+
+/* Top Products ranking badges */
+#main .badge.rounded-circle {
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+}

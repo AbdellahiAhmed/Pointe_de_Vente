@@ -3,6 +3,8 @@ import { App as Frontend } from "./app-frontend/app";
 import { App as Admin } from "./app-admin/app";
 import reportWebVitals from "./reportWebVitals";
 import "./css/index.scss";
+import "bootstrap-icons/font/bootstrap-icons.css";
+import "./css/admin.scss";
 import { StoreFactory } from "./store/store.factory";
 import { Provider } from "react-redux";
 import { createRoot } from "react-dom/client";
