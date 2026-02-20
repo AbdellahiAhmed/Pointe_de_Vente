@@ -38,38 +38,39 @@
   padding: 6px 12px;
   background: var(--pos-surface);
   border-bottom: 1px solid var(--pos-border);
-  height: 54px;
+  min-height: 54px;
   box-shadow: var(--pos-shadow-sm);
   position: relative;
   z-index: 10;
-  flex-wrap: nowrap;
-  overflow: hidden;
 }
 
 .pos-topbar-search {
   display: flex;
-  flex: 1;
+  flex: 1 1 0%;
   gap: 8px;
   align-items: center;
-  min-width: 0;
-  flex-wrap: nowrap;
+  min-width: 200px;
 }
 
 /* Force the search form input-group to NEVER wrap */
 .pos-topbar-search form {
-  flex: 1;
+  display: flex;
+  flex: 1 1 0%;
+  gap: 8px;
   min-width: 0;
 }
 
 .pos-topbar-search .input-group {
   flex-wrap: nowrap !important;
+  flex-shrink: 0;
 }
 
 /* Fused search group: [barcode btn | search input | qty field] */
-.pos-topbar-search .pos-search-group {
+.pos-search-group {
   display: flex;
-  flex: 1;
-  min-width: 0;
+  align-items: center;
+  flex: 1 1 0%;
+  min-width: 180px;
   border: 1px solid var(--pos-border);
   border-radius: var(--pos-radius-sm);
   overflow: hidden;
@@ -77,51 +78,49 @@
   background: var(--pos-surface);
 }
 
-.pos-topbar-search .pos-search-group:focus-within {
+.pos-search-group:focus-within {
   border-color: var(--pos-accent);
   box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.12);
 }
 
-.pos-topbar-search .pos-search-group .btn {
-  border: none;
-  border-radius: 0;
+.pos-search-group .btn {
+  border: none !important;
+  border-radius: 0 !important;
   flex-shrink: 0;
   min-width: 44px;
   height: 42px;
 }
 
-.pos-topbar-search .pos-search-group input {
+.pos-search-group input {
   border: none !important;
   box-shadow: none !important;
   border-radius: 0 !important;
   height: 42px;
   outline: none;
+  background: transparent;
 }
 
-.pos-topbar-search .pos-search-group input:focus {
+.pos-search-group input:focus {
   box-shadow: none !important;
+  outline: none !important;
 }
 
-.pos-topbar-search .pos-search-group .pos-search-input {
-  flex: 1;
+.pos-search-group .pos-search-input {
+  flex: 1 1 0%;
   min-width: 0;
+  width: 100%;
   border-inline-start: 1px solid var(--pos-border) !important;
 }
 
-.pos-topbar-search .pos-search-group .pos-qty-input {
-  width: 56px;
-  flex-shrink: 0;
+.pos-search-group .pos-qty-input {
+  width: 56px !important;
+  max-width: 56px;
+  flex: 0 0 56px;
   text-align: center;
   font-weight: 600;
   color: var(--pos-accent-dark);
   border-inline-start: 1px solid var(--pos-border) !important;
   font-size: 15px !important;
-}
-
-/* Action buttons group (Refund / Re-order) */
-.pos-topbar-search .input-group:not(:first-child) {
-  flex-shrink: 0;
-  gap: 0;
 }
 
 .pos-topbar-actions {
