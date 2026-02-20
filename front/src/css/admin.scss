@@ -44,19 +44,35 @@ body:has(#sidebar) {
   font-size: 14px;
   line-height: 1.6;
 
-  /* Reset the global POS `a` style (ltr.scss) that breaks admin links */
-  a {
-    display: revert;
-    justify-content: revert;
-    align-items: revert;
-    text-decoration: none;
-    color: inherit;
-  }
+}
 
-  /* Reset the global POS `.btn` style that breaks admin buttons */
-  .btn {
-    all: revert;
-  }
+/* ─── Override POS global `a` and `.btn` styles for admin ─── */
+/* ltr.scss sets `a { display: inline-flex; text-decoration: underline; }`
+   and `.btn { @apply ... }` which break the admin layout.
+   We use high-specificity selectors + !important to win. */
+#sidebar a,
+#header a,
+#main a {
+  display: block !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  text-decoration: none !important;
+  color: inherit !important;
+}
+
+#sidebar a.nav-link {
+  display: flex !important;
+}
+
+#main .btn,
+#header .btn {
+  display: inline-block !important;
+  font-family: 'Open Sans', system-ui, sans-serif !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+  border-width: 1px !important;
+  height: auto !important;
+  background-color: transparent !important;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -243,7 +259,8 @@ body:has(#sidebar) {
   box-shadow: 0 0 20px rgba(1, 41, 112, 0.08);
   overflow-y: auto;
   overflow-x: hidden;
-  z-index: 996;
+  z-index: 1020;
+  pointer-events: auto;
   transition: inset-inline-start 0.3s ease, width 0.3s ease;
   scrollbar-width: thin;
   scrollbar-color: var(--adm-border) transparent;
