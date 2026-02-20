@@ -541,7 +541,7 @@ export const ItemComponent = ({ product, show, onClose }: Props) => {
                         style={{ borderBottom: "1px solid var(--pos-border, #e5e7eb)" }}
                       >
                         <td className="px-4 py-3 font-medium text-gray-800 text-start">
-                          {item.attributeValue}
+                          {item.name || item.attributeValue}
                         </td>
                         <td className="px-4 py-3 text-start">
                           <span className="font-mono text-xs text-gray-500">{item.barcode ?? "—"}</span>
