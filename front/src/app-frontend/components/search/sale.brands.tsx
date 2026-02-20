@@ -7,6 +7,7 @@ import {Brand} from "../../../api/model/brand";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheckCircle} from "@fortawesome/free-solid-svg-icons";
 import { Tooltip } from "antd";
+import {useTranslation} from "react-i18next";
 
 interface SaleBrandsProps extends PropsWithChildren{
   brands:  {[key: string]: Brand} ;
@@ -16,6 +17,7 @@ interface SaleBrandsProps extends PropsWithChildren{
 export const SaleBrands: FC<SaleBrandsProps> = ({
   children, brands, setBrands
 }) => {
+  const {t} = useTranslation();
   const [modal, setModal] = useState(false);
   const [list, setList] = useState<Brand[]>([]);
 
@@ -51,7 +53,7 @@ export const SaleBrands: FC<SaleBrandsProps> = ({
 
   return (
     <>
-      <Tooltip title="Filter by Brands">
+      <Tooltip title={t("Filter by Brands")}>
         <Button
           className="block min-w-[48px]" variant="primary"
           onClick={() => {
@@ -60,7 +62,7 @@ export const SaleBrands: FC<SaleBrandsProps> = ({
           type="button"
           size="lg"
         >
-          {children || 'Brands'}
+          {children || t('Brands')}
           {Object.values(brands).length > 0 && (
             <span className="shrink-0 ms-1 bg-primary-500 text-white h-5 w-5 rounded-full text-sm font-bold">{Object.values(brands).length}</span>
           )}
@@ -68,7 +70,7 @@ export const SaleBrands: FC<SaleBrandsProps> = ({
       </Tooltip>
       <Modal open={modal} onClose={() => {
         setModal(false);
-      }} title="Filter by brands">
+      }} title={t("Filter by brands")}>
         <div className="flex justify-center items-center gap-5">
           {list.map((brand, index) => (
             <Button variant="primary"
@@ -78,7 +80,7 @@ export const SaleBrands: FC<SaleBrandsProps> = ({
             >
               {brand.name}
               {!!brands[brand.id] && (
-                <span className="absolute top-1 right-1">
+                <span className="absolute top-1 end-1">
                   <FontAwesomeIcon icon={faCheckCircle} className="text-primary-500" size="lg" />
                 </span>
               )}

@@ -59,7 +59,7 @@ const Navigation = () => {
     <header id="header" className="header fixed-top d-flex align-items-center">
       <div className="d-flex align-items-center justify-content-between">
         <a href="/" className="logo d-flex align-items-center">
-          <img src="https://via.placeholder.com/350x150" alt=""/>
+          <i className="bi bi-shop fs-4 me-2"></i>
           <span className="d-none d-lg-block">{import.meta.env.VITE_WEBSITE_NAME}</span>
         </a>
         <i className="bi bi-list toggle-sidebar-btn" onClick={toggleSidebar}></i>
@@ -93,7 +93,7 @@ const Navigation = () => {
           </li>
           <li className="nav-item dropdown pe-3">
             <a className="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-              <img src="https://via.placeholder.com/50" alt="Profile" className="rounded-circle"/>
+              <span className="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center" style={{width: 32, height: 32, fontSize: 14, fontWeight: 600}}>{user?.displayName?.charAt(0)?.toUpperCase() || 'U'}</span>
               <span className="d-none d-md-block dropdown-toggle ps-2">{user?.displayName}</span>
             </a>
 

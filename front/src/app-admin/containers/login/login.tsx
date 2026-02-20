@@ -98,6 +98,7 @@ const Login = () => {
                           name="username"
                           render={(props) => (
                             <input
+                              className="form-control"
                               onChange={props.field.onChange}
                               value={props.field.value}
                               type="text"
@@ -114,6 +115,7 @@ const Login = () => {
                         <Controller
                           render={(props) => (
                             <input
+                              className="form-control"
                               type="password"
                               onChange={props.field.onChange}
                               value={props.field.value}
@@ -126,7 +128,7 @@ const Login = () => {
                         />
                       </div>
                       <div className="col-12">
-                        <button type="submit" disabled={isLoading} className="w-100">{t('Login')}</button>
+                        <button type="submit" disabled={isLoading} className="btn btn-primary w-100">{t('Login')}</button>
                       </div>
                       <div className="col-12 mt-3 d-flex justify-content-between">
                         <Link to={FORGOT_PASSWORD}>{t('Forgot Password')}?</Link>

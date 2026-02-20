@@ -12,13 +12,10 @@ export const Footer = () => {
               <h3>{t("Do you have questions?")}</h3>
               <h3> {t("Call or visit us.")}</h3>
               <div className="ft-phone">
-                <a href="tel:+ (231) 777432694">+ (231) 777432694</a>
+                <a href="tel:+22200000000">+222 00 00 00 00</a>
               </div>
               <p className="pt-2">
-                Duport Road, Paynesville, Liberia
-              </p>
-              <p className="pt-2">
-                <a href="mailto:info@liberrands.com">info@liberrands.com</a>
+                Nouakchott, Mauritanie
               </p>
             </div>
           </div>
@@ -68,7 +65,7 @@ export const Footer = () => {
           </div>
           <div className="col-12 my-5">
             <div className="footer-bottom text-center">
-              {t("Copyright 2021")} <a href="//liberrands.com">liberrands.com</a> {t("All Rights Reserved")} | {t("Developed by:")} <a href="//:smilesolutionslib.com">Smile Solutions, Inc.</a>
+              {t("Copyright")} {new Date().getFullYear()} — {import.meta.env.VITE_WEBSITE_NAME || 'POS'} — {t("All Rights Reserved")}
             </div>
           </div>
         </div>

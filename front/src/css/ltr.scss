@@ -117,12 +117,12 @@ a {
 .dashboard-sidebar {
   width: 250px;
   position: fixed;
-  left: 20px;
+  inset-inline-start: 20px;
   height: calc(100% - 40px);
   background: rgba(255, 255, 255, 0.8);
-  border-top-left-radius: 20px;
-  border-bottom-left-radius: 20px;
-  border-right: 1px solid white;
+  border-start-start-radius: 20px;
+  border-end-start-radius: 20px;
+  border-inline-end: 1px solid white;
   z-index: 1;
   overflow: hidden;
   padding-bottom: 80px;
@@ -130,7 +130,7 @@ a {
 }
 
 .dashboard-container {
-  padding-left: 270px;
+  padding-inline-start: 270px;
   transition: ease-in all 150ms;
 }
 
@@ -156,7 +156,7 @@ a {
 }
 
 .sidebar-open .dashboard-container {
-  padding-left: 270px;
+  padding-inline-start: 270px;
 }
 
 .sidebar-close .dashboard-sidebar {
@@ -164,7 +164,7 @@ a {
 }
 
 .sidebar-close .dashboard-container {
-  padding-left: 20px;
+  padding-inline-start: 20px;
 }
 
 @media (max-width: 850px) {
@@ -172,7 +172,7 @@ a {
     transform: translateX(-270px);
   }
   .dashboard-container {
-    padding-left: 20px;
+    padding-inline-start: 20px;
   }
   .search-bar {
     display: none;
@@ -186,7 +186,7 @@ a {
   }
   thead {
     th {
-      text-align: left;
+      text-align: start;
     }
   }
   th, td{
@@ -520,7 +520,7 @@ table th {
 }
 
 .search-field {
-  padding-left: 32px;
+  padding-inline-start: 32px;
   position: relative;
   background-image: url('data:image/svg+xml;utf8, <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="rgb(156,163,175)"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>');
   background-repeat: no-repeat;
@@ -536,7 +536,7 @@ table th {
   background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
 }
 .keyboard-input {
-  padding-right: 30px;
+  padding-inline-end: 30px;
 }
 .btn-keyboard {
   transition: none;
@@ -590,10 +590,10 @@ table th {
 }
 
 .form-switch {
-  padding-left: 3.5rem;
+  padding-inline-start: 3.5rem;
   .form-check-input {
     width: 3rem;
-    margin-left: -3.5rem;
+    margin-inline-start: -3.5rem;
     height: 1.5rem;
     margin-top: 0;
   }
@@ -697,7 +697,7 @@ table th {
 }
 .alert {
   @apply p-3 border-2 mb-3 rounded-xl relative;
-  padding-left: 38px;
+  padding-inline-start: 38px;
 
   &:before {
     content: "";
@@ -706,7 +706,7 @@ table th {
     transform: translateY(-50%);
     width: 16px;
     height: 16px;
-    left: 12px;
+    inset-inline-start: 12px;
   }
 
   &.alert-danger {
@@ -783,14 +783,14 @@ table th {
 
   > :not(:last-child),
   > .rs-__container:not(:last-child) > .rs-__control {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+    border-start-end-radius: 0;
+    border-end-end-radius: 0;
   }
   > :not(:first-child),
   > .rs-__container:not(:first-child) > .rs-__control {
-    margin-left: calc(2px * -1);
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
+    margin-inline-start: calc(2px * -1);
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
   }
   .btn {
     position: relative;

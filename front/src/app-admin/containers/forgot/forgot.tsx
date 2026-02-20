@@ -66,8 +66,6 @@ export const ForgotPassword = () => {
     }
   }
 
-  console.log(errors)
-
   return (
     <Layout>
       <div className="container">
@@ -99,7 +97,7 @@ export const ForgotPassword = () => {
                               type="text"
                               id="username"
                               autoFocus
-                              className={errors.username ? 'is-invalid' : ''}
+                              className={`form-control ${errors.username ? 'is-invalid' : ''}`}
                             />
                           )}
                           control={control}
@@ -113,7 +111,7 @@ export const ForgotPassword = () => {
                       </div>
                       <div className="col-12">
                         <button type="submit" disabled={isLoading}
-                                className="w-100">{t('Reset')}</button>
+                                className="btn btn-primary w-100">{t('Reset')}</button>
                       </div>
                       <div className="col-12 mt-3 d-flex justify-content-between">
                         <Link to={LOGIN}>{t('Login')}</Link>

@@ -19,6 +19,7 @@ import Fuse from "fuse.js";
 import { Switch } from "../../../app-common/components/input/switch";
 import { useAtom } from "jotai";
 import { defaultData, defaultState } from "../../../store/jotai";
+import {useTranslation} from "react-i18next";
 
 interface SearchTableProps {
   items: Product[];
@@ -27,6 +28,7 @@ interface SearchTableProps {
 }
 
 export const SearchTable = (props: SearchTableProps) => {
+  const {t} = useTranslation();
   const { items: allItems, addItem } = props;
   const [searchParams, setSearchParams] = useState({
     ignoreLocation: true,
@@ -90,18 +92,18 @@ export const SearchTable = (props: SearchTableProps) => {
   const columns = React.useMemo(
     () => [
       {
-        Header: "View",
+        Header: t("View"),
         style: {},
       },
       {
-        Header: "Name",
+        Header: t("Name"),
         style: {},
       },
       {
-        Header: "Price",
+        Header: t("Price"),
         style: {
-          textAlign: "right",
-          paddingRight: "15px",
+          textAlign: "end",
+          paddingInlineEnd: "15px",
         },
       },
     ],
@@ -286,7 +288,7 @@ export const SearchTable = (props: SearchTableProps) => {
 
   return (
     <>
-      <Tooltip title="Search by name">
+      <Tooltip title={t("Search by name")}>
         <Button
           variant="primary"
           iconButton
@@ -300,7 +302,7 @@ export const SearchTable = (props: SearchTableProps) => {
       <Modal
         open={modal}
         onClose={onClose}
-        title={`Search items ${rows.length}`}
+        title={`${t("Search items")} ${rows.length}`}
         shouldCloseOnEsc={true}>
         <form onSubmit={handleSubmit(submitForm)}>
           <div className="flex gap-3">
@@ -329,7 +331,7 @@ export const SearchTable = (props: SearchTableProps) => {
                     }}
                     type="number"
                     value={quantity}
-                    placeholder="Quantity"
+                    placeholder={t("Quantity")}
                     className="mousetrap lg"
                   />
                 )}
@@ -389,7 +391,7 @@ export const SearchTable = (props: SearchTableProps) => {
         </div>
       </Modal>
       <Modal
-        title="Search settings"
+        title={t("Search settings")}
         open={searchBoxModal}
         onClose={() => setSearchBoxModal(!searchBoxModal)}
         size="sm"
@@ -401,20 +403,9 @@ export const SearchTable = (props: SearchTableProps) => {
               searchBox: !searchBox
             }))
           }}>
-            Close search window after adding item
+            {t("Close search window after adding item")}
           </Switch>
         </div>
-        {/*<h5 className="text-xl mb-3">Fuzzy search settings</h5>*/}
-        {/*<div className="mb-3">*/}
-        {/*  <Switch checked={searchParams.ignoreLocation} onChange={() => {*/}
-        {/*    setSearchParams(prev => ({*/}
-        {/*      ...prev,*/}
-        {/*      ignoreLocation: !searchParams.ignoreLocation*/}
-        {/*    }))*/}
-        {/*  }}>*/}
-        {/*    Search from anywhere in name?*/}
-        {/*  </Switch>*/}
-        {/*</div>*/}
         <div className="mb-3">
           <Switch checked={searchParams.caseSensitive} onChange={() => {
             setSearchParams(prev => ({
@@ -422,18 +413,18 @@ export const SearchTable = (props: SearchTableProps) => {
               caseSensitive: !searchParams.caseSensitive
             }))
           }}>
-            Use case sensitive search
+            {t("Use case sensitive search")}
           </Switch>
         </div>
         <div className="mb-3">
-          <label htmlFor="threshold">Search threshold {searchParams.threshold}</label>
+          <label htmlFor="threshold">{t("Search threshold")} {searchParams.threshold}</label>
           <input type="range" min={0} max={1} step={0.1} className="w-full" value={searchParams.threshold} onChange={(event) => {
             setSearchParams(prev => ({
               ...prev,
               threshold: Number(event.target.value)
             }))
           }} />
-          <span className="text-gray-500 text-sm">Less threshold will match less items</span>
+          <span className="text-gray-500 text-sm">{t("Less threshold will match less items")}</span>
         </div>
       </Modal>
     </>

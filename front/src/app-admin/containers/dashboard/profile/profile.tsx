@@ -75,7 +75,7 @@ export const Profile: FunctionComponent = () => {
 
   return (
     <DashboardLayout
-      title="Profile"
+      title={t('Profile')}
       breadCrumbs={[
         {title: t('Dashboard'), link: DASHBOARD},
         {title: t('Profile'), current: true}
@@ -97,6 +97,7 @@ export const Profile: FunctionComponent = () => {
                     render={(props) => (
                       <input
                         {...props.field}
+                        className="form-control"
                         type="text"
                         id="displayName"
                       />
@@ -112,6 +113,7 @@ export const Profile: FunctionComponent = () => {
                     render={(props) => (
                       <input
                         {...props.field}
+                        className="form-control"
                         type="email"
                         id="email"
                       />
@@ -127,6 +129,7 @@ export const Profile: FunctionComponent = () => {
                     render={(props) => (
                       <input
                         {...props.field}
+                        className="form-control"
                         type="text"
                         id="username"
                         disabled={true}
@@ -144,6 +147,7 @@ export const Profile: FunctionComponent = () => {
                     render={(props) => (
                       <input
                         {...props.field}
+                        className="form-control"
                         type="password"
                         id="password"
                       />
@@ -154,7 +158,7 @@ export const Profile: FunctionComponent = () => {
                   {getErrors(errors.password)}
                 </div>
                 <div className="col-12">
-                  <button type="submit" disabled={isLoading} className="w-100">
+                  <button type="submit" disabled={isLoading} className="btn btn-primary w-100">
                     {!!errorMessage && !isLoading ? ('') : (
                       <FontAwesomeIcon icon={faCheckCircle} className="me-1" />
                     )}{t('Update')}

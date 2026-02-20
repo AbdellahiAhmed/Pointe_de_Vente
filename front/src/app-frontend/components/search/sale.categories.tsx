@@ -7,6 +7,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheckCircle} from "@fortawesome/free-solid-svg-icons";
 import {Category} from "../../../api/model/category";
 import { Tooltip } from "antd";
+import {useTranslation} from "react-i18next";
 
 interface SaleCategoriesProps extends PropsWithChildren{
   categories:  {[key: string]: Category} ;
@@ -16,6 +17,7 @@ interface SaleCategoriesProps extends PropsWithChildren{
 export const SaleCategories: FC<SaleCategoriesProps> = ({
   children, categories, setCategories
 }) => {
+  const {t} = useTranslation();
   const [modal, setModal] = useState(false);
   const [list, setList] = useState<Category[]>([]);
 
@@ -51,7 +53,7 @@ export const SaleCategories: FC<SaleCategoriesProps> = ({
 
   return (
     <>
-      <Tooltip title="Filter by Categories">
+      <Tooltip title={t("Filter by Categories")}>
         <Button
           className="block min-w-[48px]" variant="primary"
           onClick={() => {
@@ -60,7 +62,7 @@ export const SaleCategories: FC<SaleCategoriesProps> = ({
           type="button"
           size="lg"
         >
-          {children || 'Categories'}
+          {children || t('Categories')}
           {Object.values(categories).length > 0 && (
             <span className="shrink-0 ms-1 bg-primary-500 text-white h-5 w-5 rounded-full text-sm font-bold">{Object.values(categories).length}</span>
           )}
@@ -68,7 +70,7 @@ export const SaleCategories: FC<SaleCategoriesProps> = ({
       </Tooltip>
       <Modal open={modal} onClose={() => {
         setModal(false);
-      }} title="Filter by categories">
+      }} title={t("Filter by categories")}>
         <div className="flex justify-center items-center gap-5">
           {list.map((category, index) => (
             <Button variant="primary"
@@ -78,7 +80,7 @@ export const SaleCategories: FC<SaleCategoriesProps> = ({
             >
               {category.name}
               {!!categories[category.id] && (
-                <span className="absolute top-1 right-1">
+                <span className="absolute top-1 end-1">
                   <FontAwesomeIcon icon={faCheckCircle} className="text-primary-500" size="lg" />
                 </span>
               )}

@@ -154,7 +154,6 @@ export const CartItem: FunctionComponent<CartItemProps> = ({
               value={item.quantity}
               className={"text-center w-full mousetrap"}
               onChange={(event) => {
-                console.log(event)
                 onQuantityChange(item, event.currentTarget.value)
               }}
               onFocus={() => {

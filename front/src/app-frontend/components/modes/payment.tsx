@@ -193,7 +193,7 @@ export const PaymentMode = () => {
         style: {
           flexGrow: 1,
           width: '100%',
-          textAlign: "right",
+          textAlign: "end",
         },
       },
     ],
@@ -245,7 +245,6 @@ export const PaymentMode = () => {
           <div>
             <ReactSelect
               onChange={(value) => {
-                console.log(value)
                 if(value !== null) {
                   setFilters(prev => ({
                     ...prev,
