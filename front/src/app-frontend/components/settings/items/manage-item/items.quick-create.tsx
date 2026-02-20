@@ -236,9 +236,9 @@ export const QuickCreateItem: React.FC<QuickCreateProps> = ({ open, onClose }) =
         body: JSON.stringify({
           name: values.name,
           barcode: values.barcode.toString(),
-          cost: Number(values.cost),
-          basePrice: Number(values.basePrice),
-          minPrice: values.minPrice ? Number(values.minPrice) : null,
+          cost: String(values.cost),
+          basePrice: String(values.basePrice),
+          minPrice: values.minPrice ? String(values.minPrice) : null,
           categories: values.category ? [values.category.value] : [],
           baseQuantity: 1,
           isAvailable: true,
