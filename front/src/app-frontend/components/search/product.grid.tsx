@@ -95,9 +95,13 @@ const ProductCard = React.memo(({product, onClick}: {
 // ═══════════════════════════════════════════
 //  ProductGrid — main export
 // ═══════════════════════════════════════════
-export const ProductGrid = ({items, addItem, categories, setCategories}: ProductGridProps) => {
+export const ProductGrid = ({items, addItem, setCategories}: ProductGridProps) => {
   const {t} = useTranslation();
 
+  // null = "All" selected
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+
+  // Collect all unique categories present in current items
   const availableCategories = useMemo(() => {
     const cats = new Map<number, Category>();
     items.forEach(item => {
@@ -108,87 +112,101 @@ export const ProductGrid = ({items, addItem, categories, setCategories}: Product
     return Array.from(cats.values());
   }, [items]);
 
-  const selectedCategoryIds = Object.keys(categories);
-
-  const toggleCategory = useCallback((cat: Category) => {
-    const n = {...categories};
-    const k = cat.id.toString();
-    if (n[k]) delete n[k]; else n[k] = cat;
-    setCategories(n);
-  }, [categories, setCategories]);
-
-  const clearCategories = useCallback(() => setCategories({}), [setCategories]);
-
-  // Group products by category
-  const groupedProducts = useMemo(() => {
-    const groups = new Map<string, { category: Category | null; products: Product[] }>();
-    const assigned = new Set<number>();
-
-    // Group by categories present in the items
-    availableCategories.forEach(cat => {
-      const catProducts = items.filter(item =>
-        item.categories?.some(c => c.id === cat.id)
-      );
-      if (catProducts.length > 0) {
-        groups.set(cat.id.toString(), { category: cat, products: catProducts });
-        catProducts.forEach(p => assigned.add(p.id));
-      }
+  // Count how many items belong to each category
+  const categoryCountMap = useMemo(() => {
+    const counts = new Map<number, number>();
+    items.forEach(item => {
+      item.categories?.forEach(cat => {
+        counts.set(cat.id, (counts.get(cat.id) ?? 0) + 1);
+      });
     });
+    return counts;
+  }, [items]);
 
-    // Uncategorized products
-    const uncategorized = items.filter(item => !assigned.has(item.id));
-    if (uncategorized.length > 0) {
-      groups.set('_uncategorized', { category: null, products: uncategorized });
-    }
+  // Select "All"
+  const selectAll = useCallback(() => {
+    setSelectedCategoryId(null);
+    setCategories({});
+  }, [setCategories]);
 
-    return Array.from(groups.values());
-  }, [items, availableCategories]);
+  // Select a single category exclusively
+  const selectCategory = useCallback((cat: Category) => {
+    setSelectedCategoryId(cat.id);
+    setCategories({ [cat.id.toString()]: cat });
+  }, [setCategories]);
+
+  // Filter products by selected category
+  const filteredItems = useMemo(() => {
+    if (selectedCategoryId === null) return items;
+    return items.filter(item =>
+      item.categories?.some(c => c.id === selectedCategoryId)
+    );
+  }, [items, selectedCategoryId]);
 
   return (
     <div className="product-grid-container">
-      {/* ─── Category bar ─── */}
-      <div className="product-grid-categories">
-        <button
-          onClick={clearCategories}
-          className={classNames("category-chip", { active: selectedCategoryIds.length === 0 })}>
-          <FontAwesomeIcon icon={faLayerGroup} style={{ marginInlineEnd: '6px', fontSize: '10px' }} />
-          {t('All')}
-        </button>
-        {availableCategories.map(cat => (
-          <button
-            key={cat.id}
-            onClick={() => toggleCategory(cat)}
-            className={classNames("category-chip", { active: selectedCategoryIds.includes(cat.id.toString()) })}
-          >
-            {cat.name}
-          </button>
-        ))}
-        <div className="product-grid-count">
-          {items.length}
+
+      {/* ─── Category Tile Grid ─── */}
+      <div className="category-grid">
+
+        {/* "All" tile */}
+        <div
+          role="button"
+          tabIndex={0}
+          data-color={undefined}
+          className={classNames(
+            "category-tile",
+            "category-tile--all",
+            { "category-tile--active": selectedCategoryId === null }
+          )}
+          onClick={selectAll}
+          onKeyDown={(e) => e.key === 'Enter' && selectAll()}
+        >
+          <span className="category-tile__count">{items.length}</span>
+          <span className="category-tile__icon">
+            <FontAwesomeIcon icon={faLayerGroup} />
+          </span>
+          <span className="category-tile__name">{t('All')}</span>
         </div>
+
+        {/* Category tiles */}
+        {availableCategories.map((cat, index) => {
+          const colorIndex = ((index % 12) + 1).toString();
+          const isActive = selectedCategoryId === cat.id;
+          const count = categoryCountMap.get(cat.id) ?? 0;
+
+          return (
+            <div
+              key={cat.id}
+              role="button"
+              tabIndex={0}
+              data-color={colorIndex}
+              className={classNames("category-tile", { "category-tile--active": isActive })}
+              onClick={() => selectCategory(cat)}
+              onKeyDown={(e) => e.key === 'Enter' && selectCategory(cat)}
+            >
+              <span className="category-tile__count">{count}</span>
+              <span className="category-tile__icon">
+                <FontAwesomeIcon icon={faTag} />
+              </span>
+              <span className="category-tile__name">{cat.name}</span>
+            </div>
+          );
+        })}
       </div>
 
-      {/* ─── Products grouped by category — scrollable ─── */}
-      <div className="product-grid-scroll pg-scroll">
-        {items.length > 0 ? (
-          groupedProducts.map(({ category, products }) => (
-            <div key={category ? category.id : '_uncategorized'} className="product-category-group">
-              <div className="product-category-header">
-                <FontAwesomeIcon icon={faTag} className="product-category-icon" />
-                <span>{category ? category.name : t('Uncategorized')}</span>
-                <span className="product-category-count">{products.length}</span>
-              </div>
-              <div className="product-grid">
-                {products.map((item) => (
-                  <ProductCard
-                    key={item.id}
-                    product={item}
-                    onClick={() => addItem(item, 1)}
-                  />
-                ))}
-              </div>
-            </div>
-          ))
+      {/* ─── Product Panel ─── */}
+      <div className="product-panel">
+        {filteredItems.length > 0 ? (
+          <div className="product-grid-2col">
+            {filteredItems.map(item => (
+              <ProductCard
+                key={item.id}
+                product={item}
+                onClick={() => addItem(item, 1)}
+              />
+            ))}
+          </div>
         ) : (
           <div className="product-grid-empty">
             <FontAwesomeIcon icon={faBoxOpen} />
@@ -196,6 +214,7 @@ export const ProductGrid = ({items, addItem, categories, setCategories}: Product
           </div>
         )}
       </div>
+
     </div>
   );
 };

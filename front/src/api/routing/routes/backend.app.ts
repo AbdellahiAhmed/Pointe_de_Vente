@@ -137,3 +137,9 @@ export const REPORT_CATEGORY = scopeUrl('/admin/report/category');
 
 export const MEDIA_UPLOAD = scopeUrl('/admin/media/upload');
 export const MEDIA_CONTENT = scopeUrl('/media/:id/content');
+
+export const RETURN_REQUEST_LIST = scopeUrl('/admin/return-requests');
+export const RETURN_REQUEST_CREATE = scopeUrl('/admin/return-requests');
+export const RETURN_REQUEST_GET = scopeUrl('/admin/return-requests/:id');
+export const RETURN_REQUEST_APPROVE = scopeUrl('/admin/return-requests/:id/approve');
+export const RETURN_REQUEST_REJECT = scopeUrl('/admin/return-requests/:id/reject');

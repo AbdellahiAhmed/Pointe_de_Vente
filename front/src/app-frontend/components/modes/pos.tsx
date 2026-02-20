@@ -5,7 +5,7 @@ import { getStore } from "../../../duck/store/store.selector";
 import { getTerminal } from "../../../duck/terminal/terminal.selector";
 import { useSelector } from "react-redux";
 import { defaultData, defaultState } from "../../../store/jotai";
-import { faBarcode, faCubesStacked, faFlag, faGrip, faIcons, faList, faReply, faRotateRight, } from "@fortawesome/free-solid-svg-icons";
+import { faBarcode, faReply, faRotateRight, } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useAtom } from "jotai";
 import localforage from "localforage";
@@ -19,9 +19,6 @@ import { CartContainer } from "../cart/cart.container";
 import { CartControls } from "../cart/cart.controls";
 import { SaleFind } from "../sale/sale.find";
 import { CloseSaleInline } from "../sale/sale.inline";
-import { SaleBrands } from "../search/sale.brands";
-import { SaleCategories } from "../search/sale.categories";
-import { SaleDepartments } from "../search/sale.departments";
 import { SearchTable } from "../search/search.table";
 import { Product } from "../../../api/model/product";
 import { ProductVariant } from "../../../api/model/product.variant";
@@ -102,7 +99,6 @@ export const PosMode = () => {
   const searchField = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
   const [modal, setModal] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [variants, setVariants] = useState<ProductVariant[]>([]);
@@ -555,42 +551,57 @@ export const PosMode = () => {
       <TrapFocus inputRef={searchField.current}>
         <div className="flex flex-col">
           <div className="pos-topbar">
-            <div className="pos-topbar-filters">
-              <div className="input-group">
-                <SaleBrands brands={brands} setBrands={setBrands}>
-                  <FontAwesomeIcon icon={faFlag}/>
-                </SaleBrands>
-                <SaleCategories
-                  categories={categories}
-                  setCategories={setCategories}>
-                  <FontAwesomeIcon icon={faCubesStacked}/>
-                </SaleCategories>
-                <SaleDepartments
-                  departments={departments}
-                  setDepartments={setDepartment}>
-                  <FontAwesomeIcon icon={faIcons}/>
-                </SaleDepartments>
-              </div>
-            </div>
             <div className="pos-topbar-search">
-              <div className="input-group">
-                <Tooltip title={t("Barcode search")}>
-                  <Button
-                    variant="primary"
-                    className="btn-square"
-                    type="button"
-                    active={mode === SearchModes.sale}
-                    size="lg"
-                    onClick={() => setMode(SearchModes.sale)}>
-                    <FontAwesomeIcon icon={faBarcode}/>
-                  </Button>
-                </Tooltip>
-                <SearchTable
-                  items={items}
-                  addItem={addItem}
-                  onClick={() => setMode(SearchModes.sale)}
-                />
-              </div>
+              <form
+                className="flex gap-2 flex-1"
+                onSubmit={handleSubmit(searchAction)}>
+                <div className="input-group flex-1">
+                  <Tooltip title={t("Barcode search")}>
+                    <Button
+                      variant="primary"
+                      className="btn-square"
+                      type="button"
+                      active={mode === SearchModes.sale}
+                      size="lg"
+                      onClick={() => setMode(SearchModes.sale)}>
+                      <FontAwesomeIcon icon={faBarcode}/>
+                    </Button>
+                  </Tooltip>
+                  <Controller
+                    render={({ field }) => (
+                      <Input
+                        placeholder={t("Scan barcode or search by name")}
+                        ref={searchField}
+                        autoFocus
+                        type="search"
+                        className="search-field mousetrap lg flex-1"
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
+                    name="q"
+                    control={control}
+                    rules={{ required: true }}
+                    defaultValue=""
+                  />
+                  <Controller
+                    render={({ field }) => (
+                      <Input
+                        type="number"
+                        placeholder={t("Quantity")}
+                        className="w-20 mousetrap lg"
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
+                    name="quantity"
+                    control={control}
+                    defaultValue={1}
+                    rules={{ required: true }}
+                  />
+                </div>
+                <button className="hidden">submit</button>
+              </form>
               <div className="input-group">
                 <SaleFind
                   icon={faReply}
@@ -623,45 +634,6 @@ export const PosMode = () => {
                   displayLabel
                 />
               </div>
-              <form
-                className="flex gap-2"
-                onSubmit={handleSubmit(searchAction)}>
-                <div className="input-group">
-                  <Controller
-                    render={({ field }) => (
-                      <Input
-                        placeholder={t("Scan barcode or search by name")}
-                        ref={searchField}
-                        autoFocus
-                        type="search"
-                        className="search-field mousetrap lg w-64"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                    name="q"
-                    control={control}
-                    rules={{ required: true }}
-                    defaultValue=""
-                  />
-                  <Controller
-                    render={({ field }) => (
-                      <Input
-                        type="number"
-                        placeholder={t("Quantity")}
-                        className="w-20 mousetrap lg"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                    name="quantity"
-                    control={control}
-                    defaultValue={1}
-                    rules={{ required: true }}
-                  />
-                </div>
-                <button className="hidden">submit</button>
-              </form>
               {customerBox && (
                 <Input
                   placeholder={t("Enter customer name")}
@@ -677,46 +649,33 @@ export const PosMode = () => {
               )}
             </div>
             <div className="pos-topbar-actions">
-              <div className="pos-view-toggle">
-                <button
-                  className={`pos-view-btn ${viewMode === 'grid' ? 'active' : ''}`}
-                  onClick={() => setViewMode('grid')}
-                  title={t("Grid view")}>
-                  <FontAwesomeIcon icon={faGrip}/>
-                </button>
-                <button
-                  className={`pos-view-btn ${viewMode === 'list' ? 'active' : ''}`}
-                  onClick={() => setViewMode('list')}
-                  title={t("List view")}>
-                  <FontAwesomeIcon icon={faList}/>
-                </button>
-              </div>
               <TopbarRight/>
             </div>
           </div>
-          {viewMode === 'grid' ? (
-            <div className="pos-layout pos-layout-grid">
-              <div className="pos-panel">
-                <ProductGrid
-                  items={items}
-                  addItem={addItem}
-                  categories={categories}
-                  setCategories={setCategories}
-                />
-              </div>
-              <div className="pos-panel">
-                <div className="pos-panel-header">
+          <div className="pos-2col-layout">
+            {/* ─── Left: Categories + Products ─── */}
+            <div className="pos-left-col">
+              <ProductGrid
+                items={items}
+                addItem={addItem}
+                categories={categories}
+                setCategories={setCategories}
+              />
+            </div>
+
+            {/* ─── Right: Cart + Payment ─── */}
+            <div className="pos-right-col">
+              <div className="pos-cart-panel">
+                <div className="pos-cart-panel__header">
                   <CartControls containerRef={containerRef.current}/>
                 </div>
-                <div className="pos-panel-body" ref={containerRef}>
+                <div className="pos-cart-panel__body" ref={containerRef}>
                   <CartContainer/>
                 </div>
                 <div className="pos-panel-footer">
                   <Footer/>
                 </div>
-              </div>
-              <div className="pos-panel">
-                <div className="pos-panel-body p-3">
+                <div className="pos-cart-panel__payment">
                   <CloseSaleInline
                     paymentTypesList={paymentTypesList.list}
                     isInline={true}
@@ -724,29 +683,47 @@ export const PosMode = () => {
                 </div>
               </div>
             </div>
-          ) : (
-            <div className="pos-layout pos-layout-list">
-              <div className="pos-panel">
-                <div className="pos-panel-header">
-                  <CartControls containerRef={containerRef.current}/>
-                </div>
-                <div className="pos-panel-body" ref={containerRef}>
-                  <CartContainer/>
-                </div>
-                <div className="pos-panel-footer">
-                  <Footer/>
-                </div>
+
+            {/* ─── Bottom: Shortcut Bar ─── */}
+            <div className="pos-shortcut-bar">
+              <div className="pos-shortcut-key" title="F1">
+                <span className="pos-shortcut-key__badge">F1</span>
+                <span className="pos-shortcut-key__label">{t("Quantity")}</span>
               </div>
-              <div className="pos-panel">
-                <div className="pos-panel-body p-3">
-                  <CloseSaleInline
-                    paymentTypesList={paymentTypesList.list}
-                    isInline={true}
-                  />
-                </div>
+              <div className="pos-shortcut-key" title="F2">
+                <span className="pos-shortcut-key__badge">F2</span>
+                <span className="pos-shortcut-key__label">{t("Price")}</span>
+              </div>
+              <div className="pos-shortcut-key" title="F3">
+                <span className="pos-shortcut-key__badge">F3</span>
+                <span className="pos-shortcut-key__label">{t("Search")}</span>
+              </div>
+              <div className="pos-shortcut-key" title="F4">
+                <span className="pos-shortcut-key__badge">F4</span>
+                <span className="pos-shortcut-key__label">{t("Hold")}</span>
+              </div>
+              <div className="pos-shortcut-key" title="F8">
+                <span className="pos-shortcut-key__badge">F8</span>
+                <span className="pos-shortcut-key__label">{t("Returns")}</span>
+              </div>
+              <div className="pos-shortcut-key" title="F9">
+                <span className="pos-shortcut-key__badge">F9</span>
+                <span className="pos-shortcut-key__label">{t("Discount")}</span>
+              </div>
+              <div className="pos-shortcut-key" title="F12">
+                <span className="pos-shortcut-key__badge">F12</span>
+                <span className="pos-shortcut-key__label">{t("Pay")}</span>
+              </div>
+              <div className="pos-shortcut-key" title="Del">
+                <span className="pos-shortcut-key__badge">Del</span>
+                <span className="pos-shortcut-key__label">{t("Remove")}</span>
+              </div>
+              <div className="pos-shortcut-key" title="Esc">
+                <span className="pos-shortcut-key__badge">Esc</span>
+                <span className="pos-shortcut-key__label">{t("Cancel")}</span>
               </div>
             </div>
-          )}
+          </div>
         </div>
       </TrapFocus>
       <SearchVariants

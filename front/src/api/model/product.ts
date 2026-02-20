@@ -27,6 +27,7 @@ export interface Product extends HydraId, HydraType{
   isAvailable?: boolean;
   quantity?: number;
   basePrice: number;
+  minPrice?: number;
   categories: Category[];
   variants: ProductVariant[];
   prices: ProductPrice[];
