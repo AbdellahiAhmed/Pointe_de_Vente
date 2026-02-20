@@ -24,12 +24,10 @@ class UserChecker implements UserCheckerInterface
             return;
         }
 
-        if(!$user->hasRole($this->request->getCurrentRequest()->query->get('role', ''))){
-            throw new CustomUserMessageAccountStatusException('Cannot login in this portal', [], Response::HTTP_FORBIDDEN);
-        }
-
         if (!$user->getIsActive()) {
-            throw new CustomUserMessageAccountStatusException('Your account is disabled!');
+            throw new CustomUserMessageAccountStatusException(
+                'Your account has been disabled by the administrator. Please contact the administrator to reactivate it.'
+            );
         }
     }
 
