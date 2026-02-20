@@ -43,6 +43,20 @@ body:has(#sidebar) {
   color: var(--adm-text-body);
   font-size: 14px;
   line-height: 1.6;
+
+  /* Reset the global POS `a` style (ltr.scss) that breaks admin links */
+  a {
+    display: revert;
+    justify-content: revert;
+    align-items: revert;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  /* Reset the global POS `.btn` style that breaks admin buttons */
+  .btn {
+    all: revert;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
