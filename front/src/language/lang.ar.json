@@ -616,5 +616,11 @@
   "All": "الكل",
   "Expand": "توسيع",
   "Collapse": "طي",
-  "Done": "تم"
+  "Done": "تم",
+  "Commerce": "التجارة",
+  "Cache and display preferences": "تفضيلات التخزين المؤقت والعرض",
+  "Manage product return requests from vendors": "إدارة طلبات إرجاع المنتجات من البائعين",
+  "Cache": "التخزين المؤقت",
+  "Display": "العرض",
+  "Vendeur": "بائع"
 }

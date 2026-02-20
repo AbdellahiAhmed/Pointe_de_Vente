@@ -619,5 +619,11 @@
   "All": "Tous",
   "Expand": "Développer",
   "Collapse": "Réduire",
-  "Done": "Succès"
+  "Done": "Succès",
+  "Commerce": "Commerce",
+  "Cache and display preferences": "Préférences de cache et d'affichage",
+  "Manage product return requests from vendors": "Gérer les demandes de retour produits des vendeurs",
+  "Cache": "Cache",
+  "Display": "Affichage",
+  "Vendeur": "Vendeur"
 }

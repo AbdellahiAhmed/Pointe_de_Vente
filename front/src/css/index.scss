@@ -1106,3 +1106,500 @@
     left: 6px;
   }
 }
+
+/* ═══════════════════════════════════════════
+   Settings Panel — Enterprise Grade
+   Inspired by Shopify Admin / Square POS
+   Scoped under .settings-panel
+   ═══════════════════════════════════════════ */
+
+/* ─── Layout: override TabControl to side-by-side ─── */
+.settings-panel {
+
+  /* Top-level tab-control becomes a two-column layout:
+     [sidebar 240px] | [content area flex-1] */
+  .tab-control {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0;
+    height: 100%;
+    min-height: 0;
+    background: var(--pos-bg);
+    border-radius: var(--pos-radius);
+    overflow: hidden;
+  }
+
+  /* ─── Sidebar: TabNav ─── */
+  .tab-nav {
+    /* Reset any Tailwind bg-primary-500 that may be inlined via className */
+    background: var(--pos-surface) !important;
+    border-inline-end: 1px solid var(--pos-border);
+    width: 240px;
+    min-width: 220px;
+    max-width: 260px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 16px 0 16px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--pos-border) transparent;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: var(--pos-border-strong);
+      border-radius: 2px;
+    }
+  }
+
+  /* ─── Section label — uppercase divider ─── */
+  .settings-section-label {
+    display: block;
+    padding: 16px 20px 6px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--pos-text-faint);
+    user-select: none;
+
+    /* Don't show above the very first group */
+    &:first-child {
+      padding-top: 4px;
+    }
+  }
+
+  /* ─── Sidebar button (Tab) ─── */
+  .sidebar-btn {
+    /* Reset the pill / rounded-full style */
+    border-radius: 0 !important;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 20px 9px 16px;
+    margin: 0;
+    background: transparent !important;
+    color: var(--pos-text-muted) !important;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    text-align: start;
+    border: none;
+    border-inline-start: 3px solid transparent;
+    cursor: pointer;
+    transition:
+      background 0.14s ease,
+      color 0.14s ease,
+      border-color 0.14s ease;
+    box-shadow: none !important;
+    position: relative;
+
+    /* Hover state */
+    &:hover {
+      background: var(--pos-surface-hover) !important;
+      color: var(--pos-text) !important;
+      border-inline-start-color: var(--pos-border-strong);
+    }
+
+    /* Active state — left accent border + tinted bg */
+    &.active,
+    &[class*="active"],
+    &[aria-selected="true"] {
+      background: var(--pos-accent-light) !important;
+      color: var(--pos-accent-dark) !important;
+      font-weight: 700;
+      border-inline-start-color: var(--pos-accent) !important;
+      box-shadow: none !important;
+
+      .tab-icon {
+        color: var(--pos-accent);
+        opacity: 1;
+      }
+    }
+  }
+
+  /* ─── Tab icon ─── */
+  .tab-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    font-size: 15px;
+    color: var(--pos-text-faint);
+    opacity: 0.8;
+    transition: color 0.14s ease, opacity 0.14s ease;
+
+    /* FontAwesome icon sizing harmonisation */
+    svg,
+    i {
+      width: 100%;
+      height: 100%;
+      font-size: inherit;
+    }
+  }
+
+  /* Hover icon colour follows button hover */
+  .sidebar-btn:hover .tab-icon {
+    color: var(--pos-text-muted);
+    opacity: 1;
+  }
+
+  /* ─── Content area ─── */
+  .tab-content-wrapper,
+  .tab-content {
+    flex: 1 1 0%;
+    min-width: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: var(--pos-bg);
+    scrollbar-width: thin;
+    scrollbar-color: var(--pos-border) transparent;
+
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: var(--pos-border-strong);
+      border-radius: 3px;
+    }
+  }
+
+  /* ─── Settings content inner wrapper ─── */
+  .settings-content {
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 760px;
+
+    /* Section heading inside content */
+    h2,
+    .settings-content-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--pos-text);
+      margin: 0 0 4px;
+      letter-spacing: -0.01em;
+    }
+
+    .settings-content-subtitle {
+      font-size: 12.5px;
+      color: var(--pos-text-muted);
+      margin: 0 0 12px;
+    }
+  }
+
+  /* ─── Generic card wrapper ─── */
+  .settings-card {
+    background: var(--pos-surface);
+    border: 1px solid var(--pos-border);
+    border-radius: var(--pos-radius);
+    box-shadow: var(--pos-shadow-sm);
+    overflow: hidden;
+
+    /* Card header band */
+    &__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--pos-border);
+      background: var(--pos-surface-hover);
+
+      h3,
+      .settings-card__title {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: var(--pos-text);
+        margin: 0;
+      }
+
+      .settings-card__subtitle {
+        font-size: 11.5px;
+        color: var(--pos-text-muted);
+        margin: 2px 0 0;
+      }
+    }
+
+    /* Card body */
+    &__body {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Inlined row inside a card body */
+    &__row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--pos-border);
+
+      &:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      .settings-card__row-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--pos-text);
+        flex-shrink: 0;
+      }
+
+      .settings-card__row-description {
+        font-size: 11.5px;
+        color: var(--pos-text-muted);
+        margin-top: 2px;
+      }
+
+      .settings-card__row-control {
+        flex-shrink: 0;
+      }
+    }
+  }
+
+  /* ─── Profile card ─── */
+  .settings-profile-card {
+    background: var(--pos-surface);
+    border: 1px solid var(--pos-border);
+    border-radius: var(--pos-radius);
+    box-shadow: var(--pos-shadow-sm);
+    overflow: hidden;
+
+    /* Top hero band with avatar */
+    &__hero {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 20px 18px;
+      background: linear-gradient(135deg, var(--pos-accent-light) 0%, var(--pos-surface-hover) 100%);
+      border-bottom: 1px solid var(--pos-border);
+    }
+
+    /* Avatar circle — initials only, no image */
+    &__avatar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: var(--pos-accent);
+      color: #fff;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(13, 148, 136, 0.35);
+      user-select: none;
+    }
+
+    &__hero-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    &__name {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--pos-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &__email {
+      font-size: 12px;
+      color: var(--pos-text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Role badge */
+    &__role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: var(--pos-accent);
+      color: #fff;
+
+      &--admin  { background: #7c3aed; }
+      &--manager { background: var(--pos-accent); }
+      &--vendeur { background: #2563eb; }
+    }
+
+    /* Info rows below the hero */
+    &__info {
+      padding: 0;
+    }
+
+    &__info-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--pos-border);
+      font-size: 13px;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &-icon {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--pos-radius-sm);
+        background: var(--pos-surface-hover);
+        color: var(--pos-text-muted);
+        font-size: 13px;
+        flex-shrink: 0;
+      }
+
+      &-label {
+        font-size: 11.5px;
+        color: var(--pos-text-faint);
+        margin-bottom: 1px;
+      }
+
+      &-value {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--pos-text);
+      }
+    }
+  }
+}
+
+/* ─── Settings Panel: Responsive — horizontal scroll on mobile ─── */
+@media (max-width: 1224px) {
+  .settings-panel {
+    .tab-control {
+      flex-direction: column;
+    }
+
+    .tab-nav {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      flex-direction: row;
+      padding: 10px 12px 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      border-inline-end: none;
+      border-bottom: 1px solid var(--pos-border);
+      gap: 2px;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    /* Hide section labels in horizontal mode — they break flow */
+    .settings-section-label {
+      display: none;
+    }
+
+    .sidebar-btn {
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 14px 10px;
+      font-size: 11px;
+      border-inline-start: none;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+      border-radius: 0 !important;
+      flex-shrink: 0;
+      min-width: max-content;
+
+      &:hover {
+        border-bottom-color: var(--pos-border-strong);
+        border-inline-start-color: transparent;
+      }
+
+      &.active,
+      &[class*="active"],
+      &[aria-selected="true"] {
+        border-bottom-color: var(--pos-accent) !important;
+        border-inline-start-color: transparent !important;
+        background: transparent !important;
+      }
+    }
+
+    .tab-icon {
+      width: 20px;
+      height: 20px;
+      font-size: 16px;
+    }
+
+    .settings-content {
+      padding: 16px;
+    }
+  }
+}
+
+/* ─── Settings Panel: RTL support ─── */
+[dir="rtl"] .settings-panel {
+  .tab-nav {
+    border-inline-end: none;
+    border-inline-start: 1px solid var(--pos-border);
+  }
+
+  .sidebar-btn {
+    text-align: end;
+
+    /* Active: border on the right edge in RTL */
+    &.active,
+    &[class*="active"],
+    &[aria-selected="true"] {
+      border-inline-start-color: var(--pos-accent) !important;
+    }
+  }
+
+  .settings-profile-card__hero {
+    flex-direction: row-reverse;
+  }
+
+  .settings-card__row {
+    flex-direction: row-reverse;
+  }
+
+  .settings-profile-card__info-row {
+    flex-direction: row-reverse;
+    text-align: end;
+  }
+
+  @media (max-width: 1224px) {
+    .tab-nav {
+      border-inline-start: none;
+      flex-direction: row-reverse;
+    }
+  }
+}

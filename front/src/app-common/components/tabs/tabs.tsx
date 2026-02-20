@@ -64,10 +64,10 @@ interface TabNavProps extends PropsWithChildren {
 }
 export const TabNav = (props: TabNavProps) => {
   let classes =
-    "flex flex-col w-[220px] flex-shrink-0 ms-[-20px] bg-primary-500 py-5 ps-3 min-h-[100ex]";
+    "tab-nav flex flex-col w-[220px] flex-shrink-0 ms-[-20px] bg-primary-500 py-5 ps-3 min-h-[100ex]";
 
   if (props.position === "top") {
-    classes = "flex flex-shrink-0 p-1 rounded-lg";
+    classes = "tab-nav flex flex-shrink-0 p-1 rounded-lg";
     return (
       <div className="bg-gray-100 rounded-full">
         <ScrollContainer horizontal nativeMobileScroll={true}>
@@ -84,9 +84,10 @@ interface TabProps
   extends PropsWithChildren,
     ButtonHTMLAttributes<HTMLButtonElement> {
   isActive: boolean;
+  icon?: React.ReactNode;
 }
 export const Tab = (props: TabProps) => {
-  const { isActive, ...rest } = props;
+  const { isActive, icon, ...rest } = props;
   return (
     <button
       {...rest}
@@ -96,6 +97,7 @@ export const Tab = (props: TabProps) => {
         isActive ? "text-primary-500 bg-white active shadow shadow-lg" : "text-white"
       )}>
       <span></span>
+      {icon && <span className="tab-icon">{icon}</span>}
       {props.children}
     </button>
   );
