@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPencilAlt,
   faPlus,
+  faBolt,
   faEllipsis, faEye, faPencil, faTrash
 } from "@fortawesome/free-solid-svg-icons";
 import React, { useCallback, useState } from "react";
@@ -17,6 +18,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { ImportItems } from "./import.items";
 import { ExportItems } from "./export.items";
 import { CreateItem } from "./manage-item/items.create";
+import { QuickCreateItem } from "./manage-item/items.quick-create";
 import useApi from "../../../../api/hooks/use.api";
 import { HydraCollection } from "../../../../api/model/hydra";
 import { ConfirmAlert } from "../../../../app-common/components/confirm/confirm.alert";
@@ -39,6 +41,7 @@ export const Items = () => {
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [quickCreateOpen, setQuickCreateOpen] = useState(false);
 
   const { t } = useTranslation();
 
@@ -263,6 +266,15 @@ export const Items = () => {
           {
             html: (
               <Button
+                variant="success"
+                onClick={() => setQuickCreateOpen(true)}>
+                <FontAwesomeIcon icon={faBolt} className="me-2" /> {t("Quick Add")}
+              </Button>
+            ),
+          },
+          {
+            html: (
+              <Button
                 variant="primary"
                 onClick={() => {
                   setModal(true);
@@ -288,6 +300,15 @@ export const Items = () => {
           notifyProductsChanged();
         }}
         operation={operation}
+      />
+
+      <QuickCreateItem
+        open={quickCreateOpen}
+        onClose={() => {
+          setQuickCreateOpen(false);
+          useLoadHook.fetchData();
+          notifyProductsChanged();
+        }}
       />
 
       {showDeleteConfirm && deleteTarget && (

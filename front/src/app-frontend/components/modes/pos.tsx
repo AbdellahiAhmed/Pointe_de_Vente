@@ -36,6 +36,8 @@ import { Footer } from "./footer";
 import { TrapFocus } from "../../../app-common/components/container/trap.focus";
 import { SearchVariants } from "../search/search.variants";
 import { ProductGrid } from "../search/product.grid";
+import { QuantityChangeModal } from "../sale/quantity-change.modal";
+import { PriceChangeModal } from "../sale/price-change.modal";
 
 enum SearchModes {
   sale = "sale",
@@ -102,6 +104,9 @@ export const PosMode = () => {
   const [modal, setModal] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [variants, setVariants] = useState<ProductVariant[]>([]);
+  const [quantityModalOpen, setQuantityModalOpen] = useState(false);
+  const [priceModalOpen, setPriceModalOpen] = useState(false);
+  const [selectedCartItem, setSelectedCartItem] = useState<CartItem | null>(null);
   const [brands, setBrands] = useState<{ [key: string]: Brand }>({});
   const [categories, setCategories] = useState<{ [key: string]: Category }>({});
   const [departments, setDepartment] = useState<{ [key: string]: Department }>(
@@ -484,18 +489,109 @@ export const PosMode = () => {
     });
   };
 
-  // useEffect(() => {
+  // ── Keyboard Shortcuts ──
+  const getSelectedCartItem = useCallback((): CartItem | null => {
+    const idx = appState.cartItem ?? (added.length > 0 ? added.length - 1 : -1);
+    return idx >= 0 && idx < added.length ? added[idx] : null;
+  }, [appState.cartItem, added]);
 
-  // }, [modal, selected, selectedVariant, variants, items, added, quantity]);
+  useEffect(() => {
+    // F1 - Change quantity
+    Mousetrap.bind("f1", (e) => {
+      e.preventDefault();
+      const item = getSelectedCartItem();
+      if (item) {
+        setSelectedCartItem(item);
+        setQuantityModalOpen(true);
+      }
+    });
 
-  // useEffect(() => {
-  Mousetrap.bind("f3", function (e: any) {
-    e.preventDefault();
-    if( searchField.current !== null ) {
-      searchField.current.focus();
+    // F2 - Change price
+    Mousetrap.bind("f2", (e) => {
+      e.preventDefault();
+      const item = getSelectedCartItem();
+      if (item) {
+        setSelectedCartItem(item);
+        setPriceModalOpen(true);
+      }
+    });
+
+    // F3 - Focus search
+    Mousetrap.bind("f3", (e) => {
+      e.preventDefault();
+      searchField.current?.focus();
+    });
+
+    // F12 - Trigger pay (click the settle button)
+    Mousetrap.bind("f12", (e) => {
+      e.preventDefault();
+      const settleBtn = document.querySelector(".pos-settle-btn") as HTMLButtonElement;
+      settleBtn?.click();
+    });
+
+    // Del - Remove selected item from cart
+    Mousetrap.bind("del", (e) => {
+      if (document.body.classList.contains("ReactModal__Body--open")) return;
+      e.preventDefault();
+      const idx = appState.cartItem ?? -1;
+      if (idx >= 0 && idx < added.length) {
+        setAppState((prev) => ({
+          ...prev,
+          added: added.filter((_, i) => i !== idx),
+          cartItem: Math.max(0, idx - 1),
+        }));
+      }
+    });
+
+    // Esc - Close any open modal or clear search
+    Mousetrap.bind("escape", (e) => {
+      e.preventDefault();
+      if (quantityModalOpen) {
+        setQuantityModalOpen(false);
+      } else if (priceModalOpen) {
+        setPriceModalOpen(false);
+      } else if (modal) {
+        setModal(false);
+        setVariants([]);
+      } else {
+        // Clear search field
+        reset({ q: "", quantity: 1 });
+        searchField.current?.focus();
+      }
+    });
+
+    return () => {
+      Mousetrap.unbind(["f1", "f2", "f3", "f12", "del", "escape"]);
+    };
+  }, [getSelectedCartItem, added, appState.cartItem, quantityModalOpen, priceModalOpen, modal]);
+
+  const handleQuantityConfirm = useCallback((newQuantity: number) => {
+    if (!selectedCartItem) return;
+    const idx = added.findIndex(
+      (a) => a.item.id === selectedCartItem.item.id && a.variant === selectedCartItem.variant
+    );
+    if (idx !== -1) {
+      const newAdded = [...added];
+      newAdded[idx] = { ...newAdded[idx], quantity: newQuantity };
+      setAppState((prev) => ({ ...prev, added: newAdded }));
     }
-  });
-  // }, [searchField.current]);
+    setQuantityModalOpen(false);
+    setSelectedCartItem(null);
+  }, [selectedCartItem, added, setAppState]);
+
+  const handlePriceConfirm = useCallback((newPrice: number) => {
+    if (!selectedCartItem) return;
+    const idx = added.findIndex(
+      (a) => a.item.id === selectedCartItem.item.id && a.variant === selectedCartItem.variant
+    );
+    if (idx !== -1) {
+      const newAdded = [...added];
+      newAdded[idx] = { ...newAdded[idx], price: newPrice };
+      setAppState((prev) => ({ ...prev, added: newAdded }));
+    }
+    setPriceModalOpen(false);
+    setSelectedCartItem(null);
+  }, [selectedCartItem, added, setAppState]);
 
   const refundOrder = async (order: Order) => {
     const items: CartItem[] = [];
@@ -735,6 +831,18 @@ export const PosMode = () => {
         variants={variants}
         addItemVariant={addItemVariant}
         items={items}
+      />
+      <QuantityChangeModal
+        open={quantityModalOpen}
+        cartItem={selectedCartItem}
+        onClose={() => { setQuantityModalOpen(false); setSelectedCartItem(null); }}
+        onConfirm={handleQuantityConfirm}
+      />
+      <PriceChangeModal
+        open={priceModalOpen}
+        cartItem={selectedCartItem}
+        onClose={() => { setPriceModalOpen(false); setSelectedCartItem(null); }}
+        onConfirm={handlePriceConfirm}
       />
     </>
   );
