@@ -27,7 +27,7 @@ class MediaController extends AbstractController
         ApiResponseFactory $responseFactory
     ): Response
     {
-        $this->denyAccessUnlessGranted(ProductVoter::MANAGE);
+        $this->denyAccessUnlessGranted(ProductVoter::VIEW);
         $file = $request->files->get('file');
         if (!$file) {
             return $responseFactory->json(['error' => 'No file uploaded'], 400);
