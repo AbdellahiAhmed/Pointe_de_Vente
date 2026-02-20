@@ -4,6 +4,8 @@
   "Password": "Mot de passe",
   "Login": "Connexion",
   "Invalid credentials.": "Nom d'utilisateur ou mot de passe incorrect. Veuillez réessayer.",
+  "Your account is disabled!": "Votre compte est désactivé. Contactez l'administrateur.",
+  "Cannot login in this portal": "Vous n'avez pas les droits pour accéder à ce portail.",
   "Username cannot be changed": "Le nom d'utilisateur ne peut pas être modifié",
   "Forgot Password": "Mot de passe oublié",
   "Forgot Password?": "Mot de passe oublié ?",
