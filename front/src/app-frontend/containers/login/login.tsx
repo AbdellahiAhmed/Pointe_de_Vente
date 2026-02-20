@@ -8,6 +8,7 @@ import { Controller, useForm } from "react-hook-form";
 import Cookies from "js-cookie";
 import { useTranslation } from "react-i18next";
 import {
+  ForbiddenException,
   HttpException,
   UnauthorizedException,
 } from "../../../lib/http/exception/http.exception";
@@ -90,17 +91,21 @@ const Login = () => {
         setModal(true);
       }
     } catch (err: any) {
-      if (err instanceof HttpException) {
-        setErrorMessage(err.message);
+      if (err instanceof ForbiddenException) {
+        const res = await err.response.json();
+        setErrorMessage(t(res.message));
+        return;
       }
 
       if (err instanceof UnauthorizedException) {
         const res = await err.response.json();
         setErrorMessage(t(res.message));
+        return;
       }
 
-      // let errorResponse = await err.response.json();
-      // setErrorMessage(errorResponse.message);
+      if (err instanceof HttpException) {
+        setErrorMessage(err.message);
+      }
     } finally {
       setLoading(false);
     }
