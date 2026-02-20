@@ -876,13 +876,8 @@ body:has(#header):not(:has(#sidebar)) main.main {
    ═══════════════════════════════════════════════════════════ */
 
 [dir="rtl"] {
-  /* Sidebar slides in from the right */
-  #sidebar.sidebar {
-    inset-inline-start: 0;
-    inset-inline-end: unset;
-    right: 0;
-    left: unset;
-  }
+  /* Sidebar position: logical properties already handle RTL,
+     no need for physical right/left overrides */
 
   /* Logo border flips */
   #header .logo {
@@ -896,7 +891,7 @@ body:has(#header):not(:has(#sidebar)) main.main {
     margin-inline-end: 16px;
   }
 
-  /* Active nav border on the right in RTL */
+  /* Active nav border — content-facing side in RTL */
   #sidebar .nav-link {
     border-inline-start: none;
     border-inline-end: 3px solid transparent;
@@ -916,23 +911,9 @@ body:has(#header):not(:has(#sidebar)) main.main {
     inset-inline-start: 14px;
   }
 
-  /* Main content offset flips */
-  main.main#main {
-    margin-inline-start: 0;
-    margin-inline-end: var(--adm-sidebar-width);
-    transition: margin-inline-end 0.3s ease;
-  }
-
-  &.toggle-sidebar main.main#main,
-  body.toggle-sidebar main.main#main {
-    margin-inline-end: 0;
-  }
-
-  @media (max-width: 1199px) {
-    main.main#main {
-      margin-inline-end: 0;
-    }
-  }
+  /* Main content: margin-inline-start already resolves to
+     margin-right in RTL, which is correct (sidebar is on right).
+     No override needed — logical properties handle this. */
 }
 
 /* ═══════════════════════════════════════════════════════════
