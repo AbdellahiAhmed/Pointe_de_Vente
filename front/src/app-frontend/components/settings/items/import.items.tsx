@@ -8,12 +8,15 @@ import {
   faTimesCircle,
   faFileCsv,
   faExclamationTriangle,
+  faImage,
+  faSpinner,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Modal } from "../../../../app-common/components/modal/modal";
 import { Button } from "../../../../app-common/components/input/button";
-import { request } from "../../../../api/request/request";
-import { PRODUCT_UPLOAD } from "../../../../api/routing/routes/backend.app";
+import { request, jsonRequest } from "../../../../api/request/request";
+import { PRODUCT_UPLOAD, MEDIA_UPLOAD, PRODUCT_GET } from "../../../../api/routing/routes/backend.app";
 import { notify } from "../../../../app-common/components/confirm/notification";
 
 // ---------------------------------------------------------------------------
@@ -33,12 +36,18 @@ const CSV_COLUMNS = [
 type CsvColumn = (typeof CSV_COLUMNS)[number];
 type CsvRow = Record<CsvColumn, string>;
 
+interface ImportedProduct {
+  id: number;
+  name: string;
+}
+
 interface ImportResult {
   imported: number;
   errors: Array<{ row: number; message: string }>;
+  products: ImportedProduct[];
 }
 
-type ImportPhase = "idle" | "preview" | "uploading" | "done";
+type ImportPhase = "idle" | "preview" | "uploading" | "done" | "images";
 
 // ---------------------------------------------------------------------------
 // CSV helpers  (no external library)
@@ -391,6 +400,209 @@ const ImportResultPanel: React.FC<ImportResultPanelProps> = ({ result }) => {
 };
 
 // ---------------------------------------------------------------------------
+// Product image uploader (post-import)
+// ---------------------------------------------------------------------------
+
+interface ProductImageState {
+  preview: string | null;
+  uploading: boolean;
+  done: boolean;
+}
+
+interface ProductImageUploaderProps {
+  products: ImportedProduct[];
+  onDone: () => void;
+}
+
+const ProductImageUploader: React.FC<ProductImageUploaderProps> = ({ products, onDone }) => {
+  const { t } = useTranslation();
+  const [imageStates, setImageStates] = useState<Record<number, ProductImageState>>({});
+
+  const updateState = (id: number, patch: Partial<ProductImageState>) => {
+    setImageStates((prev) => ({
+      ...prev,
+      [id]: { ...(prev[id] || { preview: null, uploading: false, done: false }), ...patch },
+    }));
+  };
+
+  const handleImageSelect = async (productId: number, file: File) => {
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = (ev) => updateState(productId, { preview: ev.target?.result as string });
+    reader.readAsDataURL(file);
+
+    // Upload
+    updateState(productId, { uploading: true });
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await request(MEDIA_UPLOAD, { method: "POST", body: formData });
+      const data = await response.json();
+      if (data.id) {
+        const mediaIri = data["@id"] || `/api/media/${data.id}`;
+        await jsonRequest(PRODUCT_GET.replace(":id", productId.toString()), {
+          method: "PUT",
+          body: JSON.stringify({ media: mediaIri }),
+        });
+        updateState(productId, { uploading: false, done: true });
+      } else {
+        updateState(productId, { uploading: false });
+        notify({ type: "error", description: data.error || t("Image upload failed") });
+      }
+    } catch {
+      updateState(productId, { uploading: false, preview: null });
+      notify({ type: "error", description: t("Image upload failed") });
+    }
+  };
+
+  const removeImage = (productId: number) => {
+    updateState(productId, { preview: null, done: false });
+  };
+
+  const allDone = products.every((p) => imageStates[p.id]?.done);
+
+  return (
+    <div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.6rem",
+          padding: "0.75rem 1rem",
+          borderRadius: "0.5rem",
+          backgroundColor: "#f0f9ff",
+          border: "1px solid #bae6fd",
+          marginBottom: "1rem",
+        }}
+      >
+        <FontAwesomeIcon icon={faImage} style={{ color: "#0284c7" }} />
+        <span style={{ fontSize: "0.85rem", color: "#0c4a6e" }}>
+          {t("Add images to your imported products (optional)")}
+        </span>
+      </div>
+
+      <div style={{ maxHeight: "400px", overflowY: "auto" }}>
+        {products.map((product) => {
+          const state = imageStates[product.id] || { preview: null, uploading: false, done: false };
+          return (
+            <div
+              key={product.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                padding: "0.6rem 0.75rem",
+                borderRadius: "0.5rem",
+                border: "1px solid #e5e7eb",
+                marginBottom: "0.5rem",
+                backgroundColor: state.done ? "#f0fdf4" : "#fff",
+              }}
+            >
+              {/* Image preview / upload zone */}
+              <div
+                style={{
+                  width: "56px",
+                  height: "56px",
+                  borderRadius: "0.375rem",
+                  overflow: "hidden",
+                  flexShrink: 0,
+                  position: "relative",
+                  border: `2px dashed ${state.preview ? "transparent" : "#d1d5db"}`,
+                  backgroundColor: state.preview ? "transparent" : "#f9fafb",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: state.done ? "default" : "pointer",
+                }}
+                onClick={() => {
+                  if (state.done || state.uploading) return;
+                  const input = document.createElement("input");
+                  input.type = "file";
+                  input.accept = "image/*";
+                  input.onchange = (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0];
+                    if (file) handleImageSelect(product.id, file);
+                  };
+                  input.click();
+                }}
+              >
+                {state.uploading ? (
+                  <FontAwesomeIcon icon={faSpinner} spin style={{ color: "#6b7280" }} />
+                ) : state.preview ? (
+                  <img
+                    src={state.preview}
+                    alt={product.name}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                ) : (
+                  <FontAwesomeIcon icon={faImage} style={{ color: "#d1d5db", fontSize: "1.2rem" }} />
+                )}
+              </div>
+
+              {/* Product name */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ fontWeight: 600, fontSize: "0.85rem", color: "#1f2937" }}>
+                  {product.name}
+                </span>
+                {state.done && (
+                  <span
+                    style={{
+                      marginLeft: "0.5rem",
+                      fontSize: "0.75rem",
+                      color: "#16a34a",
+                      fontWeight: 500,
+                    }}
+                  >
+                    <FontAwesomeIcon icon={faCheckCircle} className="me-1" />
+                    {t("Uploaded")}
+                  </span>
+                )}
+              </div>
+
+              {/* Actions */}
+              {state.preview && !state.uploading && !state.done && (
+                <button
+                  type="button"
+                  onClick={() => removeImage(product.id)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "#dc2626",
+                    fontSize: "0.8rem",
+                  }}
+                  title={t("Remove")}
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
+              )}
+              {!state.preview && !state.uploading && !state.done && (
+                <span style={{ fontSize: "0.75rem", color: "#9ca3af" }}>{t("Click to add image")}</span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          gap: "0.75rem",
+          marginTop: "1.5rem",
+          paddingTop: "1rem",
+          borderTop: "1px solid #e5e7eb",
+        }}
+      >
+        <Button type="button" variant="secondary" onClick={onDone}>
+          {allDone ? t("Done") : t("Skip")}
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
 // Column format hint
 // ---------------------------------------------------------------------------
 
@@ -521,9 +733,10 @@ export const ImportItems: React.FC = () => {
               ? json.imported
               : parsedRows.length,
           errors: Array.isArray(json.errors) ? json.errors : [],
+          products: Array.isArray(json.products) ? json.products : [],
         };
       } else if (response.ok) {
-        result = { imported: parsedRows.length, errors: [] };
+        result = { imported: parsedRows.length, errors: [], products: [] };
       } else {
         // Non-2xx — treat the whole batch as failed
         let errMsg = `HTTP ${response.status}`;
@@ -536,6 +749,7 @@ export const ImportItems: React.FC = () => {
         result = {
           imported: 0,
           errors: [{ row: 0, message: errMsg }],
+          products: [],
         };
       }
 
@@ -564,6 +778,7 @@ export const ImportItems: React.FC = () => {
       setImportResult({
         imported: 0,
         errors: [{ row: 0, message }],
+        products: [],
       });
       setPhase("done");
       notify({
@@ -771,11 +986,34 @@ export const ImportItems: React.FC = () => {
               <Button type="button" variant="secondary" onClick={resetState}>
                 {t("Import another file")}
               </Button>
+              {importResult.products.length > 0 && (
+                <Button
+                  type="button"
+                  variant="success"
+                  onClick={() => setPhase("images")}
+                >
+                  <FontAwesomeIcon icon={faImage} className="me-2" />
+                  {t("Add Images")}
+                </Button>
+              )}
               <Button type="button" variant="primary" onClick={handleClose}>
                 {t("Close")}
               </Button>
             </div>
           </>
+        )}
+
+        {/* ------------------------------------------------------------------ */}
+        {/* PHASE: images — upload images for imported products                  */}
+        {/* ------------------------------------------------------------------ */}
+        {phase === "images" && importResult !== null && (
+          <ProductImageUploader
+            products={importResult.products}
+            onDone={() => {
+              window.dispatchEvent(new Event("products-changed"));
+              handleClose();
+            }}
+          />
         )}
       </Modal>
     </>

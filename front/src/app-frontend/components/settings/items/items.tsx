@@ -6,7 +6,7 @@ import {
   faBolt,
   faEllipsis, faEye, faPencil, faTrash
 } from "@fortawesome/free-solid-svg-icons";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Product } from "../../../../api/model/product";
 import {
   PRODUCT_GET,
@@ -42,6 +42,13 @@ export const Items = () => {
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [quickCreateOpen, setQuickCreateOpen] = useState(false);
+
+  // Refresh product list when products change (e.g. after CSV import)
+  useEffect(() => {
+    const handler = () => { useLoadHook.fetchData(); };
+    window.addEventListener('products-changed', handler);
+    return () => window.removeEventListener('products-changed', handler);
+  }, []);
 
   const { t } = useTranslation();
 

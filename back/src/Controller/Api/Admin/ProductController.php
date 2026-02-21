@@ -217,6 +217,7 @@ class ProductController extends AbstractController
         $idx = 1;           // human-readable row number (1 = first data row)
         $imported = 0;
         $errorsArray = [];
+        $importedProducts = [];
 
         $em = $this->getDoctrine()->getManager();
 
@@ -330,6 +331,10 @@ class ProductController extends AbstractController
 
                 $em->flush();
 
+                $importedProducts[] = [
+                    'id' => $product->getId(),
+                    'name' => $product->getName(),
+                ];
                 $imported++;
             } catch (\Exception $e) {
                 $errorsArray[] = ['row' => $idx, 'message' => $e->getMessage()];
@@ -341,6 +346,10 @@ class ProductController extends AbstractController
         fclose($handle);
 
         // Bug 5 fixed: always return 200 with the structured response the frontend expects
-        return $responseFactory->json(['imported' => $imported, 'errors' => $errorsArray]);
+        return $responseFactory->json([
+            'imported' => $imported,
+            'errors' => $errorsArray,
+            'products' => $importedProducts,
+        ]);
     }
 }
