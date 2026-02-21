@@ -145,8 +145,11 @@ export const SaleClosing: FC<TaxProps> = (props) => {
       const res = await jsonRequest(CLOSING_OPENED + "?" + queryString);
       const json = await res.json();
       setClosing(json.closing);
-    } catch (e) {
-      throw e;
+    } catch (e: any) {
+      console.error("checkDayOpening error:", e);
+      if (e instanceof HttpException) {
+        notify({ type: "error", description: t(e.message || "An error occurred while loading data") });
+      }
     }
   };
 
@@ -288,21 +291,24 @@ export const SaleClosing: FC<TaxProps> = (props) => {
 
       setHideCloseButton(false);
       setModal(false);
-    } catch (exception) {
-      if (exception instanceof HttpException) {
-        if (exception.message) {
-          notify({ type: "error", description: exception.message });
-        }
-      }
-
+    } catch (exception: any) {
       if (exception instanceof UnprocessableEntityException) {
-        const e: ValidationResult = await exception.response.json();
-        if (e.errorMessage) {
-          notify({ type: "error", description: e.errorMessage });
+        try {
+          const e: ValidationResult = await exception.response.json();
+          if (e.errorMessage) {
+            notify({ type: "error", description: t(e.errorMessage) });
+          }
+        } catch {
+          notify({ type: "error", description: t("An error occurred while loading data") });
         }
-        return false;
+      } else if (exception instanceof HttpException) {
+        notify({ type: "error", description: t(exception.message || "An error occurred while loading data") });
+        // If session already closed, refresh to get new session
+        await checkDayOpening();
+      } else {
+        console.error("Closing submit error:", exception);
+        notify({ type: "error", description: t("An error occurred while loading data") });
       }
-      throw exception;
     } finally {
       setSaving(false);
     }
@@ -323,8 +329,9 @@ export const SaleClosing: FC<TaxProps> = (props) => {
       setExpenses(
         list.reduce((prev: number, current) => current.amount + prev, 0)
       );
-    } catch (e) {
-      throw e;
+    } catch (e: any) {
+      console.error("loadExpenses error:", e);
+      setExpenses(0);
     }
   };
 

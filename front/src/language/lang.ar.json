@@ -793,5 +793,6 @@
   "Cash sales": "مبيعات نقدية",
   "Variance": "الفارق",
   "Surplus": "فائض",
-  "Deficit": "عجز"
+  "Deficit": "عجز",
+  "Session already closed": "الجلسة مغلقة بالفعل"
 }

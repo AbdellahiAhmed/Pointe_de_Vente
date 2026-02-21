@@ -796,5 +796,6 @@
   "Cash sales": "Ventes espèces",
   "Variance": "Écart",
   "Surplus": "Excédent",
-  "Deficit": "Déficit"
+  "Deficit": "Déficit",
+  "Session already closed": "La session est déjà clôturée"
 }
