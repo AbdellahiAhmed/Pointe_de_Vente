@@ -24,6 +24,8 @@ use App\Core\Product\Query\GetProductsListQuery\GetProductsListQueryHandlerInter
 use App\Core\Validation\ApiRequestDtoValidator;
 use App\Entity\Category;
 use App\Entity\Product;
+use App\Entity\ProductStore;
+use App\Entity\Store;
 use App\Factory\Controller\ApiResponseFactory;
 use App\Security\Voter\ProductVoter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -318,6 +320,21 @@ class ProductController extends AbstractController
 
                 if($quantity !== '' && (float)$quantity > 0){
                     $product->setManageInventory(true);
+
+                    // Create ProductStore record to link stock to the first available store
+                    if($product->getStores()->count() === 0){
+                        $store = $em->getRepository(Store::class)->findOneBy(['isActive' => true]);
+                        if($store !== null){
+                            $productStore = new ProductStore();
+                            $productStore->setStore($store);
+                            $productStore->setQuantity($quantity);
+                            $product->addStore($productStore);
+                            $em->persist($productStore);
+                        }
+                    } else {
+                        // Update existing store quantity
+                        $product->getStores()->first()->setQuantity($quantity);
+                    }
                 }
 
                 $product->setIsActive(true);
