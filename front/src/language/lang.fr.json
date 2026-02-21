@@ -785,5 +785,16 @@
   "Classification": "Classification",
   "Supply Chain": "Approvisionnement",
   "Unavailable": "Indisponible",
-  "Min Price": "Prix minimum"
+  "Min Price": "Prix minimum",
+  "Session Info": "Informations de session",
+  "Cash Flow": "Flux de trésorerie",
+  "Sales Summary": "Résumé des ventes",
+  "Cash Reconciliation": "Réconciliation de caisse",
+  "Total sales": "Total des ventes",
+  "Expected cash": "Espèces attendues",
+  "Cash counted": "Espèces comptées",
+  "Cash sales": "Ventes espèces",
+  "Variance": "Écart",
+  "Surplus": "Excédent",
+  "Deficit": "Déficit"
 }

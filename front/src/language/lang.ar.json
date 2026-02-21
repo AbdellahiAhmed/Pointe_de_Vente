@@ -782,5 +782,16 @@
   "Classification": "التصنيف",
   "Supply Chain": "سلسلة التوريد",
   "Unavailable": "غير متوفر",
-  "Min Price": "الحد الأدنى للسعر"
+  "Min Price": "الحد الأدنى للسعر",
+  "Session Info": "معلومات الجلسة",
+  "Cash Flow": "التدفق النقدي",
+  "Sales Summary": "ملخص المبيعات",
+  "Cash Reconciliation": "تسوية الصندوق",
+  "Total sales": "إجمالي المبيعات",
+  "Expected cash": "النقد المتوقع",
+  "Cash counted": "النقد المحسوب",
+  "Cash sales": "مبيعات نقدية",
+  "Variance": "الفارق",
+  "Surplus": "فائض",
+  "Deficit": "عجز"
 }
