@@ -181,6 +181,15 @@ class ProductController extends AbstractController
         $file->move($this->getParameter('kernel.project_dir').'/public/uploads', 'products.csv');
 
         $csvPath = $this->getParameter('kernel.project_dir').'/public/uploads/products.csv';
+
+        // Convert file to UTF-8 if needed (Excel often saves as ISO-8859-1/Windows-1252)
+        $rawContent = file_get_contents($csvPath);
+        $encoding = mb_detect_encoding($rawContent, ['UTF-8', 'ISO-8859-1', 'Windows-1252'], true);
+        if ($encoding && $encoding !== 'UTF-8') {
+            $rawContent = mb_convert_encoding($rawContent, 'UTF-8', $encoding);
+            file_put_contents($csvPath, $rawContent);
+        }
+
         $handle = fopen($csvPath, 'r');
 
         // Auto-detect delimiter (comma vs semicolon) from the first line
