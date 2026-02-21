@@ -479,13 +479,21 @@ export const ImportItems: React.FC = () => {
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      const raw = e.target?.result as string;
+      const buffer = e.target?.result as ArrayBuffer;
+      let raw: string;
+      try {
+        // Try UTF-8 first (fatal: true rejects invalid byte sequences)
+        raw = new TextDecoder("utf-8", { fatal: true }).decode(buffer);
+      } catch {
+        // Fall back to ISO-8859-1 (covers French/Western European characters)
+        raw = new TextDecoder("iso-8859-1").decode(buffer);
+      }
       const { headers, rows } = parseCsv(raw);
       const mapped = mapRowsToCsvRows(headers, rows);
       setParsedRows(mapped);
       setPhase("preview");
     };
-    reader.readAsText(file, "utf-8");
+    reader.readAsArrayBuffer(file);
   }, []);
 
   const handleImport = useCallback(async () => {
