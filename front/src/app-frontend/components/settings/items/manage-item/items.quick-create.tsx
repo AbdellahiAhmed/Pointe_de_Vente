@@ -231,6 +231,8 @@ export const QuickCreateItem: React.FC<QuickCreateProps> = ({ open, onClose }) =
             ]
           : [];
 
+      const hasStock = Number(values.quantity) > 0;
+
       await fetchJson(PRODUCT_CREATE, {
         method: "POST",
         body: JSON.stringify({
@@ -243,6 +245,7 @@ export const QuickCreateItem: React.FC<QuickCreateProps> = ({ open, onClose }) =
           baseQuantity: 1,
           isAvailable: true,
           isActive: true,
+          manageInventory: hasStock,
           prices: [],
           saleUnit: "unit",
           purchaseUnit: "unit",
