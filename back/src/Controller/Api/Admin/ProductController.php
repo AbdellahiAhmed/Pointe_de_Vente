@@ -180,7 +180,13 @@ class ProductController extends AbstractController
         $file = $requestDto->getFile();
         $file->move($this->getParameter('kernel.project_dir').'/public/uploads', 'products.csv');
 
-        $handle = fopen($this->getParameter('kernel.project_dir').'/public/uploads/products.csv', 'r');
+        $csvPath = $this->getParameter('kernel.project_dir').'/public/uploads/products.csv';
+        $handle = fopen($csvPath, 'r');
+
+        // Auto-detect delimiter (comma vs semicolon) from the first line
+        $firstLine = fgets($handle);
+        rewind($handle);
+        $delimiter = (substr_count($firstLine, ';') > substr_count($firstLine, ',')) ? ';' : ',';
 
         // Bug 2 fixed: header-aware column map with case-insensitive aliases
         $aliasMap = [
@@ -205,11 +211,12 @@ class ProductController extends AbstractController
 
         $em = $this->getDoctrine()->getManager();
 
-        while(($row = fgetcsv($handle)) !== false) {
+        while(($row = fgetcsv($handle, 0, $delimiter)) !== false) {
             // Bug 2 fixed: parse header row to build column position map
             if(!$headerParsed){
                 foreach($row as $pos => $header){
-                    $normalized = strtolower(trim($header));
+                    // Strip BOM from the first cell if present
+                    $normalized = strtolower(trim(preg_replace('/^\x{FEFF}/u', '', $header)));
                     foreach($aliasMap as $field => $aliases){
                         if(in_array($normalized, $aliases, true)){
                             $colIndex[$field] = $pos;
@@ -229,96 +236,96 @@ class ProductController extends AbstractController
                 return isset($row[$colIndex[$field]]) ? trim($row[$colIndex[$field]]) : $default;
             };
 
-            $idValue      = $get('id');
-            $name         = $get('name');
-            $barcode      = $get('barcode');
-            $isAvailable  = $get('isAvailable', '1');
-            // Bug 1 fixed: cost = purchase price (col "Purchase price"), basePrice = sale price
-            $cost         = $get('cost');
-            $basePrice    = $get('basePrice');
-            $minPrice     = $get('minPrice');
-            $quantity     = $get('quantity');
-            $categoryName = $get('category');
-            $purchaseUnit = $get('purchaseUnit', 'unit');
-            $saleUnit     = $get('saleUnit', 'unit');
+            try {
+                $idValue      = $get('id');
+                $name         = $get('name');
+                $barcode      = $get('barcode');
+                $isAvailable  = $get('isAvailable', '1');
+                $cost         = $get('cost');
+                $basePrice    = $get('basePrice');
+                $minPrice     = $get('minPrice');
+                $quantity     = $get('quantity');
+                $categoryName = $get('category');
+                $purchaseUnit = $get('purchaseUnit', 'unit');
+                $saleUnit     = $get('saleUnit', 'unit');
 
-            $isCreate = ((int)$idValue === 0 || $idValue === '');
+                $isCreate = ((int)$idValue === 0 || $idValue === '');
 
-            if($isCreate){
-                $command = new CreateProductCommand();
-                $command->setName($name);
-                $command->setBarcode($barcode ?: null);
-                $command->setIsAvailable((bool)$isAvailable);
-                $command->setCost($cost !== '' ? $cost : null);
-                $command->setBasePrice($basePrice !== '' ? $basePrice : null);
-                $command->setQuantity($quantity !== '' ? $quantity : null);
-                $command->setPurchaseUnit($purchaseUnit ?: 'unit');
-                $command->setSaleUnit($saleUnit ?: 'unit');
+                if($isCreate){
+                    $command = new CreateProductCommand();
+                    $command->setName($name);
+                    $command->setBarcode($barcode ?: null);
+                    $command->setIsAvailable((bool)$isAvailable);
+                    $command->setCost($cost !== '' ? $cost : null);
+                    $command->setBasePrice($basePrice !== '' ? $basePrice : null);
+                    $command->setQuantity($quantity !== '' ? $quantity : null);
+                    $command->setPurchaseUnit($purchaseUnit ?: 'unit');
+                    $command->setSaleUnit($saleUnit ?: 'unit');
 
-                $result = $createProductCommandHandler->handle($command);
-            }else{
-                $command = new UpdateProductCommand();
-                $command->setId((int)$idValue);
-                $command->setName($name);
-                $command->setBarcode($barcode ?: null);
-                $command->setIsAvailable((bool)$isAvailable);
-                $command->setCost($cost !== '' ? $cost : null);
-                $command->setBasePrice($basePrice !== '' ? $basePrice : null);
-                $command->setQuantity($quantity !== '' ? $quantity : null);
-                $command->setPurchaseUnit($purchaseUnit ?: 'unit');
-                $command->setSaleUnit($saleUnit ?: 'unit');
-
-                $result = $updateProductCommandHandler->handle($command);
-            }
-
-            // Bug 5 fixed: build errors array in the format the frontend expects
-            if($result->hasValidationError()){
-                $validationError = $result->getValidationError();
-                if(is_string($validationError)){
-                    $message = $validationError;
+                    $result = $createProductCommandHandler->handle($command);
                 }else{
-                    // ValidationResult: join all violation messages
-                    $messages = [];
-                    foreach($validationError->getViolations() as $violation){
-                        $messages[] = $violation->getMessage();
+                    $command = new UpdateProductCommand();
+                    $command->setId((int)$idValue);
+                    $command->setName($name);
+                    $command->setBarcode($barcode ?: null);
+                    $command->setIsAvailable((bool)$isAvailable);
+                    $command->setCost($cost !== '' ? $cost : null);
+                    $command->setBasePrice($basePrice !== '' ? $basePrice : null);
+                    $command->setQuantity($quantity !== '' ? $quantity : null);
+                    $command->setPurchaseUnit($purchaseUnit ?: 'unit');
+                    $command->setSaleUnit($saleUnit ?: 'unit');
+
+                    $result = $updateProductCommandHandler->handle($command);
+                }
+
+                if($result->hasValidationError()){
+                    $validationError = $result->getValidationError();
+                    if(is_string($validationError)){
+                        $message = $validationError;
+                    }else{
+                        $messages = [];
+                        foreach($validationError->getViolations() as $violation){
+                            $messages[] = $violation->getMessage();
+                        }
+                        $message = implode(', ', $messages);
                     }
-                    $message = implode(', ', $messages);
+                    $errorsArray[] = ['row' => $idx, 'message' => $message];
+                    $idx++;
+                    continue;
                 }
-                $errorsArray[] = ['row' => $idx, 'message' => $message];
-                $idx++;
-                continue;
-            }
 
-            if($result->isNotFound()){
-                $errorsArray[] = ['row' => $idx, 'message' => $result->getNotFoundMessage() ?? 'Product not found'];
-                $idx++;
-                continue;
-            }
-
-            // Bug 3 fixed: set additional fields directly on the saved entity
-            // Bug 4 fixed: resolve category by name and attach it
-            $product = $result->getProduct();
-
-            if($minPrice !== ''){
-                $product->setMinPrice($minPrice);
-            }
-
-            if($quantity !== '' && (float)$quantity > 0){
-                $product->setManageInventory(true);
-            }
-
-            $product->setIsActive(true);
-
-            if($categoryName !== ''){
-                $category = $em->getRepository(Category::class)->findOneBy(['name' => $categoryName]);
-                if($category !== null){
-                    $product->addCategory($category);
+                if($result->isNotFound()){
+                    $errorsArray[] = ['row' => $idx, 'message' => $result->getNotFoundMessage() ?? 'Product not found'];
+                    $idx++;
+                    continue;
                 }
+
+                $product = $result->getProduct();
+
+                if($minPrice !== ''){
+                    $product->setMinPrice($minPrice);
+                }
+
+                if($quantity !== '' && (float)$quantity > 0){
+                    $product->setManageInventory(true);
+                }
+
+                $product->setIsActive(true);
+
+                if($categoryName !== ''){
+                    $category = $em->getRepository(Category::class)->findOneBy(['name' => $categoryName]);
+                    if($category !== null){
+                        $product->addCategory($category);
+                    }
+                }
+
+                $em->flush();
+
+                $imported++;
+            } catch (\Exception $e) {
+                $errorsArray[] = ['row' => $idx, 'message' => $e->getMessage()];
             }
 
-            $em->flush();
-
-            $imported++;
             $idx++;
         }
 

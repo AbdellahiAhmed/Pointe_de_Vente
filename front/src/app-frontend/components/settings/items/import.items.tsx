@@ -45,10 +45,19 @@ type ImportPhase = "idle" | "preview" | "uploading" | "done";
 // ---------------------------------------------------------------------------
 
 /**
- * Parses a single CSV line respecting double-quoted fields that may
- * contain commas or embedded quotes (RFC 4180 subset).
+ * Detects the delimiter used in a CSV line (comma or semicolon).
  */
-function parseCsvLine(line: string): string[] {
+function detectDelimiter(headerLine: string): string {
+  const commas = (headerLine.match(/,/g) || []).length;
+  const semicolons = (headerLine.match(/;/g) || []).length;
+  return semicolons > commas ? ";" : ",";
+}
+
+/**
+ * Parses a single CSV line respecting double-quoted fields that may
+ * contain the delimiter or embedded quotes (RFC 4180 subset).
+ */
+function parseCsvLine(line: string, delimiter = ","): string[] {
   const fields: string[] = [];
   let current = "";
   let inQuotes = false;
@@ -71,7 +80,7 @@ function parseCsvLine(line: string): string[] {
     } else {
       if (ch === '"') {
         inQuotes = true;
-      } else if (ch === ",") {
+      } else if (ch === delimiter) {
         fields.push(current.trim());
         current = "";
       } else {
@@ -88,9 +97,13 @@ function parseCsvLine(line: string): string[] {
  * Parses a full CSV string.  Returns:
  *  - headers: the first row values
  *  - rows: remaining rows as string[][]
+ * Handles BOM character and auto-detects delimiter (comma or semicolon).
  */
 function parseCsv(raw: string): { headers: string[]; rows: string[][] } {
-  const lines = raw
+  // Strip BOM if present
+  const cleaned = raw.replace(/^\uFEFF/, "");
+
+  const lines = cleaned
     .split(/\r?\n/)
     .map((l) => l.trim())
     .filter(Boolean);
@@ -98,8 +111,9 @@ function parseCsv(raw: string): { headers: string[]; rows: string[][] } {
   if (lines.length === 0) return { headers: [], rows: [] };
 
   const [headerLine, ...dataLines] = lines;
-  const headers = parseCsvLine(headerLine);
-  const rows = dataLines.map(parseCsvLine);
+  const delimiter = detectDelimiter(headerLine);
+  const headers = parseCsvLine(headerLine, delimiter);
+  const rows = dataLines.map((line) => parseCsvLine(line, delimiter));
 
   return { headers, rows };
 }

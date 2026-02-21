@@ -114,7 +114,8 @@ class CreateProductCommandHandler extends EntityManager implements CreateProduct
             }
         }
 
-        $item->setDepartment($this->getRepository(Department::class)->find($command->getDepartment()));
+        $department = $command->getDepartment() ? $this->getRepository(Department::class)->find($command->getDepartment()) : null;
+        $item->setDepartment($department);
 
         //validate item before creation
         $violations = $this->validator->validate($item);

@@ -72,7 +72,8 @@ class UpdateProductCommandHandler extends EntityManager implements UpdateProduct
         $item->setPurchaseUnit($command->getPurchaseUnit());
         $item->setCost($command->getCost());
 
-        $item->setDepartment($this->getRepository(Department::class)->find($command->getDepartment()));
+        $department = $command->getDepartment() ? $this->getRepository(Department::class)->find($command->getDepartment()) : null;
+        $item->setDepartment($department);
 
         if($command->getCategories() !== null){
             //remove categories first
