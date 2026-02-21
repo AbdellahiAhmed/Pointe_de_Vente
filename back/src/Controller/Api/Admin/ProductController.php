@@ -22,6 +22,7 @@ use App\Core\Product\Query\GetProductsKeywords\GetProductsKeywordsQueryHandlerIn
 use App\Core\Product\Query\GetProductsListQuery\GetProductsListQuery;
 use App\Core\Product\Query\GetProductsListQuery\GetProductsListQueryHandlerInterface;
 use App\Core\Validation\ApiRequestDtoValidator;
+use App\Entity\Category;
 use App\Entity\Product;
 use App\Factory\Controller\ApiResponseFactory;
 use App\Security\Voter\ProductVoter;
@@ -123,19 +124,37 @@ class ProductController extends AbstractController
         $fileName = $this->getParameter('kernel.project_dir').'/public/downloads/products.csv';
         $handle = fopen($fileName, 'w+');
         @chmod($fileName, 0777);
+
+        // Bug 6 fixed: added Min price and Category columns
         $columns = [
             'ID', 'Name', 'Barcode', 'Is Available?',
-            'Purchase price', 'Sale price', 'Available Quantity', 'Purchase Unit', 'Sale Unit'
+            'Purchase price', 'Sale price', 'Min price',
+            'Available Quantity', 'Category', 'Purchase Unit', 'Sale Unit'
         ];
         fputcsv($handle, $columns);
+
         /** @var Product $item */
         foreach($list->getList() as $item){
+            $categoryName = $item->getCategories()->count() > 0
+                ? $item->getCategories()->first()->getName()
+                : '';
+
             fputcsv($handle, [
-                $item->getId(), $item->getName(), $item->getBarcode(), $item->getIsAvailable(),
-                $item->getCost(), $item->getBasePrice(),
-                $item->getQuantity(), $item->getPurchaseUnit(), $item->getSaleUnit()
+                $item->getId(),
+                $item->getName(),
+                $item->getBarcode(),
+                $item->getIsAvailable(),
+                $item->getCost(),       // col4 = purchase price
+                $item->getBasePrice(),  // col5 = sale price
+                $item->getMinPrice(),   // col6 = min price
+                $item->getQuantity(),
+                $categoryName,
+                $item->getPurchaseUnit(),
+                $item->getSaleUnit(),
             ]);
         }
+
+        fclose($handle);
 
         return $responseFactory->download($fileName);
     }
@@ -162,69 +181,150 @@ class ProductController extends AbstractController
         $file->move($this->getParameter('kernel.project_dir').'/public/uploads', 'products.csv');
 
         $handle = fopen($this->getParameter('kernel.project_dir').'/public/uploads/products.csv', 'r');
-        $index = 0;
-        $errors = [];
+
+        // Bug 2 fixed: header-aware column map with case-insensitive aliases
+        $aliasMap = [
+            'id'             => ['id', 'reference'],
+            'name'           => ['name'],
+            'barcode'        => ['barcode'],
+            'isAvailable'    => ['isavailable', 'is available', 'is available?'],
+            'cost'           => ['cost', 'purchaseprice', 'purchase price', 'pmp'],
+            'basePrice'      => ['baseprice', 'saleprice', 'sale price', 'price'],
+            'minPrice'       => ['minprice', 'min price', 'min sale price'],
+            'quantity'       => ['quantity', 'stock', 'available quantity', 'availablequantity'],
+            'category'       => ['category'],
+            'purchaseUnit'   => ['purchaseunit', 'purchase unit'],
+            'saleUnit'       => ['saleunit', 'sale unit'],
+        ];
+
+        $colIndex = [];     // field => integer column position
+        $headerParsed = false;
+        $idx = 1;           // human-readable row number (1 = first data row)
+        $imported = 0;
+        $errorsArray = [];
+
+        $em = $this->getDoctrine()->getManager();
+
         while(($row = fgetcsv($handle)) !== false) {
-            if($index === 0){
-                //skip header
-                $index++;
+            // Bug 2 fixed: parse header row to build column position map
+            if(!$headerParsed){
+                foreach($row as $pos => $header){
+                    $normalized = strtolower(trim($header));
+                    foreach($aliasMap as $field => $aliases){
+                        if(in_array($normalized, $aliases, true)){
+                            $colIndex[$field] = $pos;
+                            break;
+                        }
+                    }
+                }
+                $headerParsed = true;
                 continue;
             }
 
-            if((int)$row[0] === 0 || trim($row[0]) === ''){
-                //create product
+            // Helper closure to safely read a cell by logical field name
+            $get = function(string $field, string $default = '') use ($row, $colIndex): string {
+                if(!isset($colIndex[$field])){
+                    return $default;
+                }
+                return isset($row[$colIndex[$field]]) ? trim($row[$colIndex[$field]]) : $default;
+            };
+
+            $idValue      = $get('id');
+            $name         = $get('name');
+            $barcode      = $get('barcode');
+            $isAvailable  = $get('isAvailable', '1');
+            // Bug 1 fixed: cost = purchase price (col "Purchase price"), basePrice = sale price
+            $cost         = $get('cost');
+            $basePrice    = $get('basePrice');
+            $minPrice     = $get('minPrice');
+            $quantity     = $get('quantity');
+            $categoryName = $get('category');
+            $purchaseUnit = $get('purchaseUnit', 'unit');
+            $saleUnit     = $get('saleUnit', 'unit');
+
+            $isCreate = ((int)$idValue === 0 || $idValue === '');
+
+            if($isCreate){
                 $command = new CreateProductCommand();
-                $command->setName($row[1]);
-                $command->setBarcode($row[2]);
-                $command->setIsAvailable($row[3]);
-                $command->setBasePrice((float)$row[4]);
-                $command->setCost((float)$row[5]);
-                $command->setQuantity((float)$row[6]);
-                $command->setPurchaseUnit($row[7]);
-                $command->setSaleUnit($row[8]);
+                $command->setName($name);
+                $command->setBarcode($barcode ?: null);
+                $command->setIsAvailable((bool)$isAvailable);
+                $command->setCost($cost !== '' ? $cost : null);
+                $command->setBasePrice($basePrice !== '' ? $basePrice : null);
+                $command->setQuantity($quantity !== '' ? $quantity : null);
+                $command->setPurchaseUnit($purchaseUnit ?: 'unit');
+                $command->setSaleUnit($saleUnit ?: 'unit');
 
                 $result = $createProductCommandHandler->handle($command);
-
-                if($result->hasValidationError()){
-                    $errors[$index] = $result->getValidationError();
-                }
-
-                if($result->isNotFound()){
-                    $errors[$index] = $result->getValidationError();
-                }
             }else{
-                //update product
                 $command = new UpdateProductCommand();
-
-                $command->setId((int)$row[0]);
-                $command->setName($row[1]);
-                $command->setBarcode($row[2]);
-                $command->setIsAvailable($row[3]);
-                $command->setBasePrice((float)$row[4]);
-                $command->setCost((float)$row[5]);
-                $command->setQuantity((float)$row[6]);
-                $command->setPurchaseUnit($row[7]);
-                $command->setSaleUnit($row[8]);
-
+                $command->setId((int)$idValue);
+                $command->setName($name);
+                $command->setBarcode($barcode ?: null);
+                $command->setIsAvailable((bool)$isAvailable);
+                $command->setCost($cost !== '' ? $cost : null);
+                $command->setBasePrice($basePrice !== '' ? $basePrice : null);
+                $command->setQuantity($quantity !== '' ? $quantity : null);
+                $command->setPurchaseUnit($purchaseUnit ?: 'unit');
+                $command->setSaleUnit($saleUnit ?: 'unit');
 
                 $result = $updateProductCommandHandler->handle($command);
+            }
 
-                if($result->hasValidationError()){
-                    $errors[$index] = $result->getValidationError();
+            // Bug 5 fixed: build errors array in the format the frontend expects
+            if($result->hasValidationError()){
+                $validationError = $result->getValidationError();
+                if(is_string($validationError)){
+                    $message = $validationError;
+                }else{
+                    // ValidationResult: join all violation messages
+                    $messages = [];
+                    foreach($validationError->getViolations() as $violation){
+                        $messages[] = $violation->getMessage();
+                    }
+                    $message = implode(', ', $messages);
                 }
+                $errorsArray[] = ['row' => $idx, 'message' => $message];
+                $idx++;
+                continue;
+            }
 
-                if($result->isNotFound()){
-                    $errors[$index] = $result->getValidationError();
+            if($result->isNotFound()){
+                $errorsArray[] = ['row' => $idx, 'message' => $result->getNotFoundMessage() ?? 'Product not found'];
+                $idx++;
+                continue;
+            }
+
+            // Bug 3 fixed: set additional fields directly on the saved entity
+            // Bug 4 fixed: resolve category by name and attach it
+            $product = $result->getProduct();
+
+            if($minPrice !== ''){
+                $product->setMinPrice($minPrice);
+            }
+
+            if($quantity !== '' && (float)$quantity > 0){
+                $product->setManageInventory(true);
+            }
+
+            $product->setIsActive(true);
+
+            if($categoryName !== ''){
+                $category = $em->getRepository(Category::class)->findOneBy(['name' => $categoryName]);
+                if($category !== null){
+                    $product->addCategory($category);
                 }
             }
 
-            $index++;
+            $em->flush();
+
+            $imported++;
+            $idx++;
         }
 
-        if(count($errors) > 0){
-            return $responseFactory->validationError($errors);
-        }
+        fclose($handle);
 
-        return $responseFactory->json(true);
+        // Bug 5 fixed: always return 200 with the structured response the frontend expects
+        return $responseFactory->json(['imported' => $imported, 'errors' => $errorsArray]);
     }
 }

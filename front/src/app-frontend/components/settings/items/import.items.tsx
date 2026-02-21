@@ -21,13 +21,12 @@ import { notify } from "../../../../app-common/components/confirm/notification";
 // ---------------------------------------------------------------------------
 
 const CSV_COLUMNS = [
-  "reference",
-  "barcode",
   "name",
+  "barcode",
   "purchasePrice",
   "salePrice",
   "minPrice",
-  "stock",
+  "quantity",
   "category",
 ] as const;
 
