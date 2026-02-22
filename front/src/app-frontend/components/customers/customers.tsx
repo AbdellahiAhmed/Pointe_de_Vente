@@ -200,6 +200,14 @@ export const Customers: FC<Props> = ({ children, className }) => {
     reset,
   } = useForm({
     resolver: yupResolver(ValidationSchema),
+    defaultValues: {
+      name: "",
+      phone: "",
+      cnic: "",
+      openingBalance: 0,
+      allowCreditSale: false,
+      creditLimit: "",
+    },
   });
   const [creating, setCreating] = useState(false);
   const createCustomer = async (values: any, event?: any) => {
@@ -218,9 +226,11 @@ export const Customers: FC<Props> = ({ children, className }) => {
       }
 
       values.openingBalance = values.openingBalance.toString();
-      if (values.creditLimit === '' || values.creditLimit === undefined) {
+      if (values.creditLimit === '' || values.creditLimit === undefined || values.creditLimit === null) {
         values.creditLimit = null;
       }
+      // Ensure allowCreditSale is always a boolean
+      values.allowCreditSale = !!values.allowCreditSale;
 
       const response = await fetchJson(url, {
         method: method,
