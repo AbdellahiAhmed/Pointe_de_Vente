@@ -374,9 +374,7 @@ export const SaleClosing: FC<TaxProps> = (props) => {
                 label={t("Day started at")}
                 value={
                   closing?.createdAt?.datetime
-                    ? DateTime.fromISO(closing.createdAt.datetime).toFormat(
-                        import.meta.env.VITE_DATE_TIME_FORMAT as string
-                      )
+                    ? <span dir="ltr">{DateTime.fromISO(closing.createdAt.datetime).toFormat("dd-MM-yyyy HH:mm")}</span>
                     : null
                 }
               />
