@@ -30,7 +30,8 @@ import { defaultData, defaultState, PosModes } from "../../../store/jotai";
 import { discountTotal, finalTotal, taxTotal } from "../../containers/dashboard/pos";
 import { Order, OrderStatus } from "../../../api/model/order";
 import {useTranslation} from "react-i18next";
-import { notification } from "antd";
+import { notification, Tooltip } from "antd";
+import { faBan } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   paymentTypesList: PaymentType[];
@@ -618,15 +619,22 @@ export const CloseSaleInline: FC<Props> = ({
           )}
         </div>
       </div>
-      {customer && customer.allowCreditSale && (defaultMode === PosModes.payment || defaultMode === PosModes.pos) && (
-        <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded px-3 py-2 mb-2 text-sm">
-          <span className="text-amber-800">
-            {t('Outstanding')}: <strong>{new Intl.NumberFormat('fr-FR', {minimumFractionDigits: 2}).format(customer.outstanding + Number(customer.openingBalance || 0))} MRU</strong>
-            {customer.creditLimit && Number(customer.creditLimit) > 0 && (
-              <> / {t('Limit')}: <strong>{new Intl.NumberFormat('fr-FR', {minimumFractionDigits: 2}).format(Number(customer.creditLimit))} MRU</strong></>
-            )}
-          </span>
-        </div>
+      {customer && (defaultMode === PosModes.payment || defaultMode === PosModes.pos) && (
+        customer.allowCreditSale ? (
+          <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded px-3 py-2 mb-2 text-sm">
+            <span className="text-amber-800">
+              {t('Outstanding')}: <strong>{new Intl.NumberFormat('fr-FR', {minimumFractionDigits: 2}).format(customer.outstanding + Number(customer.openingBalance || 0))} MRU</strong>
+              {customer.creditLimit && Number(customer.creditLimit) > 0 && (
+                <> / {t('Limit')}: <strong>{new Intl.NumberFormat('fr-FR', {minimumFractionDigits: 2}).format(Number(customer.creditLimit))} MRU</strong></>
+              )}
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded px-3 py-2 mb-2 text-sm">
+            <FontAwesomeIcon icon={faBan} className="text-red-400" />
+            <span className="text-red-700 font-semibold">{t('Credit not authorized for this customer')}</span>
+          </div>
+        )
       )}
       {/* ═══ Payment Section ═══ */}
       <form onSubmit={handleSubmit(onSaleSubmit)}>
@@ -636,29 +644,47 @@ export const CloseSaleInline: FC<Props> = ({
             <div className="pay-grid">
               {paymentTypesList.map((pt, index) => {
                 const isActive = payment?.id === pt.id;
-                const isDisabled = (pt.type === "credit" && (
-                  customer === undefined ||
-                  customer === null ||
-                  !customer.allowCreditSale ||
-                  (customer.creditLimit && Number(customer.creditLimit) > 0 &&
-                   (customer.outstanding + Number(customer.openingBalance || 0) + ft) > Number(customer.creditLimit))
-                )) || added.length === 0;
+                const isCreditType = pt.type === "credit";
+                const noCustomer = customer === undefined || customer === null;
+                const creditNotAllowed = isCreditType && !noCustomer && !customer.allowCreditSale;
+                const creditLimitExceeded = isCreditType && !noCustomer && customer.allowCreditSale &&
+                  customer.creditLimit && Number(customer.creditLimit) > 0 &&
+                  (customer.outstanding + Number(customer.openingBalance || 0) + ft) > Number(customer.creditLimit);
+                const isDisabled = (isCreditType && (noCustomer || creditNotAllowed || creditLimitExceeded)) || added.length === 0;
 
-                return (
+                // Build tooltip reason for disabled credit
+                let creditTooltip = "";
+                if (isCreditType && isDisabled && added.length > 0) {
+                  if (noCustomer) creditTooltip = t("Select a customer first");
+                  else if (creditNotAllowed) creditTooltip = t("Credit not authorized for this customer");
+                  else if (creditLimitExceeded) creditTooltip = t("Credit limit exceeded");
+                }
+
+                const tile = (
                   <button
                     key={index}
                     onClick={() => setPayment(pt)}
                     type="button"
                     disabled={isDisabled}
-                    className={classNames("pay-tile", { "pay-tile--active": isActive })}>
+                    className={classNames("pay-tile", {
+                      "pay-tile--active": isActive,
+                      "pay-tile--blocked": creditNotAllowed || creditLimitExceeded,
+                    })}>
                     <FontAwesomeIcon icon={getPaymentIcon(pt.type)} className="pay-tile__icon" />
                     <span className="pay-tile__name">{pt.name}</span>
                     {isActive && <span className="pay-tile__check"><FontAwesomeIcon icon={faCheck} /></span>}
-                    {pt.type === "credit" && (customer === undefined || customer === null) ? "" : (
+                    {creditNotAllowed && <FontAwesomeIcon icon={faBan} className="pay-tile__blocked-icon" />}
+                    {isCreditType && !noCustomer ? (
+                      <Shortcut shortcut={`alt+p+${index}`} handler={() => !isDisabled && setPayment(pt)} />
+                    ) : !isCreditType ? (
                       <Shortcut shortcut={`alt+p+${index}`} handler={() => setPayment(pt)} />
-                    )}
+                    ) : null}
                   </button>
                 );
+
+                return creditTooltip ? (
+                  <Tooltip key={index} title={creditTooltip} placement="top">{tile}</Tooltip>
+                ) : tile;
               })}
             </div>
 

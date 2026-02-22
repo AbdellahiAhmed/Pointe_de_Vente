@@ -89,6 +89,9 @@
   "Detach customer?": "Détacher le client ?",
   "Add customer name": "Ajouter le nom du client",
   "Enter customer name": "Entrer le nom du client",
+  "Search customer...": "Rechercher un client...",
+  "No customer found": "Aucun client trouvé",
+  "No credit": "Pas de crédit",
 
   "Name": "Nom",
   "Phone": "Téléphone",
@@ -742,6 +745,8 @@
   "Z-Reports": "Rapports Z",
   "Credit sales not allowed for this customer": "Les ventes à crédit ne sont pas autorisées pour ce client",
   "Credit limit exceeded": "Limite de crédit dépassée",
+  "Credit not authorized for this customer": "Crédit non autorisé pour ce client",
+  "Select a customer first": "Sélectionnez d'abord un client",
   "Customers & Credit": "Clients et crédit",
   "Customer Report": "Rapport clients",
   "Total Outstanding": "Total des créances",

@@ -630,6 +630,20 @@
       color: #fff;
     }
   }
+
+  &--blocked {
+    border-color: #fecaca;
+    background: #fef2f2;
+    opacity: 0.6;
+  }
+
+  &__blocked-icon {
+    position: absolute;
+    top: 4px;
+    inset-inline-end: 4px;
+    font-size: 10px;
+    color: var(--pos-danger);
+  }
 }
 
 .pay-amount-row {
@@ -943,6 +957,136 @@
     margin: 0;
   }
 }
+
+/* ═══ Customer Search ═══ */
+.cs-search {
+  position: relative;
+  min-width: 200px;
+  max-width: 280px;
+  flex: 1;
+
+  &__input-wrap {
+    display: flex;
+    align-items: center;
+    background: var(--pos-surface);
+    border: 1px solid var(--pos-border);
+    border-radius: var(--pos-radius-sm);
+    padding: 0 10px;
+    height: 40px;
+    transition: border-color 0.15s;
+
+    &:focus-within { border-color: var(--pos-accent); box-shadow: 0 0 0 2px rgba(13,148,136,0.12); }
+  }
+
+  &__icon { color: var(--pos-text-faint); font-size: 13px; margin-inline-end: 8px; }
+
+  &__input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--pos-text);
+    font-size: 14px !important;
+    font-weight: 500;
+    min-width: 0;
+
+    &::placeholder { color: var(--pos-text-faint); font-weight: 400; }
+  }
+
+  &__spinner {
+    width: 16px; height: 16px;
+    border: 2px solid var(--pos-border);
+    border-top-color: var(--pos-accent);
+    border-radius: 50%;
+    animation: cs-spin 0.6s linear infinite;
+  }
+
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    inset-inline-start: 0;
+    inset-inline-end: 0;
+    background: var(--pos-surface);
+    border: 1px solid var(--pos-border);
+    border-radius: var(--pos-radius-sm);
+    box-shadow: var(--pos-shadow-md);
+    max-height: 240px;
+    overflow-y: auto;
+    z-index: 100;
+    animation: cs-drop 0.12s ease;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 12px;
+    border: none;
+    border-bottom: 1px solid var(--pos-border);
+    background: transparent;
+    cursor: pointer;
+    text-align: start;
+    font-size: 13px;
+    touch-action: manipulation;
+    transition: background 0.1s;
+
+    &:last-child { border-bottom: none; }
+    &:hover { background: var(--pos-accent-light); }
+    &:active { background: #b2f0e8; }
+  }
+
+  &__item-main { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 0; }
+  &__item-name { font-weight: 600; color: var(--pos-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  &__item-phone { font-size: 11px; color: var(--pos-text-muted); margin-inline-start: 6px; white-space: nowrap; }
+  &__item-meta { flex-shrink: 0; margin-inline-start: 8px; }
+  &__item-balance {
+    font-size: 11px; font-weight: 700; color: var(--pos-success);
+    &[data-negative="true"] { color: var(--pos-danger); }
+  }
+  &__item-no-credit { font-size: 10px; color: var(--pos-text-faint); white-space: nowrap; }
+
+  &__empty { padding: 14px; text-align: center; color: var(--pos-text-muted); font-size: 13px; }
+}
+
+.cs-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--pos-accent);
+  color: #fff;
+  border-radius: 20px;
+  padding: 4px 6px 4px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  max-width: 280px;
+  height: 40px;
+
+  &__icon { font-size: 12px; opacity: 0.7; }
+  &__name { overflow: hidden; text-overflow: ellipsis; }
+  &__balance {
+    font-size: 11px; font-weight: 700; opacity: 0.9;
+    background: rgba(255,255,255,0.2); border-radius: 10px; padding: 2px 8px;
+
+    &[data-negative="true"] { background: rgba(239,68,68,0.3); }
+  }
+  &__no-credit {
+    font-size: 10px; opacity: 0.8;
+    background: rgba(239,68,68,0.25); border-radius: 10px; padding: 2px 8px;
+  }
+  &__remove {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 50%; border: none;
+    background: rgba(255,255,255,0.2); color: #fff; cursor: pointer;
+    font-size: 12px; touch-action: manipulation; transition: background 0.1s;
+
+    &:hover { background: rgba(239,68,68,0.6); }
+  }
+}
+
+@keyframes cs-spin { to { transform: rotate(360deg); } }
+@keyframes cs-drop { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
 /* iOS zoom prevention for all POS inputs */
 .pos-layout input,

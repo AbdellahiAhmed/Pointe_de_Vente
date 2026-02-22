@@ -89,6 +89,9 @@
   "Detach customer?": "فصل العميل؟",
   "Add customer name": "إضافة اسم العميل",
   "Enter customer name": "أدخل اسم العميل",
+  "Search customer...": "البحث عن عميل...",
+  "No customer found": "لم يتم العثور على عميل",
+  "No credit": "بدون ائتمان",
 
   "Name": "الاسم",
   "Phone": "الهاتف",
@@ -739,6 +742,8 @@
   "Z-Reports": "تقارير Z",
   "Credit sales not allowed for this customer": "مبيعات الأجل غير مسموح بها لهذا العميل",
   "Credit limit exceeded": "تم تجاوز حد الائتمان",
+  "Credit not authorized for this customer": "الائتمان غير مصرح به لهذا العميل",
+  "Select a customer first": "اختر عميلاً أولاً",
   "Customers & Credit": "العملاء والائتمان",
   "Customer Report": "تقرير العملاء",
   "Total Outstanding": "إجمالي المستحقات",

@@ -32,6 +32,7 @@ import { Tooltip } from "antd";
 import { Button } from "../../../app-common/components/input/button";
 import { Input } from "../../../app-common/components/input/input";
 import { TopbarRight } from "./topbar.right";
+import { CustomerSearch } from "../customers/customer.search";
 import { Footer } from "./footer";
 import { TrapFocus } from "../../../app-common/components/container/trap.focus";
 import { SearchVariants } from "../search/search.variants";
@@ -806,19 +807,7 @@ export const PosMode = () => {
                   displayLabel
                 />
               </div>
-              {customerBox && (
-                <Input
-                  placeholder={t("Enter customer name")}
-                  className="lg mousetrap"
-                  onChange={(event) => {
-                    setAppState(prev => ({
-                      ...prev,
-                      customerName: event.target.value
-                    }))
-                  }}
-                  value={customerName}
-                />
-              )}
+              {customerBox && <CustomerSearch />}
             </div>
             <div className="pos-topbar-actions">
               <TopbarRight/>
