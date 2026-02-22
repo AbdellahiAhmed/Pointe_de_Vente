@@ -50,7 +50,10 @@ class UpdateCustomerCommandHandler extends EntityManager implements UpdateCustom
         if($command->getOpeningBalance() !== null){
             $item->setOpeningBalance($command->getOpeningBalance());
         }
-
+        if($command->getAllowCreditSale() !== null){
+            $item->setAllowCreditSale($command->getAllowCreditSale());
+        }
+        $item->setCreditLimit($command->getCreditLimit());
 
         //validate item before creation
         $violations = $this->validator->validate($item);

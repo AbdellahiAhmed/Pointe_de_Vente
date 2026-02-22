@@ -90,6 +90,16 @@ class CustomerDto
      */
     private $openingBalance;
 
+    /**
+     * @var bool|null
+     */
+    private $allowCreditSale;
+
+    /**
+     * @var string|null
+     */
+    private $creditLimit;
+
     public static function createFromCustomer(?Customer $customer): ?self
     {
         if($customer === null){
@@ -125,6 +135,8 @@ class CustomerDto
         }
 
         $dto->openingBalance = $customer->getOpeningBalance();
+        $dto->allowCreditSale = $customer->getAllowCreditSale();
+        $dto->creditLimit = $customer->getCreditLimit();
 
         return $dto;
     }
@@ -368,5 +380,25 @@ class CustomerDto
     public function setOpeningBalance(?string $openingBalance): void
     {
         $this->openingBalance = $openingBalance;
+    }
+
+    public function getAllowCreditSale(): ?bool
+    {
+        return $this->allowCreditSale;
+    }
+
+    public function setAllowCreditSale(?bool $allowCreditSale): void
+    {
+        $this->allowCreditSale = $allowCreditSale;
+    }
+
+    public function getCreditLimit(): ?string
+    {
+        return $this->creditLimit;
+    }
+
+    public function setCreditLimit(?string $creditLimit): void
+    {
+        $this->creditLimit = $creditLimit;
     }
 }

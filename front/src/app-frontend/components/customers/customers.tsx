@@ -54,6 +54,12 @@ const ValidationSchema = yup.object({
     .number()
     .typeError(ValidationMessage.Number)
     .required(ValidationMessage.Required),
+  creditLimit: yup
+    .number()
+    .transform((value, original) => (original === '' || original === null ? undefined : value))
+    .nullable()
+    .optional()
+    .typeError(ValidationMessage.Number),
 });
 
 export const Customers: FC<Props> = ({ children, className }) => {
@@ -212,6 +218,9 @@ export const Customers: FC<Props> = ({ children, className }) => {
       }
 
       values.openingBalance = values.openingBalance.toString();
+      if (values.creditLimit === '' || values.creditLimit === undefined) {
+        values.creditLimit = null;
+      }
 
       const response = await fetchJson(url, {
         method: method,
@@ -261,12 +270,12 @@ export const Customers: FC<Props> = ({ children, className }) => {
 
   const resetForm = () => {
     reset({
-      name: null,
-      phone: null,
-      cnic: null,
-      openingBalance: null,
-      allowCreditSale: null,
-      creditLimit: null
+      name: "",
+      phone: "",
+      cnic: "",
+      openingBalance: 0,
+      allowCreditSale: false,
+      creditLimit: ""
     });
   };
 
@@ -340,10 +349,10 @@ export const Customers: FC<Props> = ({ children, className }) => {
             </div>
             <div>
               <label className="md:block w-full sm:hidden">&nbsp;</label>
-              <Switch {...register('allowCredit')}>
+              <Switch {...register('allowCreditSale')}>
                 {t("Allow credit")}
               </Switch>
-              {getErrors(errors.allowCredit)}
+              {getErrors(errors.allowCreditSale)}
             </div>
             <div>
               <label htmlFor="creditLimit">{t("Credit Limit")}</label>

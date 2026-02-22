@@ -30,7 +30,8 @@ class CreateCustomerCommandHandler extends EntityManager implements CreateCustom
         $item->setLng($command->getLng());
         $item->setCnic($command->getCnic());
         $item->setOpeningBalance($command->getOpeningBalance());
-
+        $item->setAllowCreditSale($command->getAllowCreditSale());
+        $item->setCreditLimit($command->getCreditLimit());
 
         //validate item before creation
         $violations = $this->validator->validate($item);

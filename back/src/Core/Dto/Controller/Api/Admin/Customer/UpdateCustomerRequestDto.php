@@ -52,6 +52,16 @@ class UpdateCustomerRequestDto
      */
     private $openingBalance;
 
+    /**
+     * @var bool|null
+     */
+    private $allowCreditSale;
+
+    /**
+     * @var string|null
+     */
+    private $creditLimit;
+
     public function setId(?int $id)
     {
         $this->id = $id;
@@ -156,6 +166,25 @@ class UpdateCustomerRequestDto
         $this->openingBalance = $openingBalance;
     }
 
+    public function getAllowCreditSale(): ?bool
+    {
+        return $this->allowCreditSale;
+    }
+
+    public function setAllowCreditSale(?bool $allowCreditSale): void
+    {
+        $this->allowCreditSale = $allowCreditSale;
+    }
+
+    public function getCreditLimit(): ?string
+    {
+        return $this->creditLimit;
+    }
+
+    public function setCreditLimit(?string $creditLimit): void
+    {
+        $this->creditLimit = $creditLimit;
+    }
 
     public static function createFromRequest(Request $request) : self
     {
@@ -171,7 +200,9 @@ class UpdateCustomerRequestDto
         $dto->lat = $data['lat'] ?? null;
         $dto->lng = $data['lng'] ?? null;
         $dto->openingBalance = $data['openingBalance'] ?? null;
-
+        $dto->allowCreditSale = isset($data['allowCreditSale']) ? (bool)$data['allowCreditSale'] : null;
+        $creditLimit = $data['creditLimit'] ?? null;
+        $dto->creditLimit = ($creditLimit !== null && $creditLimit !== '') ? (string)$creditLimit : null;
 
         return $dto;
     }
@@ -187,5 +218,7 @@ class UpdateCustomerRequestDto
         $command->setLat($this->lat);
         $command->setLng($this->lng);
         $command->setOpeningBalance($this->openingBalance);
+        $command->setAllowCreditSale($this->allowCreditSale);
+        $command->setCreditLimit($this->creditLimit);
     }
 }

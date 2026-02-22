@@ -152,4 +152,34 @@ class UpdateCustomerCommand
     {
         $this->openingBalance = $openingBalance;
     }
+
+    /**
+     * @var bool|null
+     */
+    private $allowCreditSale;
+
+    /**
+     * @var string|null
+     */
+    private $creditLimit;
+
+    public function getAllowCreditSale(): ?bool
+    {
+        return $this->allowCreditSale;
+    }
+
+    public function setAllowCreditSale(?bool $allowCreditSale): void
+    {
+        $this->allowCreditSale = $allowCreditSale;
+    }
+
+    public function getCreditLimit(): ?string
+    {
+        return $this->creditLimit;
+    }
+
+    public function setCreditLimit(?string $creditLimit): void
+    {
+        $this->creditLimit = $creditLimit;
+    }
 }
