@@ -662,7 +662,7 @@ export const CloseSaleInline: FC<Props> = ({
               })}
             </div>
 
-            {/* Amount + split */}
+            {/* Amount input + Add button */}
             <div className="pay-amount-row">
               <Controller
                 name="received"
@@ -693,12 +693,12 @@ export const CloseSaleInline: FC<Props> = ({
               <Shortcut shortcut="ctrl+enter" handler={() => focusAmountField()} invisible={true} />
               <button
                 type="button"
-                className="pay-split-btn"
+                className="pay-add-btn"
                 onClick={() => addSplitPayment(Number(watch("received")), payment)}
                 disabled={added.length === 0}
-                tabIndex={-1}
-                title={t("Split payment")}>
-                <FontAwesomeIcon icon={faPlus} />
+                tabIndex={-1}>
+                <FontAwesomeIcon icon={faPlus} className="me-1" />
+                {t("Add")}
               </button>
             </div>
 
@@ -717,6 +717,9 @@ export const CloseSaleInline: FC<Props> = ({
                     </button>
                   </div>
                 ))}
+                <div className="pay-splits__remaining">
+                  {t("Remaining")}: <strong>{withCurrency(Math.max(0, ft - received + adjustment))}</strong>
+                </div>
               </div>
             )}
 
