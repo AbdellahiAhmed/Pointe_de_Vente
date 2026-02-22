@@ -328,22 +328,22 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
             />
           </div>
           <div className="table-cell p-2 py-3 text-start text-sm font-bold">{t("Item")}</div>
-          <div className="table-cell p-2 py-3 text-center text-sm font-bold w-[100px]">
+          <div className="table-cell p-2 py-3 text-center text-sm font-bold w-[60px]">
             {t("Stock")}
           </div>
           <div className="table-cell p-2 py-3 text-center text-sm font-bold w-[100px]">
             {t("QTY")}
           </div>
-          <div className="table-cell p-2 py-3 text-center text-sm font-bold w-[100px]">
+          <div className="table-cell p-2 py-3 text-center text-sm font-bold w-[60px]">
             {t("Disc.")}
           </div>
-          <div className="table-cell p-2 py-3 text-center text-sm font-bold w-[100px]">
+          <div className="table-cell p-2 py-3 text-center text-sm font-bold w-[50px]">
             {t("Taxes")}
           </div>
-          <div className="table-cell p-2 py-3 text-center text-sm font-bold w-[100px]">
+          <div className="table-cell p-2 py-3 text-center text-sm font-bold">
             {t("Rate")}
           </div>
-          <div className="table-cell p-2 py-3 text-end text-sm font-bold w-[100px]">
+          <div className="table-cell p-2 py-3 text-end text-sm font-bold">
             {t("Total")}
           </div>
           {/*<div className="table-cell w-[80px]"/>*/}

@@ -199,17 +199,10 @@ export const CartItem: FunctionComponent<CartItemProps> = ({
           <span className="line-through">{withCurrency(taxTotal)}</span>
         )}
       </div>
-      <div className="table-cell text-end p-1">
-        <Input
-          value={item.price}
-          type="number"
-          className={"text-center w-full mousetrap"}
-          onChange={(event) => onPriceChange(item, +event.currentTarget.value)}
-          ref={rateRef}
-          disabled
-        />
+      <div className="table-cell text-center p-1 tabular-nums whitespace-nowrap">
+        {formatNumber(item.price)}
       </div>
-      <div className="table-cell p-2 text-end">{formatNumber(getRowTotal(item))}</div>
+      <div className="table-cell p-2 text-end tabular-nums whitespace-nowrap">{formatNumber(getRowTotal(item))}</div>
     </div>
   );
 };
