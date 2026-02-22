@@ -252,16 +252,18 @@ export const Customers: FC<Props> = ({ children, className }) => {
         url = CUSTOMER_CREATE;
       }
 
-      values.openingBalance = values.openingBalance.toString();
       if (values.creditLimit === '' || values.creditLimit === undefined || values.creditLimit === null) {
         values.creditLimit = null;
       }
       // Ensure allowCreditSale is always a boolean
       values.allowCreditSale = !!values.allowCreditSale;
 
+      // Remove id from body (API Platform uses it from URL only)
+      const { id, ...body } = values;
+
       const response = await fetchJson(url, {
         method: method,
-        body: JSON.stringify(values),
+        body: JSON.stringify(body),
       });
 
       setCustomer(response.customer);
