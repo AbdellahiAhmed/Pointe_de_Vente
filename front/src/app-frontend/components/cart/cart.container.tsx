@@ -15,6 +15,8 @@ import { defaultState } from "../../../store/jotai";
 import { notify } from "../../../app-common/components/confirm/notification";
 import { subTotal } from "../../containers/dashboard/pos";
 import {useTranslation} from "react-i18next";
+import { useSelector } from "react-redux";
+import { getStore } from "../../../duck/store/store.selector";
 
 interface CartContainerProps {
 
@@ -32,6 +34,19 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
   const {t} = useTranslation();
   const [appState, setAppState] = useAtom(defaultState);
   const { added, cartItemType, cartItem } = appState;
+  const store = useSelector(getStore);
+
+  const getAvailableStock = (item: CartItemModel): number => {
+    const product = item.item;
+    if (!product.manageInventory) return Infinity;
+    if (store && product.stores?.length > 0) {
+      const ps = product.stores.find(s => s.store?.id === store.id);
+      return ps ? Number(ps.quantity || 0) : 0;
+    }
+    return product.stores?.reduce((sum, s) => sum + Number(s.quantity || 0), 0)
+      ?? product.quantity ?? 0;
+  };
+
   const onCheckAll = (e: any) => {
     const newAdded = [...added];
     newAdded.map((item) => (item.checked = e.target.checked));
@@ -83,6 +98,19 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
         notify({
           type: "error",
           description: t("Quantity cannot be less then 1"),
+        });
+        return false;
+      }
+
+      // Stock validation
+      const available = getAvailableStock(oldItems[index]);
+      if (available !== Infinity && Number(newQuantity) > available) {
+        notify({
+          type: "error",
+          title: t("Stock insufficient"),
+          description: `${item.item.name}: ${t("available")} ${available}`,
+          placement: "top",
+          duration: 3,
         });
         return false;
       }
