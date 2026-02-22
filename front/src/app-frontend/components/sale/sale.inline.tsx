@@ -11,14 +11,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPause, faPlus, faTrash,
   faMoneyBillWave, faMobileAlt, faCreditCard, faHandHoldingUsd,
-  faCheck, faTimes,
+  faCheck, faTimes, faWallet,
 } from "@fortawesome/free-solid-svg-icons";
 import { OrderPayment } from "../../../api/model/order.payment";
 import { UnprocessableEntityException } from "../../../lib/http/exception/http.exception";
 import { ValidationResult } from "../../../lib/validator/validation.result";
 import { Shortcut } from "../../../app-common/components/input/shortcut";
 import { ClearSale } from "./clear.sale";
-import ScrollContainer from "react-indiana-drag-scroll";
 import { PrintOrder } from "./sale.print";
 import { useSelector } from "react-redux";
 import { getStore } from "../../../duck/store/store.selector";
@@ -487,16 +486,8 @@ export const CloseSaleInline: FC<Props> = ({
       case "cash": return faMoneyBillWave;
       case "credit": return faHandHoldingUsd;
       case "card": return faCreditCard;
+      case "mobile": return faWallet;
       default: return faMobileAlt;
-    }
-  };
-
-  const getPaymentColor = (type: string) => {
-    switch (type) {
-      case "cash": return { bg: "#ecfdf5", border: "#6ee7b7", text: "#065f46", activeBg: "#059669", activeText: "#fff" };
-      case "credit": return { bg: "#fef3c7", border: "#fcd34d", text: "#92400e", activeBg: "#d97706", activeText: "#fff" };
-      case "card": return { bg: "#ede9fe", border: "#c4b5fd", text: "#5b21b6", activeBg: "#7c3aed", activeText: "#fff" };
-      default: return { bg: "#e0f2fe", border: "#7dd3fc", text: "#0c4a6e", activeBg: "#0284c7", activeText: "#fff" };
     }
   };
 
@@ -609,219 +600,157 @@ export const CloseSaleInline: FC<Props> = ({
           </span>
         </div>
       )}
-      {/* ═══ Payment Methods ═══ */}
-      {(defaultMode === PosModes.payment || defaultMode === PosModes.pos) && (
-        <div className="pos-pay-methods">
-          <ScrollContainer
-            horizontal
-            className="scroll-container flex gap-2 pb-2"
-            vertical={false}>
-            {paymentTypesList.map((pt, index) => {
-              const isActive = payment?.id === pt.id;
-              const colors = getPaymentColor(pt.type);
-              const isDisabled = (pt.type === "credit" && (
-                customer === undefined ||
-                customer === null ||
-                !customer.allowCreditSale ||
-                (customer.creditLimit && Number(customer.creditLimit) > 0 &&
-                 (customer.outstanding + Number(customer.openingBalance || 0) + ft) > Number(customer.creditLimit))
-              )) || added.length === 0;
-
-              return (
-                <button
-                  key={index}
-                  onClick={() => setPayment(pt)}
-                  type="button"
-                  disabled={isDisabled}
-                  className="pos-pay-chip"
-                  style={{
-                    background: isActive ? colors.activeBg : colors.bg,
-                    borderColor: isActive ? colors.activeBg : colors.border,
-                    color: isActive ? colors.activeText : colors.text,
-                    opacity: isDisabled ? 0.4 : 1,
-                  }}>
-                  <FontAwesomeIcon
-                    icon={getPaymentIcon(pt.type)}
-                    className="pos-pay-chip__icon"
-                  />
-                  <span className="pos-pay-chip__label">{pt.name}</span>
-                  {isActive && (
-                    <span className="pos-pay-chip__check">
-                      <FontAwesomeIcon icon={faCheck} />
-                    </span>
-                  )}
-                  {pt.type === "credit" &&
-                  (customer === undefined || customer === null) ? (
-                    ""
-                  ) : (
-                    <Shortcut
-                      shortcut={`alt+p+${index}`}
-                      handler={() => setPayment(pt)}
-                    />
-                  )}
-                </button>
-              );
-            })}
-          </ScrollContainer>
-        </div>
-      )}
-
-      {/* ═══ Payment Form ═══ */}
+      {/* ═══ Payment Section ═══ */}
       <form onSubmit={handleSubmit(onSaleSubmit)}>
-        <div className="pos-pay-form">
-          {/* Left column: input + actions */}
-          <div className="pos-pay-form__main">
-            {(defaultMode === PosModes.payment ||
-              defaultMode === PosModes.pos) && (
-              <>
-                {/* Amount input */}
-                <div className="pos-pay-amount">
-                  <Controller
-                    name="received"
-                    control={control}
-                    render={(props) => (
-                      <input
-                        ref={paymentInputRef}
-                        onChange={props.field.onChange}
-                        value={props.field.value}
-                        type="number"
-                        id="amount"
-                        placeholder={t("Payment")}
-                        className="pos-pay-amount__input mousetrap"
-                        onClick={selectPaymentInput}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            addSplitPayment(
-                              Number(watch("received")),
-                              payment
-                            );
-                            return false;
-                          }
-                        }}
-                        disabled={added.length === 0}
-                        tabIndex={0}
-                      />
-                    )}
-                    defaultValue={ft + adjustment}
-                  />
-                  <Shortcut
-                    shortcut="ctrl+enter"
-                    handler={() => focusAmountField()}
-                    invisible={true}
-                  />
+        {(defaultMode === PosModes.payment || defaultMode === PosModes.pos) && (
+          <>
+            {/* Payment method grid */}
+            <div className="pay-grid">
+              {paymentTypesList.map((pt, index) => {
+                const isActive = payment?.id === pt.id;
+                const isDisabled = (pt.type === "credit" && (
+                  customer === undefined ||
+                  customer === null ||
+                  !customer.allowCreditSale ||
+                  (customer.creditLimit && Number(customer.creditLimit) > 0 &&
+                   (customer.outstanding + Number(customer.openingBalance || 0) + ft) > Number(customer.creditLimit))
+                )) || added.length === 0;
+
+                return (
                   <button
+                    key={index}
+                    onClick={() => setPayment(pt)}
                     type="button"
-                    className="pos-pay-amount__split"
-                    onClick={() =>
-                      addSplitPayment(Number(watch("received")), payment)
-                    }
-                    disabled={added.length === 0}
-                    tabIndex={-1}
-                    title={t("Split payment")}>
-                    <FontAwesomeIcon icon={faPlus} />
-                  </button>
-                </div>
-
-                {/* Adjustment */}
-                {canAdjust && (
-                  <div style={{ marginBottom: "6px" }}>
-                    {!!adjustment ? (
-                      <button
-                        type="button"
-                        className="pos-pay-adjust pos-pay-adjust--active"
-                        disabled={added.length === 0}
-                        tabIndex={-1}
-                        onClick={() => {
-                          setAppState((prev) => ({
-                            ...prev,
-                            adjustment: 0,
-                          }));
-                        }}>
-                        <FontAwesomeIcon icon={faTrash} className="me-1" />
-                        {t("Adjustment")}
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        className="pos-pay-adjust"
-                        disabled={added.length === 0}
-                        tabIndex={-1}
-                        onClick={addAdjustment}>
-                        {t("Add Adjustment")}
-                      </button>
+                    disabled={isDisabled}
+                    className={classNames("pay-tile", { "pay-tile--active": isActive })}>
+                    <FontAwesomeIcon icon={getPaymentIcon(pt.type)} className="pay-tile__icon" />
+                    <span className="pay-tile__name">{pt.name}</span>
+                    {isActive && <span className="pay-tile__check"><FontAwesomeIcon icon={faCheck} /></span>}
+                    {pt.type === "credit" && (customer === undefined || customer === null) ? "" : (
+                      <Shortcut shortcut={`alt+p+${index}`} handler={() => setPayment(pt)} />
                     )}
-                  </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Amount + split */}
+            <div className="pay-amount-row">
+              <Controller
+                name="received"
+                control={control}
+                render={(props) => (
+                  <input
+                    ref={paymentInputRef}
+                    onChange={props.field.onChange}
+                    value={props.field.value}
+                    type="number"
+                    id="amount"
+                    placeholder={t("Payment")}
+                    className="pay-amount-input mousetrap"
+                    onClick={selectPaymentInput}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addSplitPayment(Number(watch("received")), payment);
+                        return false;
+                      }
+                    }}
+                    disabled={added.length === 0}
+                    tabIndex={0}
+                  />
                 )}
-              </>
-            )}
-
-            {/* Notes */}
-            <div className="pos-pay-notes">
-              <Textarea
-                {...register("notes")}
-                className="pos-pay-notes__input"
-                id="notes"
-                placeholder={t("Notes")}
-                tabIndex={-1}
-                rows={1}
+                defaultValue={ft + adjustment}
               />
+              <Shortcut shortcut="ctrl+enter" handler={() => focusAmountField()} invisible={true} />
+              <button
+                type="button"
+                className="pay-split-btn"
+                onClick={() => addSplitPayment(Number(watch("received")), payment)}
+                disabled={added.length === 0}
+                tabIndex={-1}
+                title={t("Split payment")}>
+                <FontAwesomeIcon icon={faPlus} />
+              </button>
             </div>
 
-            {/* Action buttons */}
-            <div className="pos-pay-actions">
-              <button
-                className="pos-pay-actions__confirm"
-                type="submit"
-                disabled={added.length === 0 || isSaleClosing || changeDue < 0}
-                tabIndex={0}>
-                <FontAwesomeIcon icon={faCheck} className="me-2" />
-                {isSaleClosing ? "..." : t("Done")}
-                <Shortcut shortcut="ctrl+s" handler={shortcutHandler} />
-              </button>
-              <button
-                type="submit"
-                disabled={added.length === 0 || isSaleClosing}
-                className="pos-pay-actions__hold"
-                onClick={() => setHold(true)}>
-                <FontAwesomeIcon icon={faPause} />
-              </button>
-              <div className="pos-pay-actions__cancel">
-                <ClearSale />
-              </div>
-            </div>
-          </div>
-
-          {/* Right column: split payments */}
-          {payments.length > 0 && (
-            <div className="pos-pay-splits">
-              <ScrollContainer
-                horizontal={false}
-                className="pos-pay-splits__list"
-                vertical={true}>
+            {/* Split payments list */}
+            {payments.length > 0 && (
+              <div className="pay-splits">
                 {payments.map((item, index) => (
-                  <div className="pos-pay-splits__item" key={index}>
-                    <div className="pos-pay-splits__info">
-                      <FontAwesomeIcon
-                        icon={getPaymentIcon(item?.type?.type || "")}
-                        className="pos-pay-splits__type-icon"
-                      />
-                      <span className="pos-pay-splits__name">{item?.type?.name}</span>
-                    </div>
-                    <span className="pos-pay-splits__amount">
-                      {withCurrency(Number(item.received))}
-                    </span>
+                  <div className="pay-splits__row" key={index}>
+                    <span className="pay-splits__label">{item?.type?.name}</span>
+                    <span className="pay-splits__val">{withCurrency(Number(item.received))}</span>
                     <button
-                      className="pos-pay-splits__remove"
+                      className="pay-splits__del"
                       type="button"
                       onClick={() => removeSplitPayment(index)}>
                       <FontAwesomeIcon icon={faTimes} />
                     </button>
                   </div>
                 ))}
-              </ScrollContainer>
-            </div>
-          )}
+              </div>
+            )}
+
+            {/* Adjustment */}
+            {canAdjust && (
+              <div style={{ marginBottom: "4px" }}>
+                {!!adjustment ? (
+                  <button
+                    type="button"
+                    className="pay-adjust pay-adjust--active"
+                    disabled={added.length === 0}
+                    tabIndex={-1}
+                    onClick={() => { setAppState((prev) => ({ ...prev, adjustment: 0 })); }}>
+                    <FontAwesomeIcon icon={faTrash} className="me-1" />
+                    {t("Adjustment")}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="pay-adjust"
+                    disabled={added.length === 0}
+                    tabIndex={-1}
+                    onClick={addAdjustment}>
+                    {t("Add Adjustment")}
+                  </button>
+                )}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Notes */}
+        <Textarea
+          {...register("notes")}
+          className="pay-notes"
+          id="notes"
+          placeholder={t("Notes")}
+          tabIndex={-1}
+          rows={1}
+        />
+
+        {/* Action buttons */}
+        <div className="pay-actions">
+          <button
+            className="pay-btn-confirm"
+            type="submit"
+            disabled={added.length === 0 || isSaleClosing || changeDue < 0}
+            tabIndex={0}>
+            <FontAwesomeIcon icon={faCheck} className="me-1" />
+            {isSaleClosing ? "..." : t("Done")}
+            <Shortcut shortcut="ctrl+s" handler={shortcutHandler} />
+          </button>
+          <button
+            type="submit"
+            disabled={added.length === 0 || isSaleClosing}
+            className="pay-btn-hold"
+            onClick={() => setHold(true)}>
+            <FontAwesomeIcon icon={faPause} />
+          </button>
+          <div className="pay-btn-cancel">
+            <ClearSale />
+          </div>
         </div>
       </form>
     </>
