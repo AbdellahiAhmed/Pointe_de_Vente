@@ -10,7 +10,7 @@ import { Button } from "../../../app-common/components/input/button";
 import { Modal } from "../../../app-common/components/modal/modal";
 import { Customer } from "../../../api/model/customer";
 import { fetchJson } from "../../../api/request/request";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Input } from "../../../app-common/components/input/input";
 import { faSquare, faSquareCheck } from "@fortawesome/free-regular-svg-icons";
 import { CustomerPayments } from "./customer.payments";
@@ -54,6 +54,7 @@ const ValidationSchema = yup.object({
     .number()
     .typeError(ValidationMessage.Number)
     .required(ValidationMessage.Required),
+  allowCreditSale: yup.boolean().default(false),
   creditLimit: yup
     .number()
     .transform((value, original) => (original === '' || original === null ? undefined : value))
@@ -198,6 +199,7 @@ export const Customers: FC<Props> = ({ children, className }) => {
     setError,
     formState: { errors },
     reset,
+    control,
   } = useForm({
     resolver: yupResolver(ValidationSchema),
     defaultValues: {
@@ -359,9 +361,19 @@ export const Customers: FC<Props> = ({ children, className }) => {
             </div>
             <div>
               <label className="md:block w-full sm:hidden">&nbsp;</label>
-              <Switch {...register('allowCreditSale')}>
-                {t("Allow credit")}
-              </Switch>
+              <Controller
+                name="allowCreditSale"
+                control={control}
+                render={({ field }) => (
+                  <Switch
+                    checked={!!field.value}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => field.onChange(e.target.checked)}
+                    name={field.name}
+                  >
+                    {t("Allow credit")}
+                  </Switch>
+                )}
+              />
               {getErrors(errors.allowCreditSale)}
             </div>
             <div>
