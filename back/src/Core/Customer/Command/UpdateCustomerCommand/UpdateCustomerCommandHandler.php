@@ -47,6 +47,9 @@ class UpdateCustomerCommandHandler extends EntityManager implements UpdateCustom
         if($command->getLng() !== null){
             $item->setLng($command->getLng());
         }
+        if($command->getCnic() !== null){
+            $item->setCnic($command->getCnic());
+        }
         if($command->getOpeningBalance() !== null){
             $item->setOpeningBalance($command->getOpeningBalance());
         }

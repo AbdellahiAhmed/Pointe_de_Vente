@@ -807,5 +807,12 @@
   "Variance": "الفارق",
   "Surplus": "فائض",
   "Deficit": "عجز",
-  "Session already closed": "الجلسة مغلقة بالفعل"
+  "Session already closed": "الجلسة مغلقة بالفعل",
+  "Delete customer": "حذف العميل",
+  "Are you sure you want to delete this customer?": "هل أنت متأكد من حذف هذا العميل؟",
+  "Customer deleted": "تم حذف العميل",
+  "Customer created": "تم إنشاء العميل",
+  "Customer updated": "تم تحديث العميل",
+  "Cannot delete customer with existing orders": "لا يمكن حذف عميل لديه طلبات",
+  "Base product": "المنتج الأساسي"
 }

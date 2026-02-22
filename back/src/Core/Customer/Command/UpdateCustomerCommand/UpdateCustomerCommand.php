@@ -45,6 +45,11 @@ class UpdateCustomerCommand
     private $lng = null;
 
     /**
+     * @var null|string
+     */
+    private $cnic = null;
+
+    /**
      * @var string|null
      */
     private $openingBalance;
@@ -135,6 +140,16 @@ class UpdateCustomerCommand
     public function getLng()
     {
         return $this->lng;
+    }
+
+    public function getCnic(): ?string
+    {
+        return $this->cnic;
+    }
+
+    public function setCnic(?string $cnic): void
+    {
+        $this->cnic = $cnic;
     }
 
     /**

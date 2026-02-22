@@ -14,9 +14,11 @@ import { useForm, Controller } from "react-hook-form";
 import { Input } from "../../../app-common/components/input/input";
 import { faSquare, faSquareCheck } from "@fortawesome/free-regular-svg-icons";
 import { CustomerPayments } from "./customer.payments";
+import { ConfirmAlert } from "../../../app-common/components/confirm/confirm.alert";
 import {
   CUSTOMER_CREATE,
   CUSTOMER_EDIT,
+  CUSTOMER_DELETE,
   CUSTOMER_LIST,
 } from "../../../api/routing/routes/backend.app";
 import {
@@ -48,8 +50,9 @@ interface Props extends PropsWithChildren {
 }
 
 const ValidationSchema = yup.object({
-  name: yup.string().required(ValidationMessage.Required),
-  phone: yup.string().required(ValidationMessage.Required),
+  name: yup.string().trim().required(ValidationMessage.Required),
+  phone: yup.string().trim().required(ValidationMessage.Required),
+  cnic: yup.string().trim().optional(),
   openingBalance: yup
     .number()
     .typeError(ValidationMessage.Number)
@@ -177,9 +180,31 @@ export const Customers: FC<Props> = ({ children, className }) => {
               <FontAwesomeIcon icon={faPencilAlt} />
             </Button>
             <span className="mx-2 text-gray-300">|</span>
-            <Button variant="danger" type="button">
-              <FontAwesomeIcon icon={faTrash} />
-            </Button>
+            <ConfirmAlert
+              title={t("Delete customer")}
+              description={t("Are you sure you want to delete this customer?")}
+              onConfirm={async () => {
+                try {
+                  await fetchJson(CUSTOMER_DELETE.replace(":id", info.getValue()), {
+                    method: "DELETE",
+                  });
+                  if (customer?.id === info.getValue()) {
+                    setCustomer(undefined);
+                  }
+                  fetchData!();
+                  notify({ type: "success", description: t("Customer deleted") });
+                } catch (e: any) {
+                  notify({
+                    type: "error",
+                    description: e.message || t("Cannot delete customer with existing orders"),
+                  });
+                }
+              }}
+            >
+              <Button variant="danger" type="button">
+                <FontAwesomeIcon icon={faTrash} />
+              </Button>
+            </ConfirmAlert>
             <span className="mx-2 text-gray-300">|</span>
             <CustomerPayments
               customer={info.row.original}
@@ -242,6 +267,11 @@ export const Customers: FC<Props> = ({ children, className }) => {
       setCustomer(response.customer);
 
       fetchData!();
+
+      notify({
+        type: "success",
+        description: operation === "create" ? t("Customer created") : t("Customer updated"),
+      });
 
       resetForm();
       setOperation("create");

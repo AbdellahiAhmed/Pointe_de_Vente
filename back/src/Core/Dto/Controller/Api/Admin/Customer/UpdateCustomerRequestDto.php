@@ -48,6 +48,11 @@ class UpdateCustomerRequestDto
     private $lng = null;
 
     /**
+     * @var null|string
+     */
+    private $cnic = null;
+
+    /**
      * @var string|null
      */
     private $openingBalance;
@@ -150,6 +155,17 @@ class UpdateCustomerRequestDto
         return $this->lng;
     }
 
+    public function getCnic(): ?string
+    {
+        return $this->cnic;
+    }
+
+    public function setCnic(?string $cnic)
+    {
+        $this->cnic = $cnic;
+        return $this;
+    }
+
     /**
      * @return string|null
      */
@@ -199,6 +215,7 @@ class UpdateCustomerRequestDto
         $dto->address = $data['address'] ?? null;
         $dto->lat = $data['lat'] ?? null;
         $dto->lng = $data['lng'] ?? null;
+        $dto->cnic = $data['cnic'] ?? null;
         $dto->openingBalance = $data['openingBalance'] ?? null;
         $dto->allowCreditSale = isset($data['allowCreditSale']) ? (bool)$data['allowCreditSale'] : null;
         $creditLimit = $data['creditLimit'] ?? null;
@@ -217,6 +234,7 @@ class UpdateCustomerRequestDto
         $command->setAddress($this->address);
         $command->setLat($this->lat);
         $command->setLng($this->lng);
+        $command->setCnic($this->cnic);
         $command->setOpeningBalance($this->openingBalance);
         $command->setAllowCreditSale($this->allowCreditSale);
         $command->setCreditLimit($this->creditLimit);

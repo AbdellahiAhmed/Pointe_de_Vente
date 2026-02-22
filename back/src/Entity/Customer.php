@@ -16,10 +16,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass=CustomerRepository::class)
  * @Gedmo\Loggable()
+ * @UniqueEntity(fields={"phone"}, message="Un client avec ce numéro de téléphone existe déjà.", ignoreNull=true)
+ * @UniqueEntity(fields={"cnic"}, message="Un client avec ce numéro d'identité existe déjà.", ignoreNull=true)
  * @ApiResource(
  *     normalizationContext={"groups"={"customer.read", "time.read", "uuid.read"}}
  * )

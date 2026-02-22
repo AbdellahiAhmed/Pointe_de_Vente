@@ -810,5 +810,12 @@
   "Variance": "Écart",
   "Surplus": "Excédent",
   "Deficit": "Déficit",
-  "Session already closed": "La session est déjà clôturée"
+  "Session already closed": "La session est déjà clôturée",
+  "Delete customer": "Supprimer le client",
+  "Are you sure you want to delete this customer?": "Êtes-vous sûr de vouloir supprimer ce client ?",
+  "Customer deleted": "Client supprimé",
+  "Customer created": "Client créé",
+  "Customer updated": "Client mis à jour",
+  "Cannot delete customer with existing orders": "Impossible de supprimer un client ayant des commandes",
+  "Base product": "Produit de base"
 }
