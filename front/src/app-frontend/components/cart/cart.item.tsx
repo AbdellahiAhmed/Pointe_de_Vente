@@ -118,12 +118,10 @@ export const CartItem: FunctionComponent<CartItemProps> = ({
       </div>
       <div className="table-cell p-1">
         <label htmlFor={index.toString()}>
-          <div>{item.item.name}</div>
+          <div>{item.variant?.name || item.item.name}</div>
           {item.variant && (
             <div className="text-sm text-primary-800">
-              {item.variant?.attributeValue && (
-                <>{item.variant?.attributeValue}</>
-              )}
+              {item.item.name}
             </div>
           )}
         </label>
