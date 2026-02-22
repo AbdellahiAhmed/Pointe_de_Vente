@@ -220,7 +220,7 @@ export const CloseSaleInline: FC<Props> = ({
         taxAmount: taxTotal(added),
         payments: paymentsAdded,
         customerId: customer?.id,
-        customer: customerName,
+        customer: customer?.id ? undefined : customerName,
         discountAmount: discountTotal(added, tax, discountAmount, discountRateType, discount),
         discountRateType: discountRateType,
         refundingFrom: refundingFrom,

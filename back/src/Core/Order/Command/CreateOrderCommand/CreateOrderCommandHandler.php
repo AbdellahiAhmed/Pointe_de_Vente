@@ -73,9 +73,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
             $item->setCustomer(
                 $this->getRepository(Customer::class)->find($command->getCustomerId())
             );
-        }
-
-        if($command->getCustomer() !== null and trim($command->getCustomer()) !== ''){
+        } elseif($command->getCustomer() !== null and trim($command->getCustomer()) !== ''){
             $customer = (new Customer())->setName($command->getCustomer());
             $customer->setOpeningBalance(0);
             $this->save($customer);

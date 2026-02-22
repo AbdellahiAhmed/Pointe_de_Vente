@@ -26,7 +26,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @ApiResource(
  *     normalizationContext={"groups"={"customer.read", "time.read", "uuid.read"}}
  * )
- * @ApiFilter(filterClass=SearchFilter::class, properties={"name": "ipartial", "email": "exact", "cnic": "exact", "openingBalance": "exact", "phone": "exact"})
+ * @ApiFilter(filterClass=SearchFilter::class, properties={"name": "ipartial", "email": "exact", "cnic": "exact", "openingBalance": "exact", "phone": "ipartial"})
  * @ApiFilter(filterClass=OrderFilter::class, properties={"name", "stores.name", "email", "cnic", "openingBalance", "phone"})
  */
 class Customer

@@ -30,7 +30,12 @@ export const CustomerSearch: FC = () => {
     }
     setLoading(true);
     try {
-      const res = await jsonRequest(`${CUSTOMER_LIST}?name=${encodeURIComponent(q.trim())}`);
+      const trimmed = q.trim();
+      const isPhone = /^\d[\d\s\-]*$/.test(trimmed);
+      const param = isPhone
+        ? `phone=${encodeURIComponent(trimmed.replace(/[\s\-]/g, ''))}`
+        : `name=${encodeURIComponent(trimmed)}`;
+      const res = await jsonRequest(`${CUSTOMER_LIST}?${param}`);
       const data = await res.json();
       const list: Customer[] = data["hydra:member"] || [];
       setResults(list);
@@ -120,7 +125,7 @@ export const CustomerSearch: FC = () => {
           ref={inputRef}
           type="text"
           className="cs-search__input mousetrap"
-          placeholder={t("Search customer...")}
+          placeholder={t("Search by name or phone...")}
           value={query}
           onChange={onInputChange}
           onFocus={() => { if (results.length > 0) setOpen(true); }}

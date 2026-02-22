@@ -90,6 +90,8 @@
   "Add customer name": "Ajouter le nom du client",
   "Enter customer name": "Entrer le nom du client",
   "Search customer...": "Rechercher un client...",
+  "Search by name or phone...": "Rechercher par nom ou téléphone...",
+  "An error occurred while processing the sale": "Une erreur est survenue lors du traitement de la vente",
   "No customer found": "Aucun client trouvé",
   "No credit": "Pas de crédit",
 
