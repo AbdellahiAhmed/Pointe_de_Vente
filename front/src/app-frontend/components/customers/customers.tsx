@@ -252,8 +252,12 @@ export const Customers: FC<Props> = ({ children, className }) => {
         url = CUSTOMER_CREATE;
       }
 
+      // API Platform expects decimal fields as strings
+      values.openingBalance = String(values.openingBalance ?? 0);
       if (values.creditLimit === '' || values.creditLimit === undefined || values.creditLimit === null) {
         values.creditLimit = null;
+      } else {
+        values.creditLimit = String(values.creditLimit);
       }
       // Ensure allowCreditSale is always a boolean
       values.allowCreditSale = !!values.allowCreditSale;
