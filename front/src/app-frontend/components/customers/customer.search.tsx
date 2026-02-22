@@ -6,7 +6,7 @@ import { Customer } from "../../../api/model/customer";
 import { jsonRequest } from "../../../api/request/request";
 import { CUSTOMER_LIST } from "../../../api/routing/routes/backend.app";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faTimes, faSearch, faBan } from "@fortawesome/free-solid-svg-icons";
+import { faUser, faTimes, faSearch, faBan, faPhone } from "@fortawesome/free-solid-svg-icons";
 import { withCurrency } from "../../../lib/currency/currency";
 
 export const CustomerSearch: FC = () => {
@@ -45,7 +45,6 @@ export const CustomerSearch: FC = () => {
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setQuery(val);
-    // Also store as customerName for backward compat
     setAppState(prev => ({ ...prev, customerName: val }));
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -139,12 +138,19 @@ export const CustomerSearch: FC = () => {
               className="cs-search__item"
               onClick={() => selectCustomer(c)}
             >
-              <div className="cs-search__item-main">
-                <FontAwesomeIcon icon={faUser} className="me-2 opacity-40" />
+              {/* Row 1: icon + full name */}
+              <div className="cs-search__item-row1">
+                <FontAwesomeIcon icon={faUser} className="cs-search__item-icon" />
                 <span className="cs-search__item-name">{c.name}</span>
-                {c.phone && <span className="cs-search__item-phone">{c.phone}</span>}
               </div>
-              <div className="cs-search__item-meta">
+              {/* Row 2: phone + credit status */}
+              <div className="cs-search__item-row2">
+                {c.phone && (
+                  <span className="cs-search__item-phone">
+                    <FontAwesomeIcon icon={faPhone} className="me-1" />
+                    {c.phone}
+                  </span>
+                )}
                 {c.allowCreditSale ? (
                   <span className="cs-search__item-balance" data-negative={c.outstanding > 0}>
                     {withCurrency(c.outstanding + Number(c.openingBalance || 0))}

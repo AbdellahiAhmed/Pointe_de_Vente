@@ -961,8 +961,8 @@
 /* ═══ Customer Search ═══ */
 .cs-search {
   position: relative;
-  min-width: 200px;
-  max-width: 280px;
+  min-width: 220px;
+  max-width: 300px;
   flex: 1;
 
   &__input-wrap {
@@ -1005,12 +1005,12 @@
     position: absolute;
     top: calc(100% + 4px);
     inset-inline-start: 0;
-    inset-inline-end: 0;
+    min-width: 320px;
     background: var(--pos-surface);
     border: 1px solid var(--pos-border);
-    border-radius: var(--pos-radius-sm);
+    border-radius: var(--pos-radius);
     box-shadow: var(--pos-shadow-md);
-    max-height: 240px;
+    max-height: 280px;
     overflow-y: auto;
     z-index: 100;
     animation: cs-drop 0.12s ease;
@@ -1018,16 +1018,15 @@
 
   &__item {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 4px;
     width: 100%;
-    padding: 10px 12px;
+    padding: 10px 14px;
     border: none;
     border-bottom: 1px solid var(--pos-border);
     background: transparent;
     cursor: pointer;
     text-align: start;
-    font-size: 13px;
     touch-action: manipulation;
     transition: background 0.1s;
 
@@ -1036,45 +1035,82 @@
     &:active { background: #b2f0e8; }
   }
 
-  &__item-main { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 0; }
-  &__item-name { font-weight: 600; color: var(--pos-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  &__item-phone { font-size: 11px; color: var(--pos-text-muted); margin-inline-start: 6px; white-space: nowrap; }
-  &__item-meta { flex-shrink: 0; margin-inline-start: 8px; }
+  &__item-row1 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__item-icon { font-size: 13px; color: var(--pos-accent); opacity: 0.6; }
+
+  &__item-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--pos-text);
+  }
+
+  &__item-row2 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-inline-start: 21px; // align with name (icon width + gap)
+  }
+
+  &__item-phone {
+    font-size: 12px;
+    color: var(--pos-text-muted);
+  }
+
   &__item-balance {
-    font-size: 11px; font-weight: 700; color: var(--pos-success);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--pos-success);
     &[data-negative="true"] { color: var(--pos-danger); }
   }
-  &__item-no-credit { font-size: 10px; color: var(--pos-text-faint); white-space: nowrap; }
 
-  &__empty { padding: 14px; text-align: center; color: var(--pos-text-muted); font-size: 13px; }
+  &__item-no-credit {
+    font-size: 11px;
+    color: var(--pos-danger);
+    opacity: 0.7;
+  }
+
+  &__empty { padding: 16px; text-align: center; color: var(--pos-text-muted); font-size: 13px; }
 }
 
 .cs-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   background: var(--pos-accent);
   color: #fff;
   border-radius: 20px;
-  padding: 4px 6px 4px 12px;
-  font-size: 13px;
+  padding: 4px 6px 4px 14px;
+  font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
-  max-width: 280px;
   height: 40px;
 
-  &__icon { font-size: 12px; opacity: 0.7; }
-  &__name { overflow: hidden; text-overflow: ellipsis; }
+  &__icon { font-size: 13px; opacity: 0.7; }
+
+  &__name {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   &__balance {
     font-size: 11px; font-weight: 700; opacity: 0.9;
     background: rgba(255,255,255,0.2); border-radius: 10px; padding: 2px 8px;
 
     &[data-negative="true"] { background: rgba(239,68,68,0.3); }
   }
+
   &__no-credit {
-    font-size: 10px; opacity: 0.8;
+    font-size: 10px; opacity: 0.85;
     background: rgba(239,68,68,0.25); border-radius: 10px; padding: 2px 8px;
   }
+
   &__remove {
     display: inline-flex; align-items: center; justify-content: center;
     width: 28px; height: 28px; border-radius: 50%; border: none;
