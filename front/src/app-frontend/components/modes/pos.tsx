@@ -301,6 +301,7 @@ export const PosMode = () => {
       q: "",
       quantity: 1,
     });
+    setAppState(prev => ({ ...prev, q: "" }));
   };
 
   const getProductStock = (item: Product): number => {
@@ -628,6 +629,7 @@ export const PosMode = () => {
       } else {
         // Clear search field
         reset({ q: "", quantity: 1 });
+        setAppState(prev => ({ ...prev, q: "" }));
         searchField.current?.focus();
       }
     });
@@ -744,12 +746,14 @@ export const PosMode = () => {
                         type="search"
                         className="search-field mousetrap lg flex-1"
                         value={field.value}
-                        onChange={field.onChange}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          setAppState(prev => ({ ...prev, q: e.target.value }));
+                        }}
                       />
                     )}
                     name="q"
                     control={control}
-                    rules={{ required: true }}
                     defaultValue=""
                   />
                   <Controller
