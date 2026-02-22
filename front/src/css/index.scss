@@ -858,6 +858,26 @@
   }
 }
 
+/* ─── Sale Success Toast ─── */
+.sale-toast-print {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 16px;
+  border: none;
+  border-radius: var(--pos-radius-sm);
+  background: var(--pos-accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.1s;
+
+  &:hover { background: var(--pos-accent-dark); }
+  &:active { transform: scale(0.96); }
+}
+
 .pos-cart-qty-btn {
   min-width: 36px;
   min-height: 36px;

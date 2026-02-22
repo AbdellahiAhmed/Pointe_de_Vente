@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPause, faPlus, faTrash,
   faMoneyBillWave, faMobileAlt, faCreditCard, faHandHoldingUsd,
-  faCheck, faTimes, faWallet,
+  faCheck, faTimes, faWallet, faPrint,
 } from "@fortawesome/free-solid-svg-icons";
 import { OrderPayment } from "../../../api/model/order.payment";
 import { UnprocessableEntityException } from "../../../lib/http/exception/http.exception";
@@ -28,8 +28,9 @@ import { useAtom } from "jotai";
 import { CartItemType } from "../cart/cart.container";
 import { defaultData, defaultState, PosModes } from "../../../store/jotai";
 import { discountTotal, finalTotal, taxTotal } from "../../containers/dashboard/pos";
-import { OrderStatus } from "../../../api/model/order";
+import { Order, OrderStatus } from "../../../api/model/order";
 import {useTranslation} from "react-i18next";
+import { notification } from "antd";
 
 interface Props {
   paymentTypesList: PaymentType[];
@@ -81,8 +82,35 @@ export const CloseSaleInline: FC<Props> = ({
     5000, 1000, 500, 100, 50, 20, 10, 5, 2, 1,
   ]);
 
+  const [lastOrder, setLastOrder] = useState<Order | null>(null);
+
   const store = useSelector(getStore);
   const terminal = useSelector(getTerminal);
+
+  const showSaleSuccess = useCallback((order: Order) => {
+    setLastOrder(order);
+    notification.success({
+      message: t("Sale completed"),
+      description: `${t("Receipt #")}${order.orderId} — ${withCurrency(
+        order.payments.reduce((sum, p) => sum + p.received, 0)
+      )}`,
+      placement: "bottomRight",
+      duration: 4,
+      btn: (
+        <button
+          type="button"
+          className="sale-toast-print"
+          onClick={() => {
+            PrintOrder(order);
+            notification.destroy("sale-success");
+          }}>
+          <FontAwesomeIcon icon={faPrint} className="me-1" />
+          {t("Print")}
+        </button>
+      ),
+      key: "sale-success",
+    });
+  }, [t]);
 
   const resetFields = () => {
     setAppState((prev) => ({
@@ -246,8 +274,8 @@ export const CloseSaleInline: FC<Props> = ({
 
       if( json.order.status === OrderStatus.COMPLETED ) {
         onSale && onSale();
-        //print the order
-        PrintOrder(json.order);
+        // Show success toast with optional print
+        showSaleSuccess(json.order);
       }
     } catch ( e ) {
       if( e instanceof UnprocessableEntityException ) {
