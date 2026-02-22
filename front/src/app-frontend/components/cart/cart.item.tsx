@@ -7,6 +7,8 @@ import { Checkbox } from "../../../app-common/components/input/checkbox";
 import { useAtom } from "jotai";
 import { defaultState } from "../../../store/jotai";
 import { formatNumber, withCurrency } from "../../../lib/currency/currency";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
 import QueryString from "qs";
 import { jsonRequest } from "../../../api/request/request";
 import { PRODUCT_QUANTITIES } from "../../../api/routing/routes/backend.app";
@@ -139,41 +141,37 @@ export const CartItem: FunctionComponent<CartItemProps> = ({
         )}
       </div>
       <div className="table-cell p-1">
-        <div className="flex justify-center">
-          <div className="input-group">
-            {/*<Button
-              tabIndex={-1}
-              size="lg"
-              type="button"
-              variant="primary"
-              onClick={() => onQuantityChange(item, Number(item.quantity) - 1)}>
-              <FontAwesomeIcon icon={faMinus} />
-            </Button>*/}
-            <Input
-              type="number"
-              value={item.quantity}
-              className={"text-center w-full mousetrap"}
-              onChange={(event) => {
-                onQuantityChange(item, event.currentTarget.value)
-              }}
-              onFocus={() => {
-                setAppState(prev => ({
-                  ...prev,
-                  cartItem: index,
-                  cartItemType: CartItemType.quantity
-                }));
-              }}
-              ref={qtyRef}
-            />
-            {/*<Button
-              tabIndex={-1}
-              size="lg"
-              type="button"
-              variant="primary"
-              onClick={() => onQuantityChange(item, Number(item.quantity) + 1)}>
-              <FontAwesomeIcon icon={faPlus} />
-            </Button>*/}
-          </div>
+        <div className="flex items-center justify-center gap-1">
+          <button
+            type="button"
+            tabIndex={-1}
+            className="pos-cart-qty-btn"
+            onClick={() => onQuantityChange(item, Number(item.quantity) - 1)}>
+            <FontAwesomeIcon icon={faMinus} />
+          </button>
+          <input
+            type="number"
+            value={item.quantity}
+            className="pos-cart-qty-input mousetrap"
+            onChange={(event) => {
+              onQuantityChange(item, event.currentTarget.value)
+            }}
+            onFocus={() => {
+              setAppState(prev => ({
+                ...prev,
+                cartItem: index,
+                cartItemType: CartItemType.quantity
+              }));
+            }}
+            ref={qtyRef}
+          />
+          <button
+            type="button"
+            tabIndex={-1}
+            className="pos-cart-qty-btn"
+            onClick={() => onQuantityChange(item, Number(item.quantity) + 1)}>
+            <FontAwesomeIcon icon={faPlus} />
+          </button>
         </div>
       </div>
       <div className="table-cell text-center p-1">
