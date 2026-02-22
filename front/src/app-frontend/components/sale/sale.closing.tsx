@@ -200,7 +200,14 @@ export const SaleClosing: FC<TaxProps> = (props) => {
     }
   }, [modal]);
 
-  const { reset, register, handleSubmit, control, watch, getValues } = useForm();
+  const { reset, register, handleSubmit, control, watch, getValues } = useForm({
+    defaultValues: {
+      openingBalance: 0,
+      cashAdded: 0,
+      cashWithdrawn: 0,
+      expenses: 0,
+    },
+  });
   const [saving, setSaving] = useState(false);
   const [expenses, setExpenses] = useState(0);
   const [cashCounted, setCashCounted] = useState<number>(0);
@@ -402,12 +409,19 @@ export const SaleClosing: FC<TaxProps> = (props) => {
             </FormRow>
 
             <FormRow label={t("Cash added")}>
-              <Input
-                {...register("cashAdded", { valueAsNumber: true })}
-                type="number"
-                className="w-full"
-                tabIndex={0}
-                selectable={true}
+              <Controller
+                name="cashAdded"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    type="number"
+                    className="w-full"
+                    tabIndex={0}
+                    selectable={true}
+                    value={field.value ?? 0}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                  />
+                )}
               />
             </FormRow>
 
@@ -435,12 +449,19 @@ export const SaleClosing: FC<TaxProps> = (props) => {
                 </FormRow>
 
                 <FormRow label={t("Cash withdrawn")}>
-                  <Input
-                    {...register("cashWithdrawn", { valueAsNumber: true })}
-                    type="number"
-                    className="w-full"
-                    tabIndex={0}
-                    selectable={true}
+                  <Controller
+                    name="cashWithdrawn"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        type="number"
+                        className="w-full"
+                        tabIndex={0}
+                        selectable={true}
+                        value={field.value ?? 0}
+                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                      />
+                    )}
                   />
                 </FormRow>
               </>
