@@ -178,6 +178,25 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
   const copyLastItem = () => {
     if (added.length === 0) return;
     const last = added[added.length - 1];
+
+    // Stock validation: sum all cart quantities for this product
+    const available = getAvailableStock(last);
+    if (available !== Infinity) {
+      const totalInCart = added
+        .filter(a => a.item.id === last.item.id && a.variant === last.variant)
+        .reduce((sum, a) => sum + Number(a.quantity), 0);
+      if (totalInCart + 1 > available) {
+        notify({
+          type: "error",
+          title: t("Stock insufficient"),
+          description: `${last.item.name}: ${t("available")} ${available}`,
+          placement: "top",
+          duration: 3,
+        });
+        return;
+      }
+    }
+
     const copy: CartItemModel = {
       ...last,
       quantity: 1,
@@ -284,12 +303,13 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
         updateCartItemType(e.code === "ArrowLeft" ? "left" : "right");
       }
 
-      if (e.code === "ArrowDown" || e.code === "ArrowUp") {
-        updateCartItem(e.code === "ArrowDown" ? "down" : "up");
-      }
-
-      if(e.code === 'ArrowDown'){
+      // Ctrl+Shift+Down = copy last item
+      if (e.code === "ArrowDown" && e.shiftKey) {
         copyLastItem();
+      }
+      // Ctrl+Down/Up = navigate cart items
+      else if (e.code === "ArrowDown" || e.code === "ArrowUp") {
+        updateCartItem(e.code === "ArrowDown" ? "down" : "up");
       }
     }
   );
