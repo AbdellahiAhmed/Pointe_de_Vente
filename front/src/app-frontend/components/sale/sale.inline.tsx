@@ -278,12 +278,12 @@ export const CloseSaleInline: FC<Props> = ({
         // Show success toast with optional print
         showSaleSuccess(json.order);
       }
-    } catch ( e ) {
+    } catch ( e: any ) {
       if( e instanceof UnprocessableEntityException ) {
         const res: ValidationResult = await e.response.json();
 
         const message = res.errorMessage;
-        const messages = res.violations.map((validation) => {
+        const messages = (res.violations || []).map((validation) => {
           return `${validation.message}`;
         });
 
@@ -300,9 +300,12 @@ export const CloseSaleInline: FC<Props> = ({
             description: messages.join(", "),
           });
         }
+      } else {
+        notify({
+          type: "error",
+          description: e?.message || t("An error occurred while processing the sale"),
+        });
       }
-
-      throw e;
     } finally {
       setSaleClosing(false);
     }
