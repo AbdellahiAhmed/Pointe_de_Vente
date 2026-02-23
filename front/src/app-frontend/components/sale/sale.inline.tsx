@@ -861,17 +861,21 @@ export const CloseSaleInline: FC<Props> = ({
           setPendingCreditPayment(null);
         }}
         onCustomerSelected={(c) => {
+          // Capture credit payment type before clearing state
+          const creditPt = pendingCreditPayment;
+          // Close modal and clear pending state
+          setShowCreditModal(false);
+          setPendingCreditPayment(null);
+          // Set customer
           setAppState(prev => ({
             ...prev,
             customer: c,
             customerName: c.name,
           }));
           // Auto-select the credit payment type after customer is chosen
-          if (pendingCreditPayment) {
-            setPayment(pendingCreditPayment);
+          if (creditPt) {
+            setPayment(creditPt);
           }
-          setShowCreditModal(false);
-          setPendingCreditPayment(null);
         }}
       />
     </>

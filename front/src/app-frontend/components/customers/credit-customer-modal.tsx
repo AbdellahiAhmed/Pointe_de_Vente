@@ -143,7 +143,6 @@ export const CreditCustomerModal: FC<CreditCustomerModalProps> = ({
   // ── Customer selection ──
   const handleSelect = (c: Customer) => {
     onCustomerSelected(c);
-    onClose();
   };
 
   // ── Create form handlers ──
@@ -209,7 +208,6 @@ export const CreditCustomerModal: FC<CreditCustomerModalProps> = ({
 
       const created: Customer = await res.json();
       onCustomerSelected(created);
-      onClose();
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : t("An error occurred");
