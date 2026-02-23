@@ -323,10 +323,11 @@ export const CloseSaleInline: FC<Props> = ({
     }
   };
 
+  const receivedValue = watch("received") ?? 0;
   const changeDue = useMemo(() => {
     //get a total of payments
     if( payments.length === 0 ) {
-      return Number(watch("received")) - ft + adjustment;
+      return Number(receivedValue) - ft + adjustment;
     }
 
     return (
@@ -337,7 +338,7 @@ export const CloseSaleInline: FC<Props> = ({
       ft +
       adjustment
     );
-  }, [payments, watch("received"), adjustment]);
+  }, [payments, receivedValue, adjustment, ft]);
 
   useEffect(() => {
     if( payment === undefined ) {
@@ -358,7 +359,7 @@ export const CloseSaleInline: FC<Props> = ({
         addSplitPayment(ft, defaultPaymentType);
       }
     }
-  }, [saleModal]);
+  }, [saleModal, defaultPaymentType]);
 
   const received = useMemo(() => {
     return Number(
@@ -516,7 +517,7 @@ export const CloseSaleInline: FC<Props> = ({
 
   const canAdjust = useMemo(() => {
     return ft % 10 !== 0;
-  }, []);
+  }, [ft]);
 
   const paymentInputRef = useRef<HTMLInputElement>(null);
   const selectPaymentInput = () => {

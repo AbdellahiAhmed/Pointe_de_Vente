@@ -21,6 +21,7 @@ import useApi from "../../../../api/hooks/use.api";
 import { HydraCollection } from "../../../../api/model/hydra";
 import { ConfirmAlert } from "../../../../app-common/components/confirm/confirm.alert";
 import { jsonRequest } from "../../../../api/request/request";
+import { notify } from "../../../../app-common/components/confirm/notification";
 
 export const Departments = () => {
   const [operation, setOperation] = useState("create");
@@ -47,7 +48,7 @@ export const Departments = () => {
     }),
     columnHelper.accessor("store", {
       header: t("Store"),
-      cell: (info) => info.getValue()?.name,
+      cell: (info) => info.getValue()?.name ?? "—",
       enableColumnFilter: false,
     }),
     columnHelper.accessor("id", {
@@ -94,11 +95,15 @@ export const Departments = () => {
   ];
 
   async function deleteDepartment(id: string) {
-    await jsonRequest(DEPARTMENT_GET.replace(":id", id), {
-      method: "DELETE",
-    });
+    try {
+      await jsonRequest(DEPARTMENT_GET.replace(":id", id), {
+        method: "DELETE",
+      });
 
-    await useLoadHook.fetchData();
+      await useLoadHook.fetchData();
+    } catch {
+      notify({ type: 'error', description: t('An error occurred') });
+    }
   }
 
   return (

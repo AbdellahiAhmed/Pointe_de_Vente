@@ -60,8 +60,7 @@ export const Expenses: FC<ExpensesProps> = (props) => {
 
       setList(json.list);
     } catch (e) {
-
-      throw e;
+      notify({ type: 'error', description: 'An error occurred' });
     } finally {
       setLoading(false);
     }

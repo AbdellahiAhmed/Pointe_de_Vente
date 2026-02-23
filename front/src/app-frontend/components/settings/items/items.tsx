@@ -23,6 +23,7 @@ import useApi from "../../../../api/hooks/use.api";
 import { HydraCollection } from "../../../../api/model/hydra";
 import { ConfirmAlert } from "../../../../app-common/components/confirm/confirm.alert";
 import { jsonRequest } from "../../../../api/request/request";
+import { notify } from "../../../../app-common/components/confirm/notification";
 import { Switch } from "../../../../app-common/components/input/switch";
 import { ItemComponent } from "./item";
 import { Menu, MenuItem } from "react-aria-components";
@@ -207,39 +208,52 @@ export const Items = () => {
   }
 
   async function deleteItem(id: string, status: boolean) {
-    await jsonRequest(PRODUCT_GET.replace(":id", id), {
-      method: "PUT",
-      body: JSON.stringify({
-        isActive: status,
-      }),
-    });
+    try {
+      await jsonRequest(PRODUCT_GET.replace(":id", id), {
+        method: "PUT",
+        body: JSON.stringify({
+          isActive: status,
+        }),
+      });
 
-    await useLoadHook.fetchData();
-    notifyProductsChanged();
+      await useLoadHook.fetchData();
+      notifyProductsChanged();
+    } catch {
+      notify({ type: 'error', description: t('An error occurred') });
+    }
   }
 
   async function hardDeleteItem(id: string) {
-    await jsonRequest(PRODUCT_GET.replace(":id", id), {
-      method: "DELETE",
-    });
-    setShowDeleteConfirm(false);
-    setDeleteTarget(null);
-    await useLoadHook.fetchData();
-    notifyProductsChanged();
+    try {
+      await jsonRequest(PRODUCT_GET.replace(":id", id), {
+        method: "DELETE",
+      });
+      setShowDeleteConfirm(false);
+      setDeleteTarget(null);
+      await useLoadHook.fetchData();
+      notifyProductsChanged();
+    } catch {
+      notify({ type: 'error', description: t('An error occurred') });
+    }
   }
 
   async function bulkDeleteItems() {
     setBulkDeleting(true);
-    for (const product of selectedProducts) {
-      await jsonRequest(PRODUCT_GET.replace(":id", product.id.toString()), {
-        method: "DELETE",
-      });
+    try {
+      for (const product of selectedProducts) {
+        await jsonRequest(PRODUCT_GET.replace(":id", product.id.toString()), {
+          method: "DELETE",
+        });
+      }
+      setShowBulkDeleteConfirm(false);
+      setSelectedProducts([]);
+      await useLoadHook.fetchData();
+      notifyProductsChanged();
+    } catch {
+      notify({ type: 'error', description: t('An error occurred') });
+    } finally {
+      setBulkDeleting(false);
     }
-    setBulkDeleting(false);
-    setShowBulkDeleteConfirm(false);
-    setSelectedProducts([]);
-    await useLoadHook.fetchData();
-    notifyProductsChanged();
   }
 
   const handleSelectedRowsChange = useCallback((rows: any[]) => {

@@ -52,6 +52,7 @@ import { withCurrency } from "../../../lib/currency/currency";
 import { useAtom } from "jotai";
 import { defaultState } from "../../../store/jotai";
 import {useTranslation} from "react-i18next";
+import { notify } from "../../../app-common/components/confirm/notification";
 
 interface Props {}
 
@@ -286,7 +287,7 @@ export const SaleHistory: FC<Props> = ({}) => {
 
       setExpenses(json.list);
     } catch (e) {
-      throw e;
+      notify({ type: 'error', description: 'An error occurred' });
     }
   };
 
@@ -388,7 +389,7 @@ export const SaleHistory: FC<Props> = ({}) => {
 
       setModal(false);
     } catch (e) {
-      throw e;
+      notify({ type: 'error', description: 'An error occurred' });
     } finally {
       setUnsuspending(false);
     }
@@ -425,7 +426,7 @@ export const SaleHistory: FC<Props> = ({}) => {
 
       loadList();
     } catch (e) {
-      throw e;
+      notify({ type: 'error', description: 'An error occurred' });
     } finally {
       setDeleting(false);
     }

@@ -186,7 +186,7 @@ class Product
     private $manageInventory;
 
     /**
-     * @ORM\OneToMany(targetEntity=ProductInventory::class, mappedBy="product")
+     * @ORM\OneToMany(targetEntity=ProductInventory::class, mappedBy="product", cascade={"persist", "remove"})
      * @Groups({"product.read", "order.read", "terminal.read"})
      */
     private $inventory;

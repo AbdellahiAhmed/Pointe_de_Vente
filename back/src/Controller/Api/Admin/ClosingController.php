@@ -99,6 +99,10 @@ class ClosingController extends AbstractController
         $store = $storeRepository->find($request->query->get('store'));
         $terminal = $terminalRepository->find($request->query->get('terminal'));
 
+        if ($store === null || $terminal === null) {
+            return $responseFactory->json(['error' => 'Store and terminal are required'], 400);
+        }
+
         $qb = $closingRepository->createQueryBuilder('closing');
         $qb->andWhere('closing.closedAt IS NULL');
         $qb->join('closing.store', 'store');

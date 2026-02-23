@@ -224,16 +224,19 @@ export const SaleClosing: FC<TaxProps> = (props) => {
   }, [data]);
 
   // ── Expected cash in register (formerly cashInHand) ──────────────────────
+  const openingBalanceVal = watch("openingBalance") ?? 0;
+  const cashAddedVal = watch("cashAdded") ?? 0;
+  const cashWithdrawnVal = watch("cashWithdrawn") ?? 0;
   const expectedCash = useMemo(() => {
     const cash = payments["cash"] ?? 0;
     return (
-      Number(watch("openingBalance")) +
-      Number(watch("cashAdded")) -
-      Number(watch("cashWithdrawn")) -
+      Number(openingBalanceVal) +
+      Number(cashAddedVal) -
+      Number(cashWithdrawnVal) -
       expenses +
       cash
     );
-  }, [payments, expenses, watch("openingBalance"), watch("cashAdded"), watch("cashWithdrawn")]);
+  }, [payments, expenses, openingBalanceVal, cashAddedVal, cashWithdrawnVal]);
 
   // Keep cashInHand as alias so onSubmit logic is not broken
   const cashInHand = expectedCash;

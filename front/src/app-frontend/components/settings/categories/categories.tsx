@@ -22,6 +22,7 @@ import { HydraCollection } from "../../../../api/model/hydra";
 import { jsonRequest } from "../../../../api/request/request";
 import { ConfirmAlert } from "../../../../app-common/components/confirm/confirm.alert";
 import { Switch } from "../../../../app-common/components/input/switch";
+import { notify } from "../../../../app-common/components/confirm/notification";
 
 export const Categories = () => {
   const [operation, setOperation] = useState("create");
@@ -111,24 +112,32 @@ export const Categories = () => {
   ];
 
   async function toggleCategory(id: string, status: boolean) {
-    await jsonRequest(CATEGORY_GET.replace(":id", id), {
-      method: "PUT",
-      body: JSON.stringify({
-        isActive: status,
-      }),
-    });
+    try {
+      await jsonRequest(CATEGORY_GET.replace(":id", id), {
+        method: "PUT",
+        body: JSON.stringify({
+          isActive: status,
+        }),
+      });
 
-    await useLoadHook.fetchData();
-    window.dispatchEvent(new Event('categories-changed'));
+      await useLoadHook.fetchData();
+      window.dispatchEvent(new Event('categories-changed'));
+    } catch {
+      notify({ type: 'error', description: t('An error occurred') });
+    }
   }
 
   async function deleteCategory(id: string) {
-    await jsonRequest(CATEGORY_GET.replace(":id", id), {
-      method: "DELETE",
-    });
+    try {
+      await jsonRequest(CATEGORY_GET.replace(":id", id), {
+        method: "DELETE",
+      });
 
-    await useLoadHook.fetchData();
-    window.dispatchEvent(new Event('categories-changed'));
+      await useLoadHook.fetchData();
+      window.dispatchEvent(new Event('categories-changed'));
+    } catch {
+      notify({ type: 'error', description: t('An error occurred') });
+    }
   }
 
   return (

@@ -58,7 +58,7 @@ export const ReactKeyboard: FC<ReactKeyboardProps> = forwardRef((props: ReactKey
         val = '0';
       }
       setInput(val);
-      keyboard.current!.setInput(val);
+      if (keyboard.current) keyboard.current.setInput(val);
     }
 
     /**
@@ -77,13 +77,13 @@ export const ReactKeyboard: FC<ReactKeyboardProps> = forwardRef((props: ReactKey
       input = parseFloat(input).toString();
     }
     setInput(input);
-    keyboard.current!.setInput(input);
+    if (keyboard.current) keyboard.current.setInput(input);
   };
 
   useEffect(() => {
     setInput(props?.value as string);
     if( keyboard.current ) {
-      keyboard?.current!.setInput(props?.value as string);
+      keyboard.current.setInput(props?.value as string);
     }
   }, [keyboard?.current]);
 

@@ -80,19 +80,24 @@ export const PosMode = () => {
 
   // Reload products directly from API when admin panel mutates products
   const reloadProductsFromApi = useCallback(async () => {
-    const products: Product[] = [];
-    const fetchPage = async (page: number) => {
-      const res = await jsonRequest(`${PRODUCT_LIST}?itemsPerPage=100&page=${page}&isActive=true`);
-      const data = await res.json();
-      products.push(...data['hydra:member']);
-      if (data['hydra:member'].length > 0) {
-        await fetchPage(page + 1);
-      }
-    };
-    await fetchPage(1);
-    const freshList = { list: products };
-    await localforage.setItem('list', freshList);
-    setList(freshList);
+    try {
+      const products: Product[] = [];
+      const fetchPage = async (page: number) => {
+        if (page > 100) return;
+        const res = await jsonRequest(`${PRODUCT_LIST}?itemsPerPage=100&page=${page}&isActive=true`);
+        const data = await res.json();
+        products.push(...data['hydra:member']);
+        if (data['hydra:member'].length > 0) {
+          await fetchPage(page + 1);
+        }
+      };
+      await fetchPage(1);
+      const freshList = { list: products };
+      await localforage.setItem('list', freshList);
+      setList(freshList);
+    } catch (e) {
+      notify({ type: 'error', description: 'An error occurred' });
+    }
   }, []);
 
   useEffect(() => {

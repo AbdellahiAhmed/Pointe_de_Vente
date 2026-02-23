@@ -22,6 +22,7 @@ import { HydraCollection } from "../../../../api/model/hydra";
 import { ConfirmAlert } from "../../../../app-common/components/confirm/confirm.alert";
 import { jsonRequest } from "../../../../api/request/request";
 import { Switch } from "../../../../app-common/components/input/switch";
+import { notify } from "../../../../app-common/components/confirm/notification";
 
 export const DiscountTypes = () => {
   const [operation, setOperation] = useState("create");
@@ -117,22 +118,30 @@ export const DiscountTypes = () => {
   ];
 
   async function toggleDiscount(id: string, status: boolean) {
-    await jsonRequest(DISCOUNT_GET.replace(":id", id), {
-      method: "PUT",
-      body: JSON.stringify({
-        isActive: status,
-      }),
-    });
+    try {
+      await jsonRequest(DISCOUNT_GET.replace(":id", id), {
+        method: "PUT",
+        body: JSON.stringify({
+          isActive: status,
+        }),
+      });
 
-    await useLoadHook.fetchData();
+      await useLoadHook.fetchData();
+    } catch {
+      notify({ type: 'error', description: t('An error occurred') });
+    }
   }
 
   async function deleteDiscount(id: string) {
-    await jsonRequest(DISCOUNT_GET.replace(":id", id), {
-      method: "DELETE",
-    });
+    try {
+      await jsonRequest(DISCOUNT_GET.replace(":id", id), {
+        method: "DELETE",
+      });
 
-    await useLoadHook.fetchData();
+      await useLoadHook.fetchData();
+    } catch {
+      notify({ type: 'error', description: t('An error occurred') });
+    }
   }
 
   return (

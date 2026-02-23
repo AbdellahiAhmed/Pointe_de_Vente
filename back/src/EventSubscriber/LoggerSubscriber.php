@@ -43,7 +43,10 @@ class LoggerSubscriber implements EventSubscriberInterface
         if ($this->tokenStorage !== null &&
             $this->tokenStorage->getToken() !== null
         ) {
-            $this->loggableListener->setUsername($this->tokenStorage->getToken()->getUser()->getUsername());
+            $user = $this->tokenStorage->getToken()->getUser();
+            if (is_object($user) && method_exists($user, 'getUserIdentifier')) {
+                $this->loggableListener->setUsername($user->getUserIdentifier());
+            }
         }
     }
 

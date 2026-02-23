@@ -19,7 +19,12 @@ interface SalePrintProps {
 
 export const PrintOrder = (order: Order) => {
   //open print window
-  const myWindow: any = window.open('','', 'height: 500;width:500');
+  const myWindow: any = window.open('','', 'height=500,width=500');
+
+  if (!myWindow) {
+    alert('Popup blocked. Please allow popups for this site.');
+    return;
+  }
 
   const div = myWindow.document.createElement('div');
   div.id = 'print-root';

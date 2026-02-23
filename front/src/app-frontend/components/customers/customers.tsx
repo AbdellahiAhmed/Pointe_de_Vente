@@ -191,7 +191,7 @@ export const Customers: FC<Props> = ({ children, className }) => {
                   if (customer?.id === info.getValue()) {
                     setCustomer(undefined);
                   }
-                  fetchData!();
+                  fetchData?.();
                   notify({ type: "success", description: t("Customer deleted") });
                 } catch (e: any) {
                   notify({
@@ -272,7 +272,7 @@ export const Customers: FC<Props> = ({ children, className }) => {
 
       setCustomer(response.customer);
 
-      fetchData!();
+      fetchData?.();
 
       notify({
         type: "success",

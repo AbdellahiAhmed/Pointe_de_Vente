@@ -124,10 +124,10 @@ export const SupplierLedger: FC<SupplierLedgerProps> = ({
         return prev + item.total;
       }
       return prev;
-    }, 0);
+    }, 0) ?? 0;
   }, [purchases]);
   const paymentTotal = useMemo(() => {
-    return payments?.['hydra:member']?.reduce((prev, item) => prev + Number(item.amount), 0);
+    return payments?.['hydra:member']?.reduce((prev, item) => prev + Number(item.amount), 0) ?? 0;
   }, [payments]);
 
   const diff = useMemo(() => {

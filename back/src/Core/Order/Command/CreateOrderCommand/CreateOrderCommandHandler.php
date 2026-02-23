@@ -160,7 +160,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
 
                 // manage variants quantity
                 if($product->getManageInventory()){
-                    $variant->setQuantity($variant->getQuantity() - $itemDto->getQuantity());
+                    $variant->setQuantity((string)((float)$variant->getQuantity() - (float)$itemDto->getQuantity()));
                     $this->save($variant);
                 }
             }
@@ -175,7 +175,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
                     }
                 }
                 if($store !== null) {
-                    $store->setQuantity($store->getQuantity() - $orderProduct->getQuantity());
+                    $store->setQuantity((string)((float)$store->getQuantity() - (float)$orderProduct->getQuantity()));
                     $this->save($store);
                 }
             }
@@ -259,7 +259,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
                 ->select('COALESCE(MAX(entity.orderId) + 1, 1)')
                 ->getQuery()->getSingleScalarResult();
         }catch (\Exception $exception){
-            return 1;
+            return '1';
         }
     }
 }

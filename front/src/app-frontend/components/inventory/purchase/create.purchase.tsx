@@ -135,7 +135,7 @@ export const CreatePurchase: FC<PurchaseProps> = ({
      }
 
      return items;*/
-  }, [items, watch('supplier')]);
+  }, [items]);
 
   useEffect(() => {
     setModal(addModal);

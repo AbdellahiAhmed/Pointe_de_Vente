@@ -12,6 +12,7 @@ import { QueryString } from "../../../lib/location/query.string";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { DateTime } from "luxon";
 import {useTranslation} from "react-i18next";
+import { notify } from "../../../app-common/components/confirm/notification";
 
 interface Props {
   onSuccess: (order: Order) => void,
@@ -45,7 +46,7 @@ export const SaleFind = ({
         onError();
       }
     } catch ( e ) {
-      throw e;
+      notify({ type: 'error', description: 'An error occurred' });
     } finally {
       setLoading(false)
     }

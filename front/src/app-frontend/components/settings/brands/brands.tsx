@@ -15,6 +15,7 @@ import { HydraCollection } from "../../../../api/model/hydra";
 import { jsonRequest } from "../../../../api/request/request";
 import { ConfirmAlert } from "../../../../app-common/components/confirm/confirm.alert";
 import { Switch } from "../../../../app-common/components/input/switch";
+import { notify } from "../../../../app-common/components/confirm/notification";
 
 export const Brands = () => {
   const [operation, setOperation] = useState("create");
@@ -102,22 +103,30 @@ export const Brands = () => {
   ];
 
   async function toggleBrand(id: string, status: boolean) {
-    await jsonRequest(BRAND_EDIT.replace(":id", id), {
-      method: "PUT",
-      body: JSON.stringify({
-        isActive: status,
-      }),
-    });
+    try {
+      await jsonRequest(BRAND_EDIT.replace(":id", id), {
+        method: "PUT",
+        body: JSON.stringify({
+          isActive: status,
+        }),
+      });
 
-    await useLoadHook.fetchData();
+      await useLoadHook.fetchData();
+    } catch {
+      notify({ type: 'error', description: t('An error occurred') });
+    }
   }
 
   async function deleteBrand(id: string) {
-    await jsonRequest(BRAND_EDIT.replace(":id", id), {
-      method: "DELETE",
-    });
+    try {
+      await jsonRequest(BRAND_EDIT.replace(":id", id), {
+        method: "DELETE",
+      });
 
-    await useLoadHook.fetchData();
+      await useLoadHook.fetchData();
+    } catch {
+      notify({ type: 'error', description: t('An error occurred') });
+    }
   }
 
   return (

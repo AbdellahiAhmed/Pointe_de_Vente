@@ -13,6 +13,7 @@ import {HydraCollection} from "../../../../api/model/hydra";
 import { Switch } from "../../../../app-common/components/input/switch";
 import { ConfirmAlert } from "../../../../app-common/components/confirm/confirm.alert";
 import { jsonRequest } from "../../../../api/request/request";
+import { notify } from "../../../../app-common/components/confirm/notification";
 
 export const Stores = () => {
   const [operation, setOperation] = useState('create');
@@ -80,22 +81,30 @@ export const Stores = () => {
   ];
 
   async function toggleStore(id: string, status: boolean) {
-    await jsonRequest(STORE_EDIT.replace(':id', id), {
-      method: 'PUT',
-      body: JSON.stringify({
-        isActive: status
-      })
-    });
+    try {
+      await jsonRequest(STORE_EDIT.replace(':id', id), {
+        method: 'PUT',
+        body: JSON.stringify({
+          isActive: status
+        })
+      });
 
-    await useLoadHook.fetchData();
+      await useLoadHook.fetchData();
+    } catch {
+      notify({ type: 'error', description: t('An error occurred') });
+    }
   }
 
   async function deleteStore(id: string) {
-    await jsonRequest(STORE_EDIT.replace(':id', id), {
-      method: 'DELETE',
-    });
+    try {
+      await jsonRequest(STORE_EDIT.replace(':id', id), {
+        method: 'DELETE',
+      });
 
-    await useLoadHook.fetchData();
+      await useLoadHook.fetchData();
+    } catch {
+      notify({ type: 'error', description: t('An error occurred') });
+    }
   }
 
   return (

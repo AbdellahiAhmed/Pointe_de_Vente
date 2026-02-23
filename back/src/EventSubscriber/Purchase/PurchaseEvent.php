@@ -92,11 +92,11 @@ class PurchaseEvent
                     $item->getItem()->addStore($productStore);
                 }
 
-                $productStore->setQuantity($productStore->getQuantity() + $item->getQuantity());
+                $productStore->setQuantity((string)((float)$productStore->getQuantity() + (float)$item->getQuantity()));
                 $this->entityManager->persist($productStore);
 
                 foreach($item->getVariants() as $variant){
-                    $variant->getVariant()->setQuantity($variant->getVariant()->getQuantity() + $variant->getQuantity());
+                    $variant->getVariant()->setQuantity((string)((float)$variant->getVariant()->getQuantity() + (float)$variant->getQuantity()));
                 }
             }
         }

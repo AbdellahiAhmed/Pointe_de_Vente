@@ -49,6 +49,7 @@ class OrderListResponseDto
         /** @var Order $item */
         foreach($result->getList() as $item){
             foreach($item->getPayments() as $payment){
+                if($payment->getType() === null) continue;
                 if($payment->getType()->getType() === Payment::PAYMENT_TYPE_CASH){
                     $cash += $payment->getReceived();
                 }else{

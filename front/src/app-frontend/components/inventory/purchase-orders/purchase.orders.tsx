@@ -130,7 +130,7 @@ export const PurchaseOrders = () => {
         operation={operation}
         onClose={() => {
           setAddModal(false);
-          useLoadHook.fetchData!();
+          useLoadHook.fetchData?.();
           setOperation('create');
         }}
         showModal={addModal}

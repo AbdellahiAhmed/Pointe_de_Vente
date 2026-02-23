@@ -47,9 +47,11 @@ class UpdateOrderCommandHandler extends EntityManager implements UpdateOrderComm
         }
 
         if($command->getCustomer() !== null){
-            $item->setCustomer(
-                (new Customer())->setName($command->getCustomer())
-            );
+            $customer = new Customer();
+            $customer->setName($command->getCustomer());
+            $customer->setOpeningBalance(0);
+            $this->persist($customer);
+            $item->setCustomer($customer);
         }
 
         if($command->getStatus() !== null){

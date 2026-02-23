@@ -198,7 +198,7 @@ class ReturnRequestController extends AbstractController
         // VENDEUR can only see their own requests
         if (
             !$this->isGranted('ROLE_MANAGER') &&
-            $returnRequest->getRequestedBy()->getId() !== $currentUser->getId()
+            $returnRequest->getRequestedBy() !== null && $returnRequest->getRequestedBy()->getId() !== $currentUser->getId()
         ) {
             return $responseFactory->unauthorized('Access denied.');
         }
@@ -282,7 +282,7 @@ class ReturnRequestController extends AbstractController
 
         // 1. Create the return Order with negative quantities
         $returnOrder = new Order();
-        $returnOrder->setOrderId((string) $nextOrderId);
+        $returnOrder->setOrderId((int) $nextOrderId);
         $returnOrder->setStatus('RETURNED');
         $returnOrder->setReturnedFrom($originalOrder);
         $returnOrder->setIsReturned(true);

@@ -71,7 +71,7 @@ export const PaymentMode = () => {
         setOrders(response["hydra:member"]);
       }
     } catch ( e ) {
-      throw e;
+      console.error('loadOrders polling error:', e);
     } finally {
       setLoading(false);
     }

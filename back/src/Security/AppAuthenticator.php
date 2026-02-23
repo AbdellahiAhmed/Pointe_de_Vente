@@ -51,7 +51,6 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
 
     public function authenticate(Request $request): Passport
     {
-        dd();
         $loginRequest = LoginRequestDto::createFromRequest($request);
 
         $username = $loginRequest->getUsername();
