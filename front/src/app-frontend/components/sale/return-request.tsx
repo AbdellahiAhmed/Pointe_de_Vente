@@ -207,10 +207,10 @@ export const ReturnRequest: FC<ReturnRequestProps> = ({ open, onClose }) => {
     setSubmitting(true);
     try {
       const payload = {
-        order: order["@id"],
+        orderId: order.id,
         reason: overallReason.trim() || undefined,
         items: includedItems.map((item) => ({
-          orderProduct: item["@id"],
+          orderProductId: item.id,
           quantity: lines[item.id].quantity,
           reason: lines[item.id].reason.trim() || undefined,
         })),

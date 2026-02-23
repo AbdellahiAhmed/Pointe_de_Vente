@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Admin;
 
 use App\Entity\Order;
+use App\Entity\OrderPayment;
 use App\Entity\OrderProduct;
+use App\Entity\Payment;
 use App\Entity\ProductStore;
 use App\Entity\ReturnRequest;
 use App\Entity\ReturnRequestItem;
@@ -124,14 +126,35 @@ class ReturnRequestController extends AbstractController
         $returnRequests = $repository->findBy($criteria, ['createdAt' => 'DESC']);
 
         $data = array_map(static function (ReturnRequest $rr) {
+            $itemsData = [];
+            foreach ($rr->getItems() as $item) {
+                $op = $item->getOrderProduct();
+                $itemsData[] = [
+                    'id'           => $item->getId(),
+                    'quantity'     => $item->getQuantity(),
+                    'reason'       => $item->getReason(),
+                    'orderProduct' => $op ? [
+                        'id'       => $op->getId(),
+                        'product'  => ($op->getProduct()) ? [
+                            'name' => $op->getProduct()->getName(),
+                        ] : null,
+                        'quantity' => $op->getQuantity(),
+                        'price'    => $op->getPrice(),
+                    ] : null,
+                ];
+            }
+
             return [
                 'id'          => $rr->getId(),
                 'uuid'        => $rr->getUuid(),
                 'status'      => $rr->getStatus(),
                 'reason'      => $rr->getReason(),
                 'createdAt'   => $rr->getCreatedAt() ? $rr->getCreatedAt()->format(\DateTime::ATOM) : null,
-                'orderId'     => $rr->getOrder() ? $rr->getOrder()->getId() : null,
-                'orderRefId'  => $rr->getOrder() ? $rr->getOrder()->getOrderId() : null,
+                'order'       => $rr->getOrder() ? [
+                    'id'        => $rr->getOrder()->getId(),
+                    'orderId'   => $rr->getOrder()->getOrderId(),
+                    'createdAt' => $rr->getOrder()->getCreatedAt() ? $rr->getOrder()->getCreatedAt()->format(\DateTime::ATOM) : null,
+                ] : null,
                 'requestedBy' => $rr->getRequestedBy() ? [
                     'id'          => $rr->getRequestedBy()->getId(),
                     'displayName' => $rr->getRequestedBy()->getDisplayName(),
@@ -144,14 +167,11 @@ class ReturnRequestController extends AbstractController
                     'id'   => $rr->getStore()->getId(),
                     'name' => $rr->getStore()->getName(),
                 ] : null,
-                'itemCount'   => $rr->getItems()->count(),
+                'items'       => $itemsData,
             ];
         }, $returnRequests);
 
-        return $responseFactory->json([
-            'list'  => $data,
-            'count' => count($data),
-        ]);
+        return $responseFactory->json($data);
     }
 
     /**
@@ -230,6 +250,7 @@ class ReturnRequestController extends AbstractController
      */
     public function approve(
         int $id,
+        Request $request,
         ApiResponseFactory $responseFactory,
         ReturnRequestRepository $repository,
         ProductStoreRepository $productStoreRepository
@@ -247,6 +268,8 @@ class ReturnRequestController extends AbstractController
             );
         }
 
+        $data = json_decode($request->getContent(), true) ?? [];
+
         $em = $this->getDoctrine()->getManager();
         $originalOrder = $returnRequest->getOrder();
 
@@ -258,9 +281,10 @@ class ReturnRequestController extends AbstractController
         $returnOrder->setUser($this->getUser());
         $returnOrder->setStore($originalOrder->getStore());
         $returnOrder->setTerminal($originalOrder->getTerminal());
-        $returnOrder->setDescription(sprintf('Return for order #%d', $originalOrder->getOrderId()));
+        $returnOrder->setDescription(sprintf('Return for order #%s', $originalOrder->getOrderId()));
 
         // 2. Process each ReturnRequestItem
+        $refundTotal = 0;
         foreach ($returnRequest->getItems() as $requestItem) {
             $originalOrderProduct = $requestItem->getOrderProduct();
             $product              = $originalOrderProduct->getProduct();
@@ -275,6 +299,11 @@ class ReturnRequestController extends AbstractController
             $returnOrderProduct->setDiscount($originalOrderProduct->getDiscount());
             $returnOrderProduct->setCostAtSale($originalOrderProduct->getCostAtSale());
             $returnOrderProduct->setIsReturned(true);
+
+            // Calculate refund amount for this item
+            $itemPrice = (float) $originalOrderProduct->getPrice();
+            $itemDiscount = (float) ($originalOrderProduct->getDiscount() ?? 0);
+            $refundTotal += ($itemPrice - $itemDiscount) * abs($returnQty);
 
             foreach ($originalOrderProduct->getTaxes() as $tax) {
                 $returnOrderProduct->addTax($tax);
@@ -298,14 +327,45 @@ class ReturnRequestController extends AbstractController
                 }
             }
 
+            // 3b. Restore stock in ProductVariant (if variant was sold)
+            $variant = $originalOrderProduct->getVariant();
+            if ($variant !== null) {
+                $variantQty = (float) $variant->getQuantity();
+                $variant->setQuantity((string) ($variantQty + abs($returnQty)));
+                $em->persist($variant);
+            }
+
+            // 3c. Restore stock on Product itself
+            if ($product && $product->getManageInventory()) {
+                $productQty = (float) $product->getQuantity();
+                $product->setQuantity((string) ($productQty + abs($returnQty)));
+                $em->persist($product);
+            }
+
             // 4. Mark the original OrderProduct as returned
             $originalOrderProduct->setIsReturned(true);
             $em->persist($originalOrderProduct);
         }
 
+        // 5. Create refund payment on the return order
+        if (!empty($data['refundPaymentTypeId'])) {
+            $paymentType = $this->getDoctrine()->getRepository(Payment::class)
+                ->find($data['refundPaymentTypeId']);
+
+            if ($paymentType) {
+                $refundPayment = new OrderPayment();
+                $refundPayment->setTotal((string) $refundTotal);
+                $refundPayment->setReceived((string) $refundTotal);
+                $refundPayment->setDue('0');
+                $refundPayment->setType($paymentType);
+                $returnOrder->addPayment($refundPayment);
+                $em->persist($refundPayment);
+            }
+        }
+
         $em->persist($returnOrder);
 
-        // 5. Update ReturnRequest status
+        // 6. Update ReturnRequest status
         $returnRequest->setStatus('APPROVED');
         $returnRequest->setApprovedBy($this->getUser());
         $em->persist($returnRequest);
@@ -313,9 +373,11 @@ class ReturnRequestController extends AbstractController
         $em->flush();
 
         return $responseFactory->json([
-            'id'            => $returnRequest->getId(),
-            'status'        => $returnRequest->getStatus(),
-            'returnOrderId' => $returnOrder->getId(),
+            'id'              => $returnRequest->getId(),
+            'status'          => $returnRequest->getStatus(),
+            'returnOrderId'   => $returnOrder->getId(),
+            'returnOrderRefId' => $returnOrder->getOrderId(),
+            'refundTotal'     => $refundTotal,
         ]);
     }
 

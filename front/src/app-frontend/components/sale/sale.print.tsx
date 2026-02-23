@@ -11,6 +11,7 @@ import ReactDOM from "react-dom";
 import {Input} from "../../../app-common/components/input/input";
 import { createRoot } from "react-dom/client";
 import {useTranslation} from "react-i18next";
+import {withCurrency} from "../../../lib/currency/currency";
 
 interface SalePrintProps {
   order: Order;
@@ -437,6 +438,180 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
           >
             {t("Verify this invoice through FBR TaxAsaan MobileApp or SMS at 9966 and win exciting prizes in draw")}{" "}
           </h5>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Return Receipt
+// ---------------------------------------------------------------------------
+
+export interface ReturnReceiptData {
+  returnOrderRefId: string;
+  originalOrderRefId: string;
+  date: string;
+  items: {
+    productName: string;
+    quantity: number;
+    unitPrice: number;
+  }[];
+  refundTotal: number;
+  refundMethod: string;
+}
+
+export const PrintReturnReceipt = (data: ReturnReceiptData) => {
+  const myWindow: any = window.open('', '', 'height:500;width:500');
+  const div = myWindow.document.createElement('div');
+  div.id = 'print-root';
+  myWindow.document.body.appendChild(div);
+  const container = myWindow.document.querySelector('#print-root');
+  const root = createRoot(container);
+  root.render(<ReturnReceiptMarkup data={data} />);
+  myWindow.document.close();
+  myWindow.focus();
+  setTimeout(() => {
+    myWindow.print();
+    myWindow.close();
+  }, 100);
+};
+
+const ReturnReceiptMarkup: FC<{ data: ReturnReceiptData }> = ({ data }) => {
+  const { t } = useTranslation();
+
+  const totalQty = data.items.reduce((sum, item) => sum + Math.abs(item.quantity), 0);
+
+  return (
+    <div style={{ width: '3.5in' }}>
+      <div
+        style={{
+          border: 'none',
+          fontSize: 11,
+          fontWeight: 'normal',
+          fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+          margin: 0,
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            textAlign: 'center',
+            background: '#fde8e8',
+            padding: '8px 6px',
+          }}
+        >
+          <h3 style={{ margin: 0, color: '#991b1b' }}>
+            {t('Return Receipt')}
+          </h3>
+          <div style={{ fontSize: 9, color: '#991b1b' }}>
+            {t('إيصال إرجاع')}
+          </div>
+        </div>
+
+        {/* Return info */}
+        <div style={{ padding: '6px 4px', fontSize: 11 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span><strong>{t('Return #')}:</strong> {data.returnOrderRefId}</span>
+            <span><strong>{t('Original Order #')}:</strong> {data.originalOrderRefId}</span>
+          </div>
+          <div style={{ marginTop: 4 }}>
+            <strong>{t('Date')}:</strong> {data.date}
+          </div>
+        </div>
+
+        {/* Items table */}
+        <table
+          style={{ borderCollapse: 'collapse', fontSize: 11, width: '100%' }}
+          border={0}
+        >
+          <thead
+            style={{
+              borderTop: 'dashed 1px #808080',
+              borderBottom: 'dashed 1px #808080',
+            }}
+          >
+            <tr style={{ background: '#fde8e8' }}>
+              <td style={{ textAlign: 'left', width: '50%' }}>
+                <strong>{t('Item')}</strong>
+              </td>
+              <td style={{ textAlign: 'right', width: '16%' }}>
+                <strong>{t('Price')}</strong>
+              </td>
+              <td style={{ textAlign: 'right', width: '14%' }}>
+                <strong>{t('Qty')}</strong>
+              </td>
+              <td style={{ textAlign: 'right', width: '20%' }}>
+                <strong>{t('Amount')}</strong>
+              </td>
+            </tr>
+          </thead>
+          <tbody>
+            {data.items.map((item, idx) => (
+              <tr key={idx}>
+                <td style={{ textAlign: 'left' }}>{item.productName}</td>
+                <td style={{ textAlign: 'right' }}>{withCurrency(item.unitPrice)}</td>
+                <td style={{ textAlign: 'right' }}>{Math.abs(item.quantity)}</td>
+                <td style={{ textAlign: 'right' }}>
+                  {withCurrency(item.unitPrice * Math.abs(item.quantity))}
+                </td>
+              </tr>
+            ))}
+            <tr
+              style={{
+                borderTop: 'dashed 1px #808080',
+                borderBottom: 'dashed 1px #808080',
+              }}
+            >
+              <td style={{ textAlign: 'left' }}><strong>{t('Total')}:</strong></td>
+              <td />
+              <td style={{ textAlign: 'right' }}>{totalQty}</td>
+              <td style={{ textAlign: 'right' }}>
+                <strong>{withCurrency(data.refundTotal)}</strong>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        {/* Refund info */}
+        <table
+          style={{ borderCollapse: 'collapse', fontSize: 11, width: '100%' }}
+          border={0}
+        >
+          <tbody>
+            <tr>
+              <td style={{ textAlign: 'right', width: '60%' }}>
+                <strong>{t('Refund Total')}:</strong>
+              </td>
+              <td style={{ textAlign: 'right', width: '40%', color: '#991b1b' }}>
+                <strong>{withCurrency(data.refundTotal)}</strong>
+              </td>
+            </tr>
+            <tr>
+              <td style={{ textAlign: 'right', width: '60%' }}>
+                {t('Refund Method')}:
+              </td>
+              <td style={{ textAlign: 'right', width: '40%' }}>
+                {data.refundMethod}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        {/* Footer */}
+        <br />
+        <div
+          style={{
+            textAlign: 'center',
+            background: 'rgba(218, 232, 239, 0.18)',
+            padding: '4px',
+          }}
+        >
+          <h4
+            style={{ margin: 0, padding: 0, fontWeight: 'normal', fontSize: 11 }}
+          >
+            {t('Thank you for your visit')}
+          </h4>
         </div>
       </div>
     </div>

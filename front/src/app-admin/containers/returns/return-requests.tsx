@@ -6,6 +6,7 @@ import {
   RETURN_REQUEST_LIST,
   RETURN_REQUEST_APPROVE,
   RETURN_REQUEST_REJECT,
+  PAYMENT_TYPE_LIST,
 } from "../../../api/routing/routes/backend.app";
 import {DASHBOARD, RETURN_REQUESTS} from "../../routes/frontend.routes";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -17,6 +18,8 @@ import {
   faBoxesStacked,
 } from "@fortawesome/free-solid-svg-icons";
 import {notify} from "../../../app-common/components/confirm/notification";
+import {withCurrency} from "../../../lib/currency/currency";
+import {PrintReturnReceipt, ReturnReceiptData} from "../../../app-frontend/components/sale/sale.print";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -98,12 +101,18 @@ const StatusBadge: FunctionComponent<StatusBadgeProps> = ({status}) => {
 
 type ModalAction = 'approve' | 'reject' | null;
 
+interface PaymentTypeOption {
+  id: number;
+  name: string;
+}
+
 interface ConfirmModalProps {
   show: boolean;
   action: ModalAction;
   requestId: number | null;
   processing: boolean;
-  onConfirm: (reason: string) => void;
+  paymentTypes: PaymentTypeOption[];
+  onConfirm: (reason: string, refundPaymentTypeId?: number) => void;
   onCancel: () => void;
 }
 
@@ -111,16 +120,19 @@ const ConfirmModal: FunctionComponent<ConfirmModalProps> = ({
   show,
   action,
   processing,
+  paymentTypes,
   onConfirm,
   onCancel,
 }) => {
   const {t} = useTranslation();
   const [reason, setReason] = useState('');
+  const [selectedPaymentType, setSelectedPaymentType] = useState<number | ''>('');
 
-  // Reset reason when modal closes or action changes
+  // Reset fields when modal closes or action changes
   useEffect(() => {
     if (!show) {
       setReason('');
+      setSelectedPaymentType('');
     }
   }, [show]);
 
@@ -133,13 +145,17 @@ const ConfirmModal: FunctionComponent<ConfirmModalProps> = ({
   const confirmBtnClass = isApprove ? 'btn-success' : 'btn-danger';
   const title = isApprove ? t('Approve Return Request') : t('Reject Return Request');
   const description = isApprove
-    ? t('Are you sure you want to approve this return request? Stock will be restored.')
+    ? t('Are you sure you want to approve this return request? Stock will be restored and a refund will be issued.')
     : t('Are you sure you want to reject this return request?');
   const reasonLabel = isApprove ? t('Approval note (optional)') : t('Rejection reason (optional)');
   const confirmText = isApprove ? t('Yes, Approve') : t('Yes, Reject');
+  const canConfirm = isApprove ? selectedPaymentType !== '' : true;
 
   const handleConfirm = () => {
-    onConfirm(reason.trim());
+    onConfirm(
+      reason.trim(),
+      isApprove && selectedPaymentType !== '' ? Number(selectedPaymentType) : undefined
+    );
   };
 
   return (
@@ -181,6 +197,27 @@ const ConfirmModal: FunctionComponent<ConfirmModalProps> = ({
             </div>
             <div className="modal-body">
               <p className="mb-3">{description}</p>
+
+              {/* Refund payment method selector (approve only) */}
+              {isApprove && (
+                <div className="mb-3">
+                  <label className="form-label fw-semibold">
+                    {t('Refund payment method')} <span className="text-danger">*</span>
+                  </label>
+                  <select
+                    className="form-select"
+                    value={selectedPaymentType}
+                    onChange={e => setSelectedPaymentType(e.target.value === '' ? '' : Number(e.target.value))}
+                    disabled={processing}
+                  >
+                    <option value="">{t('Select payment method...')}</option>
+                    {paymentTypes.map(pt => (
+                      <option key={pt.id} value={pt.id}>{pt.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               <div className="mb-1">
                 <label className="form-label fw-semibold">{reasonLabel}</label>
                 <textarea
@@ -206,7 +243,7 @@ const ConfirmModal: FunctionComponent<ConfirmModalProps> = ({
                 type="button"
                 className={`btn ${confirmBtnClass}`}
                 onClick={handleConfirm}
-                disabled={processing}
+                disabled={processing || !canConfirm}
               >
                 {processing ? (
                   <>
@@ -248,9 +285,6 @@ const ItemsTable: FunctionComponent<ItemsTableProps> = ({items}) => {
     );
   }
 
-  const formatPrice = (value: number) =>
-    new Intl.NumberFormat('fr-FR', {minimumFractionDigits: 2}).format(value) + ' MRU';
-
   return (
     <table className="table table-sm table-bordered mb-0">
       <thead className="table-light">
@@ -266,12 +300,12 @@ const ItemsTable: FunctionComponent<ItemsTableProps> = ({items}) => {
       <tbody>
         {items.map(item => (
           <tr key={item.id}>
-            <td>{item.orderProduct.product.name}</td>
-            <td className="text-center">{item.orderProduct.quantity}</td>
+            <td>{item.orderProduct?.product?.name ?? '—'}</td>
+            <td className="text-center">{item.orderProduct?.quantity}</td>
             <td className="text-center fw-semibold">{item.quantity}</td>
-            <td className="text-end">{formatPrice(item.orderProduct.price)}</td>
+            <td className="text-end">{withCurrency(item.orderProduct?.price)}</td>
             <td className="text-end fw-semibold text-danger">
-              {formatPrice(item.quantity * item.orderProduct.price)}
+              {withCurrency(item.quantity * (item.orderProduct?.price ?? 0))}
             </td>
             <td className="text-muted fst-italic">
               {item.reason ?? <span className="text-muted">—</span>}
@@ -304,6 +338,7 @@ export const ReturnRequests: FunctionComponent = () => {
   // Data state
   const [requests, setRequests] = useState<ReturnRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [paymentTypes, setPaymentTypes] = useState<PaymentTypeOption[]>([]);
 
   // Filter state
   const [activeFilter, setActiveFilter] = useState<ReturnStatus>('PENDING');
@@ -330,7 +365,9 @@ export const ReturnRequests: FunctionComponent = () => {
           : `${RETURN_REQUEST_LIST}?status=${filter}`;
       const response = await jsonRequest(url);
       const json = await response.json();
-      setRequests(Array.isArray(json) ? json : []);
+      // Backend returns array directly now
+      const list = Array.isArray(json) ? json : (json?.list ?? []);
+      setRequests(list);
     } catch (e) {
       console.error(e);
       notify({
@@ -347,6 +384,24 @@ export const ReturnRequests: FunctionComponent = () => {
   useEffect(() => {
     fetchRequests(activeFilter);
   }, [activeFilter, fetchRequests]);
+
+  // Load payment types for refund method selector
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await jsonRequest(PAYMENT_TYPE_LIST);
+        const json = await res.json();
+        const members = json?.['hydra:member'] ?? json ?? [];
+        setPaymentTypes(
+          members
+            .filter((pt: any) => pt.isActive !== false)
+            .map((pt: any) => ({ id: pt.id, name: pt.name }))
+        );
+      } catch {
+        // Payment types not critical for page load
+      }
+    })();
+  }, []);
 
   // ---------------------------------------------------------------------------
   // Row expansion
@@ -385,24 +440,30 @@ export const ReturnRequests: FunctionComponent = () => {
   // Approve / Reject
   // ---------------------------------------------------------------------------
 
-  const handleConfirm = async (reason: string) => {
+  const handleConfirm = async (reason: string, refundPaymentTypeId?: number) => {
     if (selectedRequestId === null || modalAction === null) return;
 
     const urlTemplate =
       modalAction === 'approve' ? RETURN_REQUEST_APPROVE : RETURN_REQUEST_REJECT;
     const url = urlTemplate.replace(':id', String(selectedRequestId));
 
+    const body: Record<string, any> = {};
+    if (reason) body.reason = reason;
+    if (refundPaymentTypeId) body.refundPaymentTypeId = refundPaymentTypeId;
+
     setProcessing(true);
     try {
       const response = await jsonRequest(url, {
         method: 'PUT',
-        body: JSON.stringify(reason ? {reason} : {}),
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
         const errorJson = await response.json().catch(() => ({}));
-        throw new Error(errorJson?.message ?? response.statusText);
+        throw new Error(errorJson?.errorMessage ?? errorJson?.message ?? response.statusText);
       }
+
+      const responseData = await response.json().catch(() => ({}));
 
       const successMsg =
         modalAction === 'approve'
@@ -414,6 +475,30 @@ export const ReturnRequests: FunctionComponent = () => {
         title: t('Done'),
         description: successMsg,
       });
+
+      // Print return receipt on approval
+      if (modalAction === 'approve' && responseData?.returnOrderRefId) {
+        const req = requests.find(r => r.id === selectedRequestId);
+        if (req) {
+          const selectedPt = paymentTypes.find(pt => pt.id === refundPaymentTypeId);
+          const receiptData: ReturnReceiptData = {
+            returnOrderRefId: responseData.returnOrderRefId,
+            originalOrderRefId: req.order?.orderId ?? String(selectedRequestId),
+            date: new Date().toLocaleDateString('fr-FR', {
+              day: '2-digit', month: '2-digit', year: 'numeric',
+              hour: '2-digit', minute: '2-digit',
+            }),
+            items: (req.items || []).map(item => ({
+              productName: item.orderProduct?.product?.name ?? '—',
+              quantity: item.quantity,
+              unitPrice: item.orderProduct?.price ?? 0,
+            })),
+            refundTotal: responseData.refundTotal ?? 0,
+            refundMethod: selectedPt?.name ?? '—',
+          };
+          PrintReturnReceipt(receiptData);
+        }
+      }
 
       setModalVisible(false);
       setModalAction(null);
@@ -482,6 +567,7 @@ export const ReturnRequests: FunctionComponent = () => {
         action={modalAction}
         requestId={selectedRequestId}
         processing={processing}
+        paymentTypes={paymentTypes}
         onConfirm={handleConfirm}
         onCancel={closeModal}
       />
