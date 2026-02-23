@@ -10,8 +10,10 @@ import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faArrowLeft,
   faChevronDown,
   faChevronUp,
   faCreditCard,
@@ -57,8 +59,10 @@ interface ReportCustomerItem extends Customer {
 }
 
 interface ReportResponse {
-  list: ReportCustomerItem[];
-  total: number;
+  customers: ReportCustomerItem[];
+  totalOutstanding: number;
+  totalCustomers: number;
+  creditCustomers: number;
 }
 
 // Payment form field shape
@@ -335,6 +339,7 @@ const SummaryCard: FC<SummaryCardProps> = ({ label, value, accent, icon }) => (
 
 export const DebtManagement: FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   // Data state
   const [customers, setCustomers] = useState<ReportCustomerItem[]>([]);
@@ -368,7 +373,7 @@ export const DebtManagement: FC = () => {
     setLoading(true);
     try {
       const res: ReportResponse = await fetchJson(REPORT_CUSTOMERS);
-      setCustomers(res.list ?? []);
+      setCustomers(res.customers ?? []);
     } catch (e: any) {
       notify({
         type: "error",
@@ -566,6 +571,17 @@ export const DebtManagement: FC = () => {
     <div className="p-4 lg:p-6 space-y-5">
       {/* Page header */}
       <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => navigate('/pos')}
+          className="p-2.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+          title={t("Back")}
+        >
+          <FontAwesomeIcon
+            icon={faArrowLeft}
+            className="text-gray-600 text-lg"
+          />
+        </button>
         <div className="p-2.5 bg-amber-100 rounded-lg">
           <FontAwesomeIcon
             icon={faCreditCard}

@@ -543,8 +543,21 @@ class ReportController extends AbstractController
             if ($customer->getAllowCreditSale()) {
                 $creditCustomers++;
             }
+
+            // Include payment history for debt management page
+            $payments = [];
+            foreach ($customer->getPayments() as $payment) {
+                $payments[] = [
+                    'id' => $payment->getId(),
+                    'amount' => (float) $payment->getAmount(),
+                    'description' => $payment->getDescription(),
+                    'createdAt' => $payment->getCreatedAt() ? $payment->getCreatedAt()->format('c') : null,
+                ];
+            }
+
             $data[] = [
                 'id' => $customer->getId(),
+                '@id' => '/api/customers/' . $customer->getId(),
                 'name' => $customer->getName(),
                 'phone' => $customer->getPhone(),
                 'allowCreditSale' => $customer->getAllowCreditSale(),
@@ -553,6 +566,7 @@ class ReportController extends AbstractController
                 'totalPayments' => $customer->getPaid(),
                 'openingBalance' => (float) $customer->getOpeningBalance(),
                 'outstanding' => round($outstanding, 2),
+                'payments' => $payments,
             ];
         }
 
