@@ -85,12 +85,11 @@ const PaymentSchema = yup.object({
 });
 
 // ---------------------------------------------------------------------------
-// Helper: effective outstanding = outstanding + openingBalance (same as rest
-// of the codebase, e.g. customer.payments.tsx line 126)
+// Helper: effective outstanding (now already includes openingBalance from API)
 // ---------------------------------------------------------------------------
 
 function effectiveOutstanding(c: Customer): number {
-  return c.outstanding + Number(c.openingBalance ?? 0);
+  return c.outstanding;
 }
 
 // ---------------------------------------------------------------------------

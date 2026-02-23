@@ -28,7 +28,7 @@ export const getRealProductPrice = (item: Product) => {
 
       //based on date
       if( itemPrice.date ) {
-        if( DateTime.fromISO(itemPrice.date).toFormat('d') === DateTime.now().toFormat('d') ) {
+        if( DateTime.fromISO(itemPrice.date).toFormat('yyyy-MM-dd') === DateTime.now().toFormat('yyyy-MM-dd') ) {
           price = itemPrice.basePrice;
           break;
         }
@@ -36,8 +36,8 @@ export const getRealProductPrice = (item: Product) => {
 
       //based on time
       if( itemPrice.time && itemPrice.timeTo ) {
-        if( DateTime.fromISO(itemPrice.time).toFormat('HH:mm') >= DateTime.now().toFormat('HH:mm') &&
-          DateTime.fromISO(itemPrice.timeTo).toFormat('HH:mm') <= DateTime.now().toFormat('HH:mm') ) {
+        if( DateTime.fromISO(itemPrice.time).toFormat('HH:mm') <= DateTime.now().toFormat('HH:mm') &&
+          DateTime.fromISO(itemPrice.timeTo).toFormat('HH:mm') >= DateTime.now().toFormat('HH:mm') ) {
           price = itemPrice.basePrice;
           break;
         }

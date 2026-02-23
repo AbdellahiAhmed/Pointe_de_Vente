@@ -383,10 +383,10 @@ export const PosMode = () => {
       }
     }
 
-    const oldItems = added;
+    const oldItems = [...added];
     let index = oldItems.findIndex((addItem) => addItem.item.id === item.id);
     if( index !== -1 ) {
-      oldItems[index].quantity += quantity;
+      oldItems[index] = { ...oldItems[index], quantity: oldItems[index].quantity + quantity };
       setAppState((prev) => ({
         ...prev,
         latestIndex: index,
@@ -443,10 +443,10 @@ export const PosMode = () => {
       }
     }
 
-    const oldItems = added;
+    const oldItems = [...added];
     let index = oldItems.findIndex((addItem) => addItem.item.id === item.id && !addItem.variant);
     if( index !== -1 ) {
-      oldItems[index].quantity += quantity;
+      oldItems[index] = { ...oldItems[index], quantity: oldItems[index].quantity + quantity };
       setAppState((prev) => ({ ...prev, latestIndex: index }));
     } else {
       oldItems.push({
@@ -500,9 +500,9 @@ export const PosMode = () => {
       }
     }
 
-    const oldItems = added;
+    const oldItems = [...added];
     let index = oldItems.findIndex((addItem) => {
-      return addItem.item.id === item.id && addItem.variant === variant;
+      return addItem.item.id === item.id && addItem.variant?.id === variant?.id;
     });
 
     const variantPrice = price ? price : (variant?.price
@@ -510,7 +510,7 @@ export const PosMode = () => {
       : getRealProductPrice(item));
 
     if( index !== -1 ) {
-      oldItems[index].quantity += quantity;
+      oldItems[index] = { ...oldItems[index], quantity: oldItems[index].quantity + quantity };
     } else {
       oldItems.push({
         quantity: quantity,

@@ -153,8 +153,8 @@ class CreateOrderRequestDto
         $data = json_decode($request->getContent(), true);
 
         $dto->isSuspended = $data['isSuspended'] ?? null;
-        $dto->isDeleted = $data['isDeleted'] ?? null;
-        $dto->isReturned = $data['isReturned'] ?? null;
+        $dto->isDeleted = false; // Never accept from client — only set via delete endpoint
+        $dto->isReturned = false; // Never accept from client — only set via return endpoint
         $dto->isDispatched = $data['isDispatched'] ?? null;
 
         $dto->customerId = $data['customerId'] ?? null;

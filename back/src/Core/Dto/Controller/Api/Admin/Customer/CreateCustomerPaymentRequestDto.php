@@ -12,6 +12,7 @@ class CreateCustomerPaymentRequestDto
     /**
      * @var float|null
      * @Assert\NotBlank(normalizer="trim")
+     * @Assert\Positive(message="Le montant du paiement doit être supérieur à zéro.")
      */
     private $amount;
 

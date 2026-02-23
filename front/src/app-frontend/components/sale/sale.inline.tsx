@@ -215,7 +215,7 @@ export const CloseSaleInline: FC<Props> = ({
         return;
       }
       if (customer.creditLimit && Number(customer.creditLimit) > 0) {
-        const currentDebt = customer.outstanding + Number(customer.openingBalance || 0);
+        const currentDebt = customer.outstanding;
         if (currentDebt + totalCredit > Number(customer.creditLimit)) {
           notify({ type: 'error', description: t('Credit limit exceeded') });
           setSaleClosing(false);
@@ -642,7 +642,7 @@ export const CloseSaleInline: FC<Props> = ({
         customer.allowCreditSale ? (
           <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded px-3 py-2 mb-2 text-sm">
             <span className="text-amber-800">
-              {t('Outstanding')}: <strong>{withCurrency(customer.outstanding + Number(customer.openingBalance || 0))}</strong>
+              {t('Outstanding')}: <strong>{withCurrency(customer.outstanding)}</strong>
             </span>
             {customer.creditLimit && Number(customer.creditLimit) > 0 && (
               <span className="text-amber-800">
@@ -678,7 +678,7 @@ export const CloseSaleInline: FC<Props> = ({
                 const creditNotAllowed = isCreditType && !noCustomer && !customer.allowCreditSale;
                 const creditLimitExceeded = isCreditType && !noCustomer && customer.allowCreditSale &&
                   customer.creditLimit && Number(customer.creditLimit) > 0 &&
-                  (customer.outstanding + Number(customer.openingBalance || 0) + ft) > Number(customer.creditLimit);
+                  (customer.outstanding + ft) > Number(customer.creditLimit);
                 // Build tooltip reason for blocked credit (not for "no customer" — modal handles that)
                 let creditTooltip = "";
                 if (isCreditType && added.length > 0) {

@@ -93,7 +93,6 @@ class UpdateOrderCommandHandler extends EntityManager implements UpdateOrderComm
             ]);
             if($prevDiscount !== null){
                 $this->remove($prevDiscount);
-                $this->flush();
             }
 
             /** @var Discount $discount */
@@ -117,7 +116,6 @@ class UpdateOrderCommandHandler extends EntityManager implements UpdateOrderComm
             ]);
             if($prevTax !== null){
                 $this->remove($prevTax);
-                $this->flush();
             }
 
             /** @var Tax $tax */

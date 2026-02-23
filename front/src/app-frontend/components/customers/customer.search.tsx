@@ -95,7 +95,7 @@ export const CustomerSearch: FC = () => {
         <span className="cs-badge__name">{customer.name}</span>
         {customer.allowCreditSale && (
           <span className="cs-badge__balance" data-negative={customer.outstanding > 0}>
-            {withCurrency(Math.abs(customer.outstanding + Number(customer.openingBalance || 0)))}
+            {withCurrency(Math.abs(customer.outstanding))}
           </span>
         )}
         {!customer.allowCreditSale && (
@@ -158,7 +158,7 @@ export const CustomerSearch: FC = () => {
                 )}
                 {c.allowCreditSale ? (
                   <span className="cs-search__item-balance" data-negative={c.outstanding > 0}>
-                    {withCurrency(c.outstanding + Number(c.openingBalance || 0))}
+                    {withCurrency(c.outstanding)}
                   </span>
                 ) : (
                   <span className="cs-search__item-no-credit">

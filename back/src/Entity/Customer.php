@@ -317,9 +317,12 @@ class Customer
     {
         $sale = 0;
         foreach($this->getOrders() as $order){
+            if($order->getIsDeleted() || $order->getIsReturned() || $order->getIsSuspended()){
+                continue;
+            }
             foreach($order->getPayments() as $payment){
-                if($payment->getType()->getType() === Payment::PAYMENT_TYPE_CREDIT) {
-                    $sale += $payment->getReceived();
+                if($payment->getType() !== null && $payment->getType()->getType() === Payment::PAYMENT_TYPE_CREDIT) {
+                    $sale += (float) $payment->getReceived();
                 }
             }
         }
@@ -349,7 +352,7 @@ class Customer
      */
     public function getOutstanding(): float
     {
-        return $this->getSale() - $this->getPaid();
+        return (float) $this->getOpeningBalance() + $this->getSale() - $this->getPaid();
     }
 
     public function getAllowCreditSale(): ?bool

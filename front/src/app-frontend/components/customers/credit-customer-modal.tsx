@@ -224,8 +224,7 @@ export const CreditCustomerModal: FC<CreditCustomerModalProps> = ({
     setCreateError(null);
   };
 
-  const outstandingBalance = (c: Customer): number =>
-    c.outstanding + Number(c.openingBalance ?? 0);
+  const outstandingBalance = (c: Customer): number => c.outstanding;
 
   if (!open) return null;
 

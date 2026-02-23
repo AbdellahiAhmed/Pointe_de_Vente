@@ -116,13 +116,12 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
                 $creditLimit = (float) $customer->getCreditLimit();
                 if($creditLimit > 0){
                     $outstanding = $customer->getOutstanding();
-                    $openingBalance = (float) $customer->getOpeningBalance();
-                    if(($outstanding + $openingBalance + $totalCreditRequested) > $creditLimit){
+                    if(($outstanding + $totalCreditRequested) > $creditLimit){
                         return CreateOrderCommandResult::createFromValidationErrorMessage(
                             sprintf(
                                 'Limite de crédit dépassée. Limite: %.2f, Utilisé: %.2f, Demandé: %.2f.',
                                 $creditLimit,
-                                $outstanding + $openingBalance,
+                                $outstanding,
                                 $totalCreditRequested
                             )
                         );
@@ -215,15 +214,15 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
                         $orderProduct->setCostAtSale($variant->getCost());
                     }
 
-                    // manage variants quantity — NO flush, just modify the managed entity
-                    if($product->getManageInventory()){
+                    // manage variants quantity — skip for suspended (held) orders
+                    if(!$command->getIsSuspended() && $product->getManageInventory()){
                         $variant->setQuantity((string)max(0, (float)$variant->getQuantity() - (float)$itemDto->getQuantity()));
                     }
                 }
             }
 
-            // manage product quantity — NO flush, just modify the managed entity
-            if($product->getManageInventory()){
+            // manage product quantity — skip for suspended (held) orders
+            if(!$command->getIsSuspended() && $product->getManageInventory()){
                 $store = null;
                 foreach($product->getStores() as $s){
                     if($s->getStore()->getId() === $item->getStore()->getId()){

@@ -538,7 +538,7 @@ class ReportController extends AbstractController
         $totalOutstanding = 0;
         $creditCustomers = 0;
         foreach ($customers as $customer) {
-            $outstanding = $customer->getOutstanding() + (float) $customer->getOpeningBalance();
+            $outstanding = $customer->getOutstanding();
             $totalOutstanding += $outstanding;
             if ($customer->getAllowCreditSale()) {
                 $creditCustomers++;

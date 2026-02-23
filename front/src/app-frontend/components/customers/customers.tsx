@@ -120,9 +120,7 @@ export const Customers: FC<Props> = ({ children, className }) => {
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) =>
-        withCurrency(
-          info.getValue() + Number(info.row.original.openingBalance)
-        ),
+        withCurrency(info.getValue()),
     }),
     columnHelper.accessor("id", {
       id: "customerSelector",

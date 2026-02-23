@@ -123,7 +123,7 @@ export const CustomerPayments: FC<Props> = ({
   };
 
   const diff = useMemo(() => {
-    return customer.outstanding + Number(customer.openingBalance);
+    return customer.outstanding;
   }, [customer]);
 
   const list = useMemo(() => {

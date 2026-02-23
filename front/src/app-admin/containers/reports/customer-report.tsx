@@ -57,7 +57,7 @@ export const CustomerReport: FunctionComponent = () => {
     if (!customer.creditLimit || Number(customer.creditLimit) <= 0) {
       return {label: '-', badgeClass: ''};
     }
-    const totalDebt = customer.outstanding + Number(customer.openingBalance || 0);
+    const totalDebt = customer.outstanding;
     const ratio = totalDebt / Number(customer.creditLimit);
     if (ratio >= 1) {
       return {label: t('Over Limit'), badgeClass: 'badge bg-danger'};
