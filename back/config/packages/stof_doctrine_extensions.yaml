@@ -4,6 +4,6 @@ stof_doctrine_extensions:
     default_locale: en_US
     orm:
         default:
-            loggable: true
+            loggable: false
             softdeleteable: true
             timestampable: true
