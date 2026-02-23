@@ -61,7 +61,9 @@ export const CreateVariants = ({
       price: getValues('basePrice'),
       attributeValue: item.join('-'),
       barcode: (getValues('barcode') + index + 1).toString(),
-      quantity: '10'
+      quantity: '10',
+      cost: '',
+      minPrice: ''
     })));
   }
 

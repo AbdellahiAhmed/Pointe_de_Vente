@@ -125,7 +125,7 @@ class Order
     private $status;
 
     /**
-     * @ORM\OneToOne(targetEntity=Order::class)
+     * @ORM\ManyToOne(targetEntity=Order::class)
      * @ORM\JoinColumn(nullable=true)
      * @Gedmo\Versioned()
      * @Groups({"order.read", "customer.read"})

@@ -139,6 +139,8 @@ export const CreateItem = ({
               attributeName: variant.attributeName,
               attributeValue: variant.attributeValue,
               price: variant.price || null,
+              cost: variant.cost || null,
+              minPrice: variant.minPrice || null,
               quantity: variant.quantity || '0',
               barcode: variant.barcode || null,
             };
@@ -152,6 +154,8 @@ export const CreateItem = ({
             attributeName: variant.attributeName,
             attributeValue: variant.attributeValue,
             price: variant.price || null,
+            cost: variant.cost || null,
+            minPrice: variant.minPrice || null,
             quantity: variant.quantity || '0',
             barcode: variant.barcode || null,
           }));
@@ -288,6 +292,8 @@ export const CreateItem = ({
           attributeName: v.attributeName || '',
           attributeValue: v.attributeValue || '',
           price: v.price || '',
+          cost: v.cost || '',
+          minPrice: v.minPrice || '',
           quantity: v.quantity || '0',
           barcode: v.barcode || '',
         })) || [],
@@ -554,7 +560,7 @@ export const CreateItem = ({
                   {t("Variants")} <span className="text-muted text-sm font-normal">({t("Optional")})</span>
                 </label>
                 <Button type="button" variant="primary" onClick={() => addVariant({
-                  name: '', price: '', quantity: '0',
+                  name: '', price: '', cost: '', minPrice: '', quantity: '0',
                   barcode: String(Math.floor(Math.random() * 9_000_000_000) + 1_000_000_000),
                 })}>
                   <FontAwesomeIcon icon={faPlus} className="me-2" />
@@ -564,9 +570,11 @@ export const CreateItem = ({
 
               {variantFields.length > 0 && (
                 <div className="grid grid-cols-12 gap-2 mb-2 font-bold text-sm">
-                  <div className="col-span-4">{t("Variant name")}</div>
-                  <div className="col-span-3">{t("Price")}</div>
-                  <div className="col-span-2">{t("Stock")}</div>
+                  <div className="col-span-3">{t("Variant name")}</div>
+                  <div className="col-span-2">{t("Price")}</div>
+                  <div className="col-span-2">{t("Cost (PMP)")}</div>
+                  <div className="col-span-1">{t("Min Price")}</div>
+                  <div className="col-span-1">{t("Stock")}</div>
                   <div className="col-span-2">{t("Barcode")}</div>
                   <div className="col-span-1"></div>
                 </div>
@@ -574,16 +582,22 @@ export const CreateItem = ({
 
               {variantFields.map((field, index) => (
                 <div key={field.id} className="grid grid-cols-12 gap-2 mb-2 items-center">
-                  <div className="col-span-4">
+                  <div className="col-span-3">
                     <Input {...register(`variants.${index}.name`)} placeholder={t("ex: 10kg, Large, Red...")} className="w-full" />
                   </div>
-                  <div className="col-span-3">
+                  <div className="col-span-2">
                     <div className="input-group">
                       <span className="input-addon">{withCurrency(undefined)}</span>
                       <Input {...register(`variants.${index}.price`)} placeholder="0" className="w-full" />
                     </div>
                   </div>
                   <div className="col-span-2">
+                    <Input {...register(`variants.${index}.cost`)} placeholder={t("Auto")} className="w-full" />
+                  </div>
+                  <div className="col-span-1">
+                    <Input {...register(`variants.${index}.minPrice`)} placeholder="0" className="w-full" />
+                  </div>
+                  <div className="col-span-1">
                     <Input {...register(`variants.${index}.quantity`)} type="number" placeholder="0" className="w-full" />
                   </div>
                   <div className="col-span-2">

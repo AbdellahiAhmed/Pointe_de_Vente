@@ -22,7 +22,9 @@ export const ProductVariants: FC<ProductVariantsProps> = ({
       <Button variant="primary" onClick={() => append({
         attributeName: '',
         barcode: Math.floor(Math.random() * 10000000000) + 1,
-        price: null
+        price: null,
+        cost: null,
+        minPrice: null
       })} type="button">
         {t("Add Variant")}
       </Button>
@@ -48,7 +50,7 @@ export const ProductVariant = ({
 }: ProductVariantProps) => {
   const {t} = useTranslation();
   return (
-    <div className="grid grid-cols-5 my-5 gap-3" key={id}>
+    <div className="grid grid-cols-7 my-5 gap-3" key={id}>
       <div>
         <label>{t("Variant")}</label>
         <Controller
@@ -67,6 +69,26 @@ export const ProductVariant = ({
           )}
           control={useForm.control}
           name={`variants.${index}.price`}
+        />
+      </div>
+      <div>
+        <label>{t("Cost (PMP)")}</label>
+        <Controller
+          render={(props) => (
+            <Input onChange={props.field.onChange} value={props.field.value} className="w-full" placeholder={t("Auto")}/>
+          )}
+          control={useForm.control}
+          name={`variants.${index}.cost`}
+        />
+      </div>
+      <div>
+        <label>{t("Min Price")}</label>
+        <Controller
+          render={(props) => (
+            <Input onChange={props.field.onChange} value={props.field.value} className="w-full" placeholder="0"/>
+          )}
+          control={useForm.control}
+          name={`variants.${index}.minPrice`}
         />
       </div>
       <div>

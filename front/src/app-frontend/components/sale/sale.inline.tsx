@@ -308,6 +308,10 @@ export const CloseSaleInline: FC<Props> = ({
       }
     } finally {
       setSaleClosing(false);
+      // Always clear refundingFrom to prevent stale state from blocking subsequent sales
+      if (refundingFrom) {
+        setAppState((prev) => ({ ...prev, refundingFrom: undefined }));
+      }
     }
   };
 
