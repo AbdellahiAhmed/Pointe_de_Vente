@@ -19,12 +19,9 @@ export function* authenticateUser() {
   try {
     response = yield call(getAuthInfo);
   } catch (exception) {
-    if (exception instanceof UserNotAuthorizedException) {
-      yield put(userAuthenticationFailed(exception));
-      return;
-    }
-
-    throw exception;
+    // Any auth error (401, 500, network) → show login page
+    yield put(userAuthenticationFailed(exception));
+    return;
   }
 
   yield put(

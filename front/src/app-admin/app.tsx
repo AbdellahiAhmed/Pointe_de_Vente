@@ -46,7 +46,7 @@ const AppComponent: FunctionComponent<AppProps> = (props) => {
     props.bootstrap();
 
     function handleException(e: any) {
-      if (e.reason.code === 401) {
+      if (e.reason?.code === 401) {
         logoutAction();
       }
     }
@@ -57,10 +57,6 @@ const AppComponent: FunctionComponent<AppProps> = (props) => {
   }, []);
 
   const {isLoggedIn, hasBootstrapped, bootstrapError} = props;
-
-  if (!!bootstrapError) {
-    return <div>{t('An error occurred while initializing application')}</div>;
-  }
 
   if (!hasBootstrapped) {
     return null;

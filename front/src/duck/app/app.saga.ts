@@ -7,8 +7,8 @@ export function* bootstrap() {
   try {
     yield call(authenticateUser);
   } catch (exception) {
-    yield put(bootstrapError(exception));
-    return;
+    // Never block the app — always proceed to login
+    console.warn('Bootstrap auth failed, proceeding to login:', exception);
   }
 
   yield put(bootstrapDone({ hasBootstrapped: true }));
