@@ -69,7 +69,7 @@ export const CloseSaleInline: FC<Props> = ({
 
   const [defaultAppState, setDefaultAppState] = useAtom(defaultData);
 
-  const { defaultMode, defaultDiscount, defaultPaymentType, defaultTax, requireCustomerBox } =
+  const { defaultMode, defaultDiscount, defaultPaymentType, defaultTax, requireCustomerBox, autoPrintReceipt } =
     defaultAppState;
 
   const [isSaleClosing, setSaleClosing] = useState(false);
@@ -92,6 +92,12 @@ export const CloseSaleInline: FC<Props> = ({
 
   const showSaleSuccess = useCallback((order: Order, wasReturn?: boolean) => {
     setLastOrder(order);
+
+    // Auto-print receipt if enabled in settings
+    if (autoPrintReceipt) {
+      PrintOrder(order);
+    }
+
     notification.success({
       message: wasReturn ? t("Return completed") : t("Sale completed"),
       description: `${t("Receipt #")}${order.orderId} — ${withCurrency(
@@ -99,7 +105,7 @@ export const CloseSaleInline: FC<Props> = ({
       )}`,
       placement: "bottomRight",
       duration: 4,
-      btn: (
+      btn: !autoPrintReceipt ? (
         <button
           type="button"
           className="sale-toast-print"
@@ -110,10 +116,10 @@ export const CloseSaleInline: FC<Props> = ({
           <FontAwesomeIcon icon={faPrint} className="me-1" />
           {t("Print")}
         </button>
-      ),
+      ) : undefined,
       key: "sale-success",
     });
-  }, [t]);
+  }, [t, autoPrintReceipt]);
 
   const resetFields = () => {
     setAppState((prev) => ({

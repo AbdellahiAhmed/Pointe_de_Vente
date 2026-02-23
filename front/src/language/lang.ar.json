@@ -877,5 +877,22 @@
   "Purchase order deleted successfully.": "تم حذف أمر الشراء بنجاح.",
   "Failed to delete purchase order.": "فشل حذف أمر الشراء.",
   "Supplier deleted successfully.": "تم حذف المورد بنجاح.",
-  "Failed to delete supplier. It may have related purchases.": "فشل حذف المورد. قد يكون له مشتريات مرتبطة."
+  "Failed to delete supplier. It may have related purchases.": "فشل حذف المورد. قد يكون له مشتريات مرتبطة.",
+  "Store, display, and receipt preferences": "تفضيلات المتجر والعرض والإيصالات",
+  "Store Information": "معلومات المتجر",
+  "This information appears on receipts and printed documents": "تظهر هذه المعلومات على الإيصالات والمستندات المطبوعة",
+  "Store name": "اسم المتجر",
+  "Enter store name": "أدخل اسم المتجر",
+  "Enter phone number": "أدخل رقم الهاتف",
+  "Enter store address": "أدخل عنوان المتجر",
+  "Low Stock Alert": "تنبيه المخزون المنخفض",
+  "Alert threshold": "حد التنبيه",
+  "Products with stock at or below this number will trigger a low stock alert": "المنتجات التي يصل مخزونها إلى هذا العدد أو أقل ستطلق تنبيه مخزون منخفض",
+  "Receipt Settings": "إعدادات الإيصال",
+  "Auto-print receipt after sale": "طباعة الإيصال تلقائياً بعد البيع",
+  "Automatically print receipt when a sale is completed": "طباعة الإيصال تلقائياً عند إتمام عملية البيع",
+  "Receipt header text": "نص رأس الإيصال",
+  "Receipt footer text": "نص تذييل الإيصال",
+  "e.g. Welcome to our store!": "مثال: أهلاً بكم في متجرنا!",
+  "e.g. Thank you for your visit!": "مثال: شكراً لزيارتكم!"
 }

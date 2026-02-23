@@ -880,5 +880,22 @@
   "Purchase order deleted successfully.": "Bon de commande supprimé avec succès.",
   "Failed to delete purchase order.": "Échec de la suppression du bon de commande.",
   "Supplier deleted successfully.": "Fournisseur supprimé avec succès.",
-  "Failed to delete supplier. It may have related purchases.": "Échec de la suppression du fournisseur. Il peut avoir des achats liés."
+  "Failed to delete supplier. It may have related purchases.": "Échec de la suppression du fournisseur. Il peut avoir des achats liés.",
+  "Store, display, and receipt preferences": "Préférences du magasin, de l'affichage et des reçus",
+  "Store Information": "Informations du magasin",
+  "This information appears on receipts and printed documents": "Ces informations apparaissent sur les reçus et les documents imprimés",
+  "Store name": "Nom du magasin",
+  "Enter store name": "Saisir le nom du magasin",
+  "Enter phone number": "Saisir le numéro de téléphone",
+  "Enter store address": "Saisir l'adresse du magasin",
+  "Low Stock Alert": "Alerte stock bas",
+  "Alert threshold": "Seuil d'alerte",
+  "Products with stock at or below this number will trigger a low stock alert": "Les produits dont le stock atteint ou est inférieur à ce nombre déclencheront une alerte de stock bas",
+  "Receipt Settings": "Paramètres du reçu",
+  "Auto-print receipt after sale": "Impression automatique du reçu après vente",
+  "Automatically print receipt when a sale is completed": "Imprimer automatiquement le reçu lorsqu'une vente est terminée",
+  "Receipt header text": "Texte d'en-tête du reçu",
+  "Receipt footer text": "Texte de pied de page du reçu",
+  "e.g. Welcome to our store!": "ex: Bienvenue dans notre magasin !",
+  "e.g. Thank you for your visit!": "ex: Merci pour votre visite !"
 }

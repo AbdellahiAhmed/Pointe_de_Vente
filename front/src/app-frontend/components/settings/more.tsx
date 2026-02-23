@@ -18,8 +18,11 @@ import {
   faDesktop,
   faUndoAlt,
   faShieldAlt,
+  faReceipt,
+  faExclamationTriangle,
 } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "../../../app-common/components/input/button";
+import { Input } from "../../../app-common/components/input/input";
 import { Modal } from "../../../app-common/components/modal/modal";
 import localforage from "../../../lib/localforage/localforage";
 import { useDispatch, useSelector } from "react-redux";
@@ -77,7 +80,11 @@ export const More: FC<Props> = ({}) => {
     defaultPaymentType,
     defaultTax,
     enableTouch,
-    customerBox, requireCustomerBox
+    customerBox, requireCustomerBox,
+    receiptStoreName, receiptStorePhone, receiptStoreAddress,
+    receiptHeaderText, receiptFooterText,
+    autoPrintReceipt,
+    lowStockThreshold,
   } = defaultOptions;
   const {t} = useTranslation();
   const [modal, setModal] = useState(false);
@@ -314,25 +321,159 @@ export const More: FC<Props> = ({}) => {
                 <TabContent isActive={isTabActive("general")}>
                   <div className="settings-content">
                     <h2 className="settings-content-title">{t("General")}</h2>
-                    <p className="settings-content-subtitle">{t("Cache and display preferences")}</p>
+                    <p className="settings-content-subtitle">{t("Store, display, and receipt preferences")}</p>
 
+                    {/* Store Information */}
                     <div className="settings-card">
                       <div className="settings-card__header">
-                        <h3 className="settings-card__title">{t("Cache")}</h3>
+                        <FontAwesomeIcon icon={faStore} style={{marginInlineEnd: 8, color: 'var(--pos-primary)'}} />
+                        <h3 className="settings-card__title">{t("Store Information")}</h3>
                       </div>
                       <div className="settings-card__body">
-                        <Button
-                          variant="success"
-                          onClick={() => { clearCache(); }}
-                          size="lg"
-                          disabled={isLoading}>
-                          {isLoading ? t("Clearing...") : t("Refresh Browser Cache")}
-                        </Button>
+                        <p style={{fontSize: 12, color: 'var(--pos-text-muted)', marginBottom: 12}}>
+                          {t("This information appears on receipts and printed documents")}
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label style={{fontSize: '13px', fontWeight: 600, marginBottom: '4px', display: 'block', color: 'var(--pos-text-muted)'}}>{t("Store name")}</label>
+                            <Input
+                              value={receiptStoreName || ''}
+                              onChange={(e) => {
+                                setDefaultOptions((prev) => ({
+                                  ...prev,
+                                  receiptStoreName: e.target.value,
+                                }));
+                              }}
+                              placeholder={t("Enter store name")}
+                              className="w-full"
+                            />
+                          </div>
+                          <div>
+                            <label style={{fontSize: '13px', fontWeight: 600, marginBottom: '4px', display: 'block', color: 'var(--pos-text-muted)'}}>{t("Phone")}</label>
+                            <Input
+                              value={receiptStorePhone || ''}
+                              onChange={(e) => {
+                                setDefaultOptions((prev) => ({
+                                  ...prev,
+                                  receiptStorePhone: e.target.value,
+                                }));
+                              }}
+                              placeholder={t("Enter phone number")}
+                              className="w-full"
+                            />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label style={{fontSize: '13px', fontWeight: 600, marginBottom: '4px', display: 'block', color: 'var(--pos-text-muted)'}}>{t("Address")}</label>
+                            <Input
+                              value={receiptStoreAddress || ''}
+                              onChange={(e) => {
+                                setDefaultOptions((prev) => ({
+                                  ...prev,
+                                  receiptStoreAddress: e.target.value,
+                                }));
+                              }}
+                              placeholder={t("Enter store address")}
+                              className="w-full"
+                            />
+                          </div>
+                        </div>
                       </div>
                     </div>
 
+                    {/* Low Stock Alert */}
                     <div className="settings-card">
                       <div className="settings-card__header">
+                        <FontAwesomeIcon icon={faExclamationTriangle} style={{marginInlineEnd: 8, color: '#f59e0b'}} />
+                        <h3 className="settings-card__title">{t("Low Stock Alert")}</h3>
+                      </div>
+                      <div className="settings-card__body">
+                        <div className="settings-card__row">
+                          <div>
+                            <div className="settings-card__row-label">{t("Alert threshold")}</div>
+                            <div className="settings-card__row-description">{t("Products with stock at or below this number will trigger a low stock alert")}</div>
+                          </div>
+                          <div className="settings-card__row-control" style={{minWidth: 100}}>
+                            <Input
+                              type="number"
+                              min={0}
+                              value={lowStockThreshold ?? 10}
+                              onChange={(e) => {
+                                const val = parseInt(e.target.value, 10);
+                                setDefaultOptions((prev) => ({
+                                  ...prev,
+                                  lowStockThreshold: isNaN(val) ? 10 : val,
+                                }));
+                              }}
+                              style={{width: 80, textAlign: 'center'}}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Receipt Settings */}
+                    <div className="settings-card">
+                      <div className="settings-card__header">
+                        <FontAwesomeIcon icon={faReceipt} style={{marginInlineEnd: 8, color: 'var(--pos-primary)'}} />
+                        <h3 className="settings-card__title">{t("Receipt Settings")}</h3>
+                      </div>
+                      <div className="settings-card__body">
+                        <div className="settings-card__row">
+                          <div>
+                            <div className="settings-card__row-label">{t("Auto-print receipt after sale")}</div>
+                            <div className="settings-card__row-description">{t("Automatically print receipt when a sale is completed")}</div>
+                          </div>
+                          <div className="settings-card__row-control">
+                            <Switch
+                              checked={autoPrintReceipt}
+                              onChange={(value) => {
+                                setDefaultOptions((prev) => ({
+                                  ...prev,
+                                  autoPrintReceipt: value.target.checked,
+                                }));
+                              }}
+                            />
+                          </div>
+                        </div>
+                        <div style={{padding: '12px 0', borderTop: '1px solid var(--pos-border)'}}>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                              <label style={{fontSize: '13px', fontWeight: 600, marginBottom: '4px', display: 'block', color: 'var(--pos-text-muted)'}}>{t("Receipt header text")}</label>
+                              <Input
+                                value={receiptHeaderText || ''}
+                                onChange={(e) => {
+                                  setDefaultOptions((prev) => ({
+                                    ...prev,
+                                    receiptHeaderText: e.target.value,
+                                  }));
+                                }}
+                                placeholder={t("e.g. Welcome to our store!")}
+                                className="w-full"
+                              />
+                            </div>
+                            <div>
+                              <label style={{fontSize: '13px', fontWeight: 600, marginBottom: '4px', display: 'block', color: 'var(--pos-text-muted)'}}>{t("Receipt footer text")}</label>
+                              <Input
+                                value={receiptFooterText || ''}
+                                onChange={(e) => {
+                                  setDefaultOptions((prev) => ({
+                                    ...prev,
+                                    receiptFooterText: e.target.value,
+                                  }));
+                                }}
+                                placeholder={t("e.g. Thank you for your visit!")}
+                                className="w-full"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Display Settings */}
+                    <div className="settings-card">
+                      <div className="settings-card__header">
+                        <FontAwesomeIcon icon={faDesktop} style={{marginInlineEnd: 8, color: 'var(--pos-primary)'}} />
                         <h3 className="settings-card__title">{t("Display")}</h3>
                       </div>
                       <div className="settings-card__body">
@@ -396,8 +537,10 @@ export const More: FC<Props> = ({}) => {
                       </div>
                     </div>
 
+                    {/* Default Options */}
                     <div className="settings-card">
                       <div className="settings-card__header">
+                        <FontAwesomeIcon icon={faSlidersH} style={{marginInlineEnd: 8, color: 'var(--pos-primary)'}} />
                         <h3 className="settings-card__title">{t("Default options")}</h3>
                       </div>
                       <div className="settings-card__body">
@@ -473,6 +616,22 @@ export const More: FC<Props> = ({}) => {
                             />
                           </div>
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Cache */}
+                    <div className="settings-card">
+                      <div className="settings-card__header">
+                        <h3 className="settings-card__title">{t("Cache")}</h3>
+                      </div>
+                      <div className="settings-card__body">
+                        <Button
+                          variant="success"
+                          onClick={() => { clearCache(); }}
+                          size="lg"
+                          disabled={isLoading}>
+                          {isLoading ? t("Clearing...") : t("Refresh Browser Cache")}
+                        </Button>
                       </div>
                     </div>
                   </div>

@@ -81,6 +81,16 @@ export const SalePrint: FC<SalePrintProps> = (props) => {
   );
 };
 
+// Helper to read POS settings from localStorage (works in popup windows without jotai context)
+const getPosSettings = () => {
+  try {
+    const raw = localStorage.getItem('pos-default-data');
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+};
+
 export const SalePrintMarkup = ({order}: {order: Order}) => {
   const {t} = useTranslation();
   const [settings, setSettings] = useState<Setting[]>([]);
@@ -92,6 +102,14 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
   const headerBg = isReturn ? '#fde8e8' : 'rgb(200, 224, 235)';
   const headerColor = isReturn ? '#991b1b' : 'inherit';
   const accentBg = isReturn ? 'rgba(253, 232, 232, 0.18)' : 'rgba(218, 232, 239, 0.18)';
+
+  // Read POS settings from localStorage
+  const posSettings = useMemo(() => getPosSettings(), []);
+  const storeName = posSettings.receiptStoreName || t("Shop name");
+  const storePhone = posSettings.receiptStorePhone || '';
+  const storeAddress = posSettings.receiptStoreAddress || '';
+  const headerText = posSettings.receiptHeaderText || '';
+  const footerText = posSettings.receiptFooterText || t("Thank you for your visit");
 
   useEffect(() => {
     localforage.getItem('settings').then((data: any) => {
@@ -179,29 +197,23 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
           id="ShopSection"
         >
           <h3 className="h3Style" id="shopName3Inch" style={{margin: "0 0"}}>
-            {t("Shop name")}
+            {storeName}
           </h3>
-          <h5
-            className="h5Style"
-            id="STNNo3inchid"
-            style={{margin: 0, display: 'none'}}
-          >
-            {t("STN")}:
-          </h5>
-          <h5
-            className="h5Style"
-            id="TaxFormation3inchid"
-            style={{margin: 0, display: 'none'}}
-          >
-            {t("Tax Formation")}:
-          </h5>
-          <h5
-            className="h5Style"
-            id="FBRPOS3incid"
-            style={{margin: 0, display: 'none'}}
-          >
-            {t("POS No")}:
-          </h5>
+          {storePhone && (
+            <h5 className="h5Style" style={{margin: 0, fontSize: 10}}>
+              {storePhone}
+            </h5>
+          )}
+          {storeAddress && (
+            <h5 className="h5Style" style={{margin: 0, fontSize: 10}}>
+              {storeAddress}
+            </h5>
+          )}
+          {headerText && (
+            <h5 className="h5Style" style={{margin: '2px 0 0', fontSize: 10, fontStyle: 'italic'}}>
+              {headerText}
+            </h5>
+          )}
         </div>
         <div
           style={{
@@ -454,7 +466,7 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
         <div
           style={{
             left: "1%",
-            textAlign: "justify",
+            textAlign: "center",
             background: accentBg
           }}
         >
@@ -463,7 +475,7 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
             id="SystemBasedInvoiceFooter3Inch"
             style={{margin: "0 0", padding: "0 0", fontWeight: "normal"}}
           >
-            {t("Thank you for your visit")}
+            {footerText}
           </h4>
         </div>
         <div style={{color: "black", padding: "2px 0px"}}>

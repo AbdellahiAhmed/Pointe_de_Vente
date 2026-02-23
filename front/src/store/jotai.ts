@@ -67,6 +67,13 @@ export interface DefaultDataInterface {
   searchBox?: boolean;
   customerBox?: boolean;
   requireCustomerBox?: boolean;
+  receiptStoreName?: string;
+  receiptStorePhone?: string;
+  receiptStoreAddress?: string;
+  receiptHeaderText?: string;
+  receiptFooterText?: string;
+  autoPrintReceipt?: boolean;
+  lowStockThreshold?: number;
 }
 
 export const defaultData = atomWithStorage<DefaultDataInterface>(
@@ -81,6 +88,13 @@ export const defaultData = atomWithStorage<DefaultDataInterface>(
     defaultMode: PosModes.pos,
     searchBox: true,
     customerBox: true,
-    requireCustomerBox: false
+    requireCustomerBox: false,
+    receiptStoreName: '',
+    receiptStorePhone: '',
+    receiptStoreAddress: '',
+    receiptHeaderText: '',
+    receiptFooterText: '',
+    autoPrintReceipt: false,
+    lowStockThreshold: 10,
   }
 );
