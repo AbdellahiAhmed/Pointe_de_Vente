@@ -44,6 +44,10 @@ export const styleConfig = {
         : "none",
     }
   },
+  menuPortal: (base: any) => ({
+    ...base,
+    zIndex: 9999,
+  }),
 };
 
 export const classNamePrefix = "rs-";
@@ -60,6 +64,7 @@ export function ReactSelect<
   return (
     <Select
       closeMenuOnSelect={!props.isMulti}
+      menuPortalTarget={document.body}
       {...props}
       theme={themeConfig}
       styles={styleConfig}
