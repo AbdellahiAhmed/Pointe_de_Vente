@@ -31,13 +31,23 @@ export function* authenticateUser() {
     userAuthenticated(response.user as User)
   );
 
-  yield put(
-    storeAction(JSON.parse(Cookies.get('store') as string))
-  );
+  const storeCookie = Cookies.get('store');
+  if (storeCookie) {
+    try {
+      yield put(storeAction(JSON.parse(storeCookie)));
+    } catch (e) {
+      // Invalid store cookie, ignore
+    }
+  }
 
-  yield put(
-    terminalAction(JSON.parse(Cookies.get('terminal') as string))
-  );
+  const terminalCookie = Cookies.get('terminal');
+  if (terminalCookie) {
+    try {
+      yield put(terminalAction(JSON.parse(terminalCookie)));
+    } catch (e) {
+      // Invalid terminal cookie, ignore
+    }
+  }
 }
 
 export function* logout() {
