@@ -66,17 +66,33 @@ export const useLoadData = (): [ReturnState, ReturnAction] => {
   const [settingList, setSettingList] = useState<HomeProps['settingList']>(initialData);
   const dispatch = useDispatch();
 
-  const loadProducts = async (offset = 1, limit = 100, accumulator: Product[] = []) => {
-    const res = await jsonRequest(`${PRODUCT_LIST}?itemsPerPage=${limit}&page=${offset}&isActive=true`);
-    const l = await res.json();
-    const merged = [...accumulator, ...l['hydra:member']];
+  const loadProducts = async () => {
+    const limit = 100;
+    // Fetch first page to get total count
+    const firstRes = await jsonRequest(`${PRODUCT_LIST}?itemsPerPage=${limit}&page=1&isActive=true`);
+    const firstData = await firstRes.json();
+    const total = firstData['hydra:totalItems'] || 0;
+    let allProducts: Product[] = [...firstData['hydra:member']];
 
-    setList({ list: merged });
-    await localforage.setItem('list', { list: merged });
+    const totalPages = Math.ceil(total / limit);
 
-    if(l['hydra:member'].length > 0) {
-      await loadProducts(offset + 1, limit, merged);
+    if (totalPages > 1) {
+      // Load remaining pages in parallel (batches of 3 to avoid overwhelming server)
+      const remaining = Array.from({ length: totalPages - 1 }, (_, i) => i + 2);
+      for (let i = 0; i < remaining.length; i += 3) {
+        const batch = remaining.slice(i, i + 3);
+        const results = await Promise.all(
+          batch.map(page =>
+            jsonRequest(`${PRODUCT_LIST}?itemsPerPage=${limit}&page=${page}&isActive=true`)
+              .then(r => r.json())
+          )
+        );
+        results.forEach(r => allProducts.push(...(r['hydra:member'] || [])));
+      }
     }
+
+    setList({ list: allProducts });
+    await localforage.setItem('list', { list: allProducts });
   };
 
   const loadJsonList = async <T>(
@@ -114,11 +130,14 @@ export const useLoadData = (): [ReturnState, ReturnAction] => {
       if (!cachedList) throw e;
     }
 
-    await loadJsonList<Discount>('discountList', `${DISCOUNT_LIST}?isActive=true`, setDiscountList, 'Discounts');
-    await loadJsonList<Tax>('taxList', `${TAX_LIST}?isActive=true`, setTaxList, 'Taxes');
-    await loadJsonList<PaymentType>('paymentTypesList', `${PAYMENT_TYPE_LIST}?isActive=true`, setPaymentTypesList, 'Payment types');
-    await loadJsonList<Device>('deviceList', `${DEVICE_LIST}?isActive=true`, setDeviceList, 'Devices');
-    await loadJsonList<Setting>('settingList', SETTING_LIST, setSettingList, 'Settings');
+    // Load secondary data in parallel (all independent)
+    await Promise.all([
+      loadJsonList<Discount>('discountList', `${DISCOUNT_LIST}?isActive=true`, setDiscountList, 'Discounts'),
+      loadJsonList<Tax>('taxList', `${TAX_LIST}?isActive=true`, setTaxList, 'Taxes'),
+      loadJsonList<PaymentType>('paymentTypesList', `${PAYMENT_TYPE_LIST}?isActive=true`, setPaymentTypesList, 'Payment types'),
+      loadJsonList<Device>('deviceList', `${DEVICE_LIST}?isActive=true`, setDeviceList, 'Devices'),
+      loadJsonList<Setting>('settingList', SETTING_LIST, setSettingList, 'Settings'),
+    ]);
 
     dispatch(progressAction('Done'));
   };
