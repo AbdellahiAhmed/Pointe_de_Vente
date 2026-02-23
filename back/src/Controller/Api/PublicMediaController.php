@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 class PublicMediaController extends AbstractController
 {
     /**
-     * @Route("/media/{id}/content", methods={"GET"}, name="public_media_content")
+     * @Route("/api/media/{id}/content", methods={"GET"}, name="public_media_content")
      */
     public function content(
         int $id,
