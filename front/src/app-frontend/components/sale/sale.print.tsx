@@ -293,22 +293,22 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
                     </>
                   )}
                 </td>
-                <td style={{textAlign: "right"}}>{item.price}</td>
-                <td style={{textAlign: "right"}}>{item.quantity}</td>
+                <td style={{textAlign: "right"}}><span dir="ltr">{item.price}</span></td>
+                <td style={{textAlign: "right"}}><span dir="ltr">{item.quantity}</span></td>
                 <td
                   style={{textAlign: "right", display: "none"}}
                   className="GSTClm"
                 />
                 <td
                   style={{textAlign: "right"}}
-                >{item.taxesTotal}</td>
+                ><span dir="ltr">{item.taxesTotal}</span></td>
                 <td
                   className="DiscColumnData3Inch"
                   style={{textAlign: "right"}}
                 >
-                  {item.discount}
+                  <span dir="ltr">{item.discount}</span>
                 </td>
-                <td style={{textAlign: "right"}}>{(item.price * item.quantity) + item.taxesTotal - item.discount}</td>
+                <td style={{textAlign: "right"}}><span dir="ltr">{(item.price * item.quantity) + item.taxesTotal - item.discount}</span></td>
               </tr>
             ))}
             <tr
@@ -323,13 +323,13 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
               />
               <td style={{textAlign: "left"}}>{t("Total")}:</td>
               <td style={{textAlign: "right"}}/>
-              <td style={{textAlign: "right"}}>{itemsQuantity}</td>
+              <td style={{textAlign: "right"}}><span dir="ltr">{itemsQuantity}</span></td>
               <td
                 style={{textAlign: "right"}}
                 className="GSTClm"
               ></td>
               <td></td>
-              <td style={{textAlign: "right"}}>{itemsTotal}</td>
+              <td style={{textAlign: "right"}}><span dir="ltr">{itemsTotal}</span></td>
             </tr>
             </tbody>
           </table>
@@ -341,13 +341,13 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
             {order.discount && (
               <tr>
                 <td style={{textAlign: "right", width: "60%"}}>{t("Disc")}:</td>
-                <td style={{textAlign: "right", width: "40%"}}>{order.discount.amount}</td>
+                <td style={{textAlign: "right", width: "40%"}}><span dir="ltr">{order.discount.amount}</span></td>
               </tr>
             )}
             {order.tax && (
               <tr>
                 <td style={{textAlign: "right", width: "60%"}}>{t("Tax")}@{order.tax.rate}:</td>
-                <td style={{textAlign: "right", width: "40%"}}>{order.tax.amount}</td>
+                <td style={{textAlign: "right", width: "40%"}}><span dir="ltr">{order.tax.amount}</span></td>
               </tr>
             )}
 
@@ -356,7 +356,7 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
                 <strong>{t("Net Total")}:</strong>
               </td>
               <td style={{textAlign: "right", width: "40%"}}>
-                <strong>{netTotal}</strong>
+                <strong><span dir="ltr">{netTotal}</span></strong>
               </td>
             </tr>
             {order.adjustment && (
@@ -365,14 +365,14 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
                   <strong>{t("Adjustment")}:</strong>
                 </td>
                 <td style={{textAlign: "right", width: "40%"}}>
-                  <strong>{order.adjustment}</strong>
+                  <strong><span dir="ltr">{order.adjustment}</span></strong>
                 </td>
               </tr>
             )}
             {order.payments.map((item, index) => (
               <tr key={index}>
                 <td style={{textAlign: "right", width: "60%"}}>{item.type?.name} {t("Amount")}</td>
-                <td style={{textAlign: "right", width: "40%"}}>{item.received}</td>
+                <td style={{textAlign: "right", width: "40%"}}><span dir="ltr">{item.received}</span></td>
               </tr>
             ))}
 
@@ -386,7 +386,7 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
                 <strong>{t("Change due")}:</strong>
               </td>
               <td style={{textAlign: "right", width: "40%"}}>
-                <strong>{changeDue}</strong>
+                <strong><span dir="ltr">{changeDue}</span></strong>
               </td>
             </tr>
             </tbody>
