@@ -49,7 +49,7 @@ class PurchaseOrder
     private $supplier;
 
     /**
-     * @ORM\OneToMany(targetEntity=PurchaseOrderItem::class, mappedBy="purchaseOrder", orphanRemoval=true, orphanRemoval=true, cascade={"PERSIST", "REMOVE"})
+     * @ORM\OneToMany(targetEntity=PurchaseOrderItem::class, mappedBy="purchaseOrder", orphanRemoval=true, cascade={"PERSIST", "REMOVE"})
      * @Groups({"purchaseOrder.read", "purchase.read", "purchaseOrder.create"})
      */
     private $items;

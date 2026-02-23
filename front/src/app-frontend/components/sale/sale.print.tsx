@@ -505,7 +505,7 @@ const ReturnReceiptMarkup: FC<{ data: ReturnReceiptData }> = ({ data }) => {
             {t('Return Receipt')}
           </h3>
           <div style={{ fontSize: 9, color: '#991b1b' }}>
-            {t('إيصال إرجاع')}
+            إيصال إرجاع
           </div>
         </div>
 
@@ -782,7 +782,7 @@ const ZReportMarkup: FC<{ data: ZReportData }> = ({ data }) => {
 
         {/* Footer */}
         <div style={{ textAlign: 'center', padding: '8px 4px', borderTop: '1px dashed #808080', fontSize: 10, color: '#666' }}>
-          {t('Printed at')}: {new Date().toLocaleString('fr-FR')}
+          {t('Printed at')}: {new Date().toLocaleString(document.documentElement.dir === 'rtl' ? 'ar-MR' : 'fr-FR')}
         </div>
       </div>
     </div>

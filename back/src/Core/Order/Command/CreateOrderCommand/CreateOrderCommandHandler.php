@@ -82,32 +82,36 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
 
         // Credit limit validation
         if(null !== $payments = $command->getPayments()){
+            $totalCreditRequested = 0;
+            $hasCreditPayment = false;
             foreach($payments as $paymentDto){
                 $paymentEntity = $this->getRepository(Payment::class)->find($paymentDto->getType()->getId());
                 if($paymentEntity !== null && $paymentEntity->getType() === Payment::PAYMENT_TYPE_CREDIT){
-                    $customer = $item->getCustomer();
-                    if($customer === null || !$customer->getAllowCreditSale()){
+                    $totalCreditRequested += (float) $paymentDto->getTotal();
+                    $hasCreditPayment = true;
+                }
+            }
+            if($hasCreditPayment){
+                $customer = $item->getCustomer();
+                if($customer === null || !$customer->getAllowCreditSale()){
+                    return CreateOrderCommandResult::createFromValidationErrorMessage(
+                        'Ce client n\'est pas autorisé à acheter à crédit.'
+                    );
+                }
+                $creditLimit = (float) $customer->getCreditLimit();
+                if($creditLimit > 0){
+                    $outstanding = $customer->getOutstanding();
+                    $openingBalance = (float) $customer->getOpeningBalance();
+                    if(($outstanding + $openingBalance + $totalCreditRequested) > $creditLimit){
                         return CreateOrderCommandResult::createFromValidationErrorMessage(
-                            'Ce client n\'est pas autorisé à acheter à crédit.'
+                            sprintf(
+                                'Limite de crédit dépassée. Limite: %.2f, Utilisé: %.2f, Demandé: %.2f.',
+                                $creditLimit,
+                                $outstanding + $openingBalance,
+                                $totalCreditRequested
+                            )
                         );
                     }
-                    $creditLimit = (float) $customer->getCreditLimit();
-                    if($creditLimit > 0){
-                        $outstanding = $customer->getOutstanding();
-                        $openingBalance = (float) $customer->getOpeningBalance();
-                        $creditAmount = (float) $paymentDto->getTotal();
-                        if(($outstanding + $openingBalance + $creditAmount) > $creditLimit){
-                            return CreateOrderCommandResult::createFromValidationErrorMessage(
-                                sprintf(
-                                    'Limite de crédit dépassée. Limite: %.2f, Utilisé: %.2f, Demandé: %.2f.',
-                                    $creditLimit,
-                                    $outstanding + $openingBalance,
-                                    $creditAmount
-                                )
-                            );
-                        }
-                    }
-                    break;
                 }
             }
         }

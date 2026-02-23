@@ -110,7 +110,7 @@ class Supplier
 
     /**
      * @ApiSubresource()
-     * @ORM\OneToMany(targetEntity=PurchaseOrder::class, mappedBy="supplier", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=PurchaseOrder::class, mappedBy="supplier")
      * @Groups({"supplier.read"})
      */
     private $purchaseOrders;
