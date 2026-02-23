@@ -32,6 +32,7 @@ import { Order, OrderStatus } from "../../../api/model/order";
 import {useTranslation} from "react-i18next";
 import { notification, Tooltip } from "antd";
 import { faBan } from "@fortawesome/free-solid-svg-icons";
+import { CreditCustomerModal } from "../customers/credit-customer-modal";
 
 interface Props {
   paymentTypesList: PaymentType[];
@@ -84,6 +85,8 @@ export const CloseSaleInline: FC<Props> = ({
   ]);
 
   const [lastOrder, setLastOrder] = useState<Order | null>(null);
+  const [showCreditModal, setShowCreditModal] = useState(false);
+  const [pendingCreditPayment, setPendingCreditPayment] = useState<PaymentType | null>(null);
 
   const store = useSelector(getStore);
   const terminal = useSelector(getTerminal);
@@ -676,22 +679,31 @@ export const CloseSaleInline: FC<Props> = ({
                 const creditLimitExceeded = isCreditType && !noCustomer && customer.allowCreditSale &&
                   customer.creditLimit && Number(customer.creditLimit) > 0 &&
                   (customer.outstanding + Number(customer.openingBalance || 0) + ft) > Number(customer.creditLimit);
-                const isDisabled = (isCreditType && (noCustomer || creditNotAllowed || creditLimitExceeded)) || added.length === 0;
-
-                // Build tooltip reason for disabled credit
+                // Build tooltip reason for blocked credit (not for "no customer" — modal handles that)
                 let creditTooltip = "";
-                if (isCreditType && isDisabled && added.length > 0) {
-                  if (noCustomer) creditTooltip = t("Select a customer first");
-                  else if (creditNotAllowed) creditTooltip = t("Credit not authorized for this customer");
+                if (isCreditType && added.length > 0) {
+                  if (creditNotAllowed) creditTooltip = t("Credit not authorized for this customer");
                   else if (creditLimitExceeded) creditTooltip = t("Credit limit exceeded");
                 }
+
+                const handlePaymentClick = () => {
+                  if (isCreditType && noCustomer && added.length > 0) {
+                    // Open credit customer modal instead of blocking
+                    setPendingCreditPayment(pt);
+                    setShowCreditModal(true);
+                    return;
+                  }
+                  setPayment(pt);
+                };
+
+                const tileDisabled = (isCreditType && (creditNotAllowed || creditLimitExceeded)) || added.length === 0;
 
                 const tile = (
                   <button
                     key={index}
-                    onClick={() => setPayment(pt)}
+                    onClick={handlePaymentClick}
                     type="button"
-                    disabled={isDisabled}
+                    disabled={tileDisabled}
                     className={classNames("pay-tile", {
                       "pay-tile--active": isActive,
                       "pay-tile--blocked": creditNotAllowed || creditLimitExceeded,
@@ -701,7 +713,7 @@ export const CloseSaleInline: FC<Props> = ({
                     {isActive && <span className="pay-tile__check"><FontAwesomeIcon icon={faCheck} /></span>}
                     {creditNotAllowed && <FontAwesomeIcon icon={faBan} className="pay-tile__blocked-icon" />}
                     {isCreditType && !noCustomer ? (
-                      <Shortcut shortcut={`alt+p+${index}`} handler={() => !isDisabled && setPayment(pt)} />
+                      <Shortcut shortcut={`alt+p+${index}`} handler={() => !tileDisabled && setPayment(pt)} />
                     ) : !isCreditType ? (
                       <Shortcut shortcut={`alt+p+${index}`} handler={() => setPayment(pt)} />
                     ) : null}
@@ -840,6 +852,28 @@ export const CloseSaleInline: FC<Props> = ({
           </div>
         </div>
       </form>
+
+      {/* Credit customer selection modal */}
+      <CreditCustomerModal
+        open={showCreditModal}
+        onClose={() => {
+          setShowCreditModal(false);
+          setPendingCreditPayment(null);
+        }}
+        onCustomerSelected={(c) => {
+          setAppState(prev => ({
+            ...prev,
+            customer: c,
+            customerName: c.name,
+          }));
+          // Auto-select the credit payment type after customer is chosen
+          if (pendingCreditPayment) {
+            setPayment(pendingCreditPayment);
+          }
+          setShowCreditModal(false);
+          setPendingCreditPayment(null);
+        }}
+      />
     </>
   );
 };
