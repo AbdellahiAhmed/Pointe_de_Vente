@@ -79,115 +79,48 @@ export const useLoadData = (): [ReturnState, ReturnAction] => {
     }
   };
 
+  const loadJsonList = async <T>(
+    key: string,
+    url: string,
+    setter: (val: { list: T[] }) => void,
+    label: string
+  ) => {
+    // Show cached data immediately while refreshing
+    const cached: { list: T[] } | null = await localforage.getItem(key);
+    if (cached) setter(cached);
+
+    dispatch(progressAction(label));
+    try {
+      const res = await jsonRequest(url);
+      const json = await res.json();
+      json.list = json['hydra:member'];
+      delete json['hydra:member'];
+      setter(json);
+      await localforage.setItem(key, json);
+    } catch (e) {
+      // If API fails, cached data is still shown
+      if (!cached) throw e;
+    }
+  };
+
   const loadData = async () => {
-    const localList: HomeProps['list'] | null = await localforage.getItem('list');
-    if (localList === null) {
-      dispatch(progressAction('Products'))
-      try {
-        await loadProducts();
-      }catch (e) {
-        throw e;
-      }
-    } else {
-      setList(localList);
+    // Products: always refresh from API (paginated loader)
+    const cachedList: HomeProps['list'] | null = await localforage.getItem('list');
+    if (cachedList) setList(cachedList);
+    dispatch(progressAction('Products'));
+    try {
+      await loadProducts();
+    } catch (e) {
+      if (!cachedList) throw e;
     }
 
-    const localDiscountList: HomeProps['discountList'] | null = await localforage.getItem('discountList');
-    if (localDiscountList === null) {
-      dispatch(progressAction('Discounts'))
-      try {
-        const discount = await jsonRequest(`${DISCOUNT_LIST}?isActive=true`);
-        const discountList = await discount.json();
+    await loadJsonList<Discount>('discountList', `${DISCOUNT_LIST}?isActive=true`, setDiscountList, 'Discounts');
+    await loadJsonList<Tax>('taxList', `${TAX_LIST}?isActive=true`, setTaxList, 'Taxes');
+    await loadJsonList<PaymentType>('paymentTypesList', `${PAYMENT_TYPE_LIST}?isActive=true`, setPaymentTypesList, 'Payment types');
+    await loadJsonList<Device>('deviceList', `${DEVICE_LIST}?isActive=true`, setDeviceList, 'Devices');
+    await loadJsonList<Setting>('settingList', SETTING_LIST, setSettingList, 'Settings');
 
-        discountList.list = discountList['hydra:member'];
-        delete discountList['hydra:member'];
-
-        setDiscountList(discountList);
-        await localforage.setItem('discountList', discountList);
-      }catch(e){
-        throw e;
-      }
-    } else {
-      setDiscountList(localDiscountList);
-    }
-
-    const localTaxList: HomeProps['taxList'] | null = await localforage.getItem('taxList');
-    if (localTaxList === null) {
-      dispatch(progressAction('Taxes'))
-      try {
-        const taxList = await jsonRequest(`${TAX_LIST}?isActive=true`);
-        const json = await taxList.json();
-
-        json.list = json['hydra:member'];
-        delete json['hydra:member'];
-        setTaxList(json);
-
-        await localforage.setItem('taxList', json);
-      }catch (e) {
-        throw e;
-      }
-    } else {
-      setTaxList(localTaxList);
-    }
-
-    const localPaymentTypesList: HomeProps['paymentTypesList'] | null = await localforage.getItem('paymentTypesList');
-    if (localPaymentTypesList === null) {
-      dispatch(progressAction('Payment types'))
-      try {
-        const paymentTypesList = await jsonRequest(`${PAYMENT_TYPE_LIST}?isActive=true`);
-        const json = await paymentTypesList.json();
-
-        json.list = json['hydra:member'];
-        delete json['hydra:member'];
-
-        setPaymentTypesList(json);
-        await localforage.setItem('paymentTypesList', json);
-      }catch (e) {
-        throw e;
-      }
-    } else {
-      setPaymentTypesList(localPaymentTypesList);
-    }
-
-    const localDeviceList: HomeProps['deviceList']|null = await localforage.getItem('deviceList');
-    if (localDeviceList === null) {
-      dispatch(progressAction('Devices'))
-      try {
-        const deviceList = await jsonRequest(`${DEVICE_LIST}?isActive=true`);
-        const json = await deviceList.json();
-
-        json.list = json['hydra:member'];
-        delete json['hydra:member'];
-
-        setDeviceList(json);
-        await localforage.setItem('deviceList', json);
-      }catch (e) {
-        throw e;
-      }
-    } else {
-      setDeviceList(localDeviceList);
-    }
-
-    const localSettingList: HomeProps['settingList']|null = await localforage.getItem('settingList');
-    if (localSettingList === null) {
-      dispatch(progressAction('Settings'))
-      try {
-        const settingList = await jsonRequest(SETTING_LIST);
-        const json = await settingList.json();
-
-        json.list = json['hydra:member'];
-        delete json['hydra:member'];
-
-        setSettingList(json);
-        await localforage.setItem('settingList', json);
-      }catch (e) {
-        throw e;
-      }
-    } else {
-      setSettingList(localSettingList);
-    }
-
-    dispatch(progressAction('Done'))
+    dispatch(progressAction('Done'));
   };
 
   useEffect(() => {
