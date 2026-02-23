@@ -217,7 +217,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
 
                     // manage variants quantity — NO flush, just modify the managed entity
                     if($product->getManageInventory()){
-                        $variant->setQuantity((string)((float)$variant->getQuantity() - (float)$itemDto->getQuantity()));
+                        $variant->setQuantity((string)max(0, (float)$variant->getQuantity() - (float)$itemDto->getQuantity()));
                     }
                 }
             }
@@ -232,7 +232,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
                     }
                 }
                 if($store !== null) {
-                    $store->setQuantity((string)((float)$store->getQuantity() - (float)$orderProduct->getQuantity()));
+                    $store->setQuantity((string)max(0, (float)$store->getQuantity() - (float)$orderProduct->getQuantity()));
                 }
             }
 
