@@ -129,9 +129,9 @@ const PaymentHistory: FC<PaymentHistoryProps> = ({ payments }) => {
       {sorted.map((p) => (
         <tr key={p.id} className="bg-gray-50 border-b border-gray-100 last:border-0">
           <td className="ps-10 py-2 text-xs text-gray-500 w-40">
-            {DateTime.fromISO(p.createdAt).toFormat(
-              import.meta.env.VITE_DATE_TIME_HUMAN_FORMAT ?? "dd/MM/yyyy HH:mm"
-            )}
+            <span dir="ltr" className="inline-block">
+              {DateTime.fromISO(p.createdAt).toFormat("dd/MM/yyyy HH:mm")}
+            </span>
           </td>
           <td className="py-2 text-sm font-semibold text-green-700">
             {withCurrency(p.amount)}
@@ -547,9 +547,7 @@ export const DebtManagement: FC = () => {
         DateTime.fromISO(b.createdAt).toMillis() -
         DateTime.fromISO(a.createdAt).toMillis()
     );
-    return DateTime.fromISO(sorted[0].createdAt).toFormat(
-      import.meta.env.VITE_DATE_TIME_HUMAN_FORMAT ?? "dd/MM/yyyy HH:mm"
-    );
+    return DateTime.fromISO(sorted[0].createdAt).toFormat("dd/MM/yyyy HH:mm");
   };
 
   // ---------------------------------------------------------------------------
@@ -765,7 +763,9 @@ export const DebtManagement: FC = () => {
 
                         {/* Last payment */}
                         <td className="px-4 py-3 text-gray-500 text-xs">
-                          {lastPaymentDate(customer)}
+                          <span dir="ltr" className="inline-block">
+                            {lastPaymentDate(customer)}
+                          </span>
                         </td>
 
                         {/* Actions */}
