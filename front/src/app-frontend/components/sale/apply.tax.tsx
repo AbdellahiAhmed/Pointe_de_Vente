@@ -40,7 +40,7 @@ export const ApplyTax: FC<TaxProps> = ({ children }) => {
         type="button"
         disabled={added.length === 0}>
         {children || t("Taxes")}
-        <Shortcut shortcut="ctrl+shift+q" handler={() => setModal(true)} />
+        <Shortcut actionId="open_taxes" handler={() => setModal(true)} />
       </button>
       <Modal
         open={modal}

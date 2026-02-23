@@ -27,6 +27,7 @@ import { Category } from "../../../api/model/category";
 import { Department } from "../../../api/model/department";
 import { Barcode } from "../../../api/model/barcode";
 import Mousetrap from "mousetrap";
+import { useShortcutKey } from "../../../core/shortcuts/use-shortcut-key";
 import { Order } from "../../../api/model/order";
 import { Tooltip } from "antd";
 import { Button } from "../../../app-common/components/input/button";
@@ -65,6 +66,15 @@ export const PosMode = () => {
   const {
     customerBox
   } = appSettings;
+
+  // Resolve shortcut keys from registry (custom or default)
+  const keyChangeQty = useShortcutKey('change_quantity');
+  const keyChangePrice = useShortcutKey('change_price');
+  const keyFocusSearch = useShortcutKey('focus_search');
+  const keyReturnReq = useShortcutKey('return_request');
+  const keyTriggerPay = useShortcutKey('trigger_pay');
+  const keyRemoveItem = useShortcutKey('remove_item');
+  const keyCloseModal = useShortcutKey('close_modal');
 
   const {
     q,
@@ -569,8 +579,10 @@ export const PosMode = () => {
   }, [appState.cartItem, added]);
 
   useEffect(() => {
-    // F1 - Change quantity
-    Mousetrap.bind("f1", (e) => {
+    const keys = [keyChangeQty, keyChangePrice, keyFocusSearch, keyReturnReq, keyTriggerPay, keyRemoveItem, keyCloseModal].filter(Boolean);
+
+    // Change quantity
+    if (keyChangeQty) Mousetrap.bind(keyChangeQty, (e) => {
       e.preventDefault();
       const item = getSelectedCartItem();
       if (item) {
@@ -579,8 +591,8 @@ export const PosMode = () => {
       }
     });
 
-    // F2 - Change price
-    Mousetrap.bind("f2", (e) => {
+    // Change price
+    if (keyChangePrice) Mousetrap.bind(keyChangePrice, (e) => {
       e.preventDefault();
       const item = getSelectedCartItem();
       if (item) {
@@ -589,27 +601,27 @@ export const PosMode = () => {
       }
     });
 
-    // F3 - Focus search
-    Mousetrap.bind("f3", (e) => {
+    // Focus search
+    if (keyFocusSearch) Mousetrap.bind(keyFocusSearch, (e) => {
       e.preventDefault();
       searchField.current?.focus();
     });
 
-    // F8 - Open return request
-    Mousetrap.bind("f8", (e) => {
+    // Open return request
+    if (keyReturnReq) Mousetrap.bind(keyReturnReq, (e) => {
       e.preventDefault();
       setReturnRequestOpen(true);
     });
 
-    // F12 - Trigger pay (click the settle button)
-    Mousetrap.bind("f12", (e) => {
+    // Trigger pay
+    if (keyTriggerPay) Mousetrap.bind(keyTriggerPay, (e) => {
       e.preventDefault();
       const settleBtn = document.querySelector(".pos-settle-btn") as HTMLButtonElement;
       settleBtn?.click();
     });
 
-    // Del - Remove selected item from cart
-    Mousetrap.bind("del", (e) => {
+    // Remove selected item from cart
+    if (keyRemoveItem) Mousetrap.bind(keyRemoveItem, (e) => {
       if (document.body.classList.contains("ReactModal__Body--open")) return;
       e.preventDefault();
       const idx = appState.cartItem ?? -1;
@@ -622,8 +634,8 @@ export const PosMode = () => {
       }
     });
 
-    // Esc - Close any open modal or clear search
-    Mousetrap.bind("escape", (e) => {
+    // Close any open modal or clear search
+    if (keyCloseModal) Mousetrap.bind(keyCloseModal, (e) => {
       e.preventDefault();
       if (quantityModalOpen) {
         setQuantityModalOpen(false);
@@ -635,7 +647,6 @@ export const PosMode = () => {
         setModal(false);
         setVariants([]);
       } else {
-        // Clear search field
         reset({ q: "", quantity: 1 });
         setAppState(prev => ({ ...prev, q: "" }));
         searchField.current?.focus();
@@ -643,9 +654,9 @@ export const PosMode = () => {
     });
 
     return () => {
-      Mousetrap.unbind(["f1", "f2", "f3", "f8", "f12", "del", "escape"]);
+      keys.forEach(k => Mousetrap.unbind(k));
     };
-  }, [getSelectedCartItem, added, appState.cartItem, quantityModalOpen, priceModalOpen, returnRequestOpen, modal]);
+  }, [getSelectedCartItem, added, appState.cartItem, quantityModalOpen, priceModalOpen, returnRequestOpen, modal, keyChangeQty, keyChangePrice, keyFocusSearch, keyReturnReq, keyTriggerPay, keyRemoveItem, keyCloseModal]);
 
   const handleQuantityConfirm = useCallback((newQuantity: number) => {
     if (!selectedCartItem) return;

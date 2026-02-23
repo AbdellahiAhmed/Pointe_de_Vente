@@ -296,7 +296,7 @@ export const SearchTable = (props: SearchTableProps) => {
           size="lg"
           onClick={onOpen}>
           <FontAwesomeIcon icon={faMagnifyingGlass}/>
-          <Shortcut shortcut="ctrl+f" handler={onOpen} invisible={true}/>
+          <Shortcut actionId="open_search" handler={onOpen} invisible={true}/>
         </Button>
       </Tooltip>
       <Modal

@@ -142,7 +142,7 @@ export const Expenses: FC<ExpensesProps> = (props) => {
         setModal(true);
       }} title={t("Expenses")} type="button" tabIndex={-1}>
         {t("Expenses")}
-        <Shortcut shortcut="ctrl+e" handler={() => setModal(true)} />
+        <Shortcut actionId="open_expenses" handler={() => setModal(true)} />
       </Button>
 
       <Modal open={modal} onClose={() => {

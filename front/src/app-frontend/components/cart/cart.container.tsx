@@ -12,7 +12,8 @@ import { Checkbox } from "../../../app-common/components/input/checkbox";
 import Mousetrap from "mousetrap";
 import { withCurrency } from "../../../lib/currency/currency";
 import { useAtom } from "jotai";
-import { defaultState } from "../../../store/jotai";
+import { defaultData, defaultState } from "../../../store/jotai";
+import { useShortcutKey } from "../../../core/shortcuts/use-shortcut-key";
 import { notify } from "../../../app-common/components/confirm/notification";
 import { subTotal } from "../../containers/dashboard/pos";
 import {useTranslation} from "react-i18next";
@@ -36,6 +37,14 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
   const [appState, setAppState] = useAtom(defaultState);
   const { added, cartItemType, cartItem } = appState;
   const store = useSelector(getStore);
+
+  // Resolve cart shortcut keys from registry
+  const keyCartUp = useShortcutKey('cart_up');
+  const keyCartDown = useShortcutKey('cart_down');
+  const keyCartLeft = useShortcutKey('cart_left');
+  const keyCartRight = useShortcutKey('cart_right');
+  const keyCopyLast = useShortcutKey('copy_last_item');
+  const keyRemoveItem = useShortcutKey('remove_item');
 
   const getAvailableStock = (item: CartItemModel): number => {
     const product = item.item;
@@ -292,8 +301,9 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
     [cartItem, added]
   );
 
+  const cartKeys = [keyCartUp, keyCartDown, keyCartLeft, keyCartRight, keyRemoveItem, keyCopyLast].filter(Boolean);
   Mousetrap.bind(
-    ["ctrl+up", "ctrl+down", "ctrl+left", "ctrl+right", "del", 'ctrl+shift+down'],
+    cartKeys,
     function (e: KeyboardEvent) {
       if (document.body.classList.contains("ReactModal__Body--open")) return;
 
@@ -317,11 +327,11 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
         updateCartItemType(e.code === "ArrowLeft" ? "left" : "right");
       }
 
-      // Ctrl+Shift+Down = copy last item
+      // Copy last item
       if (e.code === "ArrowDown" && e.shiftKey) {
         copyLastItem();
       }
-      // Ctrl+Down/Up = navigate cart items
+      // Navigate cart items
       else if (e.code === "ArrowDown" || e.code === "ArrowUp") {
         updateCartItem(e.code === "ArrowDown" ? "down" : "up");
       }

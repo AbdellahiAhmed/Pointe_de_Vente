@@ -17,6 +17,7 @@ import { HomeProps, initialData, useLoadData, } from "../../../api/hooks/use.loa
 import { Footer } from "./footer";
 import { OrderPayment } from "../../../api/model/order.payment";
 import Mousetrap from "mousetrap";
+import { useShortcutKey } from "../../../core/shortcuts/use-shortcut-key";
 import { TrapFocus } from "../../../app-common/components/container/trap.focus";
 import { KeyboardTable } from "../../../app-common/components/table/keyboard.table";
 import classNames from "classnames";
@@ -31,6 +32,7 @@ import { Terminal } from "../../../api/model/terminal";
 export const PaymentMode = () => {
   const { t } = useTranslation();
   const [appState, setAppState] = useAtom(defaultState);
+  const keySearchPayment = useShortcutKey('search_payment');
 
   const [paymentTypesList, setPaymentTypesList] = useState<HomeProps["paymentTypesList"]>(initialData);
   const store = useSelector(getStore);
@@ -147,7 +149,7 @@ export const PaymentMode = () => {
 
   const searchField = useRef<HTMLInputElement>(null);
 
-  Mousetrap.bind(["/"], function (e: any) {
+  Mousetrap.bind([keySearchPayment], function (e: any) {
     e.preventDefault();
     if( searchField.current !== null ) {
       searchField.current.focus();

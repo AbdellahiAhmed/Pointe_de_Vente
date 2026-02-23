@@ -20,6 +20,7 @@ import {
   faShieldAlt,
   faReceipt,
   faExclamationTriangle,
+  faKeyboard,
 } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "../../../app-common/components/input/button";
 import { Input } from "../../../app-common/components/input/input";
@@ -51,6 +52,7 @@ import { useAtom } from "jotai";
 import { defaultData, defaultState } from "../../../store/jotai";
 import { useHasRole } from "../../../duck/auth/hooks/useHasRole";
 import { ReturnRequestsInline } from "./returns/return-requests-inline";
+import { ShortcutSettings } from "./shortcuts/shortcut-settings";
 
 interface Props {
 }
@@ -186,6 +188,12 @@ export const More: FC<Props> = ({}) => {
                     onClick={() => setActiveTab("general")}
                     icon={<FontAwesomeIcon icon={faSlidersH} />}>
                     {t("General")}
+                  </Tab>
+                  <Tab
+                    isActive={isTabActive("shortcuts")}
+                    onClick={() => setActiveTab("shortcuts")}
+                    icon={<FontAwesomeIcon icon={faKeyboard} />}>
+                    {t("Shortcuts")}
                   </Tab>
 
                   {/* ── Section: Commerce (Manager+) ── */}
@@ -635,6 +643,11 @@ export const More: FC<Props> = ({}) => {
                       </div>
                     </div>
                   </div>
+                </TabContent>
+
+                {/* ── Shortcuts Tab ── */}
+                <TabContent isActive={isTabActive("shortcuts")}>
+                  <ShortcutSettings />
                 </TabContent>
 
                 {/* ── Commerce Tabs (Manager+) ── */}

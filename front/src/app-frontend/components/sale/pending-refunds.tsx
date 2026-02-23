@@ -182,7 +182,7 @@ export const PendingRefunds: FC<PendingRefundsProps> = ({ open, onClose }) => {
 
   return (
     <>
-      <Shortcut shortcut="escape" handler={onClose} />
+      <Shortcut actionId="close_modal" handler={onClose} />
 
       <div className="pos-modal-overlay" role="dialog" aria-modal="true">
         <div className="pos-modal" style={{ maxWidth: 600, width: "100%" }}>

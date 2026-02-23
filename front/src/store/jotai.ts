@@ -74,6 +74,7 @@ export interface DefaultDataInterface {
   receiptFooterText?: string;
   autoPrintReceipt?: boolean;
   lowStockThreshold?: number;
+  customShortcuts?: Record<string, string>;
 }
 
 export const defaultData = atomWithStorage<DefaultDataInterface>(

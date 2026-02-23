@@ -742,7 +742,7 @@ export const CloseSaleInline: FC<Props> = ({
                 )}
                 defaultValue={ft + adjustment}
               />
-              <Shortcut shortcut="ctrl+enter" handler={() => focusAmountField()} invisible={true} />
+              <Shortcut actionId="focus_payment" handler={() => focusAmountField()} invisible={true} />
               <button
                 type="button"
                 className="pay-add-btn"
@@ -824,7 +824,7 @@ export const CloseSaleInline: FC<Props> = ({
             tabIndex={0}>
             <FontAwesomeIcon icon={isReturnMode ? faUndo : faCheck} className="me-1" />
             {isSaleClosing ? "..." : isReturnMode ? t("Confirm Return") : t("Done")}
-            <Shortcut shortcut="ctrl+s" handler={shortcutHandler} />
+            <Shortcut actionId="settle_order" handler={shortcutHandler} />
           </button>
           {!isReturnMode && (
             <button

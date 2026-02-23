@@ -264,7 +264,7 @@ export const ReturnRequest: FC<ReturnRequestProps> = ({ open, onClose, onSuccess
 
   return (
     <>
-      <Shortcut shortcut="escape" handler={onClose} />
+      <Shortcut actionId="close_modal" handler={onClose} />
 
       <div className="pos-modal-overlay" role="dialog" aria-modal="true">
         <div className="pos-modal" style={{ maxWidth: 700, width: "100%" }}>

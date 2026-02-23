@@ -342,7 +342,7 @@ export const Customers: FC<Props> = ({ children, className }) => {
             <FontAwesomeIcon icon={faUsers} className="me-2" /> {t("Customers")}
           </>
         )}
-        <Shortcut shortcut="ctrl+shift+c" handler={() => setModal(true)} />
+        <Shortcut actionId="open_customers" handler={() => setModal(true)} />
       </button>
 
       <Modal

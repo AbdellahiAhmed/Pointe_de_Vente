@@ -85,7 +85,7 @@ export const ClearSale: FC<Props> = ({}) => {
       onClick={cancel}
       type="button">
       <FontAwesomeIcon icon={faTimes} size="lg" />
-      <Shortcut shortcut="ctrl+x" handler={cancel} />
+      <Shortcut actionId="cancel_order" handler={cancel} />
     </Button>
   );
 };

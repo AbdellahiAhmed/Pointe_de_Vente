@@ -569,7 +569,7 @@ export const SaleHistory: FC<Props> = ({}) => {
           iconButton
         >
           <FontAwesomeIcon icon={faClockRotateLeft} />
-          <Shortcut shortcut="ctrl+h" handler={() => setModal(true)} />
+          <Shortcut actionId="open_history" handler={() => setModal(true)} />
         </Button>
       </Tooltip>
 
