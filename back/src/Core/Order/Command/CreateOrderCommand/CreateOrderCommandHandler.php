@@ -87,7 +87,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
             foreach($payments as $paymentDto){
                 $paymentEntity = $this->getRepository(Payment::class)->find($paymentDto->getType()->getId());
                 if($paymentEntity !== null && $paymentEntity->getType() === Payment::PAYMENT_TYPE_CREDIT){
-                    $totalCreditRequested += (float) $paymentDto->getTotal();
+                    $totalCreditRequested += (float) $paymentDto->getReceived();
                     $hasCreditPayment = true;
                 }
             }

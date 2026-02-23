@@ -273,8 +273,16 @@ class ReturnRequestController extends AbstractController
         $em = $this->getDoctrine()->getManager();
         $originalOrder = $returnRequest->getOrder();
 
+        // Generate next orderId for the return order
+        $nextOrderId = $em->createQueryBuilder()
+            ->select('COALESCE(MAX(o.orderId) + 1, 1)')
+            ->from(Order::class, 'o')
+            ->getQuery()
+            ->getSingleScalarResult();
+
         // 1. Create the return Order with negative quantities
         $returnOrder = new Order();
+        $returnOrder->setOrderId((string) $nextOrderId);
         $returnOrder->setStatus('RETURNED');
         $returnOrder->setReturnedFrom($originalOrder);
         $returnOrder->setIsReturned(true);

@@ -197,7 +197,7 @@ export const CloseSaleInline: FC<Props> = ({
     }
     const creditPayments = paymentsAdded.filter(p => p.type?.type === 'credit');
     if (creditPayments.length > 0 && customer) {
-      const totalCredit = creditPayments.reduce((sum, p) => sum + Number(p.total), 0);
+      const totalCredit = creditPayments.reduce((sum, p) => sum + Number(p.received), 0);
       if (!customer.allowCreditSale) {
         notify({ type: 'error', description: t('Credit sales not allowed for this customer') });
         setSaleClosing(false);

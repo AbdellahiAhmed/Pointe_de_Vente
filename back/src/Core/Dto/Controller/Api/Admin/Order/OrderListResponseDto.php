@@ -43,19 +43,19 @@ class OrderListResponseDto
         $dto->total = $result->getTotal();
         $dto->count = count($dto->list);
 
-        //calculate payment types
+        //calculate payment types (use getReceived for actual payment amount, not order total)
         $cash = 0;
         $payments = [];
         /** @var Order $item */
         foreach($result->getList() as $item){
             foreach($item->getPayments() as $payment){
                 if($payment->getType()->getType() === Payment::PAYMENT_TYPE_CASH){
-                    $cash += $payment->getTotal();
+                    $cash += $payment->getReceived();
                 }else{
                     if(!isset($payments[$payment->getType()->getType()])){
                         $payments[$payment->getType()->getType()] = 0;
                     }
-                    $payments[$payment->getType()->getType()] += $payment->getTotal();
+                    $payments[$payment->getType()->getType()] += $payment->getReceived();
                 }
             }
         }
