@@ -62,8 +62,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
 
             $returnedFrom->setIsReturned(true);
             $returnedFrom->setStatus(OrderStatus::RETURNED);
-
-            $this->save($returnedFrom);
+            // No flush here — will be flushed at the end
         }
         $item->setIsSuspended($command->getIsSuspended());
         $item->setIsDeleted($command->getIsDeleted());
@@ -76,16 +75,32 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
         } elseif($command->getCustomer() !== null and trim($command->getCustomer()) !== ''){
             $customer = (new Customer())->setName($command->getCustomer());
             $customer->setOpeningBalance(0);
-            $this->save($customer);
+            $this->persist($customer);
             $item->setCustomer($customer);
         }
 
-        // Credit limit validation
+        // --- Batch pre-load payment types for credit validation ---
+        $paymentTypeMap = [];
         if(null !== $payments = $command->getPayments()){
+            $paymentTypeIds = [];
+            foreach($payments as $paymentDto){
+                $ptId = $paymentDto->getType()->getId();
+                if(!isset($paymentTypeMap[$ptId])){
+                    $paymentTypeIds[] = $ptId;
+                }
+            }
+            if(!empty($paymentTypeIds)){
+                $paymentTypes = $this->getRepository(Payment::class)->findBy(['id' => $paymentTypeIds]);
+                foreach($paymentTypes as $pt){
+                    $paymentTypeMap[$pt->getId()] = $pt;
+                }
+            }
+
+            // Credit limit validation
             $totalCreditRequested = 0;
             $hasCreditPayment = false;
             foreach($payments as $paymentDto){
-                $paymentEntity = $this->getRepository(Payment::class)->find($paymentDto->getType()->getId());
+                $paymentEntity = $paymentTypeMap[$paymentDto->getType()->getId()] ?? null;
                 if($paymentEntity !== null && $paymentEntity->getType() === Payment::PAYMENT_TYPE_CREDIT){
                     $totalCreditRequested += (float) $paymentDto->getReceived();
                     $hasCreditPayment = true;
@@ -125,9 +140,50 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
 
         $item->setAdjustment($command->getAdjustment());
 
-        foreach($command->getItems() as $itemDto){
+        // --- Batch pre-load products and variants ---
+        $commandItems = $command->getItems();
+        $productIds = [];
+        $variantIds = [];
+        $taxIds = [];
+        foreach($commandItems as $ci){
+            $productIds[] = $ci->getProduct()->getId();
+            if($ci->getVariant() !== null){
+                $variantIds[] = $ci->getVariant()->getId();
+            }
+            if($ci->getTaxes()){
+                foreach($ci->getTaxes() as $tax){
+                    $taxIds[] = $tax->getId();
+                }
+            }
+        }
+
+        $productMap = [];
+        if(!empty($productIds)){
+            $products = $this->getRepository(Product::class)->findBy(['id' => array_unique($productIds)]);
+            foreach($products as $p){ $productMap[$p->getId()] = $p; }
+        }
+
+        $variantMap = [];
+        if(!empty($variantIds)){
+            $variants = $this->getRepository(ProductVariant::class)->findBy(['id' => array_unique($variantIds)]);
+            foreach($variants as $v){ $variantMap[$v->getId()] = $v; }
+        }
+
+        $taxMap = [];
+        if(!empty($taxIds)){
+            $taxes = $this->getRepository(Tax::class)->findBy(['id' => array_unique($taxIds)]);
+            foreach($taxes as $t){ $taxMap[$t->getId()] = $t; }
+        }
+
+        // --- Process order items using pre-loaded maps ---
+        foreach($commandItems as $itemDto){
             $orderProduct = new OrderProduct();
-            $product = $this->getRepository(Product::class)->find($itemDto->getProduct()->getId());
+            $product = $productMap[$itemDto->getProduct()->getId()] ?? null;
+            if($product === null){
+                return CreateOrderCommandResult::createFromValidationErrorMessage(
+                    'Produit introuvable.'
+                );
+            }
             $orderProduct->setProduct($product);
             $orderProduct->setCostAtSale($product->getCost());
             $orderProduct->setDiscount($itemDto->getDiscount());
@@ -150,22 +206,23 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
             $orderProduct->setQuantity($itemDto->getQuantity());
 
             if($itemDto->getVariant() !== null) {
-                $variant = $this->getRepository(ProductVariant::class)->find($itemDto->getVariant()->getId());
-                $orderProduct->setVariant($variant);
+                $variant = $variantMap[$itemDto->getVariant()->getId()] ?? null;
+                if($variant !== null){
+                    $orderProduct->setVariant($variant);
 
-                // Override costAtSale with variant-specific cost if available
-                if($variant->getCost() !== null) {
-                    $orderProduct->setCostAtSale($variant->getCost());
-                }
+                    // Override costAtSale with variant-specific cost if available
+                    if($variant->getCost() !== null) {
+                        $orderProduct->setCostAtSale($variant->getCost());
+                    }
 
-                // manage variants quantity
-                if($product->getManageInventory()){
-                    $variant->setQuantity((string)((float)$variant->getQuantity() - (float)$itemDto->getQuantity()));
-                    $this->save($variant);
+                    // manage variants quantity — NO flush, just modify the managed entity
+                    if($product->getManageInventory()){
+                        $variant->setQuantity((string)((float)$variant->getQuantity() - (float)$itemDto->getQuantity()));
+                    }
                 }
             }
 
-            // manage product quantity
+            // manage product quantity — NO flush, just modify the managed entity
             if($product->getManageInventory()){
                 $store = null;
                 foreach($product->getStores() as $s){
@@ -176,28 +233,29 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
                 }
                 if($store !== null) {
                     $store->setQuantity((string)((float)$store->getQuantity() - (float)$orderProduct->getQuantity()));
-                    $this->save($store);
                 }
             }
 
             if($itemDto->getTaxes()){
                 foreach($itemDto->getTaxes() as $tax){
-                    $t = $this->getRepository(Tax::class)->find($tax->getId());
-
-                    $orderProduct->addTax($t);
+                    $t = $taxMap[$tax->getId()] ?? null;
+                    if($t !== null){
+                        $orderProduct->addTax($t);
+                    }
                 }
             }
 
             $item->addItem($orderProduct);
         }
 
+        // --- Process payments using pre-loaded map ---
         $orderTotal = 0;
         if(null !== $payments = $command->getPayments()){
             foreach($payments as $paymentDto){
                 $payment = new OrderPayment();
                 $payment->setTotal($paymentDto->getTotal());
                 $payment->setType(
-                    $this->getRepository(Payment::class)->find($paymentDto->getType()->getId())
+                    $paymentTypeMap[$paymentDto->getType()->getId()] ?? null
                 );
                 $payment->setDue($paymentDto->getDue());
                 $payment->setReceived($paymentDto->getReceived());
@@ -243,6 +301,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
             return CreateOrderCommandResult::createFromConstraintViolations($violations);
         }
 
+        // Single flush — all entities (order, items, stock, payments) persisted in one transaction
         $this->persist($item);
         $this->flush();
 
@@ -254,11 +313,12 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
 
     public function getNewOrderId(): string
     {
-        try{
-            return $this->createQueryBuilder('entity')
-                ->select('COALESCE(MAX(entity.orderId) + 1, 1)')
-                ->getQuery()->getSingleScalarResult();
-        }catch (\Exception $exception){
+        try {
+            // Use native SQL — with idx_order_order_id index this is instant
+            $conn = $this->em->getConnection();
+            $result = $conn->fetchOne('SELECT COALESCE(MAX(order_id), 0) + 1 FROM `order`');
+            return (string) $result;
+        } catch (\Exception $exception) {
             return '1';
         }
     }
