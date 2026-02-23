@@ -96,11 +96,19 @@ class ClosingController extends AbstractController
     )
     {
         $this->denyAccessUnlessGranted(ClosingVoter::MANAGE);
-        $store = $storeRepository->find($request->query->get('store'));
-        $terminal = $terminalRepository->find($request->query->get('terminal'));
+
+        $storeId = $request->query->get('store');
+        $terminalId = $request->query->get('terminal');
+
+        if (!$storeId || !$terminalId) {
+            return $responseFactory->json(['error' => 'Store and terminal are required'], 400);
+        }
+
+        $store = $storeRepository->find($storeId);
+        $terminal = $terminalRepository->find($terminalId);
 
         if ($store === null || $terminal === null) {
-            return $responseFactory->json(['error' => 'Store and terminal are required'], 400);
+            return $responseFactory->json(['error' => 'Store or terminal not found'], 404);
         }
 
         $qb = $closingRepository->createQueryBuilder('closing');

@@ -256,17 +256,17 @@ class ClosingDto
     }
 
     /**
-     * @return StoreDto
+     * @return StoreDto|null
      */
-    public function getStore(): StoreDto
+    public function getStore(): ?StoreDto
     {
         return $this->store;
     }
 
     /**
-     * @param StoreDto $store
+     * @param StoreDto|null $store
      */
-    public function setStore(StoreDto $store): void
+    public function setStore(?StoreDto $store): void
     {
         $this->store = $store;
     }

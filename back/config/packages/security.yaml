@@ -38,7 +38,7 @@ security:
             refresh_jwt: ~
 
         api:
-            pattern: ^/(api/admin)|(api/client)|(api/auth/info)
+            pattern: ^/api/
             stateless: true
             provider: user_provider
             jwt: ~
@@ -54,6 +54,7 @@ security:
         - { path: ^/api/auth/register, roles: PUBLIC_ACCESS }
         - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
         - { path: ^/api/admin, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:
