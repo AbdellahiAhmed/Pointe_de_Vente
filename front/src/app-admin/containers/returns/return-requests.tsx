@@ -25,7 +25,7 @@ import {PrintReturnReceipt, ReturnReceiptData} from "../../../app-frontend/compo
 // Types
 // ---------------------------------------------------------------------------
 
-type ReturnStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'ALL';
+type ReturnStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'REFUNDED' | 'ALL';
 
 interface ReturnItemProduct {
   name: string;
@@ -61,7 +61,7 @@ interface ReturnRequest {
   order: ReturnOrder;
   requestedBy: ReturnUser;
   approvedBy: ReturnUser | null;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REFUNDED';
   reason: string;
   items: ReturnItem[];
   createdAt: string;
@@ -73,8 +73,9 @@ interface ReturnRequest {
 
 const STATUS_BADGE: Record<ReturnRequest['status'], string> = {
   PENDING: 'bg-warning text-dark',
-  APPROVED: 'bg-success',
+  APPROVED: 'bg-info',
   REJECTED: 'bg-danger',
+  REFUNDED: 'bg-success',
 };
 
 interface StatusBadgeProps {
@@ -87,6 +88,7 @@ const StatusBadge: FunctionComponent<StatusBadgeProps> = ({status}) => {
     PENDING: t('Pending'),
     APPROVED: t('Approved'),
     REJECTED: t('Rejected'),
+    REFUNDED: t('Refunded'),
   };
   return (
     <span className={`badge ${STATUS_BADGE[status]}`}>
@@ -145,11 +147,11 @@ const ConfirmModal: FunctionComponent<ConfirmModalProps> = ({
   const confirmBtnClass = isApprove ? 'btn-success' : 'btn-danger';
   const title = isApprove ? t('Approve Return Request') : t('Reject Return Request');
   const description = isApprove
-    ? t('Are you sure you want to approve this return request? Stock will be restored and a refund will be issued.')
+    ? t('Are you sure you want to approve this return request? Stock will be restored. The cashier will process the refund payment separately.')
     : t('Are you sure you want to reject this return request?');
   const reasonLabel = isApprove ? t('Approval note (optional)') : t('Rejection reason (optional)');
   const confirmText = isApprove ? t('Yes, Approve') : t('Yes, Reject');
-  const canConfirm = isApprove ? selectedPaymentType !== '' : true;
+  const canConfirm = true;
 
   const handleConfirm = () => {
     onConfirm(
@@ -197,26 +199,6 @@ const ConfirmModal: FunctionComponent<ConfirmModalProps> = ({
             </div>
             <div className="modal-body">
               <p className="mb-3">{description}</p>
-
-              {/* Refund payment method selector (approve only) */}
-              {isApprove && (
-                <div className="mb-3">
-                  <label className="form-label fw-semibold">
-                    {t('Refund payment method')} <span className="text-danger">*</span>
-                  </label>
-                  <select
-                    className="form-select"
-                    value={selectedPaymentType}
-                    onChange={e => setSelectedPaymentType(e.target.value === '' ? '' : Number(e.target.value))}
-                    disabled={processing}
-                  >
-                    <option value="">{t('Select payment method...')}</option>
-                    {paymentTypes.map(pt => (
-                      <option key={pt.id} value={pt.id}>{pt.name}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
 
               <div className="mb-1">
                 <label className="form-label fw-semibold">{reasonLabel}</label>
@@ -324,6 +306,7 @@ const ItemsTable: FunctionComponent<ItemsTableProps> = ({items}) => {
 const STATUS_FILTERS: {label: string; value: ReturnStatus}[] = [
   {label: 'Pending', value: 'PENDING'},
   {label: 'Approved', value: 'APPROVED'},
+  {label: 'Refunded', value: 'REFUNDED'},
   {label: 'Rejected', value: 'REJECTED'},
   {label: 'All', value: 'ALL'},
 ];

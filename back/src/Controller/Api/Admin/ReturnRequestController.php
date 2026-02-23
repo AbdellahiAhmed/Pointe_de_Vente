@@ -355,22 +355,6 @@ class ReturnRequestController extends AbstractController
             $em->persist($originalOrderProduct);
         }
 
-        // 5. Create refund payment on the return order
-        if (!empty($data['refundPaymentTypeId'])) {
-            $paymentType = $this->getDoctrine()->getRepository(Payment::class)
-                ->find($data['refundPaymentTypeId']);
-
-            if ($paymentType) {
-                $refundPayment = new OrderPayment();
-                $refundPayment->setTotal((string) $refundTotal);
-                $refundPayment->setReceived((string) $refundTotal);
-                $refundPayment->setDue('0');
-                $refundPayment->setType($paymentType);
-                $returnOrder->addPayment($refundPayment);
-                $em->persist($refundPayment);
-            }
-        }
-
         $em->persist($returnOrder);
 
         // 6. Update ReturnRequest status
@@ -429,6 +413,97 @@ class ReturnRequestController extends AbstractController
         return $responseFactory->json([
             'id'     => $returnRequest->getId(),
             'status' => $returnRequest->getStatus(),
+        ]);
+    }
+
+    /**
+     * Process refund payment for an approved return request.
+     * The cashier selects the payment method and confirms the refund.
+     * Accessible by ROLE_VENDEUR and above.
+     *
+     * @Route("/{id}/process-refund", methods={"PUT"}, name="process_refund", requirements={"id"="\d+"})
+     */
+    public function processRefund(
+        int $id,
+        Request $request,
+        ApiResponseFactory $responseFactory,
+        ReturnRequestRepository $repository,
+        OrderRepository $orderRepository
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted('ROLE_VENDEUR');
+
+        $returnRequest = $repository->find($id);
+        if (!$returnRequest) {
+            return $responseFactory->notFound('Return request not found.');
+        }
+
+        if ($returnRequest->getStatus() !== 'APPROVED') {
+            return $responseFactory->validationError(
+                sprintf('Return request must be APPROVED to process refund. Current status: %s', $returnRequest->getStatus())
+            );
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if (empty($data['paymentTypeId'])) {
+            return $responseFactory->validationError('paymentTypeId is required.');
+        }
+
+        $em = $this->getDoctrine()->getManager();
+
+        // Find the return order (created during approval) via returnedFrom
+        $originalOrder = $returnRequest->getOrder();
+        $returnOrder = $orderRepository->findOneBy([
+            'returnedFrom' => $originalOrder,
+            'status' => 'RETURNED',
+        ]);
+
+        if (!$returnOrder) {
+            return $responseFactory->notFound('Return order not found. Was this request approved?');
+        }
+
+        // Check if refund was already processed
+        if ($returnOrder->getPayments()->count() > 0) {
+            return $responseFactory->validationError('Refund has already been processed for this return.');
+        }
+
+        // Find payment type
+        $paymentType = $this->getDoctrine()->getRepository(Payment::class)
+            ->find($data['paymentTypeId']);
+        if (!$paymentType) {
+            return $responseFactory->notFound('Payment type not found.');
+        }
+
+        // Calculate refund total from return order items
+        $refundTotal = 0;
+        foreach ($returnOrder->getItems() as $item) {
+            $price = (float) $item->getPrice();
+            $discount = (float) ($item->getDiscount() ?? 0);
+            $qty = abs((int) $item->getQuantity());
+            $refundTotal += ($price - $discount) * $qty;
+        }
+
+        // Create refund payment
+        $refundPayment = new OrderPayment();
+        $refundPayment->setTotal((string) $refundTotal);
+        $refundPayment->setReceived((string) $refundTotal);
+        $refundPayment->setDue('0');
+        $refundPayment->setType($paymentType);
+        $returnOrder->addPayment($refundPayment);
+        $em->persist($refundPayment);
+
+        // Update return request status to REFUNDED
+        $returnRequest->setStatus('REFUNDED');
+        $em->persist($returnRequest);
+
+        $em->flush();
+
+        return $responseFactory->json([
+            'id'            => $returnRequest->getId(),
+            'status'        => $returnRequest->getStatus(),
+            'refundTotal'   => $refundTotal,
+            'paymentMethod' => $paymentType->getName(),
+            'returnOrderId' => $returnOrder->getOrderId(),
         ]);
     }
 }

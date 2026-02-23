@@ -783,6 +783,7 @@ export const SaleHistory: FC<Props> = ({}) => {
       <ReturnRequest
         open={returnRequestOpen}
         onClose={() => setReturnRequestOpen(false)}
+        onSuccess={() => loadList()}
       />
     </>
   );

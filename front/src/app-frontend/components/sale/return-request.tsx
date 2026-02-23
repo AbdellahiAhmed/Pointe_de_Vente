@@ -52,6 +52,7 @@ type Step = "search" | "select" | "confirm" | "success";
 export interface ReturnRequestProps {
   open: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -67,7 +68,7 @@ const displayName = (item: OrderItemResponse): string =>
 // Component
 // ---------------------------------------------------------------------------
 
-export const ReturnRequest: FC<ReturnRequestProps> = ({ open, onClose }) => {
+export const ReturnRequest: FC<ReturnRequestProps> = ({ open, onClose, onSuccess }) => {
   const { t } = useTranslation();
 
   // ---- step state ----
@@ -127,7 +128,7 @@ export const ReturnRequest: FC<ReturnRequestProps> = ({ open, onClose }) => {
     setSearchError(null);
 
     try {
-      const params = new URLSearchParams({ orderId: raw });
+      const params = new URLSearchParams({ orderId: raw, status: "Completed" });
       const json = await fetchJson(`${ORDER_LIST}?${params.toString()}`);
 
       // Support both hydra (API Platform) and custom list wrapper
@@ -232,6 +233,7 @@ export const ReturnRequest: FC<ReturnRequestProps> = ({ open, onClose }) => {
       }
 
       setStep("success");
+      onSuccess?.();
     } catch {
       notify({
         type: "error",
@@ -391,10 +393,22 @@ export const ReturnRequest: FC<ReturnRequestProps> = ({ open, onClose }) => {
 
                 {searchError && (
                   <div
-                    className="alert alert-danger"
-                    style={{ marginTop: 12, padding: "8px 12px", borderRadius: 6 }}
                     role="alert"
+                    style={{
+                      marginTop: 12,
+                      padding: "10px 14px",
+                      borderRadius: 8,
+                      background: "#fef2f2",
+                      border: "1px solid #fecaca",
+                      color: "#991b1b",
+                      fontSize: 13,
+                      fontWeight: 500,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                    }}
                   >
+                    <span style={{ fontSize: 16 }}>⚠</span>
                     {searchError}
                   </div>
                 )}
@@ -581,9 +595,17 @@ export const ReturnRequest: FC<ReturnRequestProps> = ({ open, onClose }) => {
 
                 {!canProceedToConfirm && (
                   <div
-                    className="alert alert-warning"
-                    style={{ marginTop: 12, padding: "8px 12px", borderRadius: 6, fontSize: 13 }}
                     role="alert"
+                    style={{
+                      marginTop: 12,
+                      padding: "10px 14px",
+                      borderRadius: 8,
+                      background: "#fffbeb",
+                      border: "1px solid #fde68a",
+                      color: "#92400e",
+                      fontSize: 13,
+                      fontWeight: 500,
+                    }}
                   >
                     {t("Select at least one item to return.")}
                   </div>
@@ -698,14 +720,21 @@ export const ReturnRequest: FC<ReturnRequestProps> = ({ open, onClose }) => {
                 )}
 
                 <div
-                  className="alert alert-info"
                   style={{
                     marginTop: 14,
                     padding: "10px 14px",
-                    borderRadius: 6,
+                    borderRadius: 8,
+                    background: "#eff6ff",
+                    border: "1px solid #bfdbfe",
+                    color: "#1e40af",
                     fontSize: 13,
+                    fontWeight: 500,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
                   }}
                 >
+                  <span style={{ fontSize: 16 }}>ℹ</span>
                   {t(
                     "This request will be sent to a manager for approval. The return will not be processed until it is approved."
                   )}

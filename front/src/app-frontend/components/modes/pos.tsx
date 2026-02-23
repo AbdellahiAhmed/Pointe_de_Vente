@@ -5,7 +5,7 @@ import { getStore } from "../../../duck/store/store.selector";
 import { getTerminal } from "../../../duck/terminal/terminal.selector";
 import { useSelector } from "react-redux";
 import { defaultData, defaultState } from "../../../store/jotai";
-import { faBarcode, faReply, faRotateRight, } from "@fortawesome/free-solid-svg-icons";
+import { faBarcode, faMoneyBillWave, faReply, faRotateRight, } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useAtom } from "jotai";
 import localforage from "localforage";
@@ -40,6 +40,7 @@ import { ProductGrid } from "../search/product.grid";
 import { QuantityChangeModal } from "../sale/quantity-change.modal";
 import { PriceChangeModal } from "../sale/price-change.modal";
 import { ReturnRequest } from "../sale/return-request";
+import { PendingRefunds } from "../sale/pending-refunds";
 
 enum SearchModes {
   sale = "sale",
@@ -110,6 +111,7 @@ export const PosMode = () => {
   const [priceModalOpen, setPriceModalOpen] = useState(false);
   const [selectedCartItem, setSelectedCartItem] = useState<CartItem | null>(null);
   const [returnRequestOpen, setReturnRequestOpen] = useState(false);
+  const [pendingRefundsOpen, setPendingRefundsOpen] = useState(false);
   const [brands, setBrands] = useState<{ [key: string]: Brand }>({});
   const [categories, setCategories] = useState<{ [key: string]: Category }>({});
   const [departments, setDepartment] = useState<{ [key: string]: Department }>(
@@ -761,6 +763,15 @@ export const PosMode = () => {
                   <FontAwesomeIcon icon={faReply} className="me-1" />
                   {t("Return")}
                 </Button>
+                <Button
+                  variant="warning"
+                  size="lg"
+                  onClick={() => setPendingRefundsOpen(true)}
+                  title={t("Pending Refunds")}
+                >
+                  <FontAwesomeIcon icon={faMoneyBillWave} className="me-1" />
+                  {t("Refunds")}
+                </Button>
                 <SaleFind
                   icon={faRotateRight}
                   title={t("Re Order")}
@@ -883,6 +894,10 @@ export const PosMode = () => {
       <ReturnRequest
         open={returnRequestOpen}
         onClose={() => setReturnRequestOpen(false)}
+      />
+      <PendingRefunds
+        open={pendingRefundsOpen}
+        onClose={() => setPendingRefundsOpen(false)}
       />
     </>
   );
