@@ -243,7 +243,7 @@ export const CreditCustomerModal: FC<CreditCustomerModalProps> = ({
       aria-label={t("Select customer for credit payment")}
     >
       {/* ── Modal card ── */}
-      <div className="relative bg-white rounded-xl shadow-2xl w-[calc(100%-2rem)] max-w-md max-h-[80vh] flex flex-col overflow-hidden">
+      <div className="relative bg-white rounded-xl shadow-2xl w-[calc(100%-2rem)] max-w-md max-h-[90vh] flex flex-col overflow-hidden">
 
         {/* ── Header ── */}
         <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-gray-100 bg-gray-50 shrink-0">
@@ -523,11 +523,20 @@ export const CreditCustomerModal: FC<CreditCustomerModalProps> = ({
                 )}
 
                 {/* Action buttons */}
-                <div className="flex items-center gap-2 pt-1">
+                <div className="flex items-center gap-2 pt-2 pb-1">
+                  <button
+                    type="button"
+                    onClick={handleCancelCreate}
+                    disabled={creating}
+                    className="px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-60 disabled:cursor-not-allowed transition-colors rounded-lg"
+                  >
+                    {t("Cancel")}
+                  </button>
                   <button
                     type="submit"
                     disabled={creating}
-                    className="flex-1 inline-flex items-center justify-center gap-2 text-sm font-semibold text-white bg-amber-500 hover:bg-amber-600 active:bg-amber-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors px-4 py-2 rounded-lg shadow-sm"
+                    className="flex-1 inline-flex items-center justify-center gap-2 text-sm font-bold py-2.5 px-4 rounded-lg shadow-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                    style={{ backgroundColor: '#f59e0b', color: '#fff' }}
                   >
                     {creating ? (
                       <>
@@ -540,14 +549,6 @@ export const CreditCustomerModal: FC<CreditCustomerModalProps> = ({
                         {t("Save & select")}
                       </>
                     )}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleCancelCreate}
-                    disabled={creating}
-                    className="px-4 py-2 text-sm font-semibold text-gray-600 bg-white border border-gray-300 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-60 disabled:cursor-not-allowed transition-colors rounded-lg"
-                  >
-                    {t("Cancel")}
                   </button>
                 </div>
               </form>
