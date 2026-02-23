@@ -973,5 +973,21 @@
   "Payment amount": "مبلغ الدفعة",
   "Payment description": "وصف الدفعة",
   "Available credit": "الرصيد المتاح",
-  "Debt details": "تفاصيل الدين"
+  "Debt details": "تفاصيل الدين",
+  "Debt Management": "إدارة الديون",
+  "Track outstanding balances and record customer payments": "تتبع الأرصدة المستحقة وتسجيل مدفوعات العملاء",
+  "Total outstanding debt": "إجمالي الديون المستحقة",
+  "Search by name or phone...": "البحث بالاسم أو رقم الهاتف...",
+  "Clear search": "مسح البحث",
+  "results": "نتائج",
+  "No customers match your search": "لا يوجد عملاء مطابقون لبحثك",
+  "No customer debt records found": "لم يتم العثور على سجلات ديون",
+  "Payment history": "سجل المدفوعات",
+  "No payment history": "لا يوجد سجل مدفوعات",
+  "Note / Description": "ملاحظة / وصف",
+  "e.g. Cash received": "مثال: تم استلام نقدي",
+  "Payment recorded successfully": "تم تسجيل الدفعة بنجاح",
+  "Failed to load customer data": "فشل في تحميل بيانات العملاء",
+  "no limit": "بدون حد",
+  "Never": "أبداً"
 }

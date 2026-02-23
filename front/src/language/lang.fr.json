@@ -976,5 +976,21 @@
   "Payment amount": "Montant du paiement",
   "Payment description": "Description du paiement",
   "Available credit": "Crédit disponible",
-  "Debt details": "Détails de la dette"
+  "Debt details": "Détails de la dette",
+  "Debt Management": "Gestion des dettes",
+  "Track outstanding balances and record customer payments": "Suivre les soldes impayés et enregistrer les paiements clients",
+  "Total outstanding debt": "Dette totale impayée",
+  "Search by name or phone...": "Rechercher par nom ou téléphone...",
+  "Clear search": "Effacer la recherche",
+  "results": "résultats",
+  "No customers match your search": "Aucun client ne correspond à votre recherche",
+  "No customer debt records found": "Aucun enregistrement de dette client trouvé",
+  "Payment history": "Historique des paiements",
+  "No payment history": "Aucun historique de paiement",
+  "Note / Description": "Note / Description",
+  "e.g. Cash received": "ex. Espèces reçues",
+  "Payment recorded successfully": "Paiement enregistré avec succès",
+  "Failed to load customer data": "Échec du chargement des données clients",
+  "no limit": "sans limite",
+  "Never": "Jamais"
 }

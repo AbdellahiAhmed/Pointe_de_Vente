@@ -6,12 +6,14 @@ import { SaleHistory } from "../sale/sale.history";
 import { More } from "../settings/more";
 import { Shortcuts } from "../shortcuts";
 import { StockAlertBadge } from "../stock/stock.alert.badge";
+import { DebtManagementButton } from "../customers/debt-management-button";
 
 export const Footer = () => {
   return (
     <>
       <Expenses />
       <PurchaseTabs />
+      <DebtManagementButton />
       <More />
       <span className="w-[2px] bg-gray-500 h-full"></span>
       <StockAlertBadge />
