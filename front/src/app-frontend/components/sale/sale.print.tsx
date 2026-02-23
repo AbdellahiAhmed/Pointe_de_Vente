@@ -44,6 +44,8 @@ export const SalePrint: FC<SalePrintProps> = (props) => {
 
   const [sendEmail, setSendEmail] = useState(false);
 
+  const isReturn = !!props.order.returnedFrom;
+
   return (
     <>
       <Button onClick={() => setShow(true)} variant="secondary">
@@ -52,7 +54,7 @@ export const SalePrint: FC<SalePrintProps> = (props) => {
 
       <Modal open={show} onClose={() => {
         setShow(false)
-      }} title={t("Duplicate Sale Receipt Print")}>
+      }} title={isReturn ? t("Print Return Receipt") : t("Duplicate Sale Receipt Print")}>
         <div className="flex justify-center flex-col items-center">
           <SalePrintMarkup order={props.order} />
 
@@ -83,6 +85,14 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
   const {t} = useTranslation();
   const [settings, setSettings] = useState<Setting[]>([]);
 
+  // Detect if this is a return order
+  const isReturn = !!order.returnedFrom;
+
+  // Color scheme: blue for sales, red for returns
+  const headerBg = isReturn ? '#fde8e8' : 'rgb(200, 224, 235)';
+  const headerColor = isReturn ? '#991b1b' : 'inherit';
+  const accentBg = isReturn ? 'rgba(253, 232, 232, 0.18)' : 'rgba(218, 232, 239, 0.18)';
+
   useEffect(() => {
     localforage.getItem('settings').then((data: any) => {
       if(data) {
@@ -94,11 +104,12 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
   }, []);
 
   const itemsTotal = useMemo(() => {
-    return order.items.reduce((prev, item) => ((item.price * item.quantity) + item.taxesTotal - item.discount) + prev, 0)
-  }, [order]);
+    const raw = order.items.reduce((prev, item) => ((item.price * item.quantity) + item.taxesTotal - item.discount) + prev, 0);
+    return isReturn ? Math.abs(raw) : raw;
+  }, [order, isReturn]);
 
   const netTotal = useMemo(() => {
-    let amount = itemsTotal;
+    let amount = order.items.reduce((prev, item) => ((item.price * item.quantity) + item.taxesTotal - item.discount) + prev, 0);
     if(order?.discount && order?.discount?.amount) {
       amount -= order?.discount?.amount
     }
@@ -107,16 +118,17 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
       amount += order?.tax?.amount;
     }
 
-    return amount;
-  }, [order, itemsTotal]);
+    return isReturn ? Math.abs(amount) : amount;
+  }, [order, isReturn]);
 
   const changeDue = useMemo(() => {
     return order.payments.reduce((prev, item) => prev + (item.total - item.received), 0)
   }, [order]);
 
   const itemsQuantity = useMemo(() => {
-    return order.items.reduce((prev, item) => item.quantity + prev, 0)
-  }, [order]);
+    const raw = order.items.reduce((prev, item) => item.quantity + prev, 0);
+    return isReturn ? Math.abs(raw) : raw;
+  }, [order, isReturn]);
 
   return (
     <div id="SaleInvoice3InchOffline" style={{width: "3.5in"}}>
@@ -140,22 +152,28 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
         <div
           style={{
             textAlign: "center",
-            background: "rgb(200, 224, 235)",
+            background: headerBg,
+            color: headerColor,
             padding: "6px 6px"
           }}
         >
           <h3
             className="h3Style"
             id="InvoiceCaption3Inch"
-            style={{margin: "0 0"}}
+            style={{margin: "0 0", color: headerColor}}
           >
-            {t("Sale Receipt")}
+            {isReturn ? t("Return Receipt") : t("Sale Receipt")}
           </h3>
+          {isReturn && (
+            <div style={{fontSize: 9, color: '#991b1b', marginTop: 2}}>
+              بون إرجاع
+            </div>
+          )}
         </div>
         <div
           style={{
             textAlign: "center",
-            background: "rgba(218, 232, 239, 0.18)",
+            background: accentBg,
             padding: "5px 5px"
           }}
           id="ShopSection"
@@ -188,7 +206,7 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
         <div
           style={{
             textAlign: "center",
-            background: "rgba(218, 232, 239, 0.18)",
+            background: accentBg,
             padding: "5px 2px"
           }}
         >
@@ -198,7 +216,7 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
             id="RegisterSection"
           >
             <span id="saleId3Inch" style={{float: "left"}}>
-              {t("Receipt #")}: {order.orderId}
+              {isReturn ? t("Return #") : t("Receipt #")}: {order.orderId}
             </span>
             <span id="RegisterCode3Inch" style={{float: "right", display: 'none'}}>
               {t("Register")}: RegDF01
@@ -217,6 +235,21 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
             {t("Date")}: {DateTime.fromISO(order.createdAt).toFormat(import.meta.env.VITE_DATE_TIME_FORMAT as string)}
           </h4>
         </div>
+
+        {/* Original order reference for returns */}
+        {isReturn && order.returnedFrom && (
+          <div style={{
+            textAlign: "center",
+            background: '#fef2f2',
+            padding: '4px 6px',
+            borderBottom: '1px dashed #fca5a5',
+            fontSize: 11,
+            color: '#991b1b',
+          }}>
+            <strong>{t("Original Order #")}:</strong> {order.returnedFrom.orderId}
+          </div>
+        )}
+
         {order.customer && (
           <div id="customerNameOffline_Div3Inch">
             <span>
@@ -239,7 +272,7 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
                 borderBottom: "dashed 1px #808080"
               }}
             >
-            <tr style={{background: "rgb(200, 224, 235)"}}>
+            <tr style={{background: headerBg}}>
               <td style={{width: 150, textAlign: "left"}}>
                 <strong>{t("Item")}</strong>
               </td>
@@ -279,7 +312,12 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
             </tr>
             </thead>
             <tbody id="saleLineItemTableBody3Inch">
-            {order.items.map((item, index) => (
+            {order.items.map((item, index) => {
+              const qty = isReturn ? Math.abs(item.quantity) : item.quantity;
+              const rowTotal = isReturn
+                ? Math.abs((item.price * item.quantity) + item.taxesTotal - item.discount)
+                : (item.price * item.quantity) + item.taxesTotal - item.discount;
+              return (
               <tr key={index}>
                 <td
                   style={{textAlign: "right", display: "none"}}
@@ -294,23 +332,24 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
                   )}
                 </td>
                 <td style={{textAlign: "right"}}><span dir="ltr">{item.price}</span></td>
-                <td style={{textAlign: "right"}}><span dir="ltr">{item.quantity}</span></td>
+                <td style={{textAlign: "right"}}><span dir="ltr">{qty}</span></td>
                 <td
                   style={{textAlign: "right", display: "none"}}
                   className="GSTClm"
                 />
                 <td
                   style={{textAlign: "right"}}
-                ><span dir="ltr">{item.taxesTotal}</span></td>
+                ><span dir="ltr">{Math.abs(item.taxesTotal)}</span></td>
                 <td
                   className="DiscColumnData3Inch"
                   style={{textAlign: "right"}}
                 >
-                  <span dir="ltr">{item.discount}</span>
+                  <span dir="ltr">{Math.abs(item.discount)}</span>
                 </td>
-                <td style={{textAlign: "right"}}><span dir="ltr">{(item.price * item.quantity) + item.taxesTotal - item.discount}</span></td>
+                <td style={{textAlign: "right"}}><span dir="ltr">{rowTotal}</span></td>
               </tr>
-            ))}
+              );
+            })}
             <tr
               style={{
                 borderTop: "dashed 1px #808080",
@@ -341,22 +380,22 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
             {order.discount && (
               <tr>
                 <td style={{textAlign: "right", width: "60%"}}>{t("Disc")}:</td>
-                <td style={{textAlign: "right", width: "40%"}}><span dir="ltr">{order.discount.amount}</span></td>
+                <td style={{textAlign: "right", width: "40%"}}><span dir="ltr">{isReturn ? Math.abs(order.discount.amount) : order.discount.amount}</span></td>
               </tr>
             )}
             {order.tax && (
               <tr>
                 <td style={{textAlign: "right", width: "60%"}}>{t("Tax")}@{order.tax.rate}:</td>
-                <td style={{textAlign: "right", width: "40%"}}><span dir="ltr">{order.tax.amount}</span></td>
+                <td style={{textAlign: "right", width: "40%"}}><span dir="ltr">{isReturn ? Math.abs(order.tax.amount) : order.tax.amount}</span></td>
               </tr>
             )}
 
             <tr>
               <td style={{textAlign: "right", width: "60%"}}>
-                <strong>{t("Net Total")}:</strong>
+                <strong>{isReturn ? t("Refund Total") : t("Net Total")}:</strong>
               </td>
               <td style={{textAlign: "right", width: "40%"}}>
-                <strong><span dir="ltr">{netTotal}</span></strong>
+                <strong style={isReturn ? {color: '#991b1b'} : undefined}><span dir="ltr">{netTotal}</span></strong>
               </td>
             </tr>
             {order.adjustment && (
@@ -372,10 +411,11 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
             {order.payments.map((item, index) => (
               <tr key={index}>
                 <td style={{textAlign: "right", width: "60%"}}>{item.type?.name} {t("Amount")}</td>
-                <td style={{textAlign: "right", width: "40%"}}><span dir="ltr">{item.received}</span></td>
+                <td style={{textAlign: "right", width: "40%"}}><span dir="ltr">{isReturn ? Math.abs(item.received) : item.received}</span></td>
               </tr>
             ))}
 
+            {!isReturn && (
             <tr
               style={{
                 borderTop: "dashed 1px #808080",
@@ -389,6 +429,7 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
                 <strong><span dir="ltr">{changeDue}</span></strong>
               </td>
             </tr>
+            )}
             </tbody>
           </table>
         </div>
@@ -396,7 +437,7 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
         <div id="Comments_div3Inch"/>
         <br/>
         <div
-          style={{textAlign: "center", background: "rgba(218, 232, 239, 0.18)"}}
+          style={{textAlign: "center", background: accentBg}}
           hidden={true}
         >
           <h4
@@ -414,7 +455,7 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
           style={{
             left: "1%",
             textAlign: "justify",
-            background: "rgba(218, 232, 239, 0.18)"
+            background: accentBg
           }}
         >
           <h4
