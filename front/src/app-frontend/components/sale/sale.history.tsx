@@ -15,13 +15,13 @@ import {
   faTrash,
   faTrashRestoreAlt,
   faTruck,
+  faUndo,
 } from "@fortawesome/free-solid-svg-icons";
 import { fetchJson } from "../../../api/request/request";
 import {
   EXPENSE_LIST,
   ORDER_GET,
   ORDER_LIST,
-  ORDER_REFUND,
   ORDER_RESTORE,
 } from "../../../api/routing/routes/backend.app";
 import { Order, OrderStatus } from "../../../api/model/order";
@@ -42,6 +42,7 @@ import { ResponsiveBar as Bar } from "@nivo/bar";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Shortcut } from "../../../app-common/components/input/shortcut";
 import { SalePrint } from "./sale.print";
+import { ReturnRequest } from "./return-request";
 import { useSelector } from "react-redux";
 import { getStore } from "../../../duck/store/store.selector";
 import { TableComponent } from "../../../app-common/components/table/table";
@@ -60,6 +61,7 @@ export const SaleHistory: FC<Props> = ({}) => {
   const { customer } = appState;
 
   const [modal, setModal] = useState(false);
+  const [returnRequestOpen, setReturnRequestOpen] = useState(false);
   const [list, setList] = useState<Order[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [payments, setPayments] = useState<{ [key: string]: number }>({});
@@ -201,20 +203,15 @@ export const SaleHistory: FC<Props> = ({}) => {
           {orderStatus(info.row.original) === OrderStatus.COMPLETED && (
             <>
               {!info.row.original.returnedFrom && (
-                <>
-                  <Button
-                    variant="danger"
-                    className="w-[40px]"
-                    onClick={() => refundOrder(info.row.original)}
-                    disabled={refunding}
-                    title={t("Refund")}>
-                    <FontAwesomeIcon icon={faBackward} />
-                  </Button>
-                  {/*<Button variant="success" className="ml-3 w-[40px]" onClick={() => dispatchOrder(info.row.original)}
-                          disabled={dispatching} title="Dispatch">
-                    <FontAwesomeIcon icon={faTruck}/>
-                  </Button>*/}
-                </>
+                <Button
+                  variant="warning"
+                  className="w-[40px]"
+                  onClick={() => {
+                    setReturnRequestOpen(true);
+                  }}
+                  title={t("Return")}>
+                  <FontAwesomeIcon icon={faUndo} />
+                </Button>
               )}
               <Button
                 variant="danger"
@@ -397,44 +394,6 @@ export const SaleHistory: FC<Props> = ({}) => {
     }
   };
 
-  const [refunding, setRefunding] = useState(false);
-  const refundOrder = async (order: Order) => {
-    if (!window.confirm(t("Refund order?"))) return false;
-    setRefunding(true);
-    try {
-      await fetchJson(ORDER_REFUND.replace(":id", order.id), {
-        method: "POST",
-      });
-
-      const items: CartItem[] = [];
-      order.items.forEach((item) => {
-        items.push({
-          quantity: -1 * item.quantity,
-          price: item.price,
-          discount: 0,
-          variant: item.variant,
-          item: item.product,
-          taxes: item.taxes,
-        });
-      });
-
-      setAppState((prev) => ({
-        ...prev,
-        added: items,
-        discount: order.discount?.type,
-        tax: order.tax?.type,
-        discountAmount: order.discount?.amount,
-        customer: order?.customer,
-        refundingFrom: Number(order.id),
-      }));
-
-      setModal(false);
-    } catch (e) {
-      throw e;
-    } finally {
-      setRefunding(false);
-    }
-  };
 
   // TODO: disable for now and add in a separate module
   // const [dispatching, setDispatching] = useState(false);
@@ -820,6 +779,11 @@ export const SaleHistory: FC<Props> = ({}) => {
           ]}
         />
       </Modal>
+
+      <ReturnRequest
+        open={returnRequestOpen}
+        onClose={() => setReturnRequestOpen(false)}
+      />
     </>
   );
 };

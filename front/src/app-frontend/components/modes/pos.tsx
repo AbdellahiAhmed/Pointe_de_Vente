@@ -668,30 +668,6 @@ export const PosMode = () => {
     setSelectedCartItem(null);
   }, [selectedCartItem, added, setAppState]);
 
-  const refundOrder = async (order: Order) => {
-    const items: CartItem[] = [];
-    order.items.forEach((item) => {
-      items.push({
-        quantity: -1 * item.quantity,
-        price: item.price,
-        discount: 0,
-        variant: item.variant,
-        item: item.product,
-        taxes: item.taxes,
-        taxIncluded: true,
-      });
-    });
-
-    setAppState((prev) => ({
-      ...prev,
-      added: items,
-      discount: order.discount?.type,
-      tax: order.tax?.type,
-      discountAmount: order.discount?.amount,
-      customer: order?.customer,
-      refundingFrom: Number(order.id),
-    }));
-  };
 
   const reOrder = async (order: Order) => {
     const items: CartItem[] = [];
@@ -776,21 +752,15 @@ export const PosMode = () => {
                 <button className="hidden">submit</button>
               </form>
               <div className="input-group">
-                <SaleFind
-                  icon={faReply}
-                  title={t("Refund")}
+                <Button
                   variant="danger"
-                  onSuccess={refundOrder}
-                  onError={() => {
-                    notify({
-                      title: t("Not found"),
-                      description: t("Order not found"),
-                      type: "error",
-                      placement: "top",
-                    });
-                  }}
-                  displayLabel
-                />
+                  size="lg"
+                  onClick={() => setReturnRequestOpen(true)}
+                  title={t("Return Request")}
+                >
+                  <FontAwesomeIcon icon={faReply} className="me-1" />
+                  {t("Return")}
+                </Button>
                 <SaleFind
                   icon={faRotateRight}
                   title={t("Re Order")}
