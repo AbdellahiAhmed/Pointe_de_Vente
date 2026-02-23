@@ -842,5 +842,11 @@
   "Closed at": "Clôturé le",
   "Total orders": "Total commandes",
   "Cash Reconciliation": "Réconciliation de caisse",
-  "Printed at": "Imprimé le"
+  "Printed at": "Imprimé le",
+  "Return Mode": "Mode retour",
+  "Confirm Return": "Confirmer le retour",
+  "Return completed": "Retour effectué",
+  "Refund via": "Remboursement via",
+  "returns": "retours",
+  "Return quantity must be at least 1": "La quantité de retour doit être d'au moins 1"
 }

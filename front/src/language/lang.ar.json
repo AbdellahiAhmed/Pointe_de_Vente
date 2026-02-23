@@ -839,5 +839,11 @@
   "Closed at": "أُغلق في",
   "Total orders": "إجمالي الطلبات",
   "Cash Reconciliation": "مطابقة النقد",
-  "Printed at": "طبع في"
+  "Printed at": "طبع في",
+  "Return Mode": "وضع الاسترجاع",
+  "Confirm Return": "تأكيد الاسترجاع",
+  "Return completed": "تم الاسترجاع",
+  "Refund via": "استرداد عبر",
+  "returns": "مرتجعات",
+  "Return quantity must be at least 1": "كمية الإرجاع يجب أن تكون 1 على الأقل"
 }

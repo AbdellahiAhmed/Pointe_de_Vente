@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPause, faPlus, faTrash,
   faMoneyBillWave, faMobileAlt, faCreditCard, faHandHoldingUsd,
-  faCheck, faTimes, faWallet, faPrint,
+  faCheck, faTimes, faWallet, faPrint, faUndo,
 } from "@fortawesome/free-solid-svg-icons";
 import { OrderPayment } from "../../../api/model/order.payment";
 import { UnprocessableEntityException } from "../../../lib/http/exception/http.exception";
@@ -88,12 +88,14 @@ export const CloseSaleInline: FC<Props> = ({
   const store = useSelector(getStore);
   const terminal = useSelector(getTerminal);
 
-  const showSaleSuccess = useCallback((order: Order) => {
+  const isReturnMode = !!refundingFrom;
+
+  const showSaleSuccess = useCallback((order: Order, wasReturn?: boolean) => {
     setLastOrder(order);
     notification.success({
-      message: t("Sale completed"),
+      message: wasReturn ? t("Return completed") : t("Sale completed"),
       description: `${t("Receipt #")}${order.orderId} — ${withCurrency(
-        order.payments.reduce((sum, p) => sum + p.received, 0)
+        Math.abs(order.payments.reduce((sum, p) => sum + p.received, 0))
       )}`,
       placement: "bottomRight",
       duration: 4,
@@ -276,7 +278,7 @@ export const CloseSaleInline: FC<Props> = ({
       if( json.order.status === OrderStatus.COMPLETED ) {
         onSale && onSale();
         // Show success toast with optional print
-        showSaleSuccess(json.order);
+        showSaleSuccess(json.order, !!refundingFrom);
       }
     } catch ( e: any ) {
       if( e instanceof UnprocessableEntityException ) {
@@ -645,6 +647,14 @@ export const CloseSaleInline: FC<Props> = ({
           </div>
         )
       )}
+      {/* ═══ Return Mode Banner ═══ */}
+      {isReturnMode && (
+        <div className="return-mode-banner">
+          <FontAwesomeIcon icon={faUndo} className="me-2" />
+          <span>{t("Return Mode")} — {t("Order #")}{refundingFrom}</span>
+        </div>
+      )}
+
       {/* ═══ Payment Section ═══ */}
       <form onSubmit={handleSubmit(onSaleSubmit)}>
         {(defaultMode === PosModes.payment || defaultMode === PosModes.pos) && (
@@ -741,9 +751,11 @@ export const CloseSaleInline: FC<Props> = ({
             {payments.length > 0 && (
               <div className="pay-splits">
                 {payments.map((item, index) => (
-                  <div className="pay-splits__row" key={index}>
-                    <span className="pay-splits__label">{item?.type?.name}</span>
-                    <span className="pay-splits__val">{withCurrency(Number(item.received))}</span>
+                  <div className={classNames("pay-splits__row", isReturnMode && "pay-splits__row--return")} key={index}>
+                    <span className="pay-splits__label">
+                      {isReturnMode ? t("Refund via") + " " : ""}{item?.type?.name}
+                    </span>
+                    <span className="pay-splits__val">{withCurrency(Math.abs(Number(item.received)))}</span>
                     <button
                       className="pay-splits__del"
                       type="button"
@@ -753,7 +765,7 @@ export const CloseSaleInline: FC<Props> = ({
                   </div>
                 ))}
                 <div className="pay-splits__remaining">
-                  {t("Remaining")}: <strong>{withCurrency(Math.max(0, ft - received + adjustment))}</strong>
+                  {t("Remaining")}: <strong>{withCurrency(Math.abs(Math.max(0, ft - received + adjustment)))}</strong>
                 </div>
               </div>
             )}
@@ -799,21 +811,23 @@ export const CloseSaleInline: FC<Props> = ({
         {/* Action buttons */}
         <div className="pay-actions">
           <button
-            className="pay-btn-confirm"
+            className={isReturnMode ? "pay-btn-return" : "pay-btn-confirm"}
             type="submit"
             disabled={added.length === 0 || isSaleClosing || changeDue < 0}
             tabIndex={0}>
-            <FontAwesomeIcon icon={faCheck} className="me-1" />
-            {isSaleClosing ? "..." : t("Done")}
+            <FontAwesomeIcon icon={isReturnMode ? faUndo : faCheck} className="me-1" />
+            {isSaleClosing ? "..." : isReturnMode ? t("Confirm Return") : t("Done")}
             <Shortcut shortcut="ctrl+s" handler={shortcutHandler} />
           </button>
-          <button
-            type="submit"
-            disabled={added.length === 0 || isSaleClosing}
-            className="pay-btn-hold"
-            onClick={() => setHold(true)}>
-            <FontAwesomeIcon icon={faPause} />
-          </button>
+          {!isReturnMode && (
+            <button
+              type="submit"
+              disabled={added.length === 0 || isSaleClosing}
+              className="pay-btn-hold"
+              onClick={() => setHold(true)}>
+              <FontAwesomeIcon icon={faPause} />
+            </button>
+          )}
           <div className="pay-btn-cancel">
             <ClearSale />
           </div>

@@ -5,6 +5,7 @@ import React, {
   useState,
 } from "react";
 import { CartItem as CartItemModel } from "../../../api/model/cart.item";
+import classNames from "classnames";
 import { Product } from "../../../api/model/product";
 import { CartItem } from "./cart.item";
 import { Checkbox } from "../../../app-common/components/input/checkbox";
@@ -87,6 +88,8 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
     );
   }, [added]);
 
+  const isReturnMode = appState.refundingFrom !== undefined;
+
   const onQuantityChange = (item: CartItemModel, newQuantity: number) => {
     const oldItems = [...added];
     let index = oldItems.findIndex(
@@ -94,25 +97,36 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
         addItem.item.id === item.item.id && item.variant === addItem.variant
     );
     if (index !== -1) {
-      if (newQuantity <= 0) {
-        notify({
-          type: "error",
-          description: t("Quantity cannot be less then 1"),
-        });
-        return false;
-      }
+      if (isReturnMode) {
+        // In return mode, quantities are negative. Block if trying to go past 0
+        if (newQuantity >= 0) {
+          notify({
+            type: "error",
+            description: t("Return quantity must be at least 1"),
+          });
+          return false;
+        }
+      } else {
+        if (newQuantity <= 0) {
+          notify({
+            type: "error",
+            description: t("Quantity cannot be less then 1"),
+          });
+          return false;
+        }
 
-      // Stock validation
-      const available = getAvailableStock(oldItems[index]);
-      if (available !== Infinity && Number(newQuantity) > available) {
-        notify({
-          type: "error",
-          title: t("Stock insufficient"),
-          description: `${item.item.name}: ${t("available")} ${available}`,
-          placement: "top",
-          duration: 3,
-        });
-        return false;
+        // Stock validation
+        const available = getAvailableStock(oldItems[index]);
+        if (available !== Infinity && Number(newQuantity) > available) {
+          notify({
+            type: "error",
+            title: t("Stock insufficient"),
+            description: `${item.item.name}: ${t("available")} ${available}`,
+            placement: "top",
+            duration: 3,
+          });
+          return false;
+        }
       }
 
       oldItems[index].quantity = Number(newQuantity);
@@ -364,20 +378,24 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
         ))}
       </div>
       <div className="table-footer-group">
-        <div className="table-row font-bold">
+        <div className={classNames("table-row font-bold", isReturnMode && "text-danger-500")}>
           <div className="table-cell p-2">{added.length}</div>
-          <div className="table-cell">{t("items")}</div>
+          <div className="table-cell">{isReturnMode ? t("returns") : t("items")}</div>
           <div className="table-cell"></div>
           <div className="table-cell text-center p-2">
-            {added.reduce((previous, item) => {
-              return parseFloat(item.quantity as unknown as string) + previous;
-            }, 0)}
+            {isReturnMode
+              ? Math.abs(added.reduce((previous, item) => parseFloat(item.quantity as unknown as string) + previous, 0))
+              : added.reduce((previous, item) => parseFloat(item.quantity as unknown as string) + previous, 0)
+            }
           </div>
           <div className="table-cell"></div>
           <div className="table-cell"></div>
           <div className="table-cell"></div>
           <div className="table-cell text-end p-2">
-            {withCurrency(subTotal(added))}
+            {isReturnMode
+              ? withCurrency(Math.abs(subTotal(added)))
+              : withCurrency(subTotal(added))
+            }
           </div>
         </div>
       </div>

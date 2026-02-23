@@ -21,7 +21,8 @@ export const OrderTotals: FC<OrderTotalsProps> = ({
 }) => {
   const {t} = useTranslation();
   const [appState, setAppState] = useAtom(defaultState);
-  const { added, tax, discount, customer, discountAmount, discountRateType } = appState;
+  const { added, tax, discount, customer, discountAmount, discountRateType, refundingFrom } = appState;
+  const isReturnMode = !!refundingFrom;
 
   const exclusiveSubTotal = useMemo(() => {
     return added.reduce((prev, item) => prev + getExclusiveRowTotal(item), 0);
@@ -36,8 +37,8 @@ export const OrderTotals: FC<OrderTotalsProps> = ({
             style={{ width: "50%" }}>
             {t("Sub total")}
           </th>
-          <td className="border border-gray-300 p-2 text-end">
-            {withCurrency(subTotal(added))}
+          <td className={classNames("border border-gray-300 p-2 text-end", isReturnMode && "text-danger-500")}>
+            {isReturnMode ? withCurrency(Math.abs(subTotal(added))) : withCurrency(subTotal(added))}
           </td>
         </tr>
         <tr className="hover:bg-gray-100">
@@ -124,11 +125,20 @@ export const OrderTotals: FC<OrderTotalsProps> = ({
           </td>
         </tr>
         <tr className="hover:bg-gray-100">
-          <th className="border border-gray-300 p-2 text-start text-3xl font-bold text-success-500 digital bg-black">
-            {t("Total")}
+          <th className={classNames(
+            "border border-gray-300 p-2 text-start text-3xl font-bold digital bg-black",
+            isReturnMode ? "text-danger-500" : "text-success-500"
+          )}>
+            {isReturnMode ? t("Refund Total") : t("Total")}
           </th>
-          <td className="border border-gray-300 p-2 text-end text-3xl font-bold text-success-500 digital bg-black">
-            {withCurrency(finalTotal(added, tax, discountAmount, discountRateType, discount))}
+          <td className={classNames(
+            "border border-gray-300 p-2 text-end text-3xl font-bold digital bg-black",
+            isReturnMode ? "text-danger-500" : "text-success-500"
+          )}>
+            {isReturnMode
+              ? withCurrency(Math.abs(finalTotal(added, tax, discountAmount, discountRateType, discount)))
+              : withCurrency(finalTotal(added, tax, discountAmount, discountRateType, discount))
+            }
           </td>
         </tr>
         {children}

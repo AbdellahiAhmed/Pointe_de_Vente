@@ -891,6 +891,66 @@
   }
 }
 
+/* ─── Return Mode ─── */
+.return-mode-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  margin-bottom: 6px;
+  border-radius: var(--pos-radius);
+  background: #fef2f2;
+  border: 2px solid #fca5a5;
+  color: #b91c1c;
+  font-weight: 700;
+  font-size: 14px;
+  animation: return-pulse 2s ease-in-out infinite;
+}
+
+@keyframes return-pulse {
+  0%, 100% { border-color: #fca5a5; }
+  50% { border-color: #ef4444; }
+}
+
+.pay-btn-return {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 48px;
+  border: none;
+  border-radius: var(--pos-radius);
+  background: #dc2626;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.1s;
+
+  &:hover:not(:disabled) { background: #b91c1c; }
+  &:active:not(:disabled) { transform: scale(0.97); }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+.pay-splits__row--return {
+  background: #fef2f2 !important;
+  border-color: #fca5a5 !important;
+}
+
+.return-cart-row {
+  background: #fef2f2 !important;
+  &:hover { background: #fee2e2 !important; }
+}
+
+.return-qty {
+  color: #dc2626 !important;
+  font-weight: 700;
+}
+
 /* ─── Sale Success Toast ─── */
 .sale-toast-print {
   display: inline-flex;
