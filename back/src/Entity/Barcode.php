@@ -18,10 +18,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass=BarcodeRepository::class)
  * @ApiResource(
- *     normalizationContext={"groups"={"barcode.read", "time.read", "uuid.read", "product.read"}}
+ *     normalizationContext={"groups"={"barcode.read", "time.read", "uuid.read", "product.read"}},
+ *     denormalizationContext={"groups"={"barcode.write"}}
  * )
- * @ApiFilter(filterClass=SearchFilter::class, properties={"barcode": "exact"})
- * @ApiFilter(filterClass=OrderFilter::class, properties={"name"})
+ * @ApiFilter(filterClass=SearchFilter::class, properties={"barcode": "partial", "item.name": "partial"})
+ * @ApiFilter(filterClass=OrderFilter::class, properties={"barcode", "id"})
  */
 class Barcode
 {
@@ -39,37 +40,37 @@ class Barcode
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"barcode.read"})
+     * @Groups({"barcode.read", "barcode.write"})
      */
     private $barcode;
 
     /**
      * @ORM\ManyToOne(targetEntity=Product::class)
-     * @Groups({"barcode.read"})
+     * @Groups({"barcode.read", "barcode.write"})
      */
     private $item;
 
     /**
      * @ORM\ManyToOne(targetEntity=ProductVariant::class)
-     * @Groups({"barcode.read"})
+     * @Groups({"barcode.read", "barcode.write"})
      */
     private $variant;
 
     /**
      * @ORM\Column(type="decimal", precision=10, scale=2)
-     * @Groups({"barcode.read"})
+     * @Groups({"barcode.read", "barcode.write"})
      */
     private $price;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"barcode.read"})
+     * @Groups({"barcode.read", "barcode.write"})
      */
     private $measurement;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"barcode.read"})
+     * @Groups({"barcode.read", "barcode.write"})
      */
     private $unit;
 

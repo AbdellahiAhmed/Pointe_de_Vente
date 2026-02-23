@@ -897,5 +897,17 @@
   "Receipt header text": "Texte d'en-tête du reçu",
   "Receipt footer text": "Texte de pied de page du reçu",
   "e.g. Welcome to our store!": "ex: Bienvenue dans notre magasin !",
-  "e.g. Thank you for your visit!": "ex: Merci pour votre visite !"
+  "e.g. Thank you for your visit!": "ex: Merci pour votre visite !",
+  "Barcode copied!": "Code-barres copié !",
+  "Failed to copy": "Échec de la copie",
+  "Barcode deleted successfully.": "Code-barres supprimé avec succès.",
+  "Failed to delete barcode.": "Échec de la suppression du code-barres.",
+  "Are you sure to delete this barcode?": "Êtes-vous sûr de vouloir supprimer ce code-barres ?",
+  "Create barcode": "Créer un code-barres",
+  "Update barcode": "Modifier le code-barres",
+  "Generate": "Générer",
+  "Select product...": "Sélectionner un produit...",
+  "Select variant...": "Sélectionner une variante...",
+  "e.g. 500": "ex: 500",
+  "e.g. g, kg, ml": "ex: g, kg, ml"
 }

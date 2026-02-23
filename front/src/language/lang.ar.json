@@ -894,5 +894,17 @@
   "Receipt header text": "نص رأس الإيصال",
   "Receipt footer text": "نص تذييل الإيصال",
   "e.g. Welcome to our store!": "مثال: أهلاً بكم في متجرنا!",
-  "e.g. Thank you for your visit!": "مثال: شكراً لزيارتكم!"
+  "e.g. Thank you for your visit!": "مثال: شكراً لزيارتكم!",
+  "Barcode copied!": "تم نسخ الباركود!",
+  "Failed to copy": "فشل النسخ",
+  "Barcode deleted successfully.": "تم حذف الباركود بنجاح.",
+  "Failed to delete barcode.": "فشل حذف الباركود.",
+  "Are you sure to delete this barcode?": "هل أنت متأكد من حذف هذا الباركود؟",
+  "Create barcode": "إنشاء باركود",
+  "Update barcode": "تعديل باركود",
+  "Generate": "توليد",
+  "Select product...": "اختر منتج...",
+  "Select variant...": "اختر متغير...",
+  "e.g. 500": "مثال: 500",
+  "e.g. g, kg, ml": "مثال: غ، كغ، مل"
 }
