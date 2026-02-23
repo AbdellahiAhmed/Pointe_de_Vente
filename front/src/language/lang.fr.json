@@ -139,6 +139,8 @@
   "Order Tax": "Taxe sur commande",
   "Items Tax": "Taxe sur articles",
   "Cost": "Coût",
+  "Cost (PMP)": "Coût (PMP)",
+  "Auto": "Auto",
   "Status": "Statut",
   "Delete": "Supprimer",
   "Refund": "Rembourser",
