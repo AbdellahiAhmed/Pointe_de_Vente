@@ -874,5 +874,11 @@
   "Return completed": "Retour effectué",
   "Refund via": "Remboursement via",
   "returns": "retours",
-  "Return quantity must be at least 1": "La quantité de retour doit être d'au moins 1"
+  "Return quantity must be at least 1": "La quantité de retour doit être d'au moins 1",
+  "Purchase deleted successfully.": "Achat supprimé avec succès.",
+  "Failed to delete purchase. It may have related records.": "Échec de la suppression de l'achat. Il peut avoir des enregistrements liés.",
+  "Purchase order deleted successfully.": "Bon de commande supprimé avec succès.",
+  "Failed to delete purchase order.": "Échec de la suppression du bon de commande.",
+  "Supplier deleted successfully.": "Fournisseur supprimé avec succès.",
+  "Failed to delete supplier. It may have related purchases.": "Échec de la suppression du fournisseur. Il peut avoir des achats liés."
 }

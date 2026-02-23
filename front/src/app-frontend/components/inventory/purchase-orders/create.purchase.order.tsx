@@ -10,6 +10,7 @@ import {
   PRODUCT_KEYWORDS,
   PURCHASE_ORDER_CREATE,
   PURCHASE_ORDER_EDIT,
+  PURCHASE_ORDER_NEXT_NUMBER,
   SUPPLIER_LIST
 } from "../../../../api/routing/routes/backend.app";
 import { fetchJson, jsonRequest } from "../../../../api/request/request";
@@ -65,7 +66,7 @@ export const CreatePurchaseOrder: FunctionComponent<CreatePurchaseOrderProps> = 
   const {t} = useTranslation();
   const store = useSelector(getStore);
 
-  const { register, handleSubmit, setError, formState: { errors }, reset, control, watch, getValues } = useForm({
+  const { register, handleSubmit, setError, formState: { errors }, reset, control, watch, getValues, setValue } = useForm({
     resolver: yupResolver(ValidationSchema)
   });
   const { fields, append, remove, update } = useFieldArray({
@@ -96,6 +97,18 @@ export const CreatePurchaseOrder: FunctionComponent<CreatePurchaseOrderProps> = 
     if( showModal ) {
       loadSuppliers();
       loadProducts();
+
+      // Auto-fill PO number for new purchase orders
+      if (!purchaseOrder) {
+        jsonRequest(PURCHASE_ORDER_NEXT_NUMBER)
+          .then(res => res.json())
+          .then(data => {
+            if (data?.nextNumber) {
+              setValue('poNumber', data.nextNumber);
+            }
+          })
+          .catch(() => {});
+      }
     }
   }, [showModal]);
 
@@ -376,7 +389,7 @@ export const CreatePurchaseOrder: FunctionComponent<CreatePurchaseOrderProps> = 
           </div>
           <div className="my-3">
             {_.get(errors.items, 'message') && (
-              <div className="alert alert-danger mb-3">
+              <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', color: '#991b1b', padding: '8px 12px', borderRadius: 6, marginBottom: 12, fontSize: 13 }}>
                 <Trans>
                   {_.get(errors.items, 'message')}
                 </Trans>

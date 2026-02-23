@@ -58,8 +58,7 @@ class Supplier
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
      * @Groups({"supplier.read", "product.read", "purchase.read", "purchaseOrder.read"})
-     * @Assert\NotBlank()
-     * @Assert\Email()
+     * @Assert\Email(message="The email '{{ value }}' is not a valid email address.")
      */
     private $email;
 
@@ -97,7 +96,6 @@ class Supplier
     /**
      * @ORM\Column(type="decimal", precision=20, scale=2, nullable=true)
      * @Groups({"supplier.read", "product.read", "purchase.read", "purchaseOrder.read"})
-     * @Assert\NotBlank()
      */
     private $openingBalance;
 

@@ -871,5 +871,11 @@
   "Return completed": "تم الاسترجاع",
   "Refund via": "استرداد عبر",
   "returns": "مرتجعات",
-  "Return quantity must be at least 1": "كمية الإرجاع يجب أن تكون 1 على الأقل"
+  "Return quantity must be at least 1": "كمية الإرجاع يجب أن تكون 1 على الأقل",
+  "Purchase deleted successfully.": "تم حذف الشراء بنجاح.",
+  "Failed to delete purchase. It may have related records.": "فشل حذف الشراء. قد يكون له سجلات مرتبطة.",
+  "Purchase order deleted successfully.": "تم حذف أمر الشراء بنجاح.",
+  "Failed to delete purchase order.": "فشل حذف أمر الشراء.",
+  "Supplier deleted successfully.": "تم حذف المورد بنجاح.",
+  "Failed to delete supplier. It may have related purchases.": "فشل حذف المورد. قد يكون له مشتريات مرتبطة."
 }

@@ -99,6 +99,9 @@ export const PURCHASE_ORDER_ITEM_CREATE = scopeUrl('/purchase_order_items');
 export const PURCHASE_ORDER_ITEM_EDIT = scopeUrl('/purchase_order_items/:id');
 export const PURCHASE_ORDER_ITEM_DELETE = scopeUrl('/purchase_order_items/:id');
 
+export const PURCHASE_NEXT_NUMBER = scopeUrl('/admin/purchases/next-number');
+export const PURCHASE_ORDER_NEXT_NUMBER = scopeUrl('/admin/purchases/next-po-number');
+
 export const STORE_LIST = scopeUrl('/stores');
 export const STORE_CREATE = scopeUrl('/stores');
 export const STORE_EDIT = scopeUrl('/stores/:id');

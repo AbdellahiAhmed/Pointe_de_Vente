@@ -1,7 +1,7 @@
 import {useTranslation} from "react-i18next";
 import {Button} from "../../../../app-common/components/input/button";
 import React, {useState} from "react";
-import { PURCHASE_DELETE, SUPPLIER_EDIT, SUPPLIER_LIST } from "../../../../api/routing/routes/backend.app";
+import { SUPPLIER_EDIT, SUPPLIER_LIST } from "../../../../api/routing/routes/backend.app";
 import {Supplier} from "../../../../api/model/supplier";
 import {TableComponent} from "../../../../app-common/components/table/table";
 import {createColumnHelper} from "@tanstack/react-table";
@@ -16,6 +16,7 @@ import {HydraCollection} from "../../../../api/model/hydra";
 import { withCurrency } from "../../../../lib/currency/currency";
 import { ConfirmAlert } from "../../../../app-common/components/confirm/confirm.alert";
 import { jsonRequest } from "../../../../api/request/request";
+import { notify } from "../../../../app-common/components/confirm/notification";
 
 export const Suppliers = () => {
   const [operation, setOperation] = useState('create');
@@ -88,11 +89,15 @@ export const Suppliers = () => {
   ];
 
   async function deleteSupplier(id: string) {
-    await jsonRequest(SUPPLIER_EDIT.replace(':id', id), {
-      method: 'DELETE'
-    });
-
-    await useLoadHook.fetchData();
+    try {
+      await jsonRequest(SUPPLIER_EDIT.replace(':id', id), {
+        method: 'DELETE'
+      });
+      notify({ type: 'success', description: t('Supplier deleted successfully.') });
+      await useLoadHook.fetchData();
+    } catch {
+      notify({ type: 'error', description: t('Failed to delete supplier. It may have related purchases.') });
+    }
   }
 
   return (

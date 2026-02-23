@@ -12,6 +12,7 @@ import {
   PRODUCT_KEYWORDS,
   PURCHASE_CREATE,
   PURCHASE_EDIT,
+  PURCHASE_NEXT_NUMBER,
   PURCHASE_ORDER_LIST,
   SUPPLIER_LIST
 } from "../../../../api/routing/routes/backend.app";
@@ -144,6 +145,18 @@ export const CreatePurchase: FC<PurchaseProps> = ({
       loadSuppliers();
       loadProducts();
       loadPaymentTypes();
+
+      // Auto-fill purchase number for new purchases
+      if (!purchase) {
+        jsonRequest(PURCHASE_NEXT_NUMBER)
+          .then(res => res.json())
+          .then(data => {
+            if (data?.nextNumber) {
+              setValue('purchaseNumber', data.nextNumber);
+            }
+          })
+          .catch(() => {});
+      }
     }
   }, [addModal]);
 
@@ -619,7 +632,7 @@ export const CreatePurchase: FC<PurchaseProps> = ({
 
           <div className="mb-3">
             {errors.items && (
-              <div className="alert alert-danger mb-3">
+              <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', color: '#991b1b', padding: '8px 12px', borderRadius: 6, marginBottom: 12, fontSize: 13 }}>
                 <Trans>
                   {errors.items.message}
                 </Trans>

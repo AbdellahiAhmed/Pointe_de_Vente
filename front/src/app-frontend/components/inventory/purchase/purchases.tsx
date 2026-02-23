@@ -17,6 +17,7 @@ import { DateTime } from "luxon";
 import { ViewPurchase } from "./view.purchase";
 import useApi from "../../../../api/hooks/use.api";
 import { HydraCollection } from "../../../../api/model/hydra";
+import { notify } from "../../../../app-common/components/confirm/notification";
 
 export const Purchases = () => {
   const [operation, setOperation] = useState('create');
@@ -104,11 +105,15 @@ export const Purchases = () => {
   ];
 
   async function deletePurchase(id: string) {
-    await jsonRequest(PURCHASE_DELETE.replace(':id', id), {
-      method: 'DELETE'
-    });
-
-    await useLoadHook.fetchData();
+    try {
+      await jsonRequest(PURCHASE_DELETE.replace(':id', id), {
+        method: 'DELETE'
+      });
+      notify({ type: 'success', description: t('Purchase deleted successfully.') });
+      await useLoadHook.fetchData();
+    } catch {
+      notify({ type: 'error', description: t('Failed to delete purchase. It may have related records.') });
+    }
   }
 
   const [addModal, setAddModal] = useState(false);

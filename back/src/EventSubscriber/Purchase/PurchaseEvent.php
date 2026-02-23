@@ -2,6 +2,7 @@
 
 namespace App\EventSubscriber\Purchase;
 
+use App\Entity\ProductStore;
 use App\Entity\Purchase;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -74,18 +75,25 @@ class PurchaseEvent
             }
             if($purchase->getUpdateStocks()){
                 // get store and update in it
-                $store = null;
+                $productStore = null;
                 foreach($item->getItem()->getStores() as $s){
                     if($s->getStore()->getId() === $purchase->getStore()->getId()){
-                        $store = $s;
+                        $productStore = $s;
                         break;
                     }
                 }
-                if($store !== null){
-                    $store->setQuantity($store->getQuantity() + $item->getQuantity());
+
+                // If product doesn't have a ProductStore entry for this store, create one
+                if($productStore === null){
+                    $productStore = new ProductStore();
+                    $productStore->setProduct($item->getItem());
+                    $productStore->setStore($purchase->getStore());
+                    $productStore->setQuantity('0');
+                    $item->getItem()->addStore($productStore);
                 }
 
-                $this->entityManager->persist($store);
+                $productStore->setQuantity($productStore->getQuantity() + $item->getQuantity());
+                $this->entityManager->persist($productStore);
 
                 foreach($item->getVariants() as $variant){
                     $variant->getVariant()->setQuantity($variant->getVariant()->getQuantity() + $variant->getQuantity());

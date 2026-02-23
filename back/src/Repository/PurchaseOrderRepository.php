@@ -19,32 +19,11 @@ class PurchaseOrderRepository extends ServiceEntityRepository
         parent::__construct($registry, PurchaseOrder::class);
     }
 
-    // /**
-    //  * @return PurchaseOrder[] Returns an array of PurchaseOrder objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function getNextPoNumber(): string
     {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('p.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $conn = $this->getEntityManager()->getConnection();
+        $result = $conn->fetchOne('SELECT COALESCE(MAX(CAST(po_number AS UNSIGNED)), 0) + 1 FROM purchase_order');
 
-    /*
-    public function findOneBySomeField($value): ?PurchaseOrder
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        return (string) ($result ?: 1);
     }
-    */
 }

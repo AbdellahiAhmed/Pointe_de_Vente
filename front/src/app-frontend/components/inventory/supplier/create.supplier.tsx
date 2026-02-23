@@ -27,8 +27,8 @@ interface CreateSupplierProps{
 const ValidationSchema = yup.object({
   name: yup.string().trim().required(ValidationMessage.Required),
   phone: yup.string().required(ValidationMessage.Required),
-  email: yup.string().required(ValidationMessage.Required).email(ValidationMessage.Email),
-  openingBalance: yup.string().required(ValidationMessage.Required),
+  email: yup.string().nullable().email(ValidationMessage.Email),
+  openingBalance: yup.string().nullable(),
   stores: yup.array().min(1).required(ValidationMessage.Required)
 }).required();
 
@@ -76,9 +76,7 @@ export const CreateSupplier: FC<CreateSupplierProps> = ({
         values.stores = values.stores.map((item: ReactSelectOptionProps) => item?.value);
       }
 
-      if(values.openingBalance){
-        values.openingBalance = (values.openingBalance).toString();
-      }
+      values.openingBalance = (values.openingBalance || 0).toString();
 
       await jsonRequest(url, {
         method: method,
@@ -131,7 +129,7 @@ export const CreateSupplier: FC<CreateSupplierProps> = ({
       stores: null,
       phone: null,
       name: null,
-      openingBalance: null
+      openingBalance: '0'
     });
   };
 

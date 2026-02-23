@@ -1,6 +1,5 @@
 import React, {useState} from "react";
 import {
-  PURCHASE_DELETE,
   PURCHASE_ORDER_DELETE,
   PURCHASE_ORDER_LIST
 } from "../../../../api/routing/routes/backend.app";
@@ -19,6 +18,7 @@ import {HydraCollection} from "../../../../api/model/hydra";
 import { DateTime } from "luxon";
 import { ConfirmAlert } from "../../../../app-common/components/confirm/confirm.alert";
 import { jsonRequest } from "../../../../api/request/request";
+import { notify } from "../../../../app-common/components/confirm/notification";
 
 export const PurchaseOrders = () => {
   const [operation, setOperation] = useState('create');
@@ -96,11 +96,15 @@ export const PurchaseOrders = () => {
   }));
 
   async function deletePurchaseOrder(id: string) {
-    await jsonRequest(PURCHASE_ORDER_DELETE.replace(':id', id), {
-      method: 'DELETE'
-    });
-
-    await useLoadHook.fetchData();
+    try {
+      await jsonRequest(PURCHASE_ORDER_DELETE.replace(':id', id), {
+        method: 'DELETE'
+      });
+      notify({ type: 'success', description: t('Purchase order deleted successfully.') });
+      await useLoadHook.fetchData();
+    } catch {
+      notify({ type: 'error', description: t('Failed to delete purchase order.') });
+    }
   }
 
   const [addModal, setAddModal] = useState(false);
