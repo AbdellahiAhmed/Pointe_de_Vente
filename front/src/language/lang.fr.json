@@ -820,5 +820,15 @@
   "Customer created": "Client créé",
   "Customer updated": "Client mis à jour",
   "Cannot delete customer with existing orders": "Impossible de supprimer un client ayant des commandes",
-  "Base product": "Produit de base"
+  "Base product": "Produit de base",
+  "Reference": "Référence",
+  "Optional": "Optionnel",
+  "Return Receipt": "Bon de retour",
+  "Return #": "Retour #",
+  "Original Order #": "Commande originale #",
+  "Refund Total": "Total remboursé",
+  "Refund Method": "Méthode de remboursement",
+  "Refund payment method": "Méthode de remboursement",
+  "Select payment method...": "Sélectionner la méthode de paiement...",
+  "Are you sure you want to approve this return request? Stock will be restored and a refund will be issued.": "Êtes-vous sûr de vouloir approuver cette demande de retour ? Le stock sera restauré et un remboursement sera émis."
 }

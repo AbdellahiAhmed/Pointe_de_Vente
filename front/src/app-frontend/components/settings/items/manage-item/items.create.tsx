@@ -46,6 +46,7 @@ interface ItemsCreateProps {
 const ValidationSchema = yup.object({
   name: yup.string().required(ValidationMessage.Required),
   barcode: yup.string().required(ValidationMessage.Required),
+  reference: yup.string().nullable(),
   basePrice: yup.string().required(ValidationMessage.Required),
   cost: yup.string().required(ValidationMessage.Required),
   minPrice: yup.string().nullable(),
@@ -305,6 +306,7 @@ export const CreateItem = ({
   const resetForm = () => {
     reset({
       barcode: null,
+      reference: null,
       basePrice: null,
       baseQuantity: null,
       categories: [],
@@ -340,8 +342,8 @@ export const CreateItem = ({
         <form onSubmit={handleSubmit(createProduct)} className="mb-5">
           <input type="hidden" {...register('id')}/>
           <div className="grid grid-cols-3 gap-4 gap-y-3 mb-4">
-            {/* Row 1: Name + Barcode */}
-            <div className="col-span-2">
+            {/* Row 1: Name + Barcode + Reference */}
+            <div>
               <label htmlFor="name">{t("Name")}</label>
               <Input {...register('name')} id="name"
                      className={classNames("w-full")}
@@ -370,6 +372,13 @@ export const CreateItem = ({
                 )}
               </div>
               {getErrors(errors.barcode)}
+            </div>
+            <div>
+              <label htmlFor="reference">{t("Reference")}</label>
+              <Input {...register('reference')} id="reference"
+                     className={classNames("w-full")}
+                     placeholder={t("Optional")}
+              />
             </div>
 
             {/* Row 2: Image */}

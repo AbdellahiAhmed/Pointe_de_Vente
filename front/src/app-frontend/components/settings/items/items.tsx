@@ -82,6 +82,10 @@ export const Items = () => {
     columnHelper.accessor("barcode", {
       header: t("Barcode"),
     }),
+    columnHelper.accessor("reference", {
+      header: t("Reference"),
+      cell: (info) => info.getValue() || "—",
+    }),
     columnHelper.accessor("basePrice", {
       header: t("Sale Price"),
     }),

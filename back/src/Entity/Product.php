@@ -28,7 +28,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
  *     normalizationContext={"groups"={"product.read", "time.read", "uuid.read", "active.read"}},
  *     denormalizationContext={"groups"={"product.write", "active.read"}}
  * )
- * @ApiFilter(filterClass=SearchFilter::class, properties={"name": "partial", "barcode": "exact", "basePrice": "exact", "department.name": "partial", "cost": "exact", "suppliers.name": "partial", "categories.name": "partial", "brands.name": "partial", "taxes.name": "partial"})
+ * @ApiFilter(filterClass=SearchFilter::class, properties={"name": "partial", "barcode": "exact", "basePrice": "exact", "department.name": "partial", "cost": "exact", "suppliers.name": "partial", "categories.name": "partial", "brands.name": "partial", "taxes.name": "partial", "reference": "ipartial"})
  * @ApiFilter(filterClass=BooleanFilter::class, properties={"isActive"})
  * @ApiFilter(filterClass=OrderFilter::class, properties={"name", "department.name", "barcode", "basePrice", "cost", "suppliers.name", "categories.name", "brands.name", "taxes.name"})
  */
@@ -215,7 +215,12 @@ class Product
      */
     private $inventoryMethod;
 
-
+    /**
+     * @ORM\Column(type="string", length=100, nullable=true)
+     * @Gedmo\Versioned()
+     * @Groups({"product.read", "product.write"})
+     */
+    private $reference;
 
     public function __construct()
     {
@@ -689,6 +694,18 @@ class Product
     public function setInventoryMethod(?string $inventoryMethod): self
     {
         $this->inventoryMethod = $inventoryMethod;
+
+        return $this;
+    }
+
+    public function getReference(): ?string
+    {
+        return $this->reference;
+    }
+
+    public function setReference(?string $reference): self
+    {
+        $this->reference = $reference;
 
         return $this;
     }

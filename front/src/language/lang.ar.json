@@ -817,5 +817,15 @@
   "Customer created": "تم إنشاء العميل",
   "Customer updated": "تم تحديث العميل",
   "Cannot delete customer with existing orders": "لا يمكن حذف عميل لديه طلبات",
-  "Base product": "المنتج الأساسي"
+  "Base product": "المنتج الأساسي",
+  "Reference": "المرجع",
+  "Optional": "اختياري",
+  "Return Receipt": "إيصال إرجاع",
+  "Return #": "إرجاع #",
+  "Original Order #": "الطلب الأصلي #",
+  "Refund Total": "إجمالي الاسترداد",
+  "Refund Method": "طريقة الاسترداد",
+  "Refund payment method": "طريقة الاسترداد",
+  "Select payment method...": "اختر طريقة الدفع...",
+  "Are you sure you want to approve this return request? Stock will be restored and a refund will be issued.": "هل أنت متأكد من الموافقة على طلب الإرجاع؟ سيتم استعادة المخزون وإصدار استرداد."
 }

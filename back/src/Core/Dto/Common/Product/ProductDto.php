@@ -46,6 +46,11 @@ class ProductDto
     private $barcode;
 
     /**
+     * @var string|null
+     */
+    private $reference;
+
+    /**
      * @var float|null
      */
     private $baseQuantity;
@@ -137,6 +142,7 @@ class ProductDto
         $dto->name = $product->getName();
         $dto->sku = $product->getSku();
         $dto->barcode = $product->getBarcode();
+        $dto->reference = $product->getReference();
         $dto->baseQuantity = $product->getBaseQuantity();
         $dto->isActive = $product->getIsActive();
         $dto->isAvailable = $product->getIsAvailable();
@@ -282,6 +288,22 @@ class ProductDto
     public function setBarcode(?string $barcode): void
     {
         $this->barcode = $barcode;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getReference(): ?string
+    {
+        return $this->reference;
+    }
+
+    /**
+     * @param string|null $reference
+     */
+    public function setReference(?string $reference): void
+    {
+        $this->reference = $reference;
     }
 
     /**

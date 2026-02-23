@@ -23,6 +23,7 @@ export interface Product extends HydraId, HydraType{
   name: string;
   sku?: string;
   barcode?: string;
+  reference?: string;
   baseQuantity?: number;
   isAvailable?: boolean;
   quantity?: number;
