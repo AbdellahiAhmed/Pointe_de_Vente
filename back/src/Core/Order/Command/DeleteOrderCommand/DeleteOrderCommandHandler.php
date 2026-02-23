@@ -5,6 +5,7 @@ namespace App\Core\Order\Command\DeleteOrderCommand;
 use App\Core\Entity\EntityManager\EntityManager;
 use App\Entity\Order;
 use App\Entity\OrderStatus;
+use App\Repository\ProductStoreRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -16,14 +17,17 @@ class DeleteOrderCommandHandler extends EntityManager implements DeleteOrderComm
     }
 
     private $validator;
+    private $productStoreRepository;
 
     public function __construct(
         EntityManagerInterface $entityManager,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
+        ProductStoreRepository $productStoreRepository
     )
     {
         parent::__construct($entityManager);
         $this->validator = $validator;
+        $this->productStoreRepository = $productStoreRepository;
     }
 
     public function handle(DeleteOrderCommand $command): DeleteOrderCommandResult
@@ -33,6 +37,35 @@ class DeleteOrderCommandHandler extends EntityManager implements DeleteOrderComm
 
         if ($item === null) {
             return DeleteOrderCommandResult::createNotFound();
+        }
+
+        // Restore stock for non-returned, non-suspended orders
+        if (!$item->getIsReturned() && !$item->getIsSuspended()) {
+            $store = $item->getStore();
+            foreach ($item->getItems() as $orderProduct) {
+                if ($orderProduct->getIsReturned()) {
+                    continue;
+                }
+                $qty = abs((float) $orderProduct->getQuantity());
+                $product = $orderProduct->getProduct();
+
+                // Restore ProductStore quantity
+                if ($store && $product && $product->getManageInventory()) {
+                    $productStore = $this->productStoreRepository->findOneBy([
+                        'product' => $product,
+                        'store'   => $store,
+                    ]);
+                    if ($productStore) {
+                        $productStore->setQuantity((string) ((float) $productStore->getQuantity() + $qty));
+                    }
+                }
+
+                // Restore variant quantity
+                $variant = $orderProduct->getVariant();
+                if ($variant !== null && $product && $product->getManageInventory()) {
+                    $variant->setQuantity((string) ((float) $variant->getQuantity() + $qty));
+                }
+            }
         }
 
         $item->setIsDeleted(true);
