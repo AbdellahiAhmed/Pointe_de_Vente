@@ -830,5 +830,15 @@
   "Refund Method": "Méthode de remboursement",
   "Refund payment method": "Méthode de remboursement",
   "Select payment method...": "Sélectionner la méthode de paiement...",
-  "Are you sure you want to approve this return request? Stock will be restored and a refund will be issued.": "Êtes-vous sûr de vouloir approuver cette demande de retour ? Le stock sera restauré et un remboursement sera émis."
+  "Are you sure you want to approve this return request? Stock will be restored and a refund will be issued.": "Êtes-vous sûr de vouloir approuver cette demande de retour ? Le stock sera restauré et un remboursement sera émis.",
+  "Print Z-Report": "Imprimer le rapport Z",
+  "Reprint Z-Report": "Réimprimer le rapport Z",
+  "You must print the Z-Report before closing the day.": "Vous devez imprimer le rapport Z avant de clôturer la journée.",
+  "Print Z-Report first": "Imprimez d'abord le rapport Z",
+  "Opened by": "Ouvert par",
+  "Opened at": "Ouvert le",
+  "Closed at": "Clôturé le",
+  "Total orders": "Total commandes",
+  "Cash Reconciliation": "Réconciliation de caisse",
+  "Printed at": "Imprimé le"
 }

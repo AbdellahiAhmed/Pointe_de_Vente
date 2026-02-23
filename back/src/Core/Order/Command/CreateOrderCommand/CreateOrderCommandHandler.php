@@ -149,6 +149,11 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
                 $variant = $this->getRepository(ProductVariant::class)->find($itemDto->getVariant()->getId());
                 $orderProduct->setVariant($variant);
 
+                // Override costAtSale with variant-specific cost if available
+                if($variant->getCost() !== null) {
+                    $orderProduct->setCostAtSale($variant->getCost());
+                }
+
                 // manage variants quantity
                 if($product->getManageInventory()){
                     $variant->setQuantity($variant->getQuantity() - $itemDto->getQuantity());

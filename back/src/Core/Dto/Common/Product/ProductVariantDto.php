@@ -50,6 +50,16 @@ class ProductVariantDto
     private $price;
 
     /**
+     * @var string|null
+     */
+    private $cost;
+
+    /**
+     * @var string|null
+     */
+    private $minPrice;
+
+    /**
      * @var ProductPriceDto[]
      */
     private $prices = [];
@@ -69,6 +79,8 @@ class ProductVariantDto
         $dto->barcode = $productVariant->getBarcode();
         $dto->sku = $productVariant->getSku();
         $dto->price = $productVariant->getPrice();
+        $dto->cost = $productVariant->getCost();
+        $dto->minPrice = $productVariant->getMinPrice();
         foreach($productVariant->getPrices() as $price){
             $dto->prices[] = ProductPriceDto::createFromProductPrice($price);
         }
@@ -92,6 +104,8 @@ class ProductVariantDto
         $dto->barcode = $data['barcode'] ?? null;
         $dto->sku = $data['sku'] ?? null;
         $dto->price = $data['price'] ?? null;
+        $dto->cost = $data['cost'] ?? null;
+        $dto->minPrice = $data['minPrice'] ?? null;
 //        foreach($data['prices'] ?? null as $price){
 //            $dto->prices[] = ProductPriceDto::createFromArray($price);
 //        }
@@ -178,6 +192,38 @@ class ProductVariantDto
     public function setPrice(?string $price): void
     {
         $this->price = $price;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCost(): ?string
+    {
+        return $this->cost;
+    }
+
+    /**
+     * @param string|null $cost
+     */
+    public function setCost(?string $cost): void
+    {
+        $this->cost = $cost;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getMinPrice(): ?string
+    {
+        return $this->minPrice;
+    }
+
+    /**
+     * @param string|null $minPrice
+     */
+    public function setMinPrice(?string $minPrice): void
+    {
+        $this->minPrice = $minPrice;
     }
 
     /**

@@ -617,3 +617,174 @@ const ReturnReceiptMarkup: FC<{ data: ReturnReceiptData }> = ({ data }) => {
     </div>
   );
 };
+
+// ---------------------------------------------------------------------------
+// Z-Report Receipt
+// ---------------------------------------------------------------------------
+
+export interface ZReportData {
+  storeName: string;
+  terminalCode: string;
+  openedBy: string;
+  openedAt: string;
+  closedAt: string;
+  payments: Record<string, number>;
+  totalSales: number;
+  totalOrders: number;
+  openingBalance: number;
+  cashAdded: number;
+  cashWithdrawn: number;
+  expenses: number;
+  expectedCash: number;
+  cashCounted: number;
+  variance: number;
+}
+
+export const PrintZReport = (data: ZReportData) => {
+  const myWindow: any = window.open('', '', 'height:500;width:500');
+  const div = myWindow.document.createElement('div');
+  div.id = 'print-root';
+  myWindow.document.body.appendChild(div);
+  const container = myWindow.document.querySelector('#print-root');
+  const root = createRoot(container);
+  root.render(<ZReportMarkup data={data} />);
+  myWindow.document.close();
+  myWindow.focus();
+  setTimeout(() => {
+    myWindow.print();
+    myWindow.close();
+  }, 100);
+};
+
+const ZReportMarkup: FC<{ data: ZReportData }> = ({ data }) => {
+  const { t } = useTranslation();
+  const cashSales = data.payments['cash'] ?? data.payments['Espèces'] ?? 0;
+
+  return (
+    <div style={{ width: '3.5in' }}>
+      <div
+        style={{
+          border: 'none',
+          fontSize: 11,
+          fontWeight: 'normal',
+          fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+          margin: 0,
+        }}
+      >
+        {/* Header */}
+        <div style={{ textAlign: 'center', background: '#1e3a5f', color: '#fff', padding: '10px 6px' }}>
+          <h3 style={{ margin: 0, fontSize: 16 }}>Z-REPORT / تقرير Z</h3>
+          <div style={{ fontSize: 10, marginTop: 4, opacity: 0.8 }}>
+            {data.storeName} — {data.terminalCode}
+          </div>
+        </div>
+
+        {/* Session info */}
+        <div style={{ padding: '6px 4px', borderBottom: '1px dashed #808080' }}>
+          <table style={{ width: '100%', fontSize: 11 }}>
+            <tbody>
+              <tr>
+                <td><strong>{t('Opened by')}:</strong></td>
+                <td style={{ textAlign: 'right' }}>{data.openedBy}</td>
+              </tr>
+              <tr>
+                <td><strong>{t('Opened at')}:</strong></td>
+                <td style={{ textAlign: 'right' }} dir="ltr">{data.openedAt}</td>
+              </tr>
+              <tr>
+                <td><strong>{t('Closed at')}:</strong></td>
+                <td style={{ textAlign: 'right' }} dir="ltr">{data.closedAt}</td>
+              </tr>
+              <tr>
+                <td><strong>{t('Total orders')}:</strong></td>
+                <td style={{ textAlign: 'right' }}>{data.totalOrders}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Sales by payment type */}
+        <div style={{ padding: '6px 4px' }}>
+          <div style={{ fontWeight: 'bold', marginBottom: 4, textAlign: 'center' }}>
+            {t('Sales Summary')}
+          </div>
+          <table style={{ width: '100%', fontSize: 11, borderCollapse: 'collapse' }}>
+            <tbody>
+              {Object.entries(data.payments).map(([type, amount]) => (
+                <tr key={type} style={{ borderBottom: '1px dotted #ccc' }}>
+                  <td style={{ padding: '2px 0' }}>{type}</td>
+                  <td style={{ textAlign: 'right', padding: '2px 0' }}>{withCurrency(amount)}</td>
+                </tr>
+              ))}
+              <tr style={{ borderTop: '1px dashed #808080', fontWeight: 'bold' }}>
+                <td style={{ padding: '4px 0' }}>{t('Total sales')}</td>
+                <td style={{ textAlign: 'right', padding: '4px 0' }}>{withCurrency(data.totalSales)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Cash flow */}
+        <div style={{ padding: '6px 4px', borderTop: '1px dashed #808080' }}>
+          <div style={{ fontWeight: 'bold', marginBottom: 4, textAlign: 'center' }}>
+            {t('Cash Flow')}
+          </div>
+          <table style={{ width: '100%', fontSize: 11 }}>
+            <tbody>
+              <tr>
+                <td>{t('Opening balance')}</td>
+                <td style={{ textAlign: 'right' }}>{withCurrency(data.openingBalance)}</td>
+              </tr>
+              <tr>
+                <td>{t('Cash added')}</td>
+                <td style={{ textAlign: 'right' }}>+ {withCurrency(data.cashAdded)}</td>
+              </tr>
+              <tr>
+                <td>{t('Cash withdrawn')}</td>
+                <td style={{ textAlign: 'right' }}>- {withCurrency(data.cashWithdrawn)}</td>
+              </tr>
+              <tr>
+                <td>{t('Expenses')}</td>
+                <td style={{ textAlign: 'right' }}>- {withCurrency(data.expenses)}</td>
+              </tr>
+              <tr>
+                <td>{t('Cash sales')}</td>
+                <td style={{ textAlign: 'right' }}>+ {withCurrency(cashSales)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Cash reconciliation */}
+        <div style={{ padding: '6px 4px', borderTop: '1px dashed #808080' }}>
+          <div style={{ fontWeight: 'bold', marginBottom: 4, textAlign: 'center' }}>
+            {t('Cash Reconciliation')}
+          </div>
+          <table style={{ width: '100%', fontSize: 11 }}>
+            <tbody>
+              <tr style={{ fontWeight: 'bold' }}>
+                <td>{t('Expected cash')}</td>
+                <td style={{ textAlign: 'right' }}>{withCurrency(data.expectedCash)}</td>
+              </tr>
+              <tr>
+                <td>{t('Cash counted')}</td>
+                <td style={{ textAlign: 'right' }}>{withCurrency(data.cashCounted)}</td>
+              </tr>
+              <tr style={{ fontWeight: 'bold', color: data.variance >= 0 ? '#16a34a' : '#dc2626' }}>
+                <td>{t('Variance')}</td>
+                <td style={{ textAlign: 'right' }}>
+                  {data.variance >= 0 ? '+' : ''}{withCurrency(data.variance)}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Footer */}
+        <div style={{ textAlign: 'center', padding: '8px 4px', borderTop: '1px dashed #808080', fontSize: 10, color: '#666' }}>
+          {t('Printed at')}: {new Date().toLocaleString('fr-FR')}
+        </div>
+      </div>
+    </div>
+  );
+};

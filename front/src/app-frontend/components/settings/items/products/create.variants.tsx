@@ -112,7 +112,7 @@ export const CreateVariants = ({
 
           return true;
         }).map((item: any, index) => (
-          <div className="grid grid-cols-5 mb-5 gap-3" key={index}>
+          <div className="grid grid-cols-6 mb-5 gap-3" key={index}>
             <div>
               <label>{t("Variant")}</label>
               <Controller
@@ -124,7 +124,7 @@ export const CreateVariants = ({
               />
             </div>
             <div>
-              <label>{t("Price")}</label>
+              <label>{t("Sale Price")}</label>
               <Controller
                 render={(props) => (
                   <Input onChange={props.field.onChange} value={props.field.value} className="w-full"/>
@@ -135,7 +135,29 @@ export const CreateVariants = ({
               />
             </div>
             <div>
-              <label>{t("Quantity in stock")}</label>
+              <label>{t("Cost (PMP)")}</label>
+              <Controller
+                render={(props) => (
+                  <Input onChange={props.field.onChange} value={props.field.value} className="w-full" placeholder={t("Optional")}/>
+                )}
+                control={useForm.control}
+                name={`variants.${index}.cost`}
+                defaultValue={item.cost || ''}
+              />
+            </div>
+            <div>
+              <label>{t("Min Price")}</label>
+              <Controller
+                render={(props) => (
+                  <Input onChange={props.field.onChange} value={props.field.value} className="w-full" placeholder={t("Optional")}/>
+                )}
+                control={useForm.control}
+                name={`variants.${index}.minPrice`}
+                defaultValue={item.minPrice || ''}
+              />
+            </div>
+            <div>
+              <label>{t("Stock")}</label>
               <Controller
                 render={(props) => (
                   <Input onChange={props.field.onChange} value={props.field.value} className="w-full"/>

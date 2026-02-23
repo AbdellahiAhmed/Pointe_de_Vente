@@ -52,8 +52,25 @@ class PurchaseEvent
 
                 $product->setCost((string) $newCost);
 
-                foreach($item->getVariants() as $variant){
-                    $variant->getVariant()->setPrice($variant->getPurchasePrice());
+                foreach($item->getVariants() as $purchaseItemVariant){
+                    $productVariant = $purchaseItemVariant->getVariant();
+                    $variantIncomingQty = (float) $purchaseItemVariant->getQuantity();
+                    $variantIncomingPrice = (float) $purchaseItemVariant->getPurchasePrice();
+
+                    // PMP calculation per variant
+                    $variantCurrentCost = (float) ($productVariant->getCost() ?? 0);
+                    $variantCurrentQty = (float) ($productVariant->getQuantity() ?? 0);
+
+                    if($variantCurrentQty <= 0 || $variantCurrentCost <= 0){
+                        $newVariantCost = $variantIncomingPrice;
+                    } else {
+                        $variantTotalValue = ($variantCurrentQty * $variantCurrentCost) + ($variantIncomingQty * $variantIncomingPrice);
+                        $variantTotalQty = $variantCurrentQty + $variantIncomingQty;
+                        $newVariantCost = $variantTotalQty > 0 ? round($variantTotalValue / $variantTotalQty, 2) : $variantCurrentCost;
+                    }
+
+                    $productVariant->setCost((string) $newVariantCost);
+                    $productVariant->setPrice($purchaseItemVariant->getPurchasePrice());
                 }
             }
             if($purchase->getUpdateStocks()){

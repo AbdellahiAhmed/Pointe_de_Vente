@@ -33,12 +33,14 @@ import {
   faMobileAlt,
   faCreditCard,
   faHandHoldingUsd,
+  faPrint,
 } from "@fortawesome/free-solid-svg-icons";
 import { Tooltip } from "antd";
 import useApi from "../../../api/hooks/use.api";
 import { Order } from "../../../api/model/order";
 import { withCurrency } from "../../../lib/currency/currency";
 import { useTranslation } from "react-i18next";
+import { PrintZReport, ZReportData } from "./sale.print";
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
@@ -155,6 +157,7 @@ export const SaleClosing: FC<TaxProps> = (props) => {
 
   const [title, setTitle] = useState("");
   const [hideCloseButton, setHideCloseButton] = useState(false);
+  const [hasPrintedZReport, setHasPrintedZReport] = useState(false);
 
   useEffect(() => {
     if (closing) {
@@ -643,6 +646,53 @@ export const SaleClosing: FC<TaxProps> = (props) => {
               </div>
             )}
 
+            {/* Z-Report print (mandatory before close) */}
+            {closing?.openingBalance !== null && (
+              <div className="flex items-center justify-center mb-3">
+                <Button
+                  type="button"
+                  variant={hasPrintedZReport ? "success" : "warning"}
+                  onClick={() => {
+                    const zData: ZReportData = {
+                      storeName: closing?.store?.name || store?.name || "—",
+                      terminalCode: closing?.terminal?.code || terminal?.code || "—",
+                      openedBy: closing?.openedBy?.displayName || "—",
+                      openedAt: closing?.createdAt?.datetime
+                        ? DateTime.fromISO(closing.createdAt.datetime).toFormat("dd-MM-yyyy HH:mm")
+                        : "—",
+                      closedAt: DateTime.now().toFormat("dd-MM-yyyy HH:mm"),
+                      payments,
+                      totalSales,
+                      totalOrders: data?.count ?? 0,
+                      openingBalance: Number(watch("openingBalance")) || 0,
+                      cashAdded: Number(watch("cashAdded")) || 0,
+                      cashWithdrawn: Number(watch("cashWithdrawn")) || 0,
+                      expenses,
+                      expectedCash,
+                      cashCounted,
+                      variance,
+                    };
+                    PrintZReport(zData);
+                    setHasPrintedZReport(true);
+                  }}
+                >
+                  <FontAwesomeIcon icon={faPrint} className="me-2" />
+                  {hasPrintedZReport ? t("Reprint Z-Report") : t("Print Z-Report")}
+                </Button>
+              </div>
+            )}
+
+            {/* Warning if Z-Report not printed */}
+            {closing?.openingBalance !== null && !hasPrintedZReport && (
+              <div
+                className="flex items-center gap-2 px-3 py-2 rounded-lg mb-3 text-[12px] text-amber-700"
+                style={{ background: "#fffbeb", border: "1px solid #fde68a" }}
+              >
+                <FontAwesomeIcon icon={faExclamationTriangle} className="text-amber-500" />
+                <span>{t("You must print the Z-Report before closing the day.")}</span>
+              </div>
+            )}
+
             <div className="flex gap-3 items-center justify-center flex-wrap">
               {/* Update / Start day button */}
               <Button
@@ -664,9 +714,15 @@ export const SaleClosing: FC<TaxProps> = (props) => {
                   : t("Update")}
               </Button>
 
-              {/* Close day button */}
+              {/* Close day button — disabled until Z-Report printed */}
               {closing?.openingBalance !== null && (
-                <Button type="submit" variant="primary" tabIndex={0} disabled={saving}>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  tabIndex={0}
+                  disabled={saving || !hasPrintedZReport}
+                  title={!hasPrintedZReport ? t("Print Z-Report first") : ""}
+                >
                   {saving ? "..." : t("Close day")}
                 </Button>
               )}

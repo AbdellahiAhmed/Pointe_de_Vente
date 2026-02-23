@@ -827,5 +827,15 @@
   "Refund Method": "طريقة الاسترداد",
   "Refund payment method": "طريقة الاسترداد",
   "Select payment method...": "اختر طريقة الدفع...",
-  "Are you sure you want to approve this return request? Stock will be restored and a refund will be issued.": "هل أنت متأكد من الموافقة على طلب الإرجاع؟ سيتم استعادة المخزون وإصدار استرداد."
+  "Are you sure you want to approve this return request? Stock will be restored and a refund will be issued.": "هل أنت متأكد من الموافقة على طلب الإرجاع؟ سيتم استعادة المخزون وإصدار استرداد.",
+  "Print Z-Report": "طباعة تقرير Z",
+  "Reprint Z-Report": "إعادة طباعة تقرير Z",
+  "You must print the Z-Report before closing the day.": "يجب طباعة تقرير Z قبل إغلاق اليوم.",
+  "Print Z-Report first": "اطبع تقرير Z أولاً",
+  "Opened by": "فتح بواسطة",
+  "Opened at": "فتح في",
+  "Closed at": "أُغلق في",
+  "Total orders": "إجمالي الطلبات",
+  "Cash Reconciliation": "مطابقة النقد",
+  "Printed at": "طبع في"
 }

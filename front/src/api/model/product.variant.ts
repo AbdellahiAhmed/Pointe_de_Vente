@@ -8,6 +8,8 @@ export interface ProductVariant extends HydraId, HydraType {
   attributeValue?: string;
   barcode?: string;
   price?: number;
+  cost?: number;
+  minPrice?: number;
   prices?: ProductPrice[];
   quantity?: number;
 }

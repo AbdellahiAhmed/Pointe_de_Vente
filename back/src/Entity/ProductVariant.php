@@ -80,6 +80,20 @@ class ProductVariant
     private $price;
 
     /**
+     * @ORM\Column(type="decimal", precision=20, scale=2, nullable=true)
+     * @Gedmo\Versioned()
+     * @Groups({"product.read", "product.write", "keyword", "barcode.read"})
+     */
+    private $cost;
+
+    /**
+     * @ORM\Column(type="decimal", precision=20, scale=2, nullable=true)
+     * @Gedmo\Versioned()
+     * @Groups({"product.read", "product.write", "keyword", "barcode.read"})
+     */
+    private $minPrice;
+
+    /**
      * @ORM\OneToMany(targetEntity=ProductPrice::class, mappedBy="productVariant")
      * @Groups({"product.read", "product.write"})
      */
@@ -158,6 +172,30 @@ class ProductVariant
     public function setPrice(?string $price): self
     {
         $this->price = trim($price) === '' ? null : $price;
+
+        return $this;
+    }
+
+    public function getCost(): ?string
+    {
+        return $this->cost;
+    }
+
+    public function setCost(?string $cost): self
+    {
+        $this->cost = ($cost !== null && trim($cost) === '') ? null : $cost;
+
+        return $this;
+    }
+
+    public function getMinPrice(): ?string
+    {
+        return $this->minPrice;
+    }
+
+    public function setMinPrice(?string $minPrice): self
+    {
+        $this->minPrice = ($minPrice !== null && trim($minPrice) === '') ? null : $minPrice;
 
         return $this;
     }
