@@ -626,11 +626,13 @@ export const CloseSaleInline: FC<Props> = ({
         customer.allowCreditSale ? (
           <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded px-3 py-2 mb-2 text-sm">
             <span className="text-amber-800">
-              {t('Outstanding')}: <strong>{new Intl.NumberFormat('fr-FR', {minimumFractionDigits: 2}).format(customer.outstanding + Number(customer.openingBalance || 0))} MRU</strong>
-              {customer.creditLimit && Number(customer.creditLimit) > 0 && (
-                <> / {t('Limit')}: <strong>{new Intl.NumberFormat('fr-FR', {minimumFractionDigits: 2}).format(Number(customer.creditLimit))} MRU</strong></>
-              )}
+              {t('Outstanding')}: <strong>{withCurrency(customer.outstanding + Number(customer.openingBalance || 0))}</strong>
             </span>
+            {customer.creditLimit && Number(customer.creditLimit) > 0 && (
+              <span className="text-amber-800">
+                {t('Limit')}: <strong>{withCurrency(Number(customer.creditLimit))}</strong>
+              </span>
+            )}
           </div>
         ) : (
           <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded px-3 py-2 mb-2 text-sm">
