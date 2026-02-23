@@ -989,5 +989,12 @@
   "Payment recorded successfully": "تم تسجيل الدفعة بنجاح",
   "Failed to load customer data": "فشل في تحميل بيانات العملاء",
   "no limit": "بدون حد",
-  "Never": "أبداً"
+  "Never": "أبداً",
+  "Products below reorder level": "المنتجات تحت حد إعادة الطلب",
+  "Total alerts": "إجمالي التنبيهات",
+  "Current stock": "المخزون الحالي",
+  "Reorder level": "حد إعادة الطلب",
+  "No stock alerts": "لا توجد تنبيهات مخزون",
+  "Search by product name or barcode...": "البحث بإسم المنتج أو الباركود...",
+  "No products match your search": "لا توجد منتجات تطابق بحثك"
 }

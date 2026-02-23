@@ -992,5 +992,12 @@
   "Payment recorded successfully": "Paiement enregistré avec succès",
   "Failed to load customer data": "Échec du chargement des données clients",
   "no limit": "sans limite",
-  "Never": "Jamais"
+  "Never": "Jamais",
+  "Products below reorder level": "Produits en dessous du seuil de réapprovisionnement",
+  "Total alerts": "Total des alertes",
+  "Current stock": "Stock actuel",
+  "Reorder level": "Seuil de réapprovisionnement",
+  "No stock alerts": "Aucune alerte de stock",
+  "Search by product name or barcode...": "Rechercher par nom de produit ou code-barres...",
+  "No products match your search": "Aucun produit ne correspond à votre recherche"
 }

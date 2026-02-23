@@ -11,3 +11,4 @@ export const POS = staticRoute('/pos');
 export const POS_V2 = staticRoute('/pos/v2');
 export const DASHBOARD = staticRoute('/pos/dashboard');
 export const DEBT_MANAGEMENT = staticRoute('/pos/debts');
+export const STOCK_ALERTS_PAGE = staticRoute('/pos/stock-alerts');

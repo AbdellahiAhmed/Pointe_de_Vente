@@ -1,6 +1,6 @@
 import Login from './containers/login/login';
 import {BrowserRouter as Router, Route, useLocation} from "react-router-dom";
-import { FORGOT_PASSWORD, LOGIN, POS, RESET_PASSWORD, POS_V2, DASHBOARD, DEBT_MANAGEMENT } from "./routes/frontend.routes";
+import { FORGOT_PASSWORD, LOGIN, POS, RESET_PASSWORD, POS_V2, DASHBOARD, DEBT_MANAGEMENT, STOCK_ALERTS_PAGE } from "./routes/frontend.routes";
 import {connect, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {RootState} from "../duck/_root/root.state";
@@ -18,6 +18,7 @@ import { Pos } from "./containers/dashboard/pos";
 import {ResetPassword} from "./containers/forgot/reset";
 import { Dashboard } from "./containers/dashboard/dashboard";
 import { DebtManagement } from "./components/customers/debt-management";
+import { StockAlerts } from "./components/stock/stock-alerts";
 
 export interface AppProps {
   bootstrap: () => void;
@@ -77,6 +78,7 @@ const AppComponent: FunctionComponent<AppProps> = (props) => {
         <Route path={POS} element={<RequireAuth><Pos/></RequireAuth>}/>
         <Route path={DASHBOARD} element={<RequireAuth><Dashboard/></RequireAuth>}/>
         <Route path={DEBT_MANAGEMENT} element={<RequireAuth><DebtManagement/></RequireAuth>}/>
+        <Route path={STOCK_ALERTS_PAGE} element={<RequireAuth><StockAlerts/></RequireAuth>}/>
 
         {/*if nothing matches show 404*/}
         <Route path="*" element={<Error404/>}/>
