@@ -39,7 +39,6 @@ export const StockAlerts: FunctionComponent = () => {
       setAlerts(json.list || []);
       setCount(json.count || 0);
     } catch (e) {
-      console.error(e);
       setError(t('An error occurred while loading data'));
     } finally {
       setLoading(false);
@@ -51,8 +50,8 @@ export const StockAlerts: FunctionComponent = () => {
       const response = await jsonRequest(STORE_LIST);
       const json = await response.json();
       setStores((json['hydra:member'] || []).map((s: any) => ({id: s.id, name: s.name})));
-    } catch (e) {
-      console.error(e);
+    } catch {
+      // silently handled
     }
   };
 

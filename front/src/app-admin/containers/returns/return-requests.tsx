@@ -352,7 +352,6 @@ export const ReturnRequests: FunctionComponent = () => {
       const list = Array.isArray(json) ? json : (json?.list ?? []);
       setRequests(list);
     } catch (e) {
-      console.error(e);
       notify({
         type: 'error',
         title: t('Error'),
@@ -497,7 +496,6 @@ export const ReturnRequests: FunctionComponent = () => {
       // Refresh the list
       await fetchRequests(activeFilter);
     } catch (e: any) {
-      console.error(e);
       notify({
         type: 'error',
         title: t('Error'),

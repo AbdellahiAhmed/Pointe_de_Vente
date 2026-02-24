@@ -4,6 +4,7 @@ import {useTranslation} from "react-i18next";
 import {jsonRequest} from "../../../../api/request/request";
 import {USER_LIST, USER_CREATE, USER_EDIT} from "../../../../api/routing/routes/backend.app";
 import {DASHBOARD} from "../../../routes/frontend.routes";
+import {notify} from "../../../../app-common/components/confirm/notification";
 
 export const Users = () => {
   const {t} = useTranslation();
@@ -28,8 +29,8 @@ export const Users = () => {
       const response = await jsonRequest(USER_LIST);
       const json = await response.json();
       setUsers(json['hydra:member'] ?? json ?? []);
-    } catch (e) {
-      console.error(e);
+    } catch {
+      notify({type: 'error', description: t('Erreur de chargement des données.')});
     } finally {
       setLoading(false);
     }
@@ -119,9 +120,8 @@ export const Users = () => {
       }
       closeModal();
       fetchUsers();
-    } catch (e: any) {
+    } catch {
       setError(t('An error occurred. Please try again.'));
-      console.error(e);
     } finally {
       setSaving(false);
     }
@@ -134,8 +134,8 @@ export const Users = () => {
         body: JSON.stringify({ isActive: !user.isActive }),
       });
       fetchUsers();
-    } catch (e) {
-      console.error(e);
+    } catch {
+      // silently handled
     }
   };
 

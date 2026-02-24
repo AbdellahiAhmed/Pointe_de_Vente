@@ -36,7 +36,6 @@ export const VendorReport: FunctionComponent = () => {
       const json = await response.json();
       setData(json);
     } catch (e) {
-      console.error(e);
       setError(t('An error occurred while loading data'));
     } finally {
       setLoading(false);

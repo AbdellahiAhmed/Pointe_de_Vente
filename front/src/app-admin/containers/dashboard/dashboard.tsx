@@ -20,8 +20,8 @@ export const Dashboard: FunctionComponent<DashboardProps> = () => {
         const response = await jsonRequest(`${REPORT_DAILY}?date=${new Date().toISOString().split('T')[0]}`);
         const json = await response.json();
         setData(json);
-      } catch (e) {
-        console.error(e);
+      } catch {
+        // silently handled — dashboard shows zeros on failure
       } finally {
         setLoading(false);
       }

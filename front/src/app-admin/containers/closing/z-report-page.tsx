@@ -7,6 +7,7 @@ import {DASHBOARD, Z_REPORTS} from "../../routes/frontend.routes";
 import {pdf} from '@react-pdf/renderer';
 import ZReportDocument from './ZReportDocument';
 import {Closing} from "../../../api/model/closing";
+import {notify} from "../../../app-common/components/confirm/notification";
 
 export const ZReportPage: FunctionComponent = () => {
   const {t} = useTranslation();
@@ -27,7 +28,6 @@ export const ZReportPage: FunctionComponent = () => {
       );
       setClosings(closed);
     } catch (e) {
-      console.error(e);
       setError(t('An error occurred while loading data'));
     } finally {
       setLoading(false);
@@ -50,8 +50,8 @@ export const ZReportPage: FunctionComponent = () => {
       a.download = `z-report-${snapshot.zReportNumber}-${lang}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
-    } catch (e) {
-      console.error(e);
+    } catch {
+      notify({type: 'error', description: t('Failed to download Z-Report PDF.')});
     } finally {
       setDownloading(null);
     }
