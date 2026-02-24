@@ -58,20 +58,24 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
 
         if($command->getReturnedFrom() !== null) {
             $returnedFrom = $this->getRepository(Order::class)->find($command->getReturnedFrom());
+            if ($returnedFrom === null) {
+                return CreateOrderCommandResult::createFromValidationErrorMessage('Commande d\'origine introuvable pour le retour.');
+            }
             $item->setReturnedFrom($returnedFrom);
 
             $returnedFrom->setIsReturned(true);
             $returnedFrom->setStatus(OrderStatus::RETURNED);
-            // No flush here — will be flushed at the end
         }
         $item->setIsSuspended($command->getIsSuspended());
         $item->setIsDeleted($command->getIsDeleted());
         $item->setIsReturned($command->getIsReturned());
         $item->setIsDispatched($command->getIsDispatched());
         if($command->getCustomerId() !== null) {
-            $item->setCustomer(
-                $this->getRepository(Customer::class)->find($command->getCustomerId())
-            );
+            $customer = $this->getRepository(Customer::class)->find($command->getCustomerId());
+            if ($customer === null) {
+                return CreateOrderCommandResult::createFromValidationErrorMessage('Client introuvable.');
+            }
+            $item->setCustomer($customer);
         } elseif($command->getCustomer() !== null and trim($command->getCustomer()) !== ''){
             $customer = (new Customer())->setName($command->getCustomer());
             $customer->setOpeningBalance(0);
@@ -296,8 +300,10 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
         }
 
         if(null !== $command->getDiscount()){
-            /** @var Discount $discount */
             $discount = $this->getRepository(Discount::class)->find($command->getDiscount()->getId());
+            if ($discount === null) {
+                return CreateOrderCommandResult::createFromValidationErrorMessage('Type de remise introuvable.');
+            }
 
             $orderDiscount = new OrderDiscount();
             $orderDiscount->setAmount($command->getDiscountAmount());
@@ -312,8 +318,10 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
         }
 
         if(null !== $command->getTax()){
-            /** @var Tax $tax */
             $tax = $this->getRepository(Tax::class)->find($command->getTax()->getId());
+            if ($tax === null) {
+                return CreateOrderCommandResult::createFromValidationErrorMessage('Type de taxe introuvable.');
+            }
             $orderTax = new OrderTax();
             $orderTax->setType($tax);
             $orderTax->setOrder($item);

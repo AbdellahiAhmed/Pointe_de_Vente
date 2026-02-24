@@ -20,12 +20,8 @@ export const StoresInput: FC<StoresInputProps> = ({
   const {t} = useTranslation();
   const [stores, setStores] = useState<Store[]>([]);
   const loadStores = async () => {
-    try {
-      const res = await fetchJson(STORE_LIST);
-      setStores(res['hydra:member']);
-    } catch (e) {
-      throw e;
-    }
+    const res = await fetchJson(STORE_LIST);
+    setStores(res['hydra:member']);
   };
 
   useEffect(() => {

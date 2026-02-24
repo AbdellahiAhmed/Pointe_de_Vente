@@ -177,7 +177,6 @@ export const ReturnRequestsInline: FunctionComponent = () => {
       const json = await response.json();
       setRequests(Array.isArray(json) ? json : []);
     } catch (e) {
-      console.error(e);
       notify({
         type: 'error',
         title: t('Error'),
@@ -229,7 +228,6 @@ export const ReturnRequestsInline: FunctionComponent = () => {
 
       await fetchRequests(activeFilter);
     } catch (e: any) {
-      console.error(e);
       notify({
         type: 'error',
         title: t('Error'),

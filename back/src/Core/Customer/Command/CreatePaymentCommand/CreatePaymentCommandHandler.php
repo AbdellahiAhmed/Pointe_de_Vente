@@ -25,7 +25,11 @@ class CreatePaymentCommandHandler extends EntityManager implements CreatePayment
         $item->setDescription($command->getDescription());
         $item->setAmount($command->getAmount());
         if($command->getOrderId() !== null) {
-            $item->setOrder($this->getRepository(Order::class)->find($command->getOrderId()));
+            $order = $this->getRepository(Order::class)->find($command->getOrderId());
+            if ($order === null) {
+                return CreatePaymentCommandResult::createFromValidationErrorMessage('Commande introuvable.');
+            }
+            $item->setOrder($order);
         }
         $customer = $this->getRepository(Customer::class)->find($command->getCustomerId());
         if ($customer === null) {

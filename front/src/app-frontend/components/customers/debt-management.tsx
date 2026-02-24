@@ -39,12 +39,8 @@ import { getErrors, hasErrors } from "../../../lib/error/error";
 import { ValidationMessage } from "../../../api/model/validation";
 import {
   HttpException,
-  UnprocessableEntityException,
 } from "../../../lib/http/exception/http.exception";
-import {
-  ConstraintViolation,
-  ValidationResult,
-} from "../../../lib/validator/validation.result";
+import { handleFormError } from "../../../lib/error/handle.form.error";
 import { Input } from "../../../app-common/components/input/input";
 import { Button } from "../../../app-common/components/input/button";
 
@@ -193,32 +189,7 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
       reset();
       onSuccess(customer.id, response);
     } catch (exception: any) {
-      if (exception instanceof UnprocessableEntityException) {
-        const e: ValidationResult = await exception.response.json();
-        e.violations.forEach((item: ConstraintViolation) => {
-          setError(item.propertyPath as keyof PaymentFormValues, {
-            message: item.message,
-            type: "server",
-          });
-        });
-        if (e.errorMessage) {
-          notify({ type: "error", description: e.errorMessage });
-        }
-        return;
-      }
-
-      if (exception instanceof HttpException) {
-        let msg = exception.message;
-        try {
-          const body = await exception.response.json();
-          msg = body["hydra:description"] || body.detail || msg;
-        } catch {}
-        if (exception.code === 403) msg = "Vous n'avez pas les droits nécessaires.";
-        notify({ type: "error", description: msg });
-        return;
-      }
-
-      throw exception;
+      await handleFormError(exception, { setError });
     } finally {
       setSaving(false);
     }

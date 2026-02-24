@@ -12,8 +12,8 @@ export const GoogleAnalytics: FunctionComponent<GoogleAnalyticsProps> = (props) 
         hitType: 'pageview',
         page: props.page
       });
-    } catch ( e ) {
-      console.log('ga error', e)
+    } catch {
+      /* GA tracking error — non-critical */
     }
   }, [props.page]);
 

@@ -9,9 +9,8 @@ import {fetchJson} from "../../../api/request/request";
 import {useForm} from "react-hook-form";
 import {Expense} from "../../../api/model/expense";
 import {EXPENSE_CREATE, EXPENSE_LIST} from "../../../api/routing/routes/backend.app";
-import {ConstraintViolation, ValidationResult} from "../../../lib/validator/validation.result";
 import {Trans, useTranslation} from "react-i18next";
-import {HttpException, UnprocessableEntityException} from "../../../lib/http/exception/http.exception";
+import {handleFormError} from "../../../lib/error/handle.form.error";
 import {Loader} from "../../../app-common/components/loader/loader";
 import {Shortcut} from "../../../app-common/components/input/shortcut";
 import {useSelector} from "react-redux";
@@ -102,37 +101,7 @@ export const Expenses: FC<ExpensesProps> = (props) => {
       loadExpenses(filters);
       createReset();
     } catch (exception: any) {
-      if (exception instanceof UnprocessableEntityException) {
-        const e: ValidationResult = await exception.response.json();
-        e.violations.forEach((item: ConstraintViolation) => {
-          createSetError(item.propertyPath, {
-            message: item.message,
-            type: 'server'
-          });
-        });
-
-        if (e.errorMessage) {
-          notify({
-            type: 'error',
-            description: e.errorMessage
-          });
-        }
-
-        return false;
-      }
-
-      if (exception instanceof HttpException) {
-        let msg = exception.message;
-        try {
-          const body = await exception.response.json();
-          msg = body['hydra:description'] || body.detail || msg;
-        } catch {}
-        if (exception.code === 403) msg = "Vous n'avez pas les droits nécessaires.";
-        notify({ type: 'error', description: msg });
-        return false;
-      }
-
-      throw exception;
+      await handleFormError(exception, { setError: createSetError });
     } finally {
       setCreating(false);
     }

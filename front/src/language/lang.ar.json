@@ -996,5 +996,11 @@
   "Reorder level": "حد إعادة الطلب",
   "No stock alerts": "لا توجد تنبيهات مخزون",
   "Search by product name or barcode...": "البحث بإسم المنتج أو الباركود...",
-  "No products match your search": "لا توجد منتجات تطابق بحثك"
+  "No products match your search": "لا توجد منتجات تطابق بحثك",
+  "Navigate": "التنقل",
+  "options": "خيارات",
+  "View": "عرض",
+  "Address": "العنوان",
+  "Erreur de chargement des données.": "خطأ في تحميل البيانات.",
+  "Failed to download Z-Report PDF.": "فشل في تنزيل تقرير Z بصيغة PDF."
 }

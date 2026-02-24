@@ -21,15 +21,8 @@ import {
   CUSTOMER_DELETE,
   CUSTOMER_LIST,
 } from "../../../api/routing/routes/backend.app";
-import {
-  ConstraintViolation,
-  ValidationResult,
-} from "../../../lib/validator/validation.result";
 import { useTranslation } from "react-i18next";
-import {
-  HttpException,
-  UnprocessableEntityException,
-} from "../../../lib/http/exception/http.exception";
+import { handleFormError } from "../../../lib/error/handle.form.error";
 import { createColumnHelper } from "@tanstack/react-table";
 import { TableComponent } from "../../../app-common/components/table/table";
 import { Shortcut } from "../../../app-common/components/input/shortcut";
@@ -280,35 +273,7 @@ export const Customers: FC<Props> = ({ children, className }) => {
       resetForm();
       setOperation("create");
     } catch (exception: any) {
-      if (exception instanceof HttpException) {
-        if (exception.message) {
-          notify({
-            type: "error",
-            description: exception.message,
-          });
-        }
-      }
-
-      if (exception instanceof UnprocessableEntityException) {
-        const e: ValidationResult = await exception.response.json();
-        e.violations.forEach((item: ConstraintViolation) => {
-          setError(item.propertyPath, {
-            message: item.message,
-            type: "server",
-          });
-        });
-
-        if (e.errorMessage) {
-          notify({
-            type: "error",
-            description: e.errorMessage,
-          });
-        }
-
-        return false;
-      }
-
-      throw exception;
+      await handleFormError(exception, { setError });
     } finally {
       setCreating(false);
     }

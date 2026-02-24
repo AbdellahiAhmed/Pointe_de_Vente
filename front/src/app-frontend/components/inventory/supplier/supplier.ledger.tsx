@@ -4,7 +4,7 @@ import {Button} from "../../../../app-common/components/input/button";
 import {Controller, useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import {ConstraintViolation, ValidationMessage} from "../../../../api/model/validation";
+import {ValidationMessage} from "../../../../api/model/validation";
 import {Supplier} from "../../../../api/model/supplier";
 import {
   SUPPLIER_PAYMENT_CREATE,
@@ -12,7 +12,7 @@ import {
   SUPPLIER_PURCHASE_LIST
 } from "../../../../api/routing/routes/backend.app";
 import {fetchJson} from "../../../../api/request/request";
-import {UnprocessableEntityException} from "../../../../lib/http/exception/http.exception";
+import {handleFormError} from "../../../../lib/error/handle.form.error";
 import * as _ from "lodash";
 import {Input} from "../../../../app-common/components/input/input";
 import {getErrors, hasErrors} from "../../../../lib/error/error";
@@ -100,19 +100,7 @@ export const SupplierLedger: FC<SupplierLedgerProps> = ({
         purchase: null
       });
     } catch (exception: any) {
-      if (exception instanceof UnprocessableEntityException) {
-        const e = await exception.response.json();
-        e.violations.forEach((item: ConstraintViolation) => {
-          setError(item.propertyPath, {
-            message: item.message,
-            type: 'server'
-          });
-        });
-
-        return false;
-      }
-
-      throw exception;
+      await handleFormError(exception, { setError });
     } finally {
       setCreating(false);
     }

@@ -999,5 +999,11 @@
   "Reorder level": "Seuil de réapprovisionnement",
   "No stock alerts": "Aucune alerte de stock",
   "Search by product name or barcode...": "Rechercher par nom de produit ou code-barres...",
-  "No products match your search": "Aucun produit ne correspond à votre recherche"
+  "No products match your search": "Aucun produit ne correspond à votre recherche",
+  "Navigate": "Naviguer",
+  "options": "options",
+  "View": "Voir",
+  "Address": "Adresse",
+  "Erreur de chargement des données.": "Erreur de chargement des données.",
+  "Failed to download Z-Report PDF.": "Échec du téléchargement du rapport Z en PDF."
 }

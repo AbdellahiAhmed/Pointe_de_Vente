@@ -72,8 +72,8 @@ export const PaymentMode = () => {
       if( prevIds.toString() !== newIds.toString()) {
         setOrders(response["hydra:member"]);
       }
-    } catch ( e ) {
-      console.error('loadOrders polling error:', e);
+    } catch {
+      // silently handled — polling error, no user notification needed
     } finally {
       setLoading(false);
     }

@@ -13,10 +13,9 @@ import * as _ from 'lodash';
 import {OrderPayment} from "../../../api/model/order.payment";
 import {ViewOrder} from "../sale/view.order";
 import {CUSTOMER_PAYMENT_CREATE} from "../../../api/routing/routes/backend.app";
-import {ConstraintViolation, ValidationResult} from "../../../lib/validator/validation.result";
 import {Trans, useTranslation} from "react-i18next";
 import {ReactSelect} from "../../../app-common/components/input/custom.react.select";
-import {HttpException, UnprocessableEntityException} from "../../../lib/http/exception/http.exception";
+import {handleFormError} from "../../../lib/error/handle.form.error";
 import {withCurrency} from "../../../lib/currency/currency";
 import * as yup from 'yup';
 import {ValidationMessage} from "../../../api/model/validation";
@@ -88,37 +87,7 @@ export const CustomerPayments: FC<Props> = ({
         onCreate!();
       }
     } catch (exception: any) {
-      if (exception instanceof UnprocessableEntityException) {
-        const e: ValidationResult = await exception.response.json();
-        e.violations.forEach((item: ConstraintViolation) => {
-          setError(item.propertyPath, {
-            message: item.message,
-            type: 'server'
-          });
-        });
-
-        if (e.errorMessage) {
-          notify({
-            type: 'error',
-            description: e.errorMessage
-          });
-        }
-
-        return false;
-      }
-
-      if (exception instanceof HttpException) {
-        let msg = exception.message;
-        try {
-          const body = await exception.response.json();
-          msg = body['hydra:description'] || body.detail || msg;
-        } catch {}
-        if (exception.code === 403) msg = "Vous n'avez pas les droits nécessaires.";
-        notify({ type: 'error', description: msg });
-        return false;
-      }
-
-      throw exception;
+      await handleFormError(exception, { setError });
     } finally {
       setCreating(false);
     }

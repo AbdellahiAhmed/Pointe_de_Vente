@@ -148,7 +148,6 @@ export const SaleClosing: FC<TaxProps> = (props) => {
       const json = await res.json();
       setClosing(json.closing);
     } catch (e: any) {
-      console.error("checkDayOpening error:", e);
       if (e instanceof HttpException) {
         let msg = t("An error occurred while loading data");
         try {
@@ -331,7 +330,6 @@ export const SaleClosing: FC<TaxProps> = (props) => {
         // If session already closed, refresh to get new session
         await checkDayOpening();
       } else {
-        console.error("Closing submit error:", exception);
         notify({ type: "error", description: t("An error occurred while loading data") });
       }
     } finally {
@@ -354,8 +352,8 @@ export const SaleClosing: FC<TaxProps> = (props) => {
       setExpenses(
         list.reduce((prev: number, current) => current.amount + prev, 0)
       );
-    } catch (e: any) {
-      console.error("loadExpenses error:", e);
+    } catch {
+      notify({ type: "error", description: t("Erreur de chargement des données.") });
       setExpenses(0);
     }
   };

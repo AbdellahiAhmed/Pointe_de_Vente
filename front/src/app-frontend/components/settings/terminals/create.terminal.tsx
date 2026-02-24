@@ -128,8 +128,8 @@ export const CreateTerminal: FC<CreateTerminalProps> = ({
         label: item.name,
         value: item["@id"]!
       })));
-    }catch (e){
-      throw e;
+    }catch (e: any){
+      notify({ type: 'error', description: e?.message || 'Failed to load products' });
     }finally {
       setProductsLoading(false);
     }
