@@ -10,6 +10,7 @@ import {DateTime} from "luxon";
 import ReactDOM from "react-dom";
 import {Input} from "../../../app-common/components/input/input";
 import { createRoot } from "react-dom/client";
+import { renderToStaticMarkup } from "react-dom/server";
 import {useTranslation} from "react-i18next";
 import {withCurrency} from "../../../lib/currency/currency";
 
@@ -18,34 +19,22 @@ interface SalePrintProps {
 }
 
 export const PrintOrder = (order: Order) => {
-  //open print window
-  const myWindow: any = window.open('','', 'height=500,width=500');
+  const dir = document.documentElement.dir || 'ltr';
+  const html = renderToStaticMarkup(<SalePrintMarkup order={order} />);
+  const myWindow: any = window.open('', '', 'height=500,width=500');
 
   if (!myWindow) {
     alert('Popup blocked. Please allow popups for this site.');
     return;
   }
 
-  // Propagate RTL direction to popup
-  const dir = document.documentElement.dir || 'ltr';
-  myWindow.document.documentElement.dir = dir;
-  myWindow.document.body.dir = dir;
-
-  const div = myWindow.document.createElement('div');
-  div.id = 'print-root';
-
-  myWindow.document.body.appendChild(div)
-
-  const container = myWindow.document.querySelector('#print-root');
-  const root = createRoot(container);
-  root.render(<SalePrintMarkup order={order} />);
-
+  myWindow.document.write(`<!DOCTYPE html><html dir="${dir}"><head><title>Receipt</title></head><body dir="${dir}" style="margin:0">${html}</body></html>`);
   myWindow.document.close();
   myWindow.focus();
   setTimeout(() => {
     myWindow.print();
     myWindow.close();
-  }, 100)
+  }, 100);
 };
 
 export const SalePrint: FC<SalePrintProps> = (props) => {
@@ -529,6 +518,8 @@ export interface ReturnReceiptData {
 }
 
 export const PrintReturnReceipt = (data: ReturnReceiptData) => {
+  const dir = document.documentElement.dir || 'ltr';
+  const html = renderToStaticMarkup(<ReturnReceiptMarkup data={data} />);
   const myWindow: any = window.open('', '', 'height=500,width=500');
 
   if (!myWindow) {
@@ -536,15 +527,7 @@ export const PrintReturnReceipt = (data: ReturnReceiptData) => {
     return;
   }
 
-  const dir = document.documentElement.dir || 'ltr';
-  myWindow.document.documentElement.dir = dir;
-  myWindow.document.body.dir = dir;
-  const div = myWindow.document.createElement('div');
-  div.id = 'print-root';
-  myWindow.document.body.appendChild(div);
-  const container = myWindow.document.querySelector('#print-root');
-  const root = createRoot(container);
-  root.render(<ReturnReceiptMarkup data={data} />);
+  myWindow.document.write(`<!DOCTYPE html><html dir="${dir}"><head><title>Return Receipt</title></head><body dir="${dir}" style="margin:0">${html}</body></html>`);
   myWindow.document.close();
   myWindow.focus();
   setTimeout(() => {
@@ -719,6 +702,8 @@ export interface ZReportData {
 }
 
 export const PrintZReport = (data: ZReportData) => {
+  const dir = document.documentElement.dir || 'ltr';
+  const html = renderToStaticMarkup(<ZReportMarkup data={data} />);
   const myWindow: any = window.open('', '', 'height=500,width=500');
 
   if (!myWindow) {
@@ -726,15 +711,7 @@ export const PrintZReport = (data: ZReportData) => {
     return;
   }
 
-  const dir = document.documentElement.dir || 'ltr';
-  myWindow.document.documentElement.dir = dir;
-  myWindow.document.body.dir = dir;
-  const div = myWindow.document.createElement('div');
-  div.id = 'print-root';
-  myWindow.document.body.appendChild(div);
-  const container = myWindow.document.querySelector('#print-root');
-  const root = createRoot(container);
-  root.render(<ZReportMarkup data={data} />);
+  myWindow.document.write(`<!DOCTYPE html><html dir="${dir}"><head><title>Z-Report</title></head><body dir="${dir}" style="margin:0">${html}</body></html>`);
   myWindow.document.close();
   myWindow.focus();
   setTimeout(() => {
