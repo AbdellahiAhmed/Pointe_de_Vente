@@ -529,7 +529,13 @@ export interface ReturnReceiptData {
 }
 
 export const PrintReturnReceipt = (data: ReturnReceiptData) => {
-  const myWindow: any = window.open('', '', 'height:500;width:500');
+  const myWindow: any = window.open('', '', 'height=500,width=500');
+
+  if (!myWindow) {
+    alert('Popup blocked. Please allow popups for this site.');
+    return;
+  }
+
   const dir = document.documentElement.dir || 'ltr';
   myWindow.document.documentElement.dir = dir;
   myWindow.document.body.dir = dir;
@@ -544,7 +550,7 @@ export const PrintReturnReceipt = (data: ReturnReceiptData) => {
   setTimeout(() => {
     myWindow.print();
     myWindow.close();
-  }, 100);
+  }, 300);
 };
 
 const ReturnReceiptMarkup: FC<{ data: ReturnReceiptData }> = ({ data }) => {
@@ -713,7 +719,13 @@ export interface ZReportData {
 }
 
 export const PrintZReport = (data: ZReportData) => {
-  const myWindow: any = window.open('', '', 'height:500;width:500');
+  const myWindow: any = window.open('', '', 'height=500,width=500');
+
+  if (!myWindow) {
+    alert('Popup blocked. Please allow popups for this site.');
+    return;
+  }
+
   const dir = document.documentElement.dir || 'ltr';
   myWindow.document.documentElement.dir = dir;
   myWindow.document.body.dir = dir;
@@ -728,7 +740,7 @@ export const PrintZReport = (data: ZReportData) => {
   setTimeout(() => {
     myWindow.print();
     myWindow.close();
-  }, 100);
+  }, 300);
 };
 
 const ZReportMarkup: FC<{ data: ZReportData }> = ({ data }) => {
