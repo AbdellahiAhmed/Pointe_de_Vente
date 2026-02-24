@@ -67,6 +67,47 @@ class UpdateOrderCommandHandler extends EntityManager implements UpdateOrderComm
         }
 
         if(null !== $payments = $command->getPayments()){
+            // Credit limit validation (mirrors CreateOrderCommandHandler logic)
+            $totalCreditRequested = 0;
+            $hasCreditPayment = false;
+            foreach($payments as $paymentDto){
+                $paymentEntity = $this->getRepository(Payment::class)->find($paymentDto->getType()->getId());
+                if($paymentEntity !== null && $paymentEntity->getType() === Payment::PAYMENT_TYPE_CREDIT){
+                    $totalCreditRequested += (float) $paymentDto->getReceived();
+                    $hasCreditPayment = true;
+                }
+            }
+            if($hasCreditPayment){
+                $customer = $item->getCustomer();
+                if($customer === null || !$customer->getAllowCreditSale()){
+                    return UpdateOrderCommandResult::createFromValidationErrorMessage(
+                        'Ce client n\'est pas autorisé à acheter à crédit.'
+                    );
+                }
+                $creditLimit = (float) $customer->getCreditLimit();
+                if($creditLimit > 0){
+                    // Subtract previous credit from outstanding (we're replacing payments)
+                    $prevCreditTotal = 0;
+                    $prevPayments = $this->getRepository(OrderPayment::class)->findBy(['order' => $item]);
+                    foreach($prevPayments as $pp){
+                        if($pp->getType() !== null && $pp->getType()->getType() === Payment::PAYMENT_TYPE_CREDIT){
+                            $prevCreditTotal += (float) $pp->getReceived();
+                        }
+                    }
+                    $outstanding = $customer->getOutstanding() - $prevCreditTotal;
+                    if(($outstanding + $totalCreditRequested) > $creditLimit){
+                        return UpdateOrderCommandResult::createFromValidationErrorMessage(
+                            sprintf(
+                                'Limite de crédit dépassée. Limite: %.2f, Utilisé: %.2f, Demandé: %.2f.',
+                                $creditLimit,
+                                $outstanding,
+                                $totalCreditRequested
+                            )
+                        );
+                    }
+                }
+            }
+
             // delete previous payments
             $prevPayments = $this->getRepository(OrderPayment::class)->findBy([
                 'order' => $item

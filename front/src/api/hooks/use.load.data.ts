@@ -57,6 +57,14 @@ export const initialData = {
   list: []
 };
 
+// Cache max age: 30 minutes — after this, cached data is ignored on load
+const CACHE_MAX_AGE_MS = 30 * 60 * 1000;
+
+interface CachedData<T> {
+  list: T[];
+  _cachedAt?: number;
+}
+
 export const useLoadData = (): [ReturnState, ReturnAction] => {
   const [list, setList] = useState<HomeProps['list']>(initialData);
   const [discountList, setDiscountList] = useState<HomeProps['discountList']>(initialData);
@@ -92,7 +100,7 @@ export const useLoadData = (): [ReturnState, ReturnAction] => {
     }
 
     setList({ list: allProducts });
-    await localforage.setItem('list', { list: allProducts });
+    await localforage.setItem('list', { list: allProducts, _cachedAt: Date.now() });
   };
 
   const loadJsonList = async <T>(
@@ -101,9 +109,10 @@ export const useLoadData = (): [ReturnState, ReturnAction] => {
     setter: (val: { list: T[] }) => void,
     label: string
   ) => {
-    // Show cached data immediately while refreshing
-    const cached: { list: T[] } | null = await localforage.getItem(key);
-    if (cached) setter(cached);
+    // Show cached data immediately while refreshing (only if fresh enough)
+    const cached: CachedData<T> | null = await localforage.getItem(key);
+    const isFresh = cached?._cachedAt && (Date.now() - cached._cachedAt) < CACHE_MAX_AGE_MS;
+    if (cached && isFresh) setter(cached);
 
     dispatch(progressAction(label));
     try {
@@ -111,18 +120,21 @@ export const useLoadData = (): [ReturnState, ReturnAction] => {
       const json = await res.json();
       json.list = json['hydra:member'];
       delete json['hydra:member'];
+      json._cachedAt = Date.now();
       setter(json);
       await localforage.setItem(key, json);
     } catch (e) {
-      // If API fails, cached data is still shown
+      // If API fails, show any cached data (even stale) as fallback
+      if (cached && !isFresh) setter(cached);
       if (!cached) throw e;
     }
   };
 
   const loadData = async () => {
-    // Products: always refresh from API (paginated loader)
-    const cachedList: HomeProps['list'] | null = await localforage.getItem('list');
-    if (cachedList) setList(cachedList);
+    // Products: show fresh cache immediately, always refresh from API
+    const cachedList: CachedData<Product> | null = await localforage.getItem('list');
+    const isListFresh = cachedList?._cachedAt && (Date.now() - cachedList._cachedAt) < CACHE_MAX_AGE_MS;
+    if (cachedList && isListFresh) setList(cachedList);
     dispatch(progressAction('Products'));
     try {
       await loadProducts();

@@ -24,6 +24,14 @@ class PurchaseEvent
         }
 
         foreach($purchase->getItems() as $item){
+            // Validate positive quantity
+            $qty = (float) $item->getQuantity();
+            if($qty <= 0){
+                throw new \InvalidArgumentException(
+                    sprintf('La quantité doit être supérieure à zéro pour "%s".', $item->getItem()->getName())
+                );
+            }
+
             if($purchase->getUpdatePrice()){
                 // PMP (Prix Moyen Pondéré) calculation
                 $product = $item->getItem();

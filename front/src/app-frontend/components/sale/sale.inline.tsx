@@ -74,6 +74,7 @@ export const CloseSaleInline: FC<Props> = ({
     defaultAppState;
 
   const [isSaleClosing, setSaleClosing] = useState(false);
+  const isSubmittingRef = useRef(false);
   const [payment, setPayment] = useState<PaymentType>();
   const [payments, setPayments] = useState<OrderPayment[]>([]);
   const [hold, setHold] = useState(false);
@@ -186,6 +187,10 @@ export const CloseSaleInline: FC<Props> = ({
   };
 
   const onSaleSubmit = async (values: any) => {
+    // Prevent double-submit with ref guard (instant, no re-render delay)
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+
     let paymentsAdded: OrderPayment[] = [...payments];
     if(requireCustomerBox && !customerName){
       notify({
@@ -193,6 +198,7 @@ export const CloseSaleInline: FC<Props> = ({
         description: t('Add customer name'),
         placement: 'topRight'
       });
+      isSubmittingRef.current = false;
       return ;
     }
     setSaleClosing(true);
@@ -212,6 +218,7 @@ export const CloseSaleInline: FC<Props> = ({
       if (!customer.allowCreditSale) {
         notify({ type: 'error', description: t('Credit sales not allowed for this customer') });
         setSaleClosing(false);
+        isSubmittingRef.current = false;
         return;
       }
       if (customer.creditLimit && Number(customer.creditLimit) > 0) {
@@ -219,6 +226,7 @@ export const CloseSaleInline: FC<Props> = ({
         if (currentDebt + totalCredit > Number(customer.creditLimit)) {
           notify({ type: 'error', description: t('Credit limit exceeded') });
           setSaleClosing(false);
+          isSubmittingRef.current = false;
           return;
         }
       }
@@ -305,6 +313,7 @@ export const CloseSaleInline: FC<Props> = ({
       }
     } finally {
       setSaleClosing(false);
+      isSubmittingRef.current = false;
       // Always clear refundingFrom to prevent stale state from blocking subsequent sales
       if (refundingFrom) {
         setAppState((prev) => ({ ...prev, refundingFrom: undefined }));
