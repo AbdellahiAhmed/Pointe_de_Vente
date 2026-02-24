@@ -19,7 +19,16 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
  * @ORM\Entity(repositoryClass=ReturnRequestRepository::class)
  * @ApiResource(
  *     normalizationContext={"groups"={"return_request.read", "time.read", "uuid.read"}},
- *     denormalizationContext={"groups"={"return_request.write"}}
+ *     denormalizationContext={"groups"={"return_request.write"}},
+ *     collectionOperations={
+ *         "get"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "post"={"access_control"="is_granted('ROLE_MANAGER')"}
+ *     },
+ *     itemOperations={
+ *         "get"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "put"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "delete"={"access_control"="is_granted('ROLE_MANAGER')"}
+ *     }
  * )
  * @ApiFilter(filterClass=SearchFilter::class, properties={"status": "exact", "order.orderId": "exact"})
  * @ApiFilter(filterClass=OrderFilter::class, properties={"createdAt"})

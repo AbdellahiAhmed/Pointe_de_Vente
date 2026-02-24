@@ -21,7 +21,16 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
  * @ORM\Entity(repositoryClass=TerminalRepository::class)
  * @ApiResource(
  *     normalizationContext={"groups"={"terminal.read", "time.read", "uuid.read", "active.read"}},
- *     denormalizationContext={"groups"={"terminal.create", "active.read"}}
+ *     denormalizationContext={"groups"={"terminal.create", "active.read"}},
+ *     collectionOperations={
+ *         "get"={"access_control"="is_granted('ROLE_VENDEUR')"},
+ *         "post"={"access_control"="is_granted('ROLE_ADMIN')"}
+ *     },
+ *     itemOperations={
+ *         "get"={"access_control"="is_granted('ROLE_VENDEUR')"},
+ *         "put"={"access_control"="is_granted('ROLE_ADMIN')"},
+ *         "delete"={"access_control"="is_granted('ROLE_ADMIN')"}
+ *     }
  * )
  * @ApiFilter(filterClass=SearchFilter::class, properties={"code": "exact", "description": "ipartial", "products.name": "ipartial", "store.id": "exact"})
  * @ApiFilter(filterClass=OrderFilter::class, properties={"code", "description", "products.name"})

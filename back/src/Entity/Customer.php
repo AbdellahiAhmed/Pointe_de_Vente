@@ -24,7 +24,16 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @UniqueEntity(fields={"phone"}, message="Un client avec ce numéro de téléphone existe déjà.", ignoreNull=true)
  * @UniqueEntity(fields={"cnic"}, message="Un client avec ce numéro d'identité existe déjà.", ignoreNull=true)
  * @ApiResource(
- *     normalizationContext={"groups"={"customer.read", "time.read", "uuid.read"}}
+ *     normalizationContext={"groups"={"customer.read", "time.read", "uuid.read"}},
+ *     collectionOperations={
+ *         "get"={"access_control"="is_granted('ROLE_VENDEUR')"},
+ *         "post"={"access_control"="is_granted('ROLE_VENDEUR')"}
+ *     },
+ *     itemOperations={
+ *         "get"={"access_control"="is_granted('ROLE_VENDEUR')"},
+ *         "put"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "delete"={"access_control"="is_granted('ROLE_MANAGER')"}
+ *     }
  * )
  * @ApiFilter(filterClass=SearchFilter::class, properties={"name": "ipartial", "email": "exact", "cnic": "exact", "openingBalance": "exact", "phone": "ipartial"})
  * @ApiFilter(filterClass=OrderFilter::class, properties={"name", "stores.name", "email", "cnic", "openingBalance", "phone"})

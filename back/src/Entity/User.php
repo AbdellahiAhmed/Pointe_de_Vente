@@ -32,13 +32,13 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
  * @ApiResource(
  *     normalizationContext={"groups"={"user.read", "time.read", "uuid.read", "active.read"}, "skip_null_values"=false},
  *     collectionOperations={
- *         "get",
- *         "post"={"validation_groups"={"create.validation"}}
+ *         "get"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "post"={"access_control"="is_granted('ROLE_ADMIN')", "validation_groups"={"create.validation"}}
  *     },
  *     itemOperations={
- *         "delete",
- *         "get",
- *         "put"={"validation_groups"={"update.validation"}}
+ *         "get"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "put"={"access_control"="is_granted('ROLE_ADMIN')", "validation_groups"={"update.validation"}},
+ *         "delete"={"access_control"="is_granted('ROLE_ADMIN')"}
  *     }
  * )
  * @ApiFilter(filterClass=SearchFilter::class, properties={"displayName": "partial", "username": "exact", "email": "exact"})

@@ -13,7 +13,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass=PurchaseOrderItemVariantRepository::class)
  * @ApiResource(
- *     normalizationContext={"groups"={"purchaseOrderItemVariant.read", "time.read", "uuid.read"}}
+ *     normalizationContext={"groups"={"purchaseOrderItemVariant.read", "time.read", "uuid.read"}},
+ *     collectionOperations={
+ *         "get"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "post"={"access_control"="is_granted('ROLE_MANAGER')"}
+ *     },
+ *     itemOperations={
+ *         "get"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "put"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "delete"={"access_control"="is_granted('ROLE_MANAGER')"}
+ *     }
  * )
  */
 class PurchaseOrderItemVariant

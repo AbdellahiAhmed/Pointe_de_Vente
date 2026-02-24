@@ -22,7 +22,16 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
  * @ORM\Entity(repositoryClass=PaymentRepository::class)
  * @Gedmo\Loggable()
  * @ApiResource(
- *     normalizationContext={"groups"={"payment.read", "time.read", "uuid.read", "active.read"}}
+ *     normalizationContext={"groups"={"payment.read", "time.read", "uuid.read", "active.read"}},
+ *     collectionOperations={
+ *         "get"={"access_control"="is_granted('ROLE_VENDEUR')"},
+ *         "post"={"access_control"="is_granted('ROLE_ADMIN')"}
+ *     },
+ *     itemOperations={
+ *         "get"={"access_control"="is_granted('ROLE_VENDEUR')"},
+ *         "put"={"access_control"="is_granted('ROLE_ADMIN')"},
+ *         "delete"={"access_control"="is_granted('ROLE_ADMIN')"}
+ *     }
  * )
  * @ApiFilter(filterClass=SearchFilter::class, properties={"name": "partial", "type": "exact"})
  * @ApiFilter(filterClass=BooleanFilter::class, properties={"isActive"})

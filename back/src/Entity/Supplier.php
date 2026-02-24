@@ -22,7 +22,16 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 /**
  * @ORM\Entity(repositoryClass=SupplierRepository::class)
  * @ApiResource(
- *     normalizationContext={"groups"={"supplier.read", "time.read", "uuid.read"}}
+ *     normalizationContext={"groups"={"supplier.read", "time.read", "uuid.read"}},
+ *     collectionOperations={
+ *         "get"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "post"={"access_control"="is_granted('ROLE_MANAGER')"}
+ *     },
+ *     itemOperations={
+ *         "get"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "put"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "delete"={"access_control"="is_granted('ROLE_MANAGER')"}
+ *     }
  * )
  * @ApiFilter(filterClass=SearchFilter::class, properties={"name": "ipartial", "phone": "ipartial", "email": "partial", "openingBalance": "exact"})
  * @ApiFilter(filterClass=OrderFilter::class, properties={"name", "phone", "email", "openingBalance"})

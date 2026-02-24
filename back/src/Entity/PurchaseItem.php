@@ -18,7 +18,16 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 /**
  * @ORM\Entity(repositoryClass=PurchaseItemRepository::class)
  * @ApiResource(
- *     normalizationContext={"groups"={"purchaseItem.read", "time.read", "uuid.read"}}
+ *     normalizationContext={"groups"={"purchaseItem.read", "time.read", "uuid.read"}},
+ *     collectionOperations={
+ *         "get"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "post"={"access_control"="is_granted('ROLE_MANAGER')"}
+ *     },
+ *     itemOperations={
+ *         "get"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "put"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "delete"={"access_control"="is_granted('ROLE_MANAGER')"}
+ *     }
  * )
  * @ApiFilter(filterClass=SearchFilter::class, properties={"item.id": "exact", "quantity": "exact", "quantityRequested": "exact", "purchasePrice": "exact", "createdAt": "partial", "purchase.purchaseNumber": "exact"})
  * @ApiFilter(filterClass=OrderFilter::class, properties={"purchase.purchaseNumber", "createdAt", "quantity", "purchasePrice", "quantityRequested"})

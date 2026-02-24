@@ -19,7 +19,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Entity(repositoryClass=BarcodeRepository::class)
  * @ApiResource(
  *     normalizationContext={"groups"={"barcode.read", "time.read", "uuid.read", "product.read"}},
- *     denormalizationContext={"groups"={"barcode.write"}}
+ *     denormalizationContext={"groups"={"barcode.write"}},
+ *     collectionOperations={
+ *         "get"={"access_control"="is_granted('ROLE_VENDEUR')"},
+ *         "post"={"access_control"="is_granted('ROLE_MANAGER')"}
+ *     },
+ *     itemOperations={
+ *         "get"={"access_control"="is_granted('ROLE_VENDEUR')"},
+ *         "put"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "delete"={"access_control"="is_granted('ROLE_MANAGER')"}
+ *     }
  * )
  * @ApiFilter(filterClass=SearchFilter::class, properties={"barcode": "partial", "item.name": "partial"})
  * @ApiFilter(filterClass=OrderFilter::class, properties={"barcode", "id"})

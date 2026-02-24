@@ -22,7 +22,16 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
  * @UniqueEntity(fields={"purchaseNumber"})
  * @ApiResource(
  *     normalizationContext={"groups"={"purchase.read", "time.read", "uuid.read"}, "skip_null_values"=false},
- *     denormalizationContext={"groups"={"purchase.create"}}
+ *     denormalizationContext={"groups"={"purchase.create"}},
+ *     collectionOperations={
+ *         "get"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "post"={"access_control"="is_granted('ROLE_MANAGER')"}
+ *     },
+ *     itemOperations={
+ *         "get"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "put"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "delete"={"access_control"="is_granted('ROLE_MANAGER')"}
+ *     }
  * )
  * @ApiFilter(filterClass=SearchFilter::class, properties={"purchaseNumber": "exact", "purchaseOrder.poNumber": "exact", "supplier.name": "ipartial", "paymentType.name": "ipartial", "createdAt": "partial"})
  * @ApiFilter(filterClass=OrderFilter::class, properties={"purchaseNumber", "purchaseOrder.poNumber", "supplier.name", "paymentType.name", "createdAt"})

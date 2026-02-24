@@ -19,7 +19,16 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
  * @ORM\Entity(repositoryClass=OrderProductRepository::class)
  * @Gedmo\Loggable()
  * @ApiResource(
- *     normalizationContext={"skip_null_values"=false}
+ *     normalizationContext={"skip_null_values"=false},
+ *     collectionOperations={
+ *         "get"={"access_control"="is_granted('ROLE_VENDEUR')"},
+ *         "post"={"access_control"="is_granted('ROLE_MANAGER')"}
+ *     },
+ *     itemOperations={
+ *         "get"={"access_control"="is_granted('ROLE_VENDEUR')"},
+ *         "put"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "delete"={"access_control"="is_granted('ROLE_MANAGER')"}
+ *     }
  * )
  * @ApiFilter(filterClass=SearchFilter::class, properties={"product.id": "exact", "variant.id": "exact", "quantity": "exact", "price": "exact", "discount": "exact", "order.orderId": "exact", "createdAt": "partial"})
  * @ApiFilter(filterClass=OrderFilter::class, properties={"order.orderId", "variant.attributeValue", "createdAt", "quantity", "price", "discount"})

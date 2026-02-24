@@ -17,7 +17,16 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 /**
  * @ORM\Entity(repositoryClass=DepartmentRepository::class)
  * @ApiResource(
- *     normalizationContext={"groups"={"department.read", "time.read", "uuid.read"}}
+ *     normalizationContext={"groups"={"department.read", "time.read", "uuid.read"}},
+ *     collectionOperations={
+ *         "get"={"access_control"="is_granted('ROLE_VENDEUR')"},
+ *         "post"={"access_control"="is_granted('ROLE_ADMIN')"}
+ *     },
+ *     itemOperations={
+ *         "get"={"access_control"="is_granted('ROLE_VENDEUR')"},
+ *         "put"={"access_control"="is_granted('ROLE_ADMIN')"},
+ *         "delete"={"access_control"="is_granted('ROLE_ADMIN')"}
+ *     }
  * )
  * @ApiFilter(filterClass=SearchFilter::class, properties={"name": "partial", "description": "partial"})
  * @ApiFilter(filterClass=OrderFilter::class, properties={"name"})

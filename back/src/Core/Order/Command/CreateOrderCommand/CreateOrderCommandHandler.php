@@ -201,6 +201,25 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
                 );
             }
 
+            // Validate min-price: selling price must not be below product/variant minimum
+            $variant = null;
+            if($itemDto->getVariant() !== null){
+                $variant = $variantMap[$itemDto->getVariant()->getId()] ?? null;
+            }
+            $minPrice = ($variant !== null && $variant->getMinPrice() !== null)
+                ? (float) $variant->getMinPrice()
+                : (($product->getMinPrice() !== null) ? (float) $product->getMinPrice() : 0);
+            if($minPrice > 0 && $itemPrice > 0 && $itemPrice < $minPrice){
+                return CreateOrderCommandResult::createFromValidationErrorMessage(
+                    sprintf(
+                        'Le prix de vente (%.2f) est inférieur au prix minimum (%.2f) pour "%s".',
+                        $itemPrice,
+                        $minPrice,
+                        $product->getName()
+                    )
+                );
+            }
+
             $orderProduct->setPrice($itemDto->getPrice());
             $orderProduct->setQuantity($itemDto->getQuantity());
 

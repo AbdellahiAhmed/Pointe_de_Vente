@@ -11,7 +11,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Entity(repositoryClass=ReturnRequestItemRepository::class)
  * @ApiResource(
  *     normalizationContext={"groups"={"return_request_item.read", "return_request.read"}},
- *     denormalizationContext={"groups"={"return_request_item.write", "return_request.write"}}
+ *     denormalizationContext={"groups"={"return_request_item.write", "return_request.write"}},
+ *     collectionOperations={
+ *         "get"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "post"={"access_control"="is_granted('ROLE_MANAGER')"}
+ *     },
+ *     itemOperations={
+ *         "get"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "put"={"access_control"="is_granted('ROLE_MANAGER')"},
+ *         "delete"={"access_control"="is_granted('ROLE_MANAGER')"}
+ *     }
  * )
  */
 class ReturnRequestItem

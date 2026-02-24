@@ -23,7 +23,16 @@ use ApiPlatform\Core\Annotation\ApiFilter;
  * @UniqueEntity(fields={"orderId"})
  * @Gedmo\Loggable()
  * @ApiResource(
- *     normalizationContext={"groups"={"order.read", "time.read", "uuid.read"}}
+ *     normalizationContext={"groups"={"order.read", "time.read", "uuid.read"}},
+ *     collectionOperations={
+ *         "get"={"access_control"="is_granted('ROLE_VENDEUR')"},
+ *         "post"={"access_control"="is_granted('ROLE_VENDEUR')"}
+ *     },
+ *     itemOperations={
+ *         "get"={"access_control"="is_granted('ROLE_VENDEUR')"},
+ *         "put"={"access_control"="is_granted('ROLE_VENDEUR')"},
+ *         "delete"={"access_control"="is_granted('ROLE_MANAGER')"}
+ *     }
  * )
  * @ApiFilter(filterClass=SearchFilter::class, properties={"orderId": "exact", "status": "exact", "store.id": "exact", "terminal.id": "exact"})
  */

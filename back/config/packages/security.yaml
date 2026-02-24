@@ -51,7 +51,7 @@ security:
         - { path: ^/api/auth/login_check, roles: PUBLIC_ACCESS }
         - { path: ^/api/auth/reset-password, roles: PUBLIC_ACCESS }
         - { path: ^/api/auth/forgot-password, roles: PUBLIC_ACCESS }
-        - { path: ^/api/auth/register, roles: PUBLIC_ACCESS }
+        # register route removed — no public registration allowed
         - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
         - { path: ^/api/media/.+/content, roles: PUBLIC_ACCESS }
         - { path: ^/api/admin, roles: IS_AUTHENTICATED_FULLY }
