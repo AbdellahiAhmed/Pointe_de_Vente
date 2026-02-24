@@ -59,7 +59,9 @@ class UpdateClosingCommandHandler extends EntityManager implements UpdateClosing
         }
         if($command->getClosedBy() !== null){
             $closedBy = $this->getRepository(User::class)->find($command->getClosedBy());
-            $item->setClosedBy($closedBy);
+            if($closedBy !== null){
+                $item->setClosedBy($closedBy);
+            }
         }
 
 

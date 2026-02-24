@@ -67,8 +67,9 @@ class UpdateUserCommandHandler extends EntityManager implements UpdateUserComman
 
             foreach($command->getStores() as $store){
                 $s = $this->getRepository(Store::class)->find($store);
-
-                $item->addStore($s);
+                if($s !== null) {
+                    $item->addStore($s);
+                }
             }
         }
 

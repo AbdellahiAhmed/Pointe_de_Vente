@@ -35,7 +35,10 @@ class UpdateTerminalCommandHandler extends EntityManager implements UpdateTermin
             $item->setDescription($command->getDescription());
         }
         if($command->getStore() !== null) {
-            $item->setStore($this->getRepository(Store::class)->find($command->getStore()));
+            $store = $this->getRepository(Store::class)->find($command->getStore());
+            if($store !== null) {
+                $item->setStore($store);
+            }
         }
 
         if($command->getProducts() !== null || $command->getCategories() !== null || $command->getExcludeProducts() !== null){

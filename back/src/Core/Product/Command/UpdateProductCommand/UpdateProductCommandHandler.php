@@ -72,8 +72,12 @@ class UpdateProductCommandHandler extends EntityManager implements UpdateProduct
         $item->setPurchaseUnit($command->getPurchaseUnit());
         $item->setCost($command->getCost());
 
-        $department = $command->getDepartment() ? $this->getRepository(Department::class)->find($command->getDepartment()) : null;
-        $item->setDepartment($department);
+        if($command->getDepartment() !== null){
+            $department = $this->getRepository(Department::class)->find($command->getDepartment());
+            if($department !== null){
+                $item->setDepartment($department);
+            }
+        }
 
         if($command->getCategories() !== null){
             //remove categories first
@@ -83,7 +87,9 @@ class UpdateProductCommandHandler extends EntityManager implements UpdateProduct
 
             foreach($command->getCategories() as $category){
                 $c = $this->getRepository(Category::class)->find($category);
-                $item->addCategory($c);
+                if($c !== null) {
+                    $item->addCategory($c);
+                }
             }
         }
 
@@ -94,7 +100,9 @@ class UpdateProductCommandHandler extends EntityManager implements UpdateProduct
 
             foreach($command->getBrands() as $brand){
                 $b = $this->getRepository(Brand::class)->find($brand);
-                $item->addBrand($b);
+                if($b !== null) {
+                    $item->addBrand($b);
+                }
             }
         }
 
@@ -105,7 +113,9 @@ class UpdateProductCommandHandler extends EntityManager implements UpdateProduct
 
             foreach($command->getSuppliers() as $supplier){
                 $s = $this->getRepository(Supplier::class)->find($supplier);
-                $item->addSupplier($s);
+                if($s !== null) {
+                    $item->addSupplier($s);
+                }
             }
         }
 
@@ -116,7 +126,9 @@ class UpdateProductCommandHandler extends EntityManager implements UpdateProduct
 
             foreach($command->getTaxes() as $tax){
                 $t = $this->getRepository(Tax::class)->find($tax);
-                $item->addTax($t);
+                if($t !== null) {
+                    $item->addTax($t);
+                }
             }
         }
 
@@ -132,6 +144,9 @@ class UpdateProductCommandHandler extends EntityManager implements UpdateProduct
                     $updatedVariants[] = $variant->getId();
 
                     $v = $this->getRepository(ProductVariant::class)->find($variant->getId());
+                    if($v === null){
+                        continue;
+                    }
 
                     $v->setName($item->getName());
                     $v->setAttributeValue($variant->getAttributeValue());

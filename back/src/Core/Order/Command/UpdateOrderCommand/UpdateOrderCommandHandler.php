@@ -41,9 +41,10 @@ class UpdateOrderCommandHandler extends EntityManager implements UpdateOrderComm
             return UpdateOrderCommandResult::createNotFound();
         }
         if($command->getCustomerId() !== null) {
-            $item->setCustomer(
-                $this->getRepository(Customer::class)->find($command->getCustomerId())
-            );
+            $customer = $this->getRepository(Customer::class)->find($command->getCustomerId());
+            if($customer !== null) {
+                $item->setCustomer($customer);
+            }
         }
 
         if($command->getCustomer() !== null){
@@ -115,11 +116,13 @@ class UpdateOrderCommandHandler extends EntityManager implements UpdateOrderComm
             $this->removeAll($prevPayments);
 
             foreach($payments as $paymentDto){
+                $paymentType = $this->getRepository(Payment::class)->find($paymentDto->getType()->getId());
+                if($paymentType === null){
+                    continue;
+                }
                 $payment = new OrderPayment();
                 $payment->setTotal($paymentDto->getTotal());
-                $payment->setType(
-                    $this->getRepository(Payment::class)->find($paymentDto->getType()->getId())
-                );
+                $payment->setType($paymentType);
                 $payment->setDue($paymentDto->getDue());
                 $payment->setReceived($paymentDto->getReceived());
 
@@ -138,6 +141,9 @@ class UpdateOrderCommandHandler extends EntityManager implements UpdateOrderComm
 
             /** @var Discount $discount */
             $discount = $this->getRepository(Discount::class)->find($command->getDiscount()->getId());
+            if($discount === null){
+                return UpdateOrderCommandResult::createFromValidationErrorMessage('Remise introuvable.');
+            }
 
             $orderDiscount = new OrderDiscount();
             $orderDiscount->setAmount($command->getDiscountAmount());
@@ -161,6 +167,9 @@ class UpdateOrderCommandHandler extends EntityManager implements UpdateOrderComm
 
             /** @var Tax $tax */
             $tax = $this->getRepository(Tax::class)->find($command->getTax()->getId());
+            if($tax === null){
+                return UpdateOrderCommandResult::createFromValidationErrorMessage('Taxe introuvable.');
+            }
             $orderTax = new OrderTax();
             $orderTax->setType($tax);
             $orderTax->setOrder($item);
