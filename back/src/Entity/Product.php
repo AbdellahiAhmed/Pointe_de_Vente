@@ -15,6 +15,7 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
@@ -59,6 +60,7 @@ class Product
      * @ORM\Column(type="string", length=255)
      * @Gedmo\Versioned()
      * @Groups({"product.read", "order.read","customer.read", "terminal.read", "purchaseItem.read", "purchase.read", "purchaseOrder.read", "supplier.read", "supplierPayment.read", "keyword", "product.write"})
+     * @Assert\NotBlank()
      */
     private $name;
 

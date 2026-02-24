@@ -13,6 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
@@ -55,6 +56,7 @@ class Tax
      * @ORM\Column(type="string", length=255)
      * @Gedmo\Versioned()
      * @Groups({"tax.read", "order.read", "product.read", "customer.read"})
+     * @Assert\NotBlank()
      */
     private $name;
 
@@ -62,6 +64,7 @@ class Tax
      * @ORM\Column(type="decimal", precision=20, scale=2)
      * @Gedmo\Versioned()
      * @Groups({"tax.read", "order.read", "product.read", "customer.read"})
+     * @Assert\NotNull()
      */
     private $rate;
 

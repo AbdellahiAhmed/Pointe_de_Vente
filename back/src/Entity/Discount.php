@@ -13,6 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
@@ -63,6 +64,7 @@ class Discount
      * @ORM\Column(type="string", length=255)
      * @Gedmo\Versioned()
      * @Groups({"discount.read", "order.read"})
+     * @Assert\NotBlank()
      */
     private $name;
 

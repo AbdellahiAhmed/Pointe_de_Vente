@@ -12,6 +12,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
@@ -53,6 +54,7 @@ class Terminal
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"store.read", "product.read", "terminal.read", "order.read", "terminal.create"})
+     * @Assert\NotBlank()
      */
     private $code;
 

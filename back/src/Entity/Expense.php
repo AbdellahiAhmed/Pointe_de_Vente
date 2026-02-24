@@ -10,6 +10,7 @@ use App\Repository\ExpenseRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ExpenseRepository::class)
@@ -42,6 +43,7 @@ class Expense
 
     /**
      * @ORM\Column(type="decimal", precision=10, scale=2)
+     * @Assert\NotNull()
      */
     private $amount;
 
