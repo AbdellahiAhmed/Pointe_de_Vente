@@ -791,12 +791,12 @@ const ZReportMarkup: FC<{ data: ZReportData }> = ({ data }) => {
               {Object.entries(data.payments).map(([type, amount]) => (
                 <tr key={type} style={{ borderBottom: '1px dotted #ccc' }}>
                   <td style={{ padding: '2px 0' }}>{type}</td>
-                  <td style={{ textAlign: 'right', padding: '2px 0' }}>{withCurrency(amount)}</td>
+                  <td dir="ltr" style={{ textAlign: 'left', padding: '2px 0' }}>{withCurrency(amount)}</td>
                 </tr>
               ))}
               <tr style={{ borderTop: '1px dashed #808080', fontWeight: 'bold' }}>
                 <td style={{ padding: '4px 0' }}>{t('Total sales')}</td>
-                <td style={{ textAlign: 'right', padding: '4px 0' }}>{withCurrency(data.totalSales)}</td>
+                <td dir="ltr" style={{ textAlign: 'left', padding: '4px 0' }}>{withCurrency(data.totalSales)}</td>
               </tr>
             </tbody>
           </table>
@@ -811,23 +811,23 @@ const ZReportMarkup: FC<{ data: ZReportData }> = ({ data }) => {
             <tbody>
               <tr>
                 <td>{t('Opening balance')}</td>
-                <td style={{ textAlign: 'right' }}>{withCurrency(data.openingBalance)}</td>
+                <td dir="ltr" style={{ textAlign: 'left' }}>{withCurrency(data.openingBalance)}</td>
               </tr>
               <tr>
                 <td>{t('Cash added')}</td>
-                <td style={{ textAlign: 'right' }}>+ {withCurrency(data.cashAdded)}</td>
+                <td dir="ltr" style={{ textAlign: 'left' }}>+ {withCurrency(data.cashAdded)}</td>
               </tr>
               <tr>
                 <td>{t('Cash withdrawn')}</td>
-                <td style={{ textAlign: 'right' }}>- {withCurrency(data.cashWithdrawn)}</td>
+                <td dir="ltr" style={{ textAlign: 'left' }}>- {withCurrency(data.cashWithdrawn)}</td>
               </tr>
               <tr>
                 <td>{t('Expenses')}</td>
-                <td style={{ textAlign: 'right' }}>- {withCurrency(data.expenses)}</td>
+                <td dir="ltr" style={{ textAlign: 'left' }}>- {withCurrency(data.expenses)}</td>
               </tr>
               <tr>
                 <td>{t('Cash sales')}</td>
-                <td style={{ textAlign: 'right' }}>+ {withCurrency(cashSales)}</td>
+                <td dir="ltr" style={{ textAlign: 'left' }}>+ {withCurrency(cashSales)}</td>
               </tr>
             </tbody>
           </table>
@@ -842,15 +842,15 @@ const ZReportMarkup: FC<{ data: ZReportData }> = ({ data }) => {
             <tbody>
               <tr style={{ fontWeight: 'bold' }}>
                 <td>{t('Expected cash')}</td>
-                <td style={{ textAlign: 'right' }}>{withCurrency(data.expectedCash)}</td>
+                <td dir="ltr" style={{ textAlign: 'left' }}>{withCurrency(data.expectedCash)}</td>
               </tr>
               <tr>
                 <td>{t('Cash counted')}</td>
-                <td style={{ textAlign: 'right' }}>{withCurrency(data.cashCounted)}</td>
+                <td dir="ltr" style={{ textAlign: 'left' }}>{withCurrency(data.cashCounted)}</td>
               </tr>
               <tr style={{ fontWeight: 'bold', color: data.variance >= 0 ? '#16a34a' : '#dc2626' }}>
                 <td>{t('Variance')}</td>
-                <td style={{ textAlign: 'right' }}>
+                <td dir="ltr" style={{ textAlign: 'left' }}>
                   {data.variance >= 0 ? '+' : ''}{withCurrency(data.variance)}
                 </td>
               </tr>
@@ -860,7 +860,7 @@ const ZReportMarkup: FC<{ data: ZReportData }> = ({ data }) => {
 
         {/* Footer */}
         <div style={{ textAlign: 'center', padding: '8px 4px', borderTop: '1px dashed #808080', fontSize: 10, color: '#666' }}>
-          {t('Printed at')}: {new Date().toLocaleString(document.documentElement.dir === 'rtl' ? 'ar-MR' : 'fr-FR')}
+          {t('Printed at')}: {new Date().toLocaleString('fr-FR')}
         </div>
       </div>
     </div>

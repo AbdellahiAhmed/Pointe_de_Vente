@@ -14,12 +14,15 @@ export const withCurrency = (amount: string | number | undefined) => {
       .trim();
   }
 
-  return new Intl.NumberFormat(import.meta.env.VITE_LOCALE, {
+  const formatted = new Intl.NumberFormat(import.meta.env.VITE_LOCALE, {
     style: "currency",
     currency: import.meta.env.VITE_CURRENCY,
     compactDisplay: "short",
     maximumFractionDigits: DECIMAL_PLACES,
   }).format(Number(amount));
+
+  // LTR marks force correct display order in RTL contexts (amount then currency)
+  return `\u200E${formatted}\u200E`;
 };
 
 export const formatNumber = (amount: string | number) => {
