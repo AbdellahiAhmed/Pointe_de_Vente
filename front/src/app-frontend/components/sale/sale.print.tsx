@@ -26,6 +26,11 @@ export const PrintOrder = (order: Order) => {
     return;
   }
 
+  // Propagate RTL direction to popup
+  const dir = document.documentElement.dir || 'ltr';
+  myWindow.document.documentElement.dir = dir;
+  myWindow.document.body.dir = dir;
+
   const div = myWindow.document.createElement('div');
   div.id = 'print-root';
 
@@ -97,7 +102,11 @@ const getPosSettings = () => {
 };
 
 export const SalePrintMarkup = ({order}: {order: Order}) => {
-  const {t} = useTranslation();
+  const {t, i18n} = useTranslation();
+  const isRtl = i18n.dir(i18n.language) === 'rtl';
+  const startAlign = isRtl ? 'right' as const : 'left' as const;
+  const endAlign = isRtl ? 'left' as const : 'right' as const;
+  const floatStart = isRtl ? 'right' as const : 'left' as const;
   const [settings, setSettings] = useState<Setting[]>([]);
 
   // Detect if this is a return order
@@ -123,7 +132,7 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
         settings = settings.filter(item => item.type === SettingTypes.TYPE_RECEIPT);
         setSettings(settings)
       }
-    });
+    }).catch(() => {});
   }, []);
 
   const itemsTotal = useMemo(() => {
@@ -154,7 +163,7 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
   }, [order, isReturn]);
 
   return (
-    <div id="SaleInvoice3InchOffline" style={{width: "3.5in"}}>
+    <div id="SaleInvoice3InchOffline" style={{width: "3.5in"}} dir={isRtl ? 'rtl' : 'ltr'}>
       <div
         id="margindiv3inch"
         className="setReceiptWidth3Inch"
@@ -232,10 +241,10 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
             style={{margin: "0 0", fontWeight: "normal"}}
             id="RegisterSection"
           >
-            <span id="saleId3Inch" style={{float: "left"}}>
+            <span id="saleId3Inch" style={{float: floatStart}}>
               {isReturn ? t("Return #") : t("Receipt #")}: {order.orderId}
             </span>
-            <span id="RegisterCode3Inch" style={{float: "right", display: 'none'}}>
+            <span id="RegisterCode3Inch" style={{float: endAlign, display: 'none'}}>
               {t("Register")}: RegDF01
             </span>
           </h4>
@@ -243,7 +252,7 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
             className="h4Style"
             id="saleDate3Inch"
             style={{
-              textAlign: "left",
+              textAlign: startAlign,
               margin: "0 0",
               fontWeight: "normal",
               clear: "both"
@@ -290,7 +299,7 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
               }}
             >
             <tr style={{background: headerBg}}>
-              <td style={{width: 150, textAlign: "left"}}>
+              <td style={{width: 150, textAlign: startAlign}}>
                 <strong>{t("Item")}</strong>
               </td>
               <td
@@ -340,7 +349,7 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
                   style={{textAlign: "right", display: "none"}}
                   className="GSTClm"
                 />
-                <td style={{textAlign: "left"}}>
+                <td style={{textAlign: startAlign}}>
                   {item.product.name}
                   {item.variant && (
                     <>
@@ -377,7 +386,7 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
                 style={{textAlign: "right", display: "none"}}
                 className="GSTClm"
               />
-              <td style={{textAlign: "left"}}>{t("Total")}:</td>
+              <td style={{textAlign: startAlign}}>{t("Total")}:</td>
               <td style={{textAlign: "right"}}/>
               <td style={{textAlign: "right"}}><span dir="ltr">{itemsQuantity}</span></td>
               <td
@@ -521,6 +530,9 @@ export interface ReturnReceiptData {
 
 export const PrintReturnReceipt = (data: ReturnReceiptData) => {
   const myWindow: any = window.open('', '', 'height:500;width:500');
+  const dir = document.documentElement.dir || 'ltr';
+  myWindow.document.documentElement.dir = dir;
+  myWindow.document.body.dir = dir;
   const div = myWindow.document.createElement('div');
   div.id = 'print-root';
   myWindow.document.body.appendChild(div);
@@ -536,12 +548,14 @@ export const PrintReturnReceipt = (data: ReturnReceiptData) => {
 };
 
 const ReturnReceiptMarkup: FC<{ data: ReturnReceiptData }> = ({ data }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.dir(i18n.language) === 'rtl';
+  const startAlign = isRtl ? 'right' as const : 'left' as const;
 
   const totalQty = data.items.reduce((sum, item) => sum + Math.abs(item.quantity), 0);
 
   return (
-    <div style={{ width: '3.5in' }}>
+    <div style={{ width: '3.5in' }} dir={isRtl ? 'rtl' : 'ltr'}>
       <div
         style={{
           border: 'none',
@@ -590,7 +604,7 @@ const ReturnReceiptMarkup: FC<{ data: ReturnReceiptData }> = ({ data }) => {
             }}
           >
             <tr style={{ background: '#fde8e8' }}>
-              <td style={{ textAlign: 'left', width: '50%' }}>
+              <td style={{ textAlign: startAlign, width: '50%' }}>
                 <strong>{t('Item')}</strong>
               </td>
               <td style={{ textAlign: 'right', width: '16%' }}>
@@ -607,7 +621,7 @@ const ReturnReceiptMarkup: FC<{ data: ReturnReceiptData }> = ({ data }) => {
           <tbody>
             {data.items.map((item, idx) => (
               <tr key={idx}>
-                <td style={{ textAlign: 'left' }}>{item.productName}</td>
+                <td style={{ textAlign: startAlign }}>{item.productName}</td>
                 <td style={{ textAlign: 'right' }}>{withCurrency(item.unitPrice)}</td>
                 <td style={{ textAlign: 'right' }}>{Math.abs(item.quantity)}</td>
                 <td style={{ textAlign: 'right' }}>
@@ -621,7 +635,7 @@ const ReturnReceiptMarkup: FC<{ data: ReturnReceiptData }> = ({ data }) => {
                 borderBottom: 'dashed 1px #808080',
               }}
             >
-              <td style={{ textAlign: 'left' }}><strong>{t('Total')}:</strong></td>
+              <td style={{ textAlign: startAlign }}><strong>{t('Total')}:</strong></td>
               <td />
               <td style={{ textAlign: 'right' }}>{totalQty}</td>
               <td style={{ textAlign: 'right' }}>
@@ -700,6 +714,9 @@ export interface ZReportData {
 
 export const PrintZReport = (data: ZReportData) => {
   const myWindow: any = window.open('', '', 'height:500;width:500');
+  const dir = document.documentElement.dir || 'ltr';
+  myWindow.document.documentElement.dir = dir;
+  myWindow.document.body.dir = dir;
   const div = myWindow.document.createElement('div');
   div.id = 'print-root';
   myWindow.document.body.appendChild(div);
@@ -715,11 +732,12 @@ export const PrintZReport = (data: ZReportData) => {
 };
 
 const ZReportMarkup: FC<{ data: ZReportData }> = ({ data }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.dir(i18n.language) === 'rtl';
   const cashSales = data.payments['cash'] ?? data.payments['Espèces'] ?? 0;
 
   return (
-    <div style={{ width: '3.5in' }}>
+    <div style={{ width: '3.5in' }} dir={isRtl ? 'rtl' : 'ltr'}>
       <div
         style={{
           border: 'none',

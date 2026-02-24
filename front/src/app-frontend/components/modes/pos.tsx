@@ -563,13 +563,13 @@ export const PosMode = () => {
         ...prev,
         discount: data,
       }));
-    });
+    }).catch(() => {});
     localforage.getItem("defaultTax").then((data: any) => {
       setAppState((prev) => ({
         ...prev,
         tax: data,
       }));
-    });
+    }).catch(() => {});
   };
 
   // ── Keyboard Shortcuts ──
