@@ -8,6 +8,7 @@ import {faBoxOpen, faLayerGroup, faTag} from "@fortawesome/free-solid-svg-icons"
 import classNames from "classnames";
 import {jsonRequest} from "../../../api/request/request";
 import {CATEGORY_LIST} from "../../../api/routing/routes/backend.app";
+import {withCurrency} from "../../../lib/currency/currency";
 
 interface ProductGridProps {
   items: Product[];
@@ -88,7 +89,7 @@ const ProductCard = React.memo(({product, onClick}: {
           {product.name}
         </div>
         <div className="product-grid-price">
-          {Number(price).toLocaleString('fr-FR')} <span style={{ fontSize: '11px', fontWeight: 600 }}>MRU</span>
+          {withCurrency(price)}
         </div>
       </div>
     </div>

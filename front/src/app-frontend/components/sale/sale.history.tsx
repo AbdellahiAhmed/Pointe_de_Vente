@@ -121,7 +121,7 @@ export const SaleHistory: FC<Props> = ({}) => {
     }),
     columnHelper.accessor("tax", {
       header: t("Order Tax"),
-      cell: (info) => <>+{withCurrency(info.getValue()?.amount || 0)}</>,
+      cell: (info) => `+${withCurrency(info.getValue()?.amount || 0)}`,
     }),
     columnHelper.accessor("itemTaxes", {
       header: t("Items Tax"),
@@ -129,17 +129,16 @@ export const SaleHistory: FC<Props> = ({}) => {
     }),
     columnHelper.accessor("discount", {
       header: t("Discount"),
-      cell: (info) => "-" + withCurrency(info.getValue()?.amount || 0),
+      cell: (info) => `-${withCurrency(info.getValue()?.amount || 0)}`,
     }),
     columnHelper.accessor("items", {
       header: t("Rate"),
       cell: (info) =>
-        "+" +
-        withCurrency(
+        `+${withCurrency(
           info.getValue().reduce((prev, item) => {
             return item.price * item.quantity + prev;
           }, 0)
-        ),
+        )}`,
       enableSorting: false,
     }),
     columnHelper.accessor("items", {

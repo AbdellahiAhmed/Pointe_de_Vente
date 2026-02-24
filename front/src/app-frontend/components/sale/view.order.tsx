@@ -40,15 +40,15 @@ export const ViewOrder: FunctionComponent<ViewOrderProps> = ({
       }} title={`${t("Order#")} ${order.orderId}`}>
         <div className="grid grid-cols-6 md:grid-cols-4 gap-3 mb-5">
           <div className="border border-gray-500 p-5 rounded">
-            <div className="text-2xl">+{withCurrency(itemsTotal)}</div>
+            <div className="text-2xl">{`+${withCurrency(itemsTotal)}`}</div>
             {t("Items total with tax")}
           </div>
           <div className="border border-gray-500 p-5 rounded">
-            <div className="text-2xl">+{withCurrency(order.tax ? order.tax.amount : 0)}</div>
+            <div className="text-2xl">{`+${withCurrency(order.tax ? order.tax.amount : 0)}`}</div>
             {t("Tax")}
           </div>
           <div className="border border-gray-500 p-5 rounded">
-            <div className="text-2xl">-{withCurrency(order.discount ? (order.discount.amount) : 0)}</div>
+            <div className="text-2xl">{`-${withCurrency(order.discount ? (order.discount.amount) : 0)}`}</div>
             {t("Discount")}
           </div>
           <div className="border border-gray-500 p-5 rounded">
@@ -56,7 +56,7 @@ export const ViewOrder: FunctionComponent<ViewOrderProps> = ({
             {t("Adjustment")}
           </div>
           <div className="border border-success-500 p-5 bg-success-100 text-success-900 rounded font-bold">
-            <div className="text-2xl">={withCurrency(orderTotal)}</div>
+            <div className="text-2xl">{`=${withCurrency(orderTotal)}`}</div>
             {t("Total")}
           </div>
           <div className="border border-primary-500 p-5 bg-primary-100 text-primary-900 rounded">

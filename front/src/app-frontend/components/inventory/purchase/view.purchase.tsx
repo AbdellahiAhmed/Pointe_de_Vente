@@ -91,11 +91,11 @@ const PurchaseTable = ({
     <>
       <div className="grid grid-cols-4 gap-3 mb-5 print:hidden">
         <div className="border border-gray-500 p-5 rounded">
-          <div className="text-2xl">+{withCurrency(itemsTotal)}</div>
+          <div className="text-2xl">{`+${withCurrency(itemsTotal)}`}</div>
           {t("Items total")}
         </div>
         <div className="border border-success-500 p-5 text-success-500 rounded font-bold">
-          <div className="text-2xl">={withCurrency(purchaseTotal)}</div>
+          <div className="text-2xl">{`=${withCurrency(purchaseTotal)}`}</div>
           {t("Total")}
         </div>
         <div className="border border-primary-500 p-5 text-primary-500 rounded">
