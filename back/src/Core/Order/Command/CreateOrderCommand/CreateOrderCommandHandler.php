@@ -187,15 +187,15 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
             $orderProduct->setCostAtSale($product->getCost());
             $orderProduct->setDiscount($itemDto->getDiscount());
 
-            // Validate discount < cost (PMP)
+            // Validate discount cannot exceed selling price
             $itemDiscount = (float) ($itemDto->getDiscount() ?? 0);
-            $productCost = (float) ($product->getCost() ?? 0);
-            if ($itemDiscount > 0 && $productCost > 0 && $itemDiscount >= $productCost) {
+            $itemPrice = (float) ($itemDto->getPrice() ?? 0);
+            if ($itemDiscount > 0 && $itemPrice > 0 && $itemDiscount >= $itemPrice) {
                 return CreateOrderCommandResult::createFromValidationErrorMessage(
                     sprintf(
-                        'La remise (%.2f) doit être inférieure au prix d\'achat (%.2f) pour "%s".',
+                        'La remise (%.2f) ne peut pas dépasser le prix de vente (%.2f) pour "%s".',
                         $itemDiscount,
-                        $productCost,
+                        $itemPrice,
                         $product->getName()
                     )
                 );

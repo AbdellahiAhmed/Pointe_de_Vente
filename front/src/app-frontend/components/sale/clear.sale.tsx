@@ -38,17 +38,10 @@ export const ClearSale: FC<Props> = ({}) => {
       customerName: undefined
     }));
 
-    if (defaultPaymentType) {
-      setAppState(prev => ({
-        ...prev,
-        paymentType: defaultPaymentType
-      }))
-    } else {
-      setAppState(prev => ({
-        ...prev,
-        paymentType: defaultPaymentType
-      }))
-    }
+    setAppState(prev => ({
+      ...prev,
+      paymentType: defaultPaymentType || undefined
+    }))
 
     if (defaultDiscount) {
       setAppState((prev) => ({

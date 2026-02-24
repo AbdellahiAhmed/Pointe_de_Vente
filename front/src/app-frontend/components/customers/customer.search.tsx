@@ -50,13 +50,13 @@ export const CustomerSearch: FC = () => {
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setQuery(val);
-    setAppState(prev => ({ ...prev, customerName: val }));
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => searchCustomers(val), 300);
   };
 
   const selectCustomer = (c: Customer) => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     setAppState(prev => ({
       ...prev,
       customer: c,

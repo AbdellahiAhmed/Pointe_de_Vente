@@ -265,29 +265,15 @@ export const CloseSaleInline: FC<Props> = ({
 
       const json = await response.json();
 
-      resetFields();
-      setPayments([]);
+      if( json.order && (json.order.status === OrderStatus.COMPLETED || json.order.status === OrderStatus.HOLD) ) {
+        resetFields();
+        setPayments([]);
 
-      // reset app state
-      // setAppState((prev) => ({
-      //   ...prev,
-      //   cartItem: undefined,
-      //   cartItemType: CartItemType.quantity,
-      //   latest: undefined,
-      //   quantity: 1,
-      //   q: "",
-      //   orderId: undefined,
-      //   latestQuantity: undefined,
-      //   latestRate: undefined,
-      //   latestVariant: undefined,
-      //   added: [],
-      //   customer: undefined
-      // }));
-
-      if( json.order.status === OrderStatus.COMPLETED ) {
-        onSale && onSale();
-        // Show success toast with optional print
-        showSaleSuccess(json.order, !!refundingFrom);
+        if( json.order.status === OrderStatus.COMPLETED ) {
+          onSale && onSale();
+          // Show success toast with optional print
+          showSaleSuccess(json.order, !!refundingFrom);
+        }
       }
     } catch ( e: any ) {
       if( e instanceof UnprocessableEntityException ) {

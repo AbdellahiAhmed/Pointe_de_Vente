@@ -82,9 +82,31 @@ class ReturnRequestController extends AbstractController
                 );
             }
 
+            // Prevent returning already-returned items
+            if ($orderProduct->getIsReturned()) {
+                return $responseFactory->validationError(
+                    sprintf('Le produit "%s" a déjà été retourné.', $orderProduct->getProduct() ? $orderProduct->getProduct()->getName() : '#'.$itemData['orderProductId'])
+                );
+            }
+
+            // Validate return quantity does not exceed sold quantity
+            $returnQty = abs((int) $itemData['quantity']);
+            $soldQty = abs((int) $orderProduct->getQuantity());
+            if ($returnQty <= 0) {
+                return $responseFactory->validationError('La quantité de retour doit être supérieure à zéro.');
+            }
+            if ($returnQty > $soldQty) {
+                return $responseFactory->validationError(
+                    sprintf('La quantité de retour (%d) ne peut pas dépasser la quantité vendue (%d) pour "%s".',
+                        $returnQty, $soldQty,
+                        $orderProduct->getProduct() ? $orderProduct->getProduct()->getName() : '#'.$itemData['orderProductId']
+                    )
+                );
+            }
+
             $item = new ReturnRequestItem();
             $item->setOrderProduct($orderProduct);
-            $item->setQuantity((int) $itemData['quantity']);
+            $item->setQuantity($returnQty);
 
             if (!empty($itemData['reason'])) {
                 $item->setReason($itemData['reason']);
@@ -298,6 +320,11 @@ class ReturnRequestController extends AbstractController
             $product              = $originalOrderProduct->getProduct();
             $returnQty            = $requestItem->getQuantity();
 
+            // Safety: re-check that item hasn't already been returned (prevents double-approval)
+            if ($originalOrderProduct->getIsReturned()) {
+                continue;
+            }
+
             // Create a return OrderProduct with negative quantity
             $returnOrderProduct = new OrderProduct();
             $returnOrderProduct->setProduct($product);
@@ -320,39 +347,31 @@ class ReturnRequestController extends AbstractController
             $returnOrder->addItem($returnOrderProduct);
             $em->persist($returnOrderProduct);
 
-            // 3. Restore stock in ProductStore
-            $store = $originalOrder->getStore();
-            if ($store && $product) {
-                $productStore = $productStoreRepository->findOneBy([
-                    'product' => $product,
-                    'store'   => $store,
-                ]);
-
-                if ($productStore) {
-                    $currentQty = (float) $productStore->getQuantity();
-                    $productStore->setQuantity((string) ($currentQty + abs($returnQty)));
-                    $em->persist($productStore);
-                }
-            }
-
-            // 3b. Restore stock in ProductVariant (if variant was sold)
-            $variant = $originalOrderProduct->getVariant();
-            if ($variant !== null) {
-                $variantQty = (float) $variant->getQuantity();
-                $variant->setQuantity((string) ($variantQty + abs($returnQty)));
-                $em->persist($variant);
-            }
-
-            // 3c. Restore stock on Product itself
+            // 3. Restore stock (only if product manages inventory)
             if ($product && $product->getManageInventory()) {
-                $productQty = (float) $product->getQuantity();
-                $product->setQuantity((string) ($productQty + abs($returnQty)));
-                $em->persist($product);
+                // 3a. Restore ProductStore quantity
+                $store = $originalOrder->getStore();
+                if ($store) {
+                    $productStore = $productStoreRepository->findOneBy([
+                        'product' => $product,
+                        'store'   => $store,
+                    ]);
+                    if ($productStore) {
+                        $currentQty = (float) $productStore->getQuantity();
+                        $productStore->setQuantity((string) ($currentQty + abs($returnQty)));
+                    }
+                }
+
+                // 3b. Restore ProductVariant quantity
+                $variant = $originalOrderProduct->getVariant();
+                if ($variant !== null) {
+                    $variantQty = (float) $variant->getQuantity();
+                    $variant->setQuantity((string) ($variantQty + abs($returnQty)));
+                }
             }
 
             // 4. Mark the original OrderProduct as returned
             $originalOrderProduct->setIsReturned(true);
-            $em->persist($originalOrderProduct);
         }
 
         $em->persist($returnOrder);
