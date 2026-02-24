@@ -193,12 +193,6 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
       reset();
       onSuccess(customer.id, response);
     } catch (exception: any) {
-      if (exception instanceof HttpException) {
-        if (exception.message) {
-          notify({ type: "error", description: exception.message });
-        }
-      }
-
       if (exception instanceof UnprocessableEntityException) {
         const e: ValidationResult = await exception.response.json();
         e.violations.forEach((item: ConstraintViolation) => {
@@ -210,6 +204,17 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
         if (e.errorMessage) {
           notify({ type: "error", description: e.errorMessage });
         }
+        return;
+      }
+
+      if (exception instanceof HttpException) {
+        let msg = exception.message;
+        try {
+          const body = await exception.response.json();
+          msg = body["hydra:description"] || body.detail || msg;
+        } catch {}
+        if (exception.code === 403) msg = "Vous n'avez pas les droits nécessaires.";
+        notify({ type: "error", description: msg });
         return;
       }
 
@@ -374,10 +379,15 @@ export const DebtManagement: FC = () => {
       const res: ReportResponse = await fetchJson(REPORT_CUSTOMERS);
       setCustomers(res.customers ?? []);
     } catch (e: any) {
-      notify({
-        type: "error",
-        description: e?.message ?? t("Failed to load customer data"),
-      });
+      let msg = t("Failed to load customer data");
+      if (e instanceof HttpException) {
+        try {
+          const body = await e.response.json();
+          msg = body["hydra:description"] || body.detail || msg;
+        } catch {}
+        if (e.code === 403) msg = "Vous n'avez pas les droits nécessaires.";
+      }
+      notify({ type: "error", description: msg });
     } finally {
       setLoading(false);
       setInitialized(true);

@@ -53,6 +53,7 @@ import { useAtom } from "jotai";
 import { defaultState } from "../../../store/jotai";
 import {useTranslation} from "react-i18next";
 import { notify } from "../../../app-common/components/confirm/notification";
+import { HttpException } from "../../../lib/http/exception/http.exception";
 
 interface Props {}
 
@@ -440,8 +441,16 @@ export const SaleHistory: FC<Props> = ({}) => {
         method: "POST",
       });
       loadList();
-    } catch (e) {
-      throw e;
+    } catch (e: any) {
+      let msg = t("An error occurred");
+      if (e instanceof HttpException) {
+        try {
+          const body = await e.response.json();
+          msg = body["hydra:description"] || body.detail || msg;
+        } catch {}
+        if (e.code === 403) msg = "Vous n'avez pas les droits nécessaires.";
+      }
+      notify({ type: 'error', description: msg });
     } finally {
       setRestoring(false);
     }

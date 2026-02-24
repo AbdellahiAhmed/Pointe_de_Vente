@@ -70,8 +70,8 @@ export const CartItem: FunctionComponent<CartItemProps> = ({
 
       setItemInfo(json);
 
-    } catch ( e ) {
-      throw e;
+    } catch {
+      // Non-critical: stock quantity display fails silently
     } finally {
       setLoading(false);
     }

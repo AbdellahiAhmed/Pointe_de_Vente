@@ -102,15 +102,6 @@ export const Expenses: FC<ExpensesProps> = (props) => {
       loadExpenses(filters);
       createReset();
     } catch (exception: any) {
-      if (exception instanceof HttpException) {
-        if (exception.message) {
-          notify({
-            type: 'error',
-            description: exception.message
-          });
-        }
-      }
-
       if (exception instanceof UnprocessableEntityException) {
         const e: ValidationResult = await exception.response.json();
         e.violations.forEach((item: ConstraintViolation) => {
@@ -127,6 +118,17 @@ export const Expenses: FC<ExpensesProps> = (props) => {
           });
         }
 
+        return false;
+      }
+
+      if (exception instanceof HttpException) {
+        let msg = exception.message;
+        try {
+          const body = await exception.response.json();
+          msg = body['hydra:description'] || body.detail || msg;
+        } catch {}
+        if (exception.code === 403) msg = "Vous n'avez pas les droits nécessaires.";
+        notify({ type: 'error', description: msg });
         return false;
       }
 

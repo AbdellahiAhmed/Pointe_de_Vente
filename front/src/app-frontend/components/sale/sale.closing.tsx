@@ -150,7 +150,13 @@ export const SaleClosing: FC<TaxProps> = (props) => {
     } catch (e: any) {
       console.error("checkDayOpening error:", e);
       if (e instanceof HttpException) {
-        notify({ type: "error", description: t(e.message || "An error occurred while loading data") });
+        let msg = t("An error occurred while loading data");
+        try {
+          const body = await e.response.json();
+          msg = body["hydra:description"] || body.detail || msg;
+        } catch {}
+        if (e.code === 403) msg = "Vous n'avez pas les droits nécessaires.";
+        notify({ type: "error", description: msg });
       }
     }
   };
@@ -315,7 +321,13 @@ export const SaleClosing: FC<TaxProps> = (props) => {
           notify({ type: "error", description: t("An error occurred while loading data") });
         }
       } else if (exception instanceof HttpException) {
-        notify({ type: "error", description: t(exception.message || "An error occurred while loading data") });
+        let msg = t("An error occurred while loading data");
+        try {
+          const body = await exception.response.json();
+          msg = body["hydra:description"] || body.detail || msg;
+        } catch {}
+        if (exception.code === 403) msg = "Vous n'avez pas les droits nécessaires.";
+        notify({ type: "error", description: msg });
         // If session already closed, refresh to get new session
         await checkDayOpening();
       } else {
