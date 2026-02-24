@@ -10,8 +10,7 @@ import {
   TAX_LIST,
 } from "../../../../../api/routing/routes/backend.app";
 import { fetchJson, request } from "../../../../../api/request/request";
-import { HttpException, UnprocessableEntityException } from "../../../../../lib/http/exception/http.exception";
-import { ConstraintViolation } from "../../../../../lib/validator/validation.result";
+import { handleFormError } from "../../../../../lib/error/handle.form.error";
 import { Input } from "../../../../../app-common/components/input/input";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCloudUploadAlt, faPlus, faRefresh, faTimes, faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -198,37 +197,7 @@ export const CreateItem = ({
       onModalClose();
 
     } catch ( exception: any ) {
-      if( exception instanceof HttpException ) {
-        notify({
-          type: 'error',
-          title: exception.code,
-          description: exception.message
-        });
-      }
-
-      if( exception instanceof UnprocessableEntityException ) {
-        const e = await exception.response.json();
-        if( e.violations ) {
-          e.violations.forEach((item: ConstraintViolation) => {
-            setError(item.propertyPath, {
-              message: item.message,
-              type: 'server'
-            });
-          });
-        }
-
-        if( e.errorMessage ) {
-          notify({
-            type: 'error',
-            title: t('Validation Error'),
-            description: e.errorMessage
-          });
-        }
-
-        return false;
-      }
-
-      throw exception;
+      await handleFormError(exception, { setError });
     } finally {
       setCreating(false);
     }

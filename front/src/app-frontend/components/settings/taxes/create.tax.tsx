@@ -2,8 +2,7 @@ import React, {FC, useEffect, useState} from "react";
 import {useForm} from "react-hook-form";
 import {TAX_CREATE, TAX_GET} from "../../../../api/routing/routes/backend.app";
 import {fetchJson} from "../../../../api/request/request";
-import {HttpException, UnprocessableEntityException} from "../../../../lib/http/exception/http.exception";
-import {ConstraintViolation, ValidationResult} from "../../../../lib/validator/validation.result";
+import {handleFormError} from "../../../../lib/error/handle.form.error";
 import {Modal} from "../../../../app-common/components/modal/modal";
 import {StoresInput} from "../../../../app-common/components/input/stores";
 import {Trans, useTranslation} from "react-i18next";
@@ -84,35 +83,7 @@ export const CreateTax: FC<CreateTaxProps> = ({
       onModalClose();
 
     } catch (exception: any) {
-      if (exception instanceof HttpException) {
-        if (exception.message) {
-          notify({
-            type: 'error',
-            description: exception.message
-          });
-        }
-      }
-
-      if (exception instanceof UnprocessableEntityException) {
-        const e: ValidationResult = await exception.response.json();
-        e.violations.forEach((item: ConstraintViolation) => {
-          setError(item.propertyPath, {
-            message: item.message,
-            type: 'server'
-          });
-        });
-
-        if (e.errorMessage) {
-          notify({
-            type: 'error',
-            description: e.errorMessage
-          });
-        }
-
-        return false;
-      }
-
-      throw exception;
+      await handleFormError(exception, { setError });
     } finally {
       setCreating(false);
     }

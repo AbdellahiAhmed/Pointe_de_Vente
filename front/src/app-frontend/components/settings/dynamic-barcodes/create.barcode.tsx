@@ -7,14 +7,7 @@ import {
   PRODUCT_KEYWORDS,
 } from "../../../../api/routing/routes/backend.app";
 import { fetchJson, jsonRequest } from "../../../../api/request/request";
-import {
-  HttpException,
-  UnprocessableEntityException,
-} from "../../../../lib/http/exception/http.exception";
-import {
-  ConstraintViolation,
-  ValidationResult,
-} from "../../../../lib/validator/validation.result";
+import { handleFormError } from "../../../../lib/error/handle.form.error";
 import { Input } from "../../../../app-common/components/input/input";
 import { Trans, useTranslation } from "react-i18next";
 import { Button } from "../../../../app-common/components/input/button";
@@ -24,7 +17,7 @@ import * as yup from "yup";
 import { ValidationMessage } from "../../../../api/model/validation";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { hasErrors } from "../../../../lib/error/error";
-import { notify } from "../../../../app-common/components/confirm/notification";
+
 import { ReactSelect } from "../../../../app-common/components/input/custom.react.select";
 import useApi from "../../../../api/hooks/use.api";
 
@@ -154,35 +147,7 @@ export const CreateBarcode: FC<CreateBarcodeProps> = ({
 
       onModalClose();
     } catch (exception: any) {
-      if (exception instanceof HttpException) {
-        if (exception.message) {
-          notify({
-            type: "error",
-            description: exception.message,
-          });
-        }
-      }
-
-      if (exception instanceof UnprocessableEntityException) {
-        const e: ValidationResult = await exception.response.json();
-        e.violations.forEach((item: ConstraintViolation) => {
-          setError(item.propertyPath, {
-            message: item.message,
-            type: "server",
-          });
-        });
-
-        if (e.errorMessage) {
-          notify({
-            type: "error",
-            description: e.errorMessage,
-          });
-        }
-
-        return false;
-      }
-
-      throw exception;
+      await handleFormError(exception, { setError });
     } finally {
       setCreating(false);
     }

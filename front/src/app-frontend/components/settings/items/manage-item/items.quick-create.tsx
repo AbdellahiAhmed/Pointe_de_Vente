@@ -24,11 +24,7 @@ import { HydraCollection } from "../../../../../api/model/hydra";
 import { Category } from "../../../../../api/model/category";
 import { withCurrency } from "../../../../../lib/currency/currency";
 import { getErrorClass, getErrors, hasErrors } from "../../../../../lib/error/error";
-import {
-  HttpException,
-  UnprocessableEntityException,
-} from "../../../../../lib/http/exception/http.exception";
-import { ConstraintViolation } from "../../../../../lib/validator/validation.result";
+import { handleFormError } from "../../../../../lib/error/handle.form.error";
 import { ValidationMessage } from "../../../../../api/model/validation";
 import { getStore } from "../../../../../duck/store/store.selector";
 
@@ -275,37 +271,7 @@ export const QuickCreateItem: React.FC<QuickCreateProps> = ({ open, onClose }) =
         resetForm();
       }
     } catch (exception: any) {
-      if (exception instanceof UnprocessableEntityException) {
-        const body = await exception.response.json();
-        if (body.violations) {
-          (body.violations as ConstraintViolation[]).forEach((item) => {
-            setError(item.propertyPath as keyof QuickCreateFormValues, {
-              message: item.message,
-              type: "server",
-            });
-          });
-        }
-        if (body.errorMessage) {
-          notify({
-            type: "error",
-            title: t("Validation Error"),
-            description: body.errorMessage,
-          });
-        }
-        return;
-      }
-
-      if (exception instanceof HttpException) {
-        notify({
-          type: "error",
-          title: String(exception.code),
-          description: exception.message,
-        });
-        return;
-      }
-
-      // Unknown error — re-throw so React error boundary can catch it
-      throw exception;
+      await handleFormError(exception, { setError });
     } finally {
       setSaving(false);
     }

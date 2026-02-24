@@ -8,14 +8,13 @@ import { Button } from "../../../../app-common/components/input/button";
 import { USER_CREATE, USER_EDIT } from "../../../../api/routing/routes/backend.app";
 import { ReactSelectOptionProps } from "../../../../api/model/common";
 import { jsonRequest } from "../../../../api/request/request";
-import { HttpException, UnprocessableEntityException } from "../../../../lib/http/exception/http.exception";
-import { ConstraintViolation, ValidationResult } from "../../../../lib/validator/validation.result";
+import { handleFormError } from "../../../../lib/error/handle.form.error";
 import { User } from "../../../../api/model/user";
 import * as yup from 'yup';
 import { ValidationMessage } from "../../../../api/model/validation";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { getErrorClass, getErrors, hasErrors } from "../../../../lib/error/error";
-import { notify } from "../../../../app-common/components/confirm/notification";
+
 import { StoresInput } from "../../../../app-common/components/input/stores";
 
 interface CreateUserProps {
@@ -101,35 +100,7 @@ export const CreateUser: FC<CreateUserProps> = ({
 
       onModalClose();
     } catch ( exception: any ) {
-      if( exception instanceof UnprocessableEntityException ) {
-        const e: ValidationResult = await exception.response.json();
-        e.violations.forEach((item: ConstraintViolation) => {
-          setError(item.propertyPath, {
-            message: t(item.message),
-            type: 'server'
-          });
-        });
-
-        if( e.errorMessage ) {
-          notify({
-            type: 'error',
-            description: t(e.errorMessage)
-          });
-        }
-
-        return false;
-      }
-
-      if( exception instanceof HttpException ) {
-        if( exception.message ) {
-          notify({
-            type: 'error',
-            description: t(exception.message)
-          });
-        }
-      }
-
-      throw exception;
+      await handleFormError(exception, { setError });
     } finally {
       setCreating(false);
     }

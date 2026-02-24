@@ -63,35 +63,45 @@ class CreateProductCommandHandler extends EntityManager implements CreateProduct
         if($command->getCategories() !== null){
             foreach($command->getCategories() as $category){
                 $c = $this->getRepository(Category::class)->find($category);
-                $item->addCategory($c);
+                if ($c !== null) {
+                    $item->addCategory($c);
+                }
             }
         }
 
         if($command->getBrands() !== null){
             foreach($command->getBrands() as $brand){
                 $b = $this->getRepository(Brand::class)->find($brand);
-                $item->addBrand($b);
+                if ($b !== null) {
+                    $item->addBrand($b);
+                }
             }
         }
 
         if($command->getSuppliers() !== null){
             foreach($command->getSuppliers() as $supplier){
                 $s = $this->getRepository(Supplier::class)->find($supplier);
-                $item->addSupplier($s);
+                if ($s !== null) {
+                    $item->addSupplier($s);
+                }
             }
         }
 
         if($command->getStores() !== null){
             foreach($command->getStores() as $store){
                 $s = $this->getRepository(Store::class)->find($store);
-                $item->addStore($s);
+                if ($s !== null) {
+                    $item->addStore($s);
+                }
             }
         }
 
         if($command->getTaxes() !== null){
             foreach($command->getTaxes() as $tax){
                 $t = $this->getRepository(Tax::class)->find($tax);
-                $item->addTax($t);
+                if ($t !== null) {
+                    $item->addTax($t);
+                }
             }
         }
 

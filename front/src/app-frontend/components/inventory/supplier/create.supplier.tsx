@@ -7,15 +7,14 @@ import {useForm} from "react-hook-form";
 import {SUPPLIER_CREATE, SUPPLIER_EDIT} from "../../../../api/routing/routes/backend.app";
 import {ReactSelectOptionProps} from "../../../../api/model/common";
 import {jsonRequest} from "../../../../api/request/request";
-import {HttpException, UnprocessableEntityException} from "../../../../lib/http/exception/http.exception";
-import {ConstraintViolation, ValidationResult} from "../../../../lib/validator/validation.result";
+import { handleFormError } from "../../../../lib/error/handle.form.error";
 import {Modal} from "../../../../app-common/components/modal/modal";
 import {Supplier} from "../../../../api/model/supplier";
 import {hasErrors} from "../../../../lib/error/error";
 import * as yup from "yup";
 import {ValidationMessage} from "../../../../api/model/validation";
 import { yupResolver } from '@hookform/resolvers/yup';
-import {notify} from "../../../../app-common/components/confirm/notification";
+
 
 interface CreateSupplierProps{
   operation: string;
@@ -88,35 +87,7 @@ export const CreateSupplier: FC<CreateSupplierProps> = ({
       onModalClose();
 
     } catch (exception: any) {
-      if (exception instanceof HttpException) {
-        if (exception.message) {
-          notify({
-            type: 'error',
-            description: exception.message
-          });
-        }
-      }
-
-      if (exception instanceof UnprocessableEntityException) {
-        const e: ValidationResult = await exception.response.json();
-        e.violations.forEach((item: ConstraintViolation) => {
-          setError(item.propertyPath, {
-            message: item.message,
-            type: 'server'
-          });
-        });
-
-        if (e.errorMessage) {
-          notify({
-            type: 'error',
-            description: e.errorMessage
-          });
-        }
-
-        return false;
-      }
-
-      throw exception;
+      await handleFormError(exception, { setError });
     } finally {
       setCreating(false);
     }

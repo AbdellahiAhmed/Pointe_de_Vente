@@ -6,8 +6,7 @@ import {Button} from "../../../../app-common/components/input/button";
 import {useForm} from "react-hook-form";
 import {STORE_CREATE, STORE_EDIT} from "../../../../api/routing/routes/backend.app";
 import {jsonRequest} from "../../../../api/request/request";
-import {HttpException, UnprocessableEntityException} from "../../../../lib/http/exception/http.exception";
-import {ConstraintViolation, ValidationResult} from "../../../../lib/validator/validation.result";
+import {handleFormError} from "../../../../lib/error/handle.form.error";
 import {Store} from "../../../../api/model/store";
 import {yupResolver} from "@hookform/resolvers/yup";
 import * as yup from 'yup';
@@ -71,35 +70,7 @@ export const CreateStore: FC<CreateStoreProps> = ({
       onModalClose();
 
     } catch (exception: any) {
-      if (exception instanceof HttpException) {
-        if (exception.message) {
-          notify({
-            type: 'error',
-            description: exception.message
-          });
-        }
-      }
-
-      if (exception instanceof UnprocessableEntityException) {
-        const e: ValidationResult = await exception.response.json();
-        e.violations.forEach((item: ConstraintViolation) => {
-          setError(item.propertyPath, {
-            message: item.message,
-            type: 'server'
-          });
-        });
-
-        if (e.errorMessage) {
-          notify({
-            type: 'error',
-            description: e.errorMessage
-          });
-        }
-
-        return false;
-      }
-
-      throw exception;
+      await handleFormError(exception, { setError });
     } finally {
       setCreating(false);
     }

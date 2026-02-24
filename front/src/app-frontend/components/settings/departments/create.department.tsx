@@ -5,8 +5,7 @@ import { Controller, useForm } from "react-hook-form";
 import { DEPARTMENT_CREATE, DEPARTMENT_GET, STORE_LIST } from "../../../../api/routing/routes/backend.app";
 import { Input } from "../../../../app-common/components/input/input";
 import { Button } from "../../../../app-common/components/input/button";
-import { HttpException, UnprocessableEntityException } from "../../../../lib/http/exception/http.exception";
-import { ConstraintViolation, ValidationResult } from "../../../../lib/validator/validation.result";
+import { handleFormError } from "../../../../lib/error/handle.form.error";
 import { Department } from "../../../../api/model/department";
 import { jsonRequest } from "../../../../api/request/request";
 import { getErrorClass, getErrors, hasErrors } from "../../../../lib/error/error";
@@ -90,36 +89,8 @@ export const CreateDepartment: FC<CreateDepartmentProps> = ({
 
       onModalClose();
 
-    } catch ( exception: any ) {
-      if( exception instanceof HttpException ) {
-        if( exception.message ) {
-          notify({
-            type: 'error',
-            description: exception.message
-          });
-        }
-      }
-
-      if( exception instanceof UnprocessableEntityException ) {
-        const e: ValidationResult = await exception.response.json();
-        e.violations.forEach((item: ConstraintViolation) => {
-          setError(item.propertyPath, {
-            message: item.message,
-            type: 'server'
-          });
-        });
-
-        if( e.errorMessage ) {
-          notify({
-            type: 'error',
-            description: e.errorMessage
-          });
-        }
-
-        return false;
-      }
-
-      throw exception;
+    } catch (exception: any) {
+      await handleFormError(exception, { setError });
     } finally {
       setCreating(false);
     }

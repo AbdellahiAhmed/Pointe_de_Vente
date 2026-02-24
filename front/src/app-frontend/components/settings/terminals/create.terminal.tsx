@@ -16,8 +16,7 @@ import {
 } from "../../../../api/routing/routes/backend.app";
 import {ReactSelectOptionProps} from "../../../../api/model/common";
 import {fetchJson, jsonRequest} from "../../../../api/request/request";
-import {HttpException, UnprocessableEntityException} from "../../../../lib/http/exception/http.exception";
-import {ConstraintViolation, ValidationResult} from "../../../../lib/validator/validation.result";
+import {handleFormError} from "../../../../lib/error/handle.form.error";
 import {Category} from "../../../../api/model/category";
 import * as yup from "yup";
 import {ValidationMessage} from "../../../../api/model/validation";
@@ -112,37 +111,7 @@ export const CreateTerminal: FC<CreateTerminalProps> = ({
       onModalClose();
 
     } catch (exception: any) {
-      if(exception instanceof HttpException){
-        if(exception.message){
-          notify({
-            title: t('Error'),
-            type: 'error',
-            description: exception.message
-          });
-        }
-      }
-
-      if (exception instanceof UnprocessableEntityException) {
-        const e: ValidationResult = await exception.response.json();
-        e.violations.forEach((item: ConstraintViolation) => {
-          setError(item.propertyPath, {
-            message: item.message,
-            type: 'server'
-          });
-        });
-
-        if(e.errorMessage){
-          notify({
-            title: t('Error'),
-            type: 'error',
-            description: e.errorMessage
-          });
-        }
-
-        return false;
-      }
-
-      throw exception;
+      await handleFormError(exception, { setError });
     } finally {
       setCreating(false);
     }

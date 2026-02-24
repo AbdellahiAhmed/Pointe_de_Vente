@@ -4,8 +4,7 @@ import {Controller, useForm} from "react-hook-form";
 import {PAYMENT_TYPE_CREATE, PAYMENT_TYPE_GET} from "../../../../api/routing/routes/backend.app";
 import {ReactSelectOptionProps} from "../../../../api/model/common";
 import {fetchJson} from "../../../../api/request/request";
-import {HttpException, UnprocessableEntityException} from "../../../../lib/http/exception/http.exception";
-import {ConstraintViolation, ValidationResult} from "../../../../lib/validator/validation.result";
+import {handleFormError} from "../../../../lib/error/handle.form.error";
 import {Trans, useTranslation} from "react-i18next";
 import {ReactSelect} from "../../../../app-common/components/input/custom.react.select";
 import {Switch} from "../../../../app-common/components/input/switch";
@@ -95,35 +94,7 @@ export const CreatePaymentType: FC<CreatePaymentTypeProps> = ({
       onModalClose();
 
     } catch (exception: any) {
-      if (exception instanceof HttpException) {
-        if (exception.message) {
-          notify({
-            type: 'error',
-            description: exception.message
-          });
-        }
-      }
-
-      if (exception instanceof UnprocessableEntityException) {
-        const e: ValidationResult = await exception.response.json();
-        e.violations.forEach((item: ConstraintViolation) => {
-          setError(item.propertyPath, {
-            message: item.message,
-            type: 'server'
-          });
-        });
-
-        if (e.errorMessage) {
-          notify({
-            type: 'error',
-            description: e.errorMessage
-          });
-        }
-
-        return false;
-      }
-
-      throw exception;
+      await handleFormError(exception, { setError });
     } finally {
       setCreating(false);
     }

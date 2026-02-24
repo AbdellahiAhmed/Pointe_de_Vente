@@ -36,7 +36,9 @@ class CreateDiscountCommandHandler extends EntityManager implements CreateDiscou
         if($command->getStores() !== null){
             foreach($command->getStores() as $store){
                 $s = $this->getRepository(Store::class)->find($store);
-                $item->addStore($s);
+                if ($s !== null) {
+                    $item->addStore($s);
+                }
             }
         }
 

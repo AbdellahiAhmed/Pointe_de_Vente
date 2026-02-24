@@ -31,7 +31,7 @@ import {PurchaseOrderItem} from "../../../../api/model/purchase.order.item";
 import classNames from "classnames";
 import {getErrorClass, getErrors, hasErrors} from "../../../../lib/error/error";
 import * as yup from 'yup';
-import {ConstraintViolation, ValidationMessage, ValidationResult} from "../../../../api/model/validation";
+import {ValidationMessage} from "../../../../api/model/validation";
 import {yupResolver} from "@hookform/resolvers/yup";
 import {PaymentType} from "../../../../api/model/payment.type";
 import {ProductVariant} from "../../../../api/model/product.variant";
@@ -40,8 +40,8 @@ import useApi from "../../../../api/hooks/use.api";
 import {HydraCollection} from "../../../../api/model/hydra";
 import {CreateSupplier} from "../supplier/create.supplier";
 import {CreateItem} from "../../settings/items/manage-item/items.create";
-import {HttpException, UnprocessableEntityException} from "../../../../lib/http/exception/http.exception";
-import {notify} from "../../../../app-common/components/confirm/notification";
+import { handleFormError } from "../../../../lib/error/handle.form.error";
+
 import {CreatePurchaseOrder} from "../purchase-orders/create.purchase.order";
 
 export interface SelectedItem {
@@ -281,36 +281,8 @@ export const CreatePurchase: FC<PurchaseProps> = ({
 
       onModalClose();
 
-    } catch (exception) {
-      if (exception instanceof HttpException) {
-        if (exception.message) {
-          notify({
-            type: 'error',
-            description: exception.message
-          });
-        }
-      }
-
-      if (exception instanceof UnprocessableEntityException) {
-        const e: ValidationResult = await exception.response.json();
-        e.violations.forEach((item: ConstraintViolation) => {
-          setError(item.propertyPath, {
-            message: item.message,
-            type: 'server'
-          });
-        });
-
-        if (e.errorMessage) {
-          notify({
-            type: 'error',
-            description: e.errorMessage
-          });
-        }
-
-        return false;
-      }
-
-      throw exception;
+    } catch (exception: any) {
+      await handleFormError(exception, { setError });
     } finally {
       setCreating(false);
     }

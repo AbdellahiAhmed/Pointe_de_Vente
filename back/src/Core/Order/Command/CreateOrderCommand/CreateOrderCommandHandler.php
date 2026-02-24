@@ -130,12 +130,23 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
             }
         }
 
-        $item->setUser(
-          $this->getRepository(User::class)->find($command->getUserId())
-        );
+        $user = $this->getRepository(User::class)->find($command->getUserId());
+        if ($user === null) {
+            return CreateOrderCommandResult::createFromValidationErrorMessage('Utilisateur introuvable.');
+        }
+        $item->setUser($user);
 
-        $item->setStore($this->getRepository(Store::class)->find($command->getStore()));
-        $item->setTerminal($this->getRepository(Terminal::class)->find($command->getTerminal()));
+        $store = $this->getRepository(Store::class)->find($command->getStore());
+        if ($store === null) {
+            return CreateOrderCommandResult::createFromValidationErrorMessage('Magasin introuvable.');
+        }
+        $item->setStore($store);
+
+        $terminal = $this->getRepository(Terminal::class)->find($command->getTerminal());
+        if ($terminal === null) {
+            return CreateOrderCommandResult::createFromValidationErrorMessage('Terminal introuvable.');
+        }
+        $item->setTerminal($terminal);
 
         $item->setAdjustment($command->getAdjustment());
 

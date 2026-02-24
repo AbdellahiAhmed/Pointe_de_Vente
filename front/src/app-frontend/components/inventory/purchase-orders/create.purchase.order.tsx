@@ -14,8 +14,7 @@ import {
   SUPPLIER_LIST
 } from "../../../../api/routing/routes/backend.app";
 import { fetchJson, jsonRequest } from "../../../../api/request/request";
-import { HttpException, UnprocessableEntityException } from "../../../../lib/http/exception/http.exception";
-import { ConstraintViolation, ValidationResult } from "../../../../lib/validator/validation.result";
+import { handleFormError } from "../../../../lib/error/handle.form.error";
 import { useSelector } from "react-redux";
 import { getStore } from "../../../../duck/store/store.selector";
 import { Product } from "../../../../api/model/product";
@@ -31,7 +30,7 @@ import { CreateSupplier } from "../supplier/create.supplier";
 import * as yup from 'yup';
 import { yupResolver } from "@hookform/resolvers/yup";
 import { ValidationMessage } from "../../../../api/model/validation";
-import { notify } from "../../../../app-common/components/confirm/notification";
+
 import _ from "lodash";
 import { ConfirmAlert } from "../../../../app-common/components/confirm/confirm.alert";
 import { ProductVariant } from "../../../../api/model/product.variant";
@@ -199,35 +198,7 @@ export const CreatePurchaseOrder: FunctionComponent<CreatePurchaseOrderProps> = 
 
       onModalClose();
     } catch ( exception: any ) {
-      if( exception instanceof HttpException ) {
-        if( exception.message ) {
-          notify({
-            type: 'error',
-            description: exception.message
-          });
-        }
-      }
-
-      if( exception instanceof UnprocessableEntityException ) {
-        const e: ValidationResult = await exception.response.json();
-        e.violations.forEach((item: ConstraintViolation) => {
-          setError(item.propertyPath, {
-            message: item.message,
-            type: 'server'
-          });
-        });
-
-        if( e.errorMessage ) {
-          notify({
-            type: 'error',
-            description: e.errorMessage
-          });
-        }
-
-        return false;
-      }
-
-      throw exception;
+      await handleFormError(exception, { setError });
     } finally {
       setCreating(false);
     }

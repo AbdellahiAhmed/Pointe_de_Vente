@@ -28,6 +28,9 @@ class CreatePaymentCommandHandler extends EntityManager implements CreatePayment
             $item->setOrder($this->getRepository(Order::class)->find($command->getOrderId()));
         }
         $customer = $this->getRepository(Customer::class)->find($command->getCustomerId());
+        if ($customer === null) {
+            return CreatePaymentCommandResult::createFromValidationErrorMessage('Client introuvable.');
+        }
         $item->setCustomer($customer);
 
         //validate item before creation
