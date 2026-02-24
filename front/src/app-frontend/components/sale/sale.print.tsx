@@ -19,22 +19,26 @@ interface SalePrintProps {
 }
 
 export const PrintOrder = (order: Order) => {
-  const dir = document.documentElement.dir || 'ltr';
-  const html = renderToStaticMarkup(<SalePrintMarkup order={order} />);
-  const myWindow: any = window.open('', '', 'height=500,width=500');
+  const myWindow: any = window.open('', '_blank', 'height=500,width=500');
 
   if (!myWindow) {
     alert('Popup blocked. Please allow popups for this site.');
     return;
   }
 
-  myWindow.document.write(`<!DOCTYPE html><html dir="${dir}"><head><title>Receipt</title></head><body dir="${dir}" style="margin:0">${html}</body></html>`);
-  myWindow.document.close();
-  myWindow.focus();
-  setTimeout(() => {
-    myWindow.print();
-    myWindow.close();
-  }, 100);
+  try {
+    const dir = document.documentElement.dir || 'ltr';
+    const html = renderToStaticMarkup(<SalePrintMarkup order={order} />);
+    myWindow.document.write(`<!DOCTYPE html><html dir="${dir}"><head><title>Receipt</title></head><body dir="${dir}" style="margin:0">${html}</body></html>`);
+    myWindow.document.close();
+    myWindow.focus();
+    setTimeout(() => {
+      myWindow.print();
+    }, 500);
+  } catch (e) {
+    myWindow.document.write('<h1>Error rendering receipt</h1><pre>' + String(e) + '</pre>');
+    myWindow.document.close();
+  }
 };
 
 export const SalePrint: FC<SalePrintProps> = (props) => {
@@ -518,22 +522,26 @@ export interface ReturnReceiptData {
 }
 
 export const PrintReturnReceipt = (data: ReturnReceiptData) => {
-  const dir = document.documentElement.dir || 'ltr';
-  const html = renderToStaticMarkup(<ReturnReceiptMarkup data={data} />);
-  const myWindow: any = window.open('', '', 'height=500,width=500');
+  const myWindow: any = window.open('', '_blank', 'height=500,width=500');
 
   if (!myWindow) {
     alert('Popup blocked. Please allow popups for this site.');
     return;
   }
 
-  myWindow.document.write(`<!DOCTYPE html><html dir="${dir}"><head><title>Return Receipt</title></head><body dir="${dir}" style="margin:0">${html}</body></html>`);
-  myWindow.document.close();
-  myWindow.focus();
-  setTimeout(() => {
-    myWindow.print();
-    myWindow.close();
-  }, 300);
+  try {
+    const dir = document.documentElement.dir || 'ltr';
+    const html = renderToStaticMarkup(<ReturnReceiptMarkup data={data} />);
+    myWindow.document.write(`<!DOCTYPE html><html dir="${dir}"><head><title>Return Receipt</title></head><body dir="${dir}" style="margin:0">${html}</body></html>`);
+    myWindow.document.close();
+    myWindow.focus();
+    setTimeout(() => {
+      myWindow.print();
+    }, 500);
+  } catch (e) {
+    myWindow.document.write('<h1>Error rendering receipt</h1><pre>' + String(e) + '</pre>');
+    myWindow.document.close();
+  }
 };
 
 const ReturnReceiptMarkup: FC<{ data: ReturnReceiptData }> = ({ data }) => {
@@ -702,22 +710,27 @@ export interface ZReportData {
 }
 
 export const PrintZReport = (data: ZReportData) => {
-  const dir = document.documentElement.dir || 'ltr';
-  const html = renderToStaticMarkup(<ZReportMarkup data={data} />);
-  const myWindow: any = window.open('', '', 'height=500,width=500');
+  // window.open MUST be first call in click handler (Chrome popup blocker)
+  const myWindow: any = window.open('', '_blank', 'height=500,width=500');
 
   if (!myWindow) {
     alert('Popup blocked. Please allow popups for this site.');
     return;
   }
 
-  myWindow.document.write(`<!DOCTYPE html><html dir="${dir}"><head><title>Z-Report</title></head><body dir="${dir}" style="margin:0">${html}</body></html>`);
-  myWindow.document.close();
-  myWindow.focus();
-  setTimeout(() => {
-    myWindow.print();
-    myWindow.close();
-  }, 300);
+  try {
+    const dir = document.documentElement.dir || 'ltr';
+    const html = renderToStaticMarkup(<ZReportMarkup data={data} />);
+    myWindow.document.write(`<!DOCTYPE html><html dir="${dir}"><head><title>Z-Report</title></head><body dir="${dir}" style="margin:0">${html}</body></html>`);
+    myWindow.document.close();
+    myWindow.focus();
+    setTimeout(() => {
+      myWindow.print();
+    }, 500);
+  } catch (e) {
+    myWindow.document.write('<h1>Error rendering Z-Report</h1><pre>' + String(e) + '</pre>');
+    myWindow.document.close();
+  }
 };
 
 const ZReportMarkup: FC<{ data: ZReportData }> = ({ data }) => {
