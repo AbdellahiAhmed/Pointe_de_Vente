@@ -815,19 +815,19 @@ const ZReportMarkup: FC<{ data: ZReportData }> = ({ data }) => {
               </tr>
               <tr>
                 <td>{t('Cash added')}</td>
-                <td dir="ltr" style={{ textAlign: 'left' }}>+ {withCurrency(data.cashAdded)}</td>
+                <td dir="ltr" style={{ textAlign: 'left' }}>{`+ ${withCurrency(data.cashAdded)}`}</td>
               </tr>
               <tr>
                 <td>{t('Cash withdrawn')}</td>
-                <td dir="ltr" style={{ textAlign: 'left' }}>- {withCurrency(data.cashWithdrawn)}</td>
+                <td dir="ltr" style={{ textAlign: 'left' }}>{`- ${withCurrency(data.cashWithdrawn)}`}</td>
               </tr>
               <tr>
                 <td>{t('Expenses')}</td>
-                <td dir="ltr" style={{ textAlign: 'left' }}>- {withCurrency(data.expenses)}</td>
+                <td dir="ltr" style={{ textAlign: 'left' }}>{`- ${withCurrency(data.expenses)}`}</td>
               </tr>
               <tr>
                 <td>{t('Cash sales')}</td>
-                <td dir="ltr" style={{ textAlign: 'left' }}>+ {withCurrency(cashSales)}</td>
+                <td dir="ltr" style={{ textAlign: 'left' }}>{`+ ${withCurrency(cashSales)}`}</td>
               </tr>
             </tbody>
           </table>
@@ -851,7 +851,7 @@ const ZReportMarkup: FC<{ data: ZReportData }> = ({ data }) => {
               <tr style={{ fontWeight: 'bold', color: data.variance >= 0 ? '#16a34a' : '#dc2626' }}>
                 <td>{t('Variance')}</td>
                 <td dir="ltr" style={{ textAlign: 'left' }}>
-                  {data.variance >= 0 ? '+' : ''}{withCurrency(data.variance)}
+                  {`${data.variance >= 0 ? '+' : ''}${withCurrency(data.variance)}`}
                 </td>
               </tr>
             </tbody>
