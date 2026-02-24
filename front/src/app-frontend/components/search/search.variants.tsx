@@ -307,7 +307,7 @@ export const SearchVariants = ({
           </span>
         </span>
       }
-      hideCloseButton={true}
+      hideCloseButton={false}
       shouldCloseOnOverlayClick={false}
     >
       {/* ── Product hero header ── */}
