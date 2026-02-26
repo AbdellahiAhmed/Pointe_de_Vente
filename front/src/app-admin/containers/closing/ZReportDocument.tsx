@@ -25,8 +25,6 @@ const styles = StyleSheet.create({
     padding: 30,
     fontSize: 8.5,
     fontFamily: 'NotoSansArabic',
-    // Compensate for react-pdf underestimating Arabic connected glyph widths
-    letterSpacing: 0.5,
   },
   header: {
     textAlign: 'center',
@@ -58,6 +56,7 @@ const styles = StyleSheet.create({
     paddingBottom: 3,
     textAlign: 'right',
     fontFamily: 'NotoSansArabic',
+    letterSpacing: 1.5,
   },
   row: {
     flexDirection: 'row',
@@ -261,7 +260,9 @@ const formatDate = (dateStr: string) => {
 };
 
 // Arabic text style (no flex — used inside View wrappers to avoid react-pdf text clipping)
-const arText = { fontFamily: 'NotoSansArabic' as const };
+// letterSpacing: 1.5 applied DIRECTLY on Text elements to compensate for react-pdf
+// underestimating Arabic glyph widths (~20%). Page-level letterSpacing does NOT cascade.
+const arText = { fontFamily: 'NotoSansArabic' as const, letterSpacing: 1.5 };
 
 const ZReportDocument: React.FC<ZReportDocumentProps> = ({ data, lang }) => {
   const l = labels[lang];
@@ -333,28 +334,28 @@ const ZReportDocument: React.FC<ZReportDocumentProps> = ({ data, lang }) => {
     <Document>
       <Page size="A4" style={pageStyle}>
         {/* Header — always centered */}
-        <Text style={isAr ? [styles.header, { fontSize: 13 }] : styles.header}>{l.title}</Text>
-        <Text style={styles.subHeader}>
+        <Text style={isAr ? [styles.header, { fontSize: 13, letterSpacing: 1.5 }] : styles.header}>{l.title}</Text>
+        <Text style={isAr ? [styles.subHeader, { letterSpacing: 1.5 }] : styles.subHeader}>
           {isAr
             ? `Z-${data.zReportNumber} :${l.reportNumber}`
             : `${l.reportNumber}: Z-${data.zReportNumber}`}
         </Text>
-        <Text style={styles.subHeader}>
+        <Text style={isAr ? [styles.subHeader, { letterSpacing: 1.5 }] : styles.subHeader}>
           {isAr
             ? `${data.store.name}${data.store.location ? ` - ${data.store.location}` : ''} :${l.store}`
             : `${l.store}: ${data.store.name}${data.store.location ? ` - ${data.store.location}` : ''}`}
         </Text>
-        <Text style={styles.subHeader}>
+        <Text style={isAr ? [styles.subHeader, { letterSpacing: 1.5 }] : styles.subHeader}>
           {isAr
             ? `${data.terminal.code} :${l.terminal}`
             : `${l.terminal}: ${data.terminal.code}`}
         </Text>
-        <Text style={styles.subHeader}>
+        <Text style={isAr ? [styles.subHeader, { letterSpacing: 1.5 }] : styles.subHeader}>
           {isAr
             ? `${formatDate(data.dateTo)} :${l.to} | ${formatDate(data.dateFrom)} :${l.from}`
             : `${l.from}: ${formatDate(data.dateFrom)} | ${l.to}: ${formatDate(data.dateTo)}`}
         </Text>
-        <Text style={styles.subHeader}>
+        <Text style={isAr ? [styles.subHeader, { letterSpacing: 1.5 }] : styles.subHeader}>
           {isAr
             ? `${data.closedBy} :${l.closedBy} | ${data.openedBy} :${l.openedBy}`
             : `${l.openedBy}: ${data.openedBy} | ${l.closedBy}: ${data.closedBy}`}
@@ -474,14 +475,14 @@ const ZReportDocument: React.FC<ZReportDocumentProps> = ({ data, lang }) => {
 
         {/* Signature Block */}
         <View style={[styles.signatureBlock, isAr ? { alignItems: 'flex-end' } : {}]}>
-          <Text>{l.signature}: ____________________</Text>
-          <Text style={{ marginTop: 5 }}>
+          <Text style={isAr ? { letterSpacing: 1.5 } : {}}>{l.signature}: ____________________</Text>
+          <Text style={isAr ? { marginTop: 5, letterSpacing: 1.5 } : { marginTop: 5 }}>
             {data.closedBy} - {formatDate(data.dateTo)}
           </Text>
         </View>
 
         {/* Footer */}
-        <Text style={styles.footer}>
+        <Text style={isAr ? [styles.footer, { letterSpacing: 1.5 }] : styles.footer}>
           {isAr
             ? `Z-${data.zReportNumber} :${l.reportNumber} | ${formatDate(data.generatedAt)} :${l.generatedAt}`
             : `${l.generatedAt}: ${formatDate(data.generatedAt)} | ${l.reportNumber}: Z-${data.zReportNumber}`}
