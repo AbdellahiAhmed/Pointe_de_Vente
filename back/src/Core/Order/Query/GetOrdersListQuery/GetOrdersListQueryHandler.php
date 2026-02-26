@@ -45,13 +45,18 @@ class GetOrdersListQueryHandler extends EntityRepository implements GetOrdersLis
         }
 
         if($query->getOrderIds() !== null){
-            $qb->andWhere('entity.entityId IN (:entityIds)');
-            $qb->setParameter('entityIds', $query->getOrderIds());
+            $qb->andWhere('entity.orderId IN (:orderIds)');
+            $qb->setParameter('orderIds', $query->getOrderIds());
         }
 
         if($query->getIds() !== null){
             $qb->andWhere('entity.id IN (:ids)');
             $qb->setParameter('ids', $query->getIds());
+        }
+
+        if($query->getStatus() !== null){
+            $qb->andWhere('entity.status = :status');
+            $qb->setParameter('status', $query->getStatus());
         }
 
         if($query->getDateTimeFrom() !== null){

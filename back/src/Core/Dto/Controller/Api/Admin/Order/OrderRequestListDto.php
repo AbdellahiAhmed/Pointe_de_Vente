@@ -106,6 +106,11 @@ class OrderRequestListDto
     private $q;
 
     /**
+     * @var string|null
+     */
+    private $status;
+
+    /**
      * @return int|null
      */
     public function getCustomerId() : ?int
@@ -329,6 +334,22 @@ class OrderRequestListDto
         $this->q = $q;
     }
 
+    /**
+     * @return string|null
+     */
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param string|null $status
+     */
+    public function setStatus(?string $status): void
+    {
+        $this->status = $status;
+    }
+
     public static function createFromRequest(Request $request)
     {
         $dto = new self();
@@ -345,7 +366,13 @@ class OrderRequestListDto
         $dto->isReturned = $request->query->get('isReturned');
         $dto->isDispatched = $request->query->get('isDispatched');
         $dto->orderIds = $request->query->get('orderIds');
+        // Support singular orderId parameter (used by return-request)
+        $singleOrderId = $request->query->get('orderId');
+        if ($singleOrderId !== null && $dto->orderIds === null) {
+            $dto->orderIds = [(int) $singleOrderId];
+        }
         $dto->ids = $request->query->get('ids');
+        $dto->status = $request->query->get('status');
         $dto->setLimit($request->query->get('itemsPerPage', 10));
         $dto->setOffset($request->query->get('page', 1));
         if($request->query->has('order')){
@@ -390,6 +417,7 @@ class OrderRequestListDto
         $query->setDateTimeFrom($this->dateTimeFrom);
         $query->setDateTimeTo($this->dateTimeTo);
         $query->setQ($this->q);
+        $query->setStatus($this->status);
         $query->setStore($this->getStore());
     }
 

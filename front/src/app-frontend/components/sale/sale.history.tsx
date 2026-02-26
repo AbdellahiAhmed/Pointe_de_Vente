@@ -122,24 +122,25 @@ export const SaleHistory: FC<Props> = ({}) => {
     }),
     columnHelper.accessor("tax", {
       header: t("Order Tax"),
-      cell: (info) => `+${withCurrency(info.getValue()?.amount || 0)}`,
+      cell: (info) => <span dir="ltr">{`+ ${withCurrency(info.getValue()?.amount || 0)}`}</span>,
     }),
     columnHelper.accessor("itemTaxes", {
       header: t("Items Tax"),
-      cell: (info) => `+${withCurrency(info.getValue())}`,
+      cell: (info) => <span dir="ltr">{`+ ${withCurrency(info.getValue())}`}</span>,
     }),
     columnHelper.accessor("discount", {
       header: t("Discount"),
-      cell: (info) => `-${withCurrency(info.getValue()?.amount || 0)}`,
+      cell: (info) => <span dir="ltr">{`- ${withCurrency(info.getValue()?.amount || 0)}`}</span>,
     }),
     columnHelper.accessor("items", {
       header: t("Rate"),
-      cell: (info) =>
-        `+${withCurrency(
+      cell: (info) => (
+        <span dir="ltr">{`+ ${withCurrency(
           info.getValue().reduce((prev, item) => {
             return item.price * item.quantity + prev;
           }, 0)
-        )}`,
+        )}`}</span>
+      ),
       enableSorting: false,
     }),
     columnHelper.accessor("items", {
@@ -160,13 +161,13 @@ export const SaleHistory: FC<Props> = ({}) => {
     }),
     columnHelper.accessor("payments", {
       header: t("Total"),
-      cell: (info) =>
-        "=" +
-        withCurrency(
+      cell: (info) => (
+        <span dir="ltr">{`= ${withCurrency(
           info.getValue().reduce((prev, payment) => {
             return payment.total + prev;
           }, 0)
-        ),
+        )}`}</span>
+      ),
       enableSorting: false,
     }),
     columnHelper.accessor("status", {
@@ -459,7 +460,7 @@ export const SaleHistory: FC<Props> = ({}) => {
   const discountTotal = useMemo(() => {
     return list.reduce((prev, order) => {
       if (order?.discount && order?.discount?.amount) {
-        return order?.discount?.amount + prev;
+        return prev + Number(order.discount.amount);
       }
 
       return prev;
@@ -469,7 +470,7 @@ export const SaleHistory: FC<Props> = ({}) => {
   const taxTotal = useMemo(() => {
     return list.reduce((prev, order) => {
       if (order?.tax && order?.tax?.amount) {
-        return order?.tax?.amount + prev;
+        return prev + Number(order.tax.amount);
       }
 
       return prev;
@@ -480,7 +481,7 @@ export const SaleHistory: FC<Props> = ({}) => {
     return list.reduce((prev, order) => {
       if (order.status !== "Deleted") {
         return (
-          prev + order.payments.reduce((p, payment) => p + payment.received, 0)
+          prev + order.payments.reduce((p, payment) => p + Number(payment.received), 0)
         );
       }
 
@@ -494,11 +495,7 @@ export const SaleHistory: FC<Props> = ({}) => {
         return (
           prev +
           order.items.reduce((p, item) => {
-            if (item.product.cost) {
-              return p + item.product.cost;
-            }
-
-            return p;
+            return p + Number(item.product?.cost || 0) * Number(item.quantity);
           }, 0)
         );
       }
@@ -519,7 +516,7 @@ export const SaleHistory: FC<Props> = ({}) => {
         }
 
         customers[order?.customer?.name] += order.payments.reduce(
-          (p, payment) => p + payment.total,
+          (p, payment) => p + Number(payment.total),
           0
         );
       } else {
@@ -529,7 +526,7 @@ export const SaleHistory: FC<Props> = ({}) => {
         }
 
         customers[cash] += order.payments.reduce(
-          (p, payment) => p + payment.total,
+          (p, payment) => p + Number(payment.total),
           0
         );
       }

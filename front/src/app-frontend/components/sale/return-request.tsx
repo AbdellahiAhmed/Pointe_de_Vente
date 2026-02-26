@@ -36,6 +36,7 @@ interface OrderResponse {
   "@id": string;
   id: number;
   orderId: string;
+  status?: string;
   items: OrderItemResponse[];
   createdAt: string;
   customer?: { name: string };
@@ -140,7 +141,14 @@ export const ReturnRequest: FC<ReturnRequestProps> = ({ open, onClose, onSuccess
         return;
       }
 
-      const found = members[0];
+      // Find exact match by orderId (API may return multiple results)
+      const found = members.find((o) => String(o.orderId) === raw) ?? members[0];
+
+      if (String(found.orderId) !== raw) {
+        setSearchError(t("No order found for {{id}}", { id: raw }));
+        return;
+      }
+
       const returnable = found.items.filter((i) => !i.isReturned);
 
       if (returnable.length === 0) {
