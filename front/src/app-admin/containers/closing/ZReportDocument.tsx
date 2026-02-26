@@ -12,7 +12,6 @@ Font.register({
   ],
 });
 
-// Prevent react-pdf from incorrectly breaking Arabic words
 Font.registerHyphenationCallback((word: string) => [word]);
 
 const styles = StyleSheet.create({
@@ -23,10 +22,8 @@ const styles = StyleSheet.create({
   },
   arabicPage: {
     padding: 30,
-    fontSize: 8.5,
+    fontSize: 9,
     fontFamily: 'NotoSansArabic',
-    // Compensate for react-pdf underestimating Arabic connected glyph widths
-    letterSpacing: 0.5,
   },
   header: {
     textAlign: 'center',
@@ -48,24 +45,8 @@ const styles = StyleSheet.create({
     borderBottomColor: '#000',
     paddingBottom: 3,
   },
-  sectionTitleRtl: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    marginTop: 15,
-    marginBottom: 5,
-    borderBottomWidth: 1,
-    borderBottomColor: '#000',
-    paddingBottom: 3,
-    textAlign: 'right',
-    fontFamily: 'NotoSansArabic',
-  },
   row: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 2,
-  },
-  rowRtl: {
-    flexDirection: 'row-reverse',
     justifyContent: 'space-between',
     paddingVertical: 2,
   },
@@ -76,21 +57,8 @@ const styles = StyleSheet.create({
     paddingBottom: 3,
     fontWeight: 'bold',
   },
-  tableHeaderRtl: {
-    flexDirection: 'row-reverse',
-    borderBottomWidth: 1,
-    borderBottomColor: '#000',
-    paddingBottom: 3,
-    fontWeight: 'bold',
-  },
   tableRow: {
     flexDirection: 'row',
-    paddingVertical: 2,
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#ccc',
-  },
-  tableRowRtl: {
-    flexDirection: 'row-reverse',
     paddingVertical: 2,
     borderBottomWidth: 0.5,
     borderBottomColor: '#ccc',
@@ -123,13 +91,6 @@ const styles = StyleSheet.create({
   },
   totalRow: {
     flexDirection: 'row',
-    borderTopWidth: 1,
-    borderTopColor: '#000',
-    paddingTop: 3,
-    fontWeight: 'bold',
-  },
-  totalRowRtl: {
-    flexDirection: 'row-reverse',
     borderTopWidth: 1,
     borderTopColor: '#000',
     paddingTop: 3,
@@ -252,7 +213,7 @@ interface ZReportDocumentProps {
 }
 
 const formatCurrency = (value: number) => {
-  return '\u200E' + new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2 }).format(value) + ' MRU\u200E';
+  return new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2 }).format(value) + ' MRU';
 };
 
 const formatDate = (dateStr: string) => {
@@ -260,231 +221,173 @@ const formatDate = (dateStr: string) => {
   return DateTime.fromISO(dateStr).toFormat('dd/MM/yyyy HH:mm');
 };
 
-// Arabic text style (no flex — used inside View wrappers to avoid react-pdf text clipping)
-const arText = { fontFamily: 'NotoSansArabic' as const };
-
 const ZReportDocument: React.FC<ZReportDocumentProps> = ({ data, lang }) => {
   const l = labels[lang];
   const isAr = lang === 'ar';
-  const pageStyle = isAr ? styles.arabicPage : styles.page;
 
-  // RTL-aware row/table styles
-  const sectionTitleStyle = isAr ? styles.sectionTitleRtl : styles.sectionTitle;
-  const rowStyle = isAr ? styles.rowRtl : styles.row;
-  const tableHeaderStyle = isAr ? styles.tableHeaderRtl : styles.tableHeader;
-  const tableRowStyle = isAr ? styles.tableRowRtl : styles.tableRow;
-  const totalRowStyle = isAr ? styles.totalRowRtl : styles.totalRow;
-
-  // In Arabic mode, we wrap Text inside View to separate layout sizing from
-  // text measurement. react-pdf miscalculates Arabic glyph widths, causing
-  // text clipping when flex is applied directly to Text elements.
-  const Label = ({ children, bold }: { children: React.ReactNode; bold?: boolean }) => {
-    if (isAr) {
-      return (
-        <View style={{ flex: 3 }}>
-          <Text style={[arText, { textAlign: 'right' }, bold ? { fontWeight: 'bold' } : {}]}>
-            {children}
-          </Text>
-        </View>
-      );
-    }
-    return <Text style={[styles.col, bold ? { fontWeight: 'bold' as const } : {}]}>{children}</Text>;
-  };
-
-  const Value = ({ children, bold, extraStyle }: { children: React.ReactNode; bold?: boolean; extraStyle?: object }) => {
-    if (isAr) {
-      return (
-        <View style={{ flex: 2 }}>
-          <Text style={[arText, { textAlign: 'left' }, bold ? { fontWeight: 'bold' } : {}, extraStyle || {}]}>
-            {children}
-          </Text>
-        </View>
-      );
-    }
-    return (
-      <Text style={[styles.colRight, bold ? { fontWeight: 'bold' as const } : {}, extraStyle || {}]}>
-        {children}
-      </Text>
-    );
-  };
-
-  const Mid = ({ children, bold }: { children: React.ReactNode; bold?: boolean }) => {
-    if (isAr) {
-      return (
-        <View style={{ flex: 1 }}>
-          <Text style={[arText, { textAlign: 'center' }, bold ? { fontWeight: 'bold' } : {}]}>
-            {children}
-          </Text>
-        </View>
-      );
-    }
-    return <Text style={[styles.col, bold ? { fontWeight: 'bold' as const } : {}]}>{children}</Text>;
-  };
-
-  // Empty spacer column for 3-column total rows
-  const Spacer = () => {
-    if (isAr) {
-      return <View style={{ flex: 1 }} />;
-    }
-    return <Text style={{ flex: 1 }}>{''}</Text>;
-  };
+  // Arabic: exact same layout as French, just different font + letterSpacing
+  // to compensate for react-pdf underestimating Arabic glyph widths
+  const tx = isAr
+    ? { fontFamily: 'NotoSansArabic' as const, letterSpacing: 1.5 }
+    : {};
+  const txBold = isAr
+    ? { fontFamily: 'NotoSansArabic' as const, letterSpacing: 1.5, fontWeight: 'bold' as const }
+    : { fontWeight: 'bold' as const };
 
   return (
     <Document>
-      <Page size="A4" style={pageStyle}>
-        {/* Header — always centered */}
-        <Text style={isAr ? [styles.header, { fontSize: 13 }] : styles.header}>{l.title}</Text>
-        <Text style={styles.subHeader}>
-          {isAr
-            ? `Z-${data.zReportNumber} :${l.reportNumber}`
-            : `${l.reportNumber}: Z-${data.zReportNumber}`}
+      <Page size="A4" style={isAr ? styles.arabicPage : styles.page}>
+        {/* Header */}
+        <Text style={[styles.header, tx]}>{l.title}</Text>
+        <Text style={[styles.subHeader, tx]}>
+          {`${l.reportNumber}: Z-${data.zReportNumber}`}
         </Text>
-        <Text style={styles.subHeader}>
-          {isAr
-            ? `${data.store.name}${data.store.location ? ` - ${data.store.location}` : ''} :${l.store}`
-            : `${l.store}: ${data.store.name}${data.store.location ? ` - ${data.store.location}` : ''}`}
+        <Text style={[styles.subHeader, tx]}>
+          {`${l.store}: ${data.store.name}${data.store.location ? ` - ${data.store.location}` : ''}`}
         </Text>
-        <Text style={styles.subHeader}>
-          {isAr
-            ? `${data.terminal.code} :${l.terminal}`
-            : `${l.terminal}: ${data.terminal.code}`}
+        <Text style={[styles.subHeader, tx]}>
+          {`${l.terminal}: ${data.terminal.code}`}
         </Text>
-        <Text style={styles.subHeader}>
-          {isAr
-            ? `${formatDate(data.dateTo)} :${l.to} | ${formatDate(data.dateFrom)} :${l.from}`
-            : `${l.from}: ${formatDate(data.dateFrom)} | ${l.to}: ${formatDate(data.dateTo)}`}
+        <Text style={[styles.subHeader, tx]}>
+          {`${l.from}: ${formatDate(data.dateFrom)} | ${l.to}: ${formatDate(data.dateTo)}`}
         </Text>
-        <Text style={styles.subHeader}>
-          {isAr
-            ? `${data.closedBy} :${l.closedBy} | ${data.openedBy} :${l.openedBy}`
-            : `${l.openedBy}: ${data.openedBy} | ${l.closedBy}: ${data.closedBy}`}
+        <Text style={[styles.subHeader, tx]}>
+          {`${l.openedBy}: ${data.openedBy} | ${l.closedBy}: ${data.closedBy}`}
         </Text>
 
         {/* Sales Summary */}
-        <Text style={sectionTitleStyle}>{l.salesSummary}</Text>
-        <View style={rowStyle}>
-          <Label>{l.totalOrders}</Label>
-          <Value>{data.sales.totalOrders}</Value>
+        <Text style={[styles.sectionTitle, tx]}>{l.salesSummary}</Text>
+        <View style={styles.row}>
+          <Text style={[styles.col, tx]}>{l.totalOrders}</Text>
+          <Text style={[styles.colRight, tx]}>{data.sales.totalOrders}</Text>
         </View>
-        <View style={rowStyle}>
-          <Label>{l.completedOrders}</Label>
-          <Value>{data.sales.completedOrders}</Value>
+        <View style={styles.row}>
+          <Text style={[styles.col, tx]}>{l.completedOrders}</Text>
+          <Text style={[styles.colRight, tx]}>{data.sales.completedOrders}</Text>
         </View>
-        <View style={rowStyle}>
-          <Label>{l.returnedOrders}</Label>
-          <Value>{data.sales.returnedOrders}</Value>
+        <View style={styles.row}>
+          <Text style={[styles.col, tx]}>{l.returnedOrders}</Text>
+          <Text style={[styles.colRight, tx]}>{data.sales.returnedOrders}</Text>
         </View>
-        <View style={rowStyle}>
-          <Label>{l.grossRevenue}</Label>
-          <Value>{formatCurrency(data.sales.grossRevenue)}</Value>
+        <View style={styles.row}>
+          <Text style={[styles.col, tx]}>{l.grossRevenue}</Text>
+          <Text style={[styles.colRight, tx]}>{formatCurrency(data.sales.grossRevenue)}</Text>
         </View>
-        <View style={rowStyle}>
-          <Label>{l.discounts}</Label>
-          <Value>-{formatCurrency(data.sales.totalDiscounts)}</Value>
+        <View style={styles.row}>
+          <Text style={[styles.col, tx]}>{l.discounts}</Text>
+          <Text style={[styles.colRight, tx]}>-{formatCurrency(data.sales.totalDiscounts)}</Text>
         </View>
-        <View style={[rowStyle, { borderTopWidth: 1, borderTopColor: '#000', paddingTop: 3 }]}>
-          <Label bold>{l.netRevenue}</Label>
-          <Value bold>{formatCurrency(data.sales.netRevenue)}</Value>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#000', paddingTop: 3 }]}>
+          <Text style={[styles.col, txBold]}>{l.netRevenue}</Text>
+          <Text style={[styles.colRight, txBold]}>{formatCurrency(data.sales.netRevenue)}</Text>
         </View>
-        <View style={rowStyle}>
-          <Label>{l.averageBasket}</Label>
-          <Value>{formatCurrency(data.sales.averageBasket)}</Value>
+        <View style={styles.row}>
+          <Text style={[styles.col, tx]}>{l.averageBasket}</Text>
+          <Text style={[styles.colRight, tx]}>{formatCurrency(data.sales.averageBasket)}</Text>
         </View>
 
         {/* Payment Breakdown */}
-        <Text style={sectionTitleStyle}>{l.paymentBreakdown}</Text>
-        <View style={tableHeaderStyle}>
-          <Label bold>{l.paymentType}</Label>
-          <Mid bold>{l.category}</Mid>
-          <Value bold>{l.amount}</Value>
+        <Text style={[styles.sectionTitle, tx]}>{l.paymentBreakdown}</Text>
+        <View style={styles.tableHeader}>
+          <Text style={[styles.col, txBold]}>{l.paymentType}</Text>
+          <Text style={[styles.col, txBold]}>{l.category}</Text>
+          <Text style={[styles.colRight, txBold]}>{l.amount}</Text>
         </View>
         {data.paymentBreakdown.map((p, i) => (
-          <View style={tableRowStyle} key={i}>
-            <Label>{p.name}</Label>
-            <Mid>{p.category}</Mid>
-            <Value>{formatCurrency(p.amount)}</Value>
+          <View style={styles.tableRow} key={i}>
+            <Text style={[styles.col, tx]}>{p.name}</Text>
+            <Text style={[styles.col, tx]}>{p.category}</Text>
+            <Text style={[styles.colRight, tx]}>{formatCurrency(p.amount)}</Text>
           </View>
         ))}
-        <View style={totalRowStyle}>
-          <Label bold>{l.total}</Label>
-          <Spacer />
-          <Value bold>{formatCurrency(data.paymentBreakdown.reduce((s, p) => s + p.amount, 0))}</Value>
+        <View style={styles.totalRow}>
+          <Text style={[styles.col, txBold]}>{l.total}</Text>
+          <Text style={{ flex: 1 }}>{''}</Text>
+          <Text style={[styles.colRight, txBold]}>
+            {formatCurrency(data.paymentBreakdown.reduce((s, p) => s + p.amount, 0))}
+          </Text>
         </View>
 
         {/* Cash Reconciliation */}
-        <Text style={sectionTitleStyle}>{l.cashReconciliation}</Text>
-        <View style={rowStyle}>
-          <Label>{l.openingBalance}</Label>
-          <Value>{formatCurrency(data.cashReconciliation.openingBalance)}</Value>
+        <Text style={[styles.sectionTitle, tx]}>{l.cashReconciliation}</Text>
+        <View style={styles.row}>
+          <Text style={[styles.col, tx]}>{l.openingBalance}</Text>
+          <Text style={[styles.colRight, tx]}>{formatCurrency(data.cashReconciliation.openingBalance)}</Text>
         </View>
-        <View style={rowStyle}>
-          <Label>{l.cashReceived}</Label>
-          <Value>{formatCurrency(data.cashReconciliation.cashReceived)}</Value>
+        <View style={styles.row}>
+          <Text style={[styles.col, tx]}>{l.cashReceived}</Text>
+          <Text style={[styles.colRight, tx]}>{formatCurrency(data.cashReconciliation.cashReceived)}</Text>
         </View>
-        <View style={rowStyle}>
-          <Label>{l.cashAdded}</Label>
-          <Value>{formatCurrency(data.cashReconciliation.cashAdded)}</Value>
+        <View style={styles.row}>
+          <Text style={[styles.col, tx]}>{l.cashAdded}</Text>
+          <Text style={[styles.colRight, tx]}>{formatCurrency(data.cashReconciliation.cashAdded)}</Text>
         </View>
-        <View style={rowStyle}>
-          <Label>{l.cashWithdrawn}</Label>
-          <Value>-{formatCurrency(data.cashReconciliation.cashWithdrawn)}</Value>
+        <View style={styles.row}>
+          <Text style={[styles.col, tx]}>{l.cashWithdrawn}</Text>
+          <Text style={[styles.colRight, tx]}>-{formatCurrency(data.cashReconciliation.cashWithdrawn)}</Text>
         </View>
-        <View style={rowStyle}>
-          <Label>{l.expenses}</Label>
-          <Value>-{formatCurrency(data.cashReconciliation.expenses)}</Value>
+        <View style={styles.row}>
+          <Text style={[styles.col, tx]}>{l.expenses}</Text>
+          <Text style={[styles.colRight, tx]}>-{formatCurrency(data.cashReconciliation.expenses)}</Text>
         </View>
-        <View style={[rowStyle, { borderTopWidth: 1, borderTopColor: '#000', paddingTop: 3 }]}>
-          <Label bold>{l.expectedCash}</Label>
-          <Value bold>{formatCurrency(data.cashReconciliation.expectedCash)}</Value>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#000', paddingTop: 3 }]}>
+          <Text style={[styles.col, txBold]}>{l.expectedCash}</Text>
+          <Text style={[styles.colRight, txBold]}>
+            {formatCurrency(data.cashReconciliation.expectedCash)}
+          </Text>
         </View>
-        <View style={rowStyle}>
-          <Label>{l.countedCash}</Label>
-          <Value>{formatCurrency(data.cashReconciliation.countedCash)}</Value>
+        <View style={styles.row}>
+          <Text style={[styles.col, tx]}>{l.countedCash}</Text>
+          <Text style={[styles.colRight, tx]}>{formatCurrency(data.cashReconciliation.countedCash)}</Text>
         </View>
-        <View style={[rowStyle, { borderTopWidth: 1, borderTopColor: '#000', paddingTop: 3 }]}>
-          <Label bold>{l.variance}</Label>
-          <Value bold extraStyle={data.cashReconciliation.variance < 0 ? styles.varianceNegative : {}}>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#000', paddingTop: 3 }]}>
+          <Text style={[styles.col, txBold]}>{l.variance}</Text>
+          <Text style={[
+            styles.colRight,
+            txBold,
+            data.cashReconciliation.variance < 0 ? styles.varianceNegative : {},
+          ]}>
             {formatCurrency(data.cashReconciliation.variance)}
-          </Value>
+          </Text>
         </View>
 
         {/* Denomination Count */}
         {data.denominations && data.denominations.length > 0 && (
           <>
-            <Text style={sectionTitleStyle}>{l.denominations}</Text>
-            <View style={tableHeaderStyle}>
-              <Label bold>{l.denomination}</Label>
-              <Mid bold>{l.count}</Mid>
-              <Value bold>{l.total}</Value>
+            <Text style={[styles.sectionTitle, tx]}>{l.denominations}</Text>
+            <View style={styles.tableHeader}>
+              <Text style={[styles.col, txBold]}>{l.denomination}</Text>
+              <Text style={[styles.col, txBold]}>{l.count}</Text>
+              <Text style={[styles.colRight, txBold]}>{l.total}</Text>
             </View>
             {data.denominations.map((d, i) => (
-              <View style={tableRowStyle} key={i}>
-                <Label>{'\u200E'}{d.value} MRU{'\u200E'}</Label>
-                <Mid>{d.count}</Mid>
-                <Value>{formatCurrency(d.total)}</Value>
+              <View style={styles.tableRow} key={i}>
+                <Text style={[styles.col, tx]}>{d.value} MRU</Text>
+                <Text style={[styles.col, tx]}>{d.count}</Text>
+                <Text style={[styles.colRight, tx]}>{formatCurrency(d.total)}</Text>
               </View>
             ))}
-            <View style={totalRowStyle}>
-              <Label bold>{l.total}</Label>
-              <Spacer />
-              <Value bold>{formatCurrency(data.denominations.reduce((s, d) => s + d.total, 0))}</Value>
+            <View style={styles.totalRow}>
+              <Text style={[styles.col, txBold]}>{l.total}</Text>
+              <Text style={{ flex: 1 }}>{''}</Text>
+              <Text style={[styles.colRight, txBold]}>
+                {formatCurrency(data.denominations.reduce((s, d) => s + d.total, 0))}
+              </Text>
             </View>
           </>
         )}
 
         {/* Signature Block */}
-        <View style={[styles.signatureBlock, isAr ? { alignItems: 'flex-end' } : {}]}>
-          <Text>{l.signature}: ____________________</Text>
-          <Text style={{ marginTop: 5 }}>
+        <View style={styles.signatureBlock}>
+          <Text style={tx}>{l.signature}: ____________________</Text>
+          <Text style={[{ marginTop: 5 }, tx]}>
             {data.closedBy} - {formatDate(data.dateTo)}
           </Text>
         </View>
 
         {/* Footer */}
-        <Text style={styles.footer}>
-          {isAr
-            ? `Z-${data.zReportNumber} :${l.reportNumber} | ${formatDate(data.generatedAt)} :${l.generatedAt}`
-            : `${l.generatedAt}: ${formatDate(data.generatedAt)} | ${l.reportNumber}: Z-${data.zReportNumber}`}
+        <Text style={[styles.footer, tx]}>
+          {`${l.generatedAt}: ${formatDate(data.generatedAt)} | ${l.reportNumber}: Z-${data.zReportNumber}`}
         </Text>
       </Page>
     </Document>
