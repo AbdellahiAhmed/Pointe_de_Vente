@@ -6,6 +6,7 @@ import {CLOSING_LIST, CLOSING_ZREPORT_DATA} from "../../../api/routing/routes/ba
 import {DASHBOARD, Z_REPORTS} from "../../routes/frontend.routes";
 import {pdf} from '@react-pdf/renderer';
 import ZReportDocument from './ZReportDocument';
+import {generateZReportArabicPdf} from './generateZReportArabicPdf';
 import {Closing} from "../../../api/model/closing";
 import {notify} from "../../../app-common/components/confirm/notification";
 
@@ -43,7 +44,11 @@ export const ZReportPage: FunctionComponent = () => {
     try {
       const res = await jsonRequest(CLOSING_ZREPORT_DATA.replace(':id', closingId));
       const snapshot = await res.json();
-      const blob = await pdf(<ZReportDocument data={snapshot} lang={lang} />).toBlob();
+      // Arabic: use html2pdf (browser renders Arabic perfectly)
+      // French: use react-pdf (vector PDF with correct Latin metrics)
+      const blob = lang === 'ar'
+        ? await generateZReportArabicPdf(snapshot)
+        : await pdf(<ZReportDocument data={snapshot} lang={lang} />).toBlob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;

@@ -23,3 +23,4 @@ interface ImportMeta {
 declare module 'react-mousetrap';
 declare module 'mousetrap';
 declare module '*.ttf';
+declare module 'html2pdf.js';
