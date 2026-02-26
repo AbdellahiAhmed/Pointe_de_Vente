@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
   },
   arabicPage: {
     padding: 30,
-    fontSize: 10,
+    fontSize: 8.5,
     fontFamily: 'NotoSansArabic',
   },
   header: {
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     paddingBottom: 3,
   },
   sectionTitleRtl: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: 'bold',
     marginTop: 15,
     marginBottom: 5,
@@ -264,11 +264,8 @@ const formatCurrency = (value: number) => {
   return '\u200E' + new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2 }).format(value) + ' MRU\u200E';
 };
 
-// react-pdf miscalculates Arabic glyph widths (connected forms render wider
-// than measured), causing text to be clipped. Trailing non-breaking spaces
-// force react-pdf to allocate extra width, preventing truncation.
-const PAD = '\u00A0\u00A0\u00A0\u00A0';
-const arPad = (text: string, isAr: boolean) => isAr ? text + PAD : text;
+// react-pdf miscalculates Arabic connected glyph widths (~15-20% too narrow).
+// Reduced Arabic fontSize (8.5 vs 10) compensates for this measurement error.
 
 const formatDate = (dateStr: string) => {
   if (!dateStr) return '-';
@@ -304,70 +301,70 @@ const ZReportDocument: React.FC<ZReportDocumentProps> = ({ data, lang }) => {
     <Document>
       <Page size="A4" style={pageStyle}>
         {/* Header — always centered */}
-        <Text style={styles.header}>{arPad(l.title, isAr)}</Text>
+        <Text style={isAr ? [styles.header, { fontSize: 13 }] : styles.header}>{l.title}</Text>
         <Text style={styles.subHeader}>
           {isAr
-            ? arPad(`Z-${data.zReportNumber} :${l.reportNumber}`, true)
+            ? `Z-${data.zReportNumber} :${l.reportNumber}`
             : `${l.reportNumber}: Z-${data.zReportNumber}`}
         </Text>
         <Text style={styles.subHeader}>
           {isAr
-            ? arPad(`${data.store.name}${data.store.location ? ` - ${data.store.location}` : ''} :${l.store}`, true)
+            ? `${data.store.name}${data.store.location ? ` - ${data.store.location}` : ''} :${l.store}`
             : `${l.store}: ${data.store.name}${data.store.location ? ` - ${data.store.location}` : ''}`}
         </Text>
         <Text style={styles.subHeader}>
           {isAr
-            ? arPad(`${data.terminal.code} :${l.terminal}`, true)
+            ? `${data.terminal.code} :${l.terminal}`
             : `${l.terminal}: ${data.terminal.code}`}
         </Text>
         <Text style={styles.subHeader}>
           {isAr
-            ? arPad(`${formatDate(data.dateTo)} :${l.to} | ${formatDate(data.dateFrom)} :${l.from}`, true)
+            ? `${formatDate(data.dateTo)} :${l.to} | ${formatDate(data.dateFrom)} :${l.from}`
             : `${l.from}: ${formatDate(data.dateFrom)} | ${l.to}: ${formatDate(data.dateTo)}`}
         </Text>
         <Text style={styles.subHeader}>
           {isAr
-            ? arPad(`${data.closedBy} :${l.closedBy} | ${data.openedBy} :${l.openedBy}`, true)
+            ? `${data.closedBy} :${l.closedBy} | ${data.openedBy} :${l.openedBy}`
             : `${l.openedBy}: ${data.openedBy} | ${l.closedBy}: ${data.closedBy}`}
         </Text>
 
         {/* Sales Summary */}
-        <Text style={sectionTitleStyle}>{arPad(l.salesSummary, isAr)}</Text>
+        <Text style={sectionTitleStyle}>{l.salesSummary}</Text>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{arPad(l.totalOrders, isAr)}</Text>
+          <Text style={labelStyle}>{l.totalOrders}</Text>
           <Text style={valueStyle}>{data.sales.totalOrders}</Text>
         </View>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{arPad(l.completedOrders, isAr)}</Text>
+          <Text style={labelStyle}>{l.completedOrders}</Text>
           <Text style={valueStyle}>{data.sales.completedOrders}</Text>
         </View>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{arPad(l.returnedOrders, isAr)}</Text>
+          <Text style={labelStyle}>{l.returnedOrders}</Text>
           <Text style={valueStyle}>{data.sales.returnedOrders}</Text>
         </View>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{arPad(l.grossRevenue, isAr)}</Text>
+          <Text style={labelStyle}>{l.grossRevenue}</Text>
           <Text style={valueStyle}>{formatCurrency(data.sales.grossRevenue)}</Text>
         </View>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{arPad(l.discounts, isAr)}</Text>
+          <Text style={labelStyle}>{l.discounts}</Text>
           <Text style={valueStyle}>-{formatCurrency(data.sales.totalDiscounts)}</Text>
         </View>
         <View style={[rowStyle, { borderTopWidth: 1, borderTopColor: '#000', paddingTop: 3 }]}>
-          <Text style={labelBoldStyle}>{arPad(l.netRevenue, isAr)}</Text>
+          <Text style={labelBoldStyle}>{l.netRevenue}</Text>
           <Text style={valueBoldStyle}>{formatCurrency(data.sales.netRevenue)}</Text>
         </View>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{arPad(l.averageBasket, isAr)}</Text>
+          <Text style={labelStyle}>{l.averageBasket}</Text>
           <Text style={valueStyle}>{formatCurrency(data.sales.averageBasket)}</Text>
         </View>
 
         {/* Payment Breakdown */}
-        <Text style={sectionTitleStyle}>{arPad(l.paymentBreakdown, isAr)}</Text>
+        <Text style={sectionTitleStyle}>{l.paymentBreakdown}</Text>
         <View style={tableHeaderStyle}>
-          <Text style={labelStyle}>{arPad(l.paymentType, isAr)}</Text>
-          <Text style={colMidStyle}>{arPad(l.category, isAr)}</Text>
-          <Text style={valueStyle}>{arPad(l.amount, isAr)}</Text>
+          <Text style={labelStyle}>{l.paymentType}</Text>
+          <Text style={colMidStyle}>{l.category}</Text>
+          <Text style={valueStyle}>{l.amount}</Text>
         </View>
         {data.paymentBreakdown.map((p, i) => (
           <View style={tableRowStyle} key={i}>
@@ -377,7 +374,7 @@ const ZReportDocument: React.FC<ZReportDocumentProps> = ({ data, lang }) => {
           </View>
         ))}
         <View style={totalRowStyle}>
-          <Text style={labelBoldStyle}>{arPad(l.total, isAr)}</Text>
+          <Text style={labelBoldStyle}>{l.total}</Text>
           <Text style={{ flex: 1 }}></Text>
           <Text style={valueBoldStyle}>
             {formatCurrency(data.paymentBreakdown.reduce((s, p) => s + p.amount, 0))}
@@ -385,39 +382,39 @@ const ZReportDocument: React.FC<ZReportDocumentProps> = ({ data, lang }) => {
         </View>
 
         {/* Cash Reconciliation */}
-        <Text style={sectionTitleStyle}>{arPad(l.cashReconciliation, isAr)}</Text>
+        <Text style={sectionTitleStyle}>{l.cashReconciliation}</Text>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{arPad(l.openingBalance, isAr)}</Text>
+          <Text style={labelStyle}>{l.openingBalance}</Text>
           <Text style={valueStyle}>{formatCurrency(data.cashReconciliation.openingBalance)}</Text>
         </View>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{arPad(l.cashReceived, isAr)}</Text>
+          <Text style={labelStyle}>{l.cashReceived}</Text>
           <Text style={valueStyle}>{formatCurrency(data.cashReconciliation.cashReceived)}</Text>
         </View>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{arPad(l.cashAdded, isAr)}</Text>
+          <Text style={labelStyle}>{l.cashAdded}</Text>
           <Text style={valueStyle}>{formatCurrency(data.cashReconciliation.cashAdded)}</Text>
         </View>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{arPad(l.cashWithdrawn, isAr)}</Text>
+          <Text style={labelStyle}>{l.cashWithdrawn}</Text>
           <Text style={valueStyle}>-{formatCurrency(data.cashReconciliation.cashWithdrawn)}</Text>
         </View>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{arPad(l.expenses, isAr)}</Text>
+          <Text style={labelStyle}>{l.expenses}</Text>
           <Text style={valueStyle}>-{formatCurrency(data.cashReconciliation.expenses)}</Text>
         </View>
         <View style={[rowStyle, { borderTopWidth: 1, borderTopColor: '#000', paddingTop: 3 }]}>
-          <Text style={labelBoldStyle}>{arPad(l.expectedCash, isAr)}</Text>
+          <Text style={labelBoldStyle}>{l.expectedCash}</Text>
           <Text style={valueBoldStyle}>
             {formatCurrency(data.cashReconciliation.expectedCash)}
           </Text>
         </View>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{arPad(l.countedCash, isAr)}</Text>
+          <Text style={labelStyle}>{l.countedCash}</Text>
           <Text style={valueStyle}>{formatCurrency(data.cashReconciliation.countedCash)}</Text>
         </View>
         <View style={[rowStyle, { borderTopWidth: 1, borderTopColor: '#000', paddingTop: 3 }]}>
-          <Text style={labelBoldStyle}>{arPad(l.variance, isAr)}</Text>
+          <Text style={labelBoldStyle}>{l.variance}</Text>
           <Text style={[
             ...(Array.isArray(valueBoldStyle) ? valueBoldStyle : [valueBoldStyle]),
             data.cashReconciliation.variance < 0 ? styles.varianceNegative : {},
@@ -429,11 +426,11 @@ const ZReportDocument: React.FC<ZReportDocumentProps> = ({ data, lang }) => {
         {/* Denomination Count */}
         {data.denominations && data.denominations.length > 0 && (
           <>
-            <Text style={sectionTitleStyle}>{arPad(l.denominations, isAr)}</Text>
+            <Text style={sectionTitleStyle}>{l.denominations}</Text>
             <View style={tableHeaderStyle}>
-              <Text style={labelStyle}>{arPad(l.denomination, isAr)}</Text>
-              <Text style={colMidStyle}>{arPad(l.count, isAr)}</Text>
-              <Text style={valueStyle}>{arPad(l.total, isAr)}</Text>
+              <Text style={labelStyle}>{l.denomination}</Text>
+              <Text style={colMidStyle}>{l.count}</Text>
+              <Text style={valueStyle}>{l.total}</Text>
             </View>
             {data.denominations.map((d, i) => (
               <View style={tableRowStyle} key={i}>
@@ -443,7 +440,7 @@ const ZReportDocument: React.FC<ZReportDocumentProps> = ({ data, lang }) => {
               </View>
             ))}
             <View style={totalRowStyle}>
-              <Text style={labelBoldStyle}>{arPad(l.total, isAr)}</Text>
+              <Text style={labelBoldStyle}>{l.total}</Text>
               <Text style={{ flex: 1 }}></Text>
               <Text style={valueBoldStyle}>
                 {formatCurrency(data.denominations.reduce((s, d) => s + d.total, 0))}
@@ -454,7 +451,7 @@ const ZReportDocument: React.FC<ZReportDocumentProps> = ({ data, lang }) => {
 
         {/* Signature Block */}
         <View style={[styles.signatureBlock, isAr ? { alignItems: 'flex-end' } : {}]}>
-          <Text>{arPad(l.signature, isAr)}: ____________________</Text>
+          <Text>{l.signature}: ____________________</Text>
           <Text style={{ marginTop: 5 }}>
             {data.closedBy} - {formatDate(data.dateTo)}
           </Text>
