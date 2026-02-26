@@ -263,6 +263,28 @@ class ProductController extends AbstractController
 
                 $isCreate = ((int)$idValue === 0 || $idValue === '');
 
+                // Range guards for CSV data
+                $maxPrice = 10000000;
+                $costFloat = $cost !== '' ? (float) $cost : 0;
+                $basePriceFloat = $basePrice !== '' ? (float) $basePrice : 0;
+                $quantityFloat = $quantity !== '' ? (float) $quantity : 0;
+
+                if ($costFloat < 0 || $costFloat > $maxPrice) {
+                    $errorsArray[] = ['row' => $idx, 'message' => "Cost out of range (0 - $maxPrice): $cost"];
+                    $idx++;
+                    continue;
+                }
+                if ($basePriceFloat < 0 || $basePriceFloat > $maxPrice) {
+                    $errorsArray[] = ['row' => $idx, 'message' => "Price out of range (0 - $maxPrice): $basePrice"];
+                    $idx++;
+                    continue;
+                }
+                if ($quantityFloat < 0 || $quantityFloat > 1000000) {
+                    $errorsArray[] = ['row' => $idx, 'message' => "Quantity out of range (0 - 1000000): $quantity"];
+                    $idx++;
+                    continue;
+                }
+
                 if($isCreate){
                     $command = new CreateProductCommand();
                     $command->setName($name);

@@ -29,3 +29,5 @@ export const INVENTORY_ALERTS = staticRoute('/inventory/alerts');
 
 export const RETURN_REQUESTS = staticRoute('/returns');
 export const CUSTOMERS_REPORT = staticRoute('/customers');
+
+export const SYSTEM_HEALTH = staticRoute('/system/health');

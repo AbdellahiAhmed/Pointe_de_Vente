@@ -2,7 +2,7 @@ import {useSelector} from "react-redux";
 import {isUserLoggedIn} from "../../../duck/auth/auth.selector";
 import React from "react";
 import {Link, useLocation} from "react-router-dom";
-import {DASHBOARD, REPORTS_SALES, REPORTS_PROFIT, REPORTS_DAILY, REPORTS_VENDOR, REPORTS_CATEGORY, Z_REPORTS, USERS, INVENTORY_ALERTS, RETURN_REQUESTS, CUSTOMERS_REPORT} from "../../routes/frontend.routes";
+import {DASHBOARD, REPORTS_SALES, REPORTS_PROFIT, REPORTS_DAILY, REPORTS_VENDOR, REPORTS_CATEGORY, Z_REPORTS, USERS, INVENTORY_ALERTS, RETURN_REQUESTS, CUSTOMERS_REPORT, SYSTEM_HEALTH} from "../../routes/frontend.routes";
 import classNames from "classnames";
 import {useTranslation} from "react-i18next";
 import {useHasRole} from "../../../duck/auth/hooks/useHasRole";
@@ -133,6 +133,15 @@ export const Sidebar = () => {
               )} to={USERS}>
                 <i className="bi bi-people"></i>
                 <span>{t('Users')}</span>
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link className={classNames(
+                "nav-link", location.pathname === SYSTEM_HEALTH ? 'active' : 'collapsed'
+              )} to={SYSTEM_HEALTH}>
+                <i className="bi bi-shield-check"></i>
+                <span>{t('System Health')}</span>
               </Link>
             </li>
           </>

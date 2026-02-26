@@ -42,13 +42,26 @@ interface ItemsCreateProps {
   onClose?: () => void;
 }
 
+const MAX_PRICE = 10_000_000;
+
 const ValidationSchema = yup.object({
   name: yup.string().required(ValidationMessage.Required),
   barcode: yup.string().required(ValidationMessage.Required),
   reference: yup.string().nullable(),
-  basePrice: yup.string().required(ValidationMessage.Required),
-  cost: yup.string().required(ValidationMessage.Required),
-  minPrice: yup.string().nullable(),
+  basePrice: yup.number()
+    .typeError(ValidationMessage.Required)
+    .required(ValidationMessage.Required)
+    .min(0, 'Price must be positive')
+    .max(MAX_PRICE, 'Price cannot exceed 10,000,000'),
+  cost: yup.number()
+    .typeError(ValidationMessage.Required)
+    .required(ValidationMessage.Required)
+    .min(0, 'Cost must be positive')
+    .max(MAX_PRICE, 'Cost cannot exceed 10,000,000'),
+  minPrice: yup.number().nullable()
+    .transform((value, original) => (original === '' || original === null) ? null : value)
+    .min(0, 'Min price must be positive')
+    .max(MAX_PRICE, 'Min price cannot exceed 10,000,000'),
   taxes: yup.array(),
   stores: yup.array(),
   categories: yup.array(),

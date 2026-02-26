@@ -36,6 +36,7 @@ class UpdateProductRequestDto
 
     /**
      * @var string|null
+     * @Assert\Range(min=0, max=10000000, maxMessage="Base quantity cannot exceed 10,000,000")
      */
     private $baseQuantity;
 
@@ -46,11 +47,13 @@ class UpdateProductRequestDto
 
     /**
      * @var string|null
+     * @Assert\Range(min=0, max=10000000, maxMessage="Price cannot exceed 10,000,000 MRU")
      */
     private $basePrice;
 
     /**
      * @var string|null
+     * @Assert\Range(min=0, max=1000000, maxMessage="Quantity cannot exceed 1,000,000")
      */
     private $quantity;
 
@@ -106,6 +109,7 @@ class UpdateProductRequestDto
     /**
      * @var string|null
      * @Assert\NotBlank(normalizer="trim")
+     * @Assert\Range(min=0, max=10000000, maxMessage="Cost cannot exceed 10,000,000 MRU")
      */
     private $cost;
 

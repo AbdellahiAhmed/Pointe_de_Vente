@@ -150,3 +150,5 @@ export const RETURN_REQUEST_GET = scopeUrl('/admin/return-requests/:id');
 export const RETURN_REQUEST_APPROVE = scopeUrl('/admin/return-requests/:id/approve');
 export const RETURN_REQUEST_REJECT = scopeUrl('/admin/return-requests/:id/reject');
 export const RETURN_REQUEST_PROCESS_REFUND = scopeUrl('/admin/return-requests/:id/process-refund');
+
+export const SYSTEM_HEALTH = scopeUrl('/admin/system/health');
