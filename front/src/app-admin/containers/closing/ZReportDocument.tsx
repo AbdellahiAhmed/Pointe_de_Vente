@@ -12,6 +12,9 @@ Font.register({
   ],
 });
 
+// Prevent react-pdf from incorrectly breaking Arabic words
+Font.registerHyphenationCallback((word: string) => [word]);
+
 const styles = StyleSheet.create({
   page: {
     padding: 30,
@@ -22,6 +25,8 @@ const styles = StyleSheet.create({
     padding: 30,
     fontSize: 8.5,
     fontFamily: 'NotoSansArabic',
+    // Compensate for react-pdf underestimating Arabic connected glyph widths
+    letterSpacing: 0.5,
   },
   header: {
     textAlign: 'center',
@@ -96,20 +101,6 @@ const styles = StyleSheet.create({
   colRight: {
     flex: 1,
     textAlign: 'right',
-  },
-  colLeft: {
-    flex: 1,
-    textAlign: 'left',
-  },
-  colRtlLabel: {
-    flex: 3,
-    textAlign: 'right',
-    fontFamily: 'NotoSansArabic',
-  },
-  colRtlValue: {
-    flex: 2,
-    textAlign: 'left',
-    fontFamily: 'NotoSansArabic',
   },
   signatureBlock: {
     marginTop: 40,
@@ -264,38 +255,79 @@ const formatCurrency = (value: number) => {
   return '\u200E' + new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2 }).format(value) + ' MRU\u200E';
 };
 
-// react-pdf miscalculates Arabic connected glyph widths (~15-20% too narrow).
-// Reduced Arabic fontSize (8.5 vs 10) compensates for this measurement error.
-
 const formatDate = (dateStr: string) => {
   if (!dateStr) return '-';
   return DateTime.fromISO(dateStr).toFormat('dd/MM/yyyy HH:mm');
 };
+
+// Arabic text style (no flex — used inside View wrappers to avoid react-pdf text clipping)
+const arText = { fontFamily: 'NotoSansArabic' as const };
 
 const ZReportDocument: React.FC<ZReportDocumentProps> = ({ data, lang }) => {
   const l = labels[lang];
   const isAr = lang === 'ar';
   const pageStyle = isAr ? styles.arabicPage : styles.page;
 
-  // RTL-aware styles
+  // RTL-aware row/table styles
   const sectionTitleStyle = isAr ? styles.sectionTitleRtl : styles.sectionTitle;
   const rowStyle = isAr ? styles.rowRtl : styles.row;
   const tableHeaderStyle = isAr ? styles.tableHeaderRtl : styles.tableHeader;
   const tableRowStyle = isAr ? styles.tableRowRtl : styles.tableRow;
   const totalRowStyle = isAr ? styles.totalRowRtl : styles.totalRow;
-  // In RTL: first child (label) is on the right, second child (value) on the left
-  const labelStyle = isAr ? styles.colRtlLabel : styles.col;
-  const valueStyle = isAr ? styles.colRtlValue : styles.colRight;
-  const labelBoldStyle = isAr
-    ? [styles.colRtlLabel, { fontWeight: 'bold' as const }]
-    : [styles.col, { fontWeight: 'bold' as const }];
-  const valueBoldStyle = isAr
-    ? [styles.colRtlValue, { fontWeight: 'bold' as const }]
-    : [styles.colRight, { fontWeight: 'bold' as const }];
-  // For table columns with centered text (mid-column)
-  const colMidStyle = isAr
-    ? { flex: 1 as number, textAlign: 'center' as const, fontFamily: 'NotoSansArabic' }
-    : styles.col;
+
+  // In Arabic mode, we wrap Text inside View to separate layout sizing from
+  // text measurement. react-pdf miscalculates Arabic glyph widths, causing
+  // text clipping when flex is applied directly to Text elements.
+  const Label = ({ children, bold }: { children: React.ReactNode; bold?: boolean }) => {
+    if (isAr) {
+      return (
+        <View style={{ flex: 3 }}>
+          <Text style={[arText, { textAlign: 'right' }, bold ? { fontWeight: 'bold' } : {}]}>
+            {children}
+          </Text>
+        </View>
+      );
+    }
+    return <Text style={[styles.col, bold ? { fontWeight: 'bold' as const } : {}]}>{children}</Text>;
+  };
+
+  const Value = ({ children, bold, extraStyle }: { children: React.ReactNode; bold?: boolean; extraStyle?: object }) => {
+    if (isAr) {
+      return (
+        <View style={{ flex: 2 }}>
+          <Text style={[arText, { textAlign: 'left' }, bold ? { fontWeight: 'bold' } : {}, extraStyle || {}]}>
+            {children}
+          </Text>
+        </View>
+      );
+    }
+    return (
+      <Text style={[styles.colRight, bold ? { fontWeight: 'bold' as const } : {}, extraStyle || {}]}>
+        {children}
+      </Text>
+    );
+  };
+
+  const Mid = ({ children, bold }: { children: React.ReactNode; bold?: boolean }) => {
+    if (isAr) {
+      return (
+        <View style={{ flex: 1 }}>
+          <Text style={[arText, { textAlign: 'center' }, bold ? { fontWeight: 'bold' } : {}]}>
+            {children}
+          </Text>
+        </View>
+      );
+    }
+    return <Text style={[styles.col, bold ? { fontWeight: 'bold' as const } : {}]}>{children}</Text>;
+  };
+
+  // Empty spacer column for 3-column total rows
+  const Spacer = () => {
+    if (isAr) {
+      return <View style={{ flex: 1 }} />;
+    }
+    return <Text style={{ flex: 1 }}>{''}</Text>;
+  };
 
   return (
     <Document>
@@ -331,96 +363,89 @@ const ZReportDocument: React.FC<ZReportDocumentProps> = ({ data, lang }) => {
         {/* Sales Summary */}
         <Text style={sectionTitleStyle}>{l.salesSummary}</Text>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{l.totalOrders}</Text>
-          <Text style={valueStyle}>{data.sales.totalOrders}</Text>
+          <Label>{l.totalOrders}</Label>
+          <Value>{data.sales.totalOrders}</Value>
         </View>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{l.completedOrders}</Text>
-          <Text style={valueStyle}>{data.sales.completedOrders}</Text>
+          <Label>{l.completedOrders}</Label>
+          <Value>{data.sales.completedOrders}</Value>
         </View>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{l.returnedOrders}</Text>
-          <Text style={valueStyle}>{data.sales.returnedOrders}</Text>
+          <Label>{l.returnedOrders}</Label>
+          <Value>{data.sales.returnedOrders}</Value>
         </View>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{l.grossRevenue}</Text>
-          <Text style={valueStyle}>{formatCurrency(data.sales.grossRevenue)}</Text>
+          <Label>{l.grossRevenue}</Label>
+          <Value>{formatCurrency(data.sales.grossRevenue)}</Value>
         </View>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{l.discounts}</Text>
-          <Text style={valueStyle}>-{formatCurrency(data.sales.totalDiscounts)}</Text>
+          <Label>{l.discounts}</Label>
+          <Value>-{formatCurrency(data.sales.totalDiscounts)}</Value>
         </View>
         <View style={[rowStyle, { borderTopWidth: 1, borderTopColor: '#000', paddingTop: 3 }]}>
-          <Text style={labelBoldStyle}>{l.netRevenue}</Text>
-          <Text style={valueBoldStyle}>{formatCurrency(data.sales.netRevenue)}</Text>
+          <Label bold>{l.netRevenue}</Label>
+          <Value bold>{formatCurrency(data.sales.netRevenue)}</Value>
         </View>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{l.averageBasket}</Text>
-          <Text style={valueStyle}>{formatCurrency(data.sales.averageBasket)}</Text>
+          <Label>{l.averageBasket}</Label>
+          <Value>{formatCurrency(data.sales.averageBasket)}</Value>
         </View>
 
         {/* Payment Breakdown */}
         <Text style={sectionTitleStyle}>{l.paymentBreakdown}</Text>
         <View style={tableHeaderStyle}>
-          <Text style={labelStyle}>{l.paymentType}</Text>
-          <Text style={colMidStyle}>{l.category}</Text>
-          <Text style={valueStyle}>{l.amount}</Text>
+          <Label bold>{l.paymentType}</Label>
+          <Mid bold>{l.category}</Mid>
+          <Value bold>{l.amount}</Value>
         </View>
         {data.paymentBreakdown.map((p, i) => (
           <View style={tableRowStyle} key={i}>
-            <Text style={labelStyle}>{p.name}</Text>
-            <Text style={colMidStyle}>{p.category}</Text>
-            <Text style={valueStyle}>{formatCurrency(p.amount)}</Text>
+            <Label>{p.name}</Label>
+            <Mid>{p.category}</Mid>
+            <Value>{formatCurrency(p.amount)}</Value>
           </View>
         ))}
         <View style={totalRowStyle}>
-          <Text style={labelBoldStyle}>{l.total}</Text>
-          <Text style={{ flex: 1 }}></Text>
-          <Text style={valueBoldStyle}>
-            {formatCurrency(data.paymentBreakdown.reduce((s, p) => s + p.amount, 0))}
-          </Text>
+          <Label bold>{l.total}</Label>
+          <Spacer />
+          <Value bold>{formatCurrency(data.paymentBreakdown.reduce((s, p) => s + p.amount, 0))}</Value>
         </View>
 
         {/* Cash Reconciliation */}
         <Text style={sectionTitleStyle}>{l.cashReconciliation}</Text>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{l.openingBalance}</Text>
-          <Text style={valueStyle}>{formatCurrency(data.cashReconciliation.openingBalance)}</Text>
+          <Label>{l.openingBalance}</Label>
+          <Value>{formatCurrency(data.cashReconciliation.openingBalance)}</Value>
         </View>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{l.cashReceived}</Text>
-          <Text style={valueStyle}>{formatCurrency(data.cashReconciliation.cashReceived)}</Text>
+          <Label>{l.cashReceived}</Label>
+          <Value>{formatCurrency(data.cashReconciliation.cashReceived)}</Value>
         </View>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{l.cashAdded}</Text>
-          <Text style={valueStyle}>{formatCurrency(data.cashReconciliation.cashAdded)}</Text>
+          <Label>{l.cashAdded}</Label>
+          <Value>{formatCurrency(data.cashReconciliation.cashAdded)}</Value>
         </View>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{l.cashWithdrawn}</Text>
-          <Text style={valueStyle}>-{formatCurrency(data.cashReconciliation.cashWithdrawn)}</Text>
+          <Label>{l.cashWithdrawn}</Label>
+          <Value>-{formatCurrency(data.cashReconciliation.cashWithdrawn)}</Value>
         </View>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{l.expenses}</Text>
-          <Text style={valueStyle}>-{formatCurrency(data.cashReconciliation.expenses)}</Text>
+          <Label>{l.expenses}</Label>
+          <Value>-{formatCurrency(data.cashReconciliation.expenses)}</Value>
         </View>
         <View style={[rowStyle, { borderTopWidth: 1, borderTopColor: '#000', paddingTop: 3 }]}>
-          <Text style={labelBoldStyle}>{l.expectedCash}</Text>
-          <Text style={valueBoldStyle}>
-            {formatCurrency(data.cashReconciliation.expectedCash)}
-          </Text>
+          <Label bold>{l.expectedCash}</Label>
+          <Value bold>{formatCurrency(data.cashReconciliation.expectedCash)}</Value>
         </View>
         <View style={rowStyle}>
-          <Text style={labelStyle}>{l.countedCash}</Text>
-          <Text style={valueStyle}>{formatCurrency(data.cashReconciliation.countedCash)}</Text>
+          <Label>{l.countedCash}</Label>
+          <Value>{formatCurrency(data.cashReconciliation.countedCash)}</Value>
         </View>
         <View style={[rowStyle, { borderTopWidth: 1, borderTopColor: '#000', paddingTop: 3 }]}>
-          <Text style={labelBoldStyle}>{l.variance}</Text>
-          <Text style={[
-            ...(Array.isArray(valueBoldStyle) ? valueBoldStyle : [valueBoldStyle]),
-            data.cashReconciliation.variance < 0 ? styles.varianceNegative : {},
-          ]}>
+          <Label bold>{l.variance}</Label>
+          <Value bold extraStyle={data.cashReconciliation.variance < 0 ? styles.varianceNegative : {}}>
             {formatCurrency(data.cashReconciliation.variance)}
-          </Text>
+          </Value>
         </View>
 
         {/* Denomination Count */}
@@ -428,23 +453,21 @@ const ZReportDocument: React.FC<ZReportDocumentProps> = ({ data, lang }) => {
           <>
             <Text style={sectionTitleStyle}>{l.denominations}</Text>
             <View style={tableHeaderStyle}>
-              <Text style={labelStyle}>{l.denomination}</Text>
-              <Text style={colMidStyle}>{l.count}</Text>
-              <Text style={valueStyle}>{l.total}</Text>
+              <Label bold>{l.denomination}</Label>
+              <Mid bold>{l.count}</Mid>
+              <Value bold>{l.total}</Value>
             </View>
             {data.denominations.map((d, i) => (
               <View style={tableRowStyle} key={i}>
-                <Text style={labelStyle}>{'\u200E'}{d.value} MRU{'\u200E'}</Text>
-                <Text style={colMidStyle}>{d.count}</Text>
-                <Text style={valueStyle}>{formatCurrency(d.total)}</Text>
+                <Label>{'\u200E'}{d.value} MRU{'\u200E'}</Label>
+                <Mid>{d.count}</Mid>
+                <Value>{formatCurrency(d.total)}</Value>
               </View>
             ))}
             <View style={totalRowStyle}>
-              <Text style={labelBoldStyle}>{l.total}</Text>
-              <Text style={{ flex: 1 }}></Text>
-              <Text style={valueBoldStyle}>
-                {formatCurrency(data.denominations.reduce((s, d) => s + d.total, 0))}
-              </Text>
+              <Label bold>{l.total}</Label>
+              <Spacer />
+              <Value bold>{formatCurrency(data.denominations.reduce((s, d) => s + d.total, 0))}</Value>
             </View>
           </>
         )}
