@@ -44,24 +44,26 @@ interface ItemsCreateProps {
 
 const MAX_PRICE = 10_000_000;
 
+const rangeTest = (fieldName: string, max: number) => ({
+  name: 'range',
+  message: `${fieldName} must be between 0 and ${max.toLocaleString()}`,
+  test: (value: string | null | undefined) => {
+    if (!value || value === '') return true;
+    const num = Number(value);
+    return !isNaN(num) && num >= 0 && num <= max;
+  },
+});
+
 const ValidationSchema = yup.object({
   name: yup.string().required(ValidationMessage.Required),
   barcode: yup.string().required(ValidationMessage.Required),
   reference: yup.string().nullable(),
-  basePrice: yup.number()
-    .typeError(ValidationMessage.Required)
-    .required(ValidationMessage.Required)
-    .min(0, 'Price must be positive')
-    .max(MAX_PRICE, 'Price cannot exceed 10,000,000'),
-  cost: yup.number()
-    .typeError(ValidationMessage.Required)
-    .required(ValidationMessage.Required)
-    .min(0, 'Cost must be positive')
-    .max(MAX_PRICE, 'Cost cannot exceed 10,000,000'),
-  minPrice: yup.number().nullable()
-    .transform((value, original) => (original === '' || original === null) ? null : value)
-    .min(0, 'Min price must be positive')
-    .max(MAX_PRICE, 'Min price cannot exceed 10,000,000'),
+  basePrice: yup.string().required(ValidationMessage.Required)
+    .test(rangeTest('Price', MAX_PRICE)),
+  cost: yup.string().required(ValidationMessage.Required)
+    .test(rangeTest('Cost', MAX_PRICE)),
+  minPrice: yup.string().nullable()
+    .test(rangeTest('Min price', MAX_PRICE)),
   taxes: yup.array(),
   stores: yup.array(),
   categories: yup.array(),
