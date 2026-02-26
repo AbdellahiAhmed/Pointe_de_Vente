@@ -95,7 +95,7 @@ class SystemHealthController extends AbstractController
             'SELECT op.id, p.name, op.cost_at_sale, op.price, o.order_id
              FROM order_product op
              JOIN product p ON p.id = op.product_id
-             JOIN `order` o ON o.id = op.order_id
+             JOIN `order` o ON o.id = op.orderId
              WHERE op.cost_at_sale > :t AND o.is_deleted = 0
              LIMIT 50',
             ['t' => $threshold]

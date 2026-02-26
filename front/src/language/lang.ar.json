@@ -1004,5 +1004,16 @@
   "View": "عرض",
   "Address": "العنوان",
   "Erreur de chargement des données.": "خطأ في تحميل البيانات.",
-  "Failed to download Z-Report PDF.": "فشل في تنزيل تقرير Z بصيغة PDF."
+  "Failed to download Z-Report PDF.": "فشل في تنزيل تقرير Z بصيغة PDF.",
+
+  "System Health": "صحة النظام",
+  "Last Scan": "آخر فحص",
+  "Refresh": "تحديث",
+  "Critical": "حرج",
+  "Info": "معلومة",
+  "Severity": "الخطورة",
+  "No anomalies detected — system is healthy": "لم يتم اكتشاف أي مشاكل — النظام سليم",
+  "No anomalies for this filter": "لا توجد مشاكل لهذا الفلتر",
+  "Name": "الاسم",
+  "Detail": "التفاصيل"
 }
