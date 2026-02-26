@@ -365,7 +365,7 @@ export const ReturnRequest: FC<ReturnRequestProps> = ({ open, onClose, onSuccess
                     ref={searchInputRef}
                     type="text"
                     className="pos-modal__input"
-                    placeholder={t("Order number, e.g. 24")}
+                    placeholder={t("Order number")}
                     value={searchValue}
                     onChange={(e) => {
                       setSearchValue(e.target.value);
