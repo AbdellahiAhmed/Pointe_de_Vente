@@ -134,97 +134,57 @@ export const PosMode = () => {
   );
 
   const items = useMemo(() => {
-    let filtered = list?.list || [];
+    const all = list?.list || [];
+    if (!all.length) return [];
 
-    if( !filtered ) {
-      return [];
-    }
+    // Pre-compute filter sets (O(1) lookups instead of array.includes)
+    const storeId = store?.id;
+    const terminalId = terminal?.id;
+    const brandSet = new Set(Object.keys(brands));
+    const hasBrands = brandSet.size > 0;
+    const categorySet = new Set(Object.keys(categories));
+    const hasCategories = categorySet.size > 0;
+    const deptSet = new Set(Object.keys(departments));
+    const hasDepts = deptSet.size > 0;
+    const qLower = q.toLowerCase();
+    const hasSearch = qLower.length > 0;
 
-    // filter products by store
-    if( store && filtered ) {
-      filtered = filtered.filter((item) => {
-        if( item?.stores?.length > 0 ) {
-          const stores = item.stores.map((item) => {
-            if( item.store ) {
-              return item.store.id;
-            }
-          });
+    // Single-pass filter — all conditions checked per item
+    return all.filter((item) => {
+      // Store filter
+      if (storeId && item?.stores?.length > 0) {
+        if (!item.stores.some(s => s.store?.id === storeId)) return false;
+      }
 
-          return stores.includes(store.id);
-        } else {
-          return true;
-        }
-      });
-    }
+      // Terminal filter
+      if (terminalId && item?.terminals?.length > 0) {
+        if (!item.terminals.some(t => t.id === terminalId)) return false;
+      }
 
-    //filter products by terminal
-    if( terminal && filtered ) {
-      filtered = filtered.filter((item) => {
-        if( item?.terminals?.length > 0 ) {
-          const terminals = item.terminals.map((item) => item.id);
+      // Brand filter
+      if (hasBrands) {
+        if (!item?.brands?.length || !item.brands.some(b => brandSet.has(String(b.id)))) return false;
+      }
 
-          return terminals.includes(terminal.id);
-        } else {
-          return true;
-        }
-      });
-    }
+      // Category filter
+      if (hasCategories) {
+        if (!item?.categories?.length || !item.categories.some(c => categorySet.has(String(c.id)))) return false;
+      }
 
-    const brandIds = Object.keys(brands);
-    if( brandIds.length > 0 ) {
-      filtered = filtered.filter((item) => {
-        if( item?.brands?.length > 0 ) {
-          const brandsFilter = item.brands.filter((b) => {
-            return brandIds.includes(b.id.toString());
-          });
+      // Department filter
+      if (hasDepts) {
+        if (!item?.department || !deptSet.has(String(item.department.id))) return false;
+      }
 
-          return brandsFilter.length > 0;
-        }
+      // Search filter
+      if (hasSearch) {
+        const barcodeMatch = item?.barcode?.toLowerCase().startsWith(qLower);
+        const nameMatch = item?.name?.toLowerCase().includes(qLower);
+        if (!barcodeMatch && !nameMatch) return false;
+      }
 
-        return false;
-      });
-    }
-
-    const categoryIds = Object.keys(categories);
-    if( categoryIds.length > 0 ) {
-      filtered = filtered.filter((item) => {
-        if( item?.categories?.length > 0 ) {
-          const categoriesFilter = item.categories.filter((c) => {
-            return categoryIds.includes(c.id.toString());
-          });
-
-          return categoriesFilter.length > 0;
-        } else {
-          return true;
-        }
-      });
-    }
-
-    const departmentIds = Object.keys(departments);
-    if( departmentIds.length > 0 ) {
-      filtered = filtered.filter((item) => {
-        if( item?.department ) {
-          return departmentIds.includes(item.department.id.toString());
-        }
-
-        return false;
-      });
-    }
-
-    if( filtered ) {
-      filtered = filtered.filter((item) => {
-        if(
-          item?.barcode &&
-          item?.barcode.toLowerCase().startsWith(q.toLowerCase())
-        ) {
-          return true;
-        }
-
-        return item?.name?.toLowerCase().indexOf(q.toLowerCase()) !== -1;
-      });
-    }
-
-    return filtered;
+      return true;
+    });
   }, [list?.list, q, brands, categories, departments, terminal, store]);
 
   const itemsMap = useMemo(() => {

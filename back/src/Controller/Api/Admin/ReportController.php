@@ -26,6 +26,12 @@ class ReportController extends AbstractController
         $this->em = $em;
     }
 
+    private function withCache(\Symfony\Component\HttpFoundation\JsonResponse $response, int $maxAge = 300): \Symfony\Component\HttpFoundation\JsonResponse
+    {
+        $response->headers->set('Cache-Control', "private, max-age=$maxAge");
+        return $response;
+    }
+
     /**
      * @Route("/sales", name="sales", methods={"GET"})
      */
@@ -105,7 +111,7 @@ class ReportController extends AbstractController
         $completedOrders = (int) $summary['completedOrders'];
         $avgBasket = $completedOrders > 0 ? round($netRevenue / $completedOrders, 2) : 0;
 
-        return $responseFactory->json([
+        return $this->withCache($responseFactory->json([
             'dateFrom' => $dateFrom,
             'dateTo' => $dateTo,
             'totalOrders' => (int) $summary['totalOrders'],
@@ -116,7 +122,7 @@ class ReportController extends AbstractController
             'netRevenue' => round($netRevenue, 2),
             'averageBasket' => $avgBasket,
             'payments' => $payments,
-        ]);
+        ]));
     }
 
     /**
@@ -198,7 +204,7 @@ class ReportController extends AbstractController
             return $row;
         }, $topProducts);
 
-        return $responseFactory->json([
+        return $this->withCache($responseFactory->json([
             'dateFrom' => $dateFrom,
             'dateTo' => $dateTo,
             'totalRevenue' => round($totalRevenue, 2),
@@ -209,7 +215,7 @@ class ReportController extends AbstractController
             'profitMargin' => $profitMargin,
             'totalOrders' => (int) $result['totalOrders'],
             'topProducts' => $topProducts,
-        ]);
+        ]));
     }
 
     /**
@@ -375,7 +381,7 @@ class ReportController extends AbstractController
         $completedOrders = (int) $orderSummary['totalOrders'] - (int) $orderSummary['returnedOrders'];
         $avgBasket = $completedOrders > 0 ? round($netRevenue / $completedOrders, 2) : 0;
 
-        return $responseFactory->json([
+        return $this->withCache($responseFactory->json([
             'date' => $date,
             'totalOrders' => (int) $orderSummary['totalOrders'],
             'returnedOrders' => (int) $orderSummary['returnedOrders'],
@@ -395,7 +401,7 @@ class ReportController extends AbstractController
                 'netRevenue' => round((float) $yesterdayRevenue['grossRevenue'] - (float) $yesterdayRevenue['totalDiscounts'], 2),
                 'totalOrders' => (int) $yesterdayOrders['totalOrders'],
             ],
-        ]);
+        ]));
     }
 
     /**
@@ -452,11 +458,11 @@ class ReportController extends AbstractController
             ];
         }, $results);
 
-        return $responseFactory->json([
+        return $this->withCache($responseFactory->json([
             'dateFrom' => $dateFrom,
             'dateTo' => $dateTo,
             'vendors' => $vendors,
-        ]);
+        ]));
     }
 
     /**
@@ -518,11 +524,11 @@ class ReportController extends AbstractController
             ];
         }, $results);
 
-        return $responseFactory->json([
+        return $this->withCache($responseFactory->json([
             'dateFrom' => $dateFrom,
             'dateTo' => $dateTo,
             'categories' => $categories,
-        ]);
+        ]));
     }
 
     /**
@@ -532,49 +538,84 @@ class ReportController extends AbstractController
     {
         $this->denyAccessUnlessGranted(ReportVoter::VIEW);
 
-        $customers = $this->em->getRepository(Customer::class)->findBy([], ['name' => 'ASC']);
+        $conn = $this->em->getConnection();
+
+        // Single query: aggregate credit sales and payments per customer
+        $sql = '
+            SELECT c.id, c.name, c.phone, c.allow_credit_sale, c.credit_limit, c.opening_balance,
+                COALESCE(cs.total_credit_sales, 0) AS total_sales,
+                COALESCE(cp.total_paid, 0) AS total_paid
+            FROM customer c
+            LEFT JOIN (
+                SELECT o.customer_id,
+                    SUM(op.received) AS total_credit_sales
+                FROM `order` o
+                JOIN order_payment op ON op.order_id = o.id
+                JOIN payment pt ON pt.id = op.type_id
+                WHERE o.is_deleted = 0 AND o.is_returned = 0 AND o.is_suspended = 0
+                    AND pt.type = :creditType
+                GROUP BY o.customer_id
+            ) cs ON cs.customer_id = c.id
+            LEFT JOIN (
+                SELECT cp2.customer_id,
+                    SUM(cp2.amount) AS total_paid
+                FROM customer_payment cp2
+                GROUP BY cp2.customer_id
+            ) cp ON cp.customer_id = c.id
+            ORDER BY c.name ASC
+        ';
+        $rows = $conn->fetchAllAssociative($sql, ['creditType' => 'credit']);
+
+        // Batch-load all payments in one query, grouped by customer
+        $paymentsSql = '
+            SELECT cp.customer_id, cp.id, cp.amount, cp.description, cp.created_at
+            FROM customer_payment cp
+            ORDER BY cp.created_at DESC
+        ';
+        $allPayments = $conn->fetchAllAssociative($paymentsSql);
+        $paymentsByCustomer = [];
+        foreach ($allPayments as $p) {
+            $paymentsByCustomer[$p['customer_id']][] = [
+                'id' => (int) $p['id'],
+                'amount' => (float) $p['amount'],
+                'description' => $p['description'],
+                'createdAt' => $p['created_at'],
+            ];
+        }
 
         $data = [];
         $totalOutstanding = 0;
         $creditCustomers = 0;
-        foreach ($customers as $customer) {
-            $outstanding = $customer->getOutstanding();
+        foreach ($rows as $row) {
+            $openingBalance = (float) $row['opening_balance'];
+            $totalSales = (float) $row['total_sales'];
+            $totalPaid = (float) $row['total_paid'];
+            $outstanding = $openingBalance + $totalSales - $totalPaid;
             $totalOutstanding += $outstanding;
-            if ($customer->getAllowCreditSale()) {
+            if ($row['allow_credit_sale']) {
                 $creditCustomers++;
             }
 
-            // Include payment history for debt management page
-            $payments = [];
-            foreach ($customer->getPayments() as $payment) {
-                $payments[] = [
-                    'id' => $payment->getId(),
-                    'amount' => (float) $payment->getAmount(),
-                    'description' => $payment->getDescription(),
-                    'createdAt' => $payment->getCreatedAt() ? $payment->getCreatedAt()->format('c') : null,
-                ];
-            }
-
             $data[] = [
-                'id' => $customer->getId(),
-                '@id' => '/api/customers/' . $customer->getId(),
-                'name' => $customer->getName(),
-                'phone' => $customer->getPhone(),
-                'allowCreditSale' => $customer->getAllowCreditSale(),
-                'creditLimit' => (float) $customer->getCreditLimit(),
-                'totalSales' => $customer->getSale(),
-                'totalPayments' => $customer->getPaid(),
-                'openingBalance' => (float) $customer->getOpeningBalance(),
+                'id' => (int) $row['id'],
+                '@id' => '/api/customers/' . $row['id'],
+                'name' => $row['name'],
+                'phone' => $row['phone'],
+                'allowCreditSale' => (bool) $row['allow_credit_sale'],
+                'creditLimit' => (float) $row['credit_limit'],
+                'totalSales' => $totalSales,
+                'totalPayments' => $totalPaid,
+                'openingBalance' => $openingBalance,
                 'outstanding' => round($outstanding, 2),
-                'payments' => $payments,
+                'payments' => $paymentsByCustomer[(int) $row['id']] ?? [],
             ];
         }
 
-        return $responseFactory->json([
+        return $this->withCache($responseFactory->json([
             'customers' => $data,
             'totalOutstanding' => round($totalOutstanding, 2),
             'totalCustomers' => count($data),
             'creditCustomers' => $creditCustomers,
-        ]);
+        ]), 180);
     }
 }

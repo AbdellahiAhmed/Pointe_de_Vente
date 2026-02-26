@@ -34,7 +34,7 @@ interface ItemInfo {
   quantity: string;
 }
 
-export const CartItem: FunctionComponent<CartItemProps> = ({
+export const CartItem: FunctionComponent<CartItemProps> = React.memo(({
   onQuantityChange,
   onPriceChange,
   onDiscountChange,
@@ -100,11 +100,14 @@ export const CartItem: FunctionComponent<CartItemProps> = ({
     }
   }, [cartItem, cartItemType, index]);
 
+  const itemId = item.item.id;
+  const variantId = item?.variant?.id;
+  const manageInventory = item.item.manageInventory;
   useEffect(() => {
-    if( item.item.manageInventory ) {
-      getItemsMetadata(item.item.id, item?.variant?.id);
+    if( manageInventory ) {
+      getItemsMetadata(itemId, variantId);
     }
-  }, [item]);
+  }, [itemId, variantId, manageInventory]);
 
   return (
     <div className={classNames("table-row hover:bg-gray-200", isReturnMode && "return-cart-row")} key={index}>
@@ -248,4 +251,4 @@ export const CartItem: FunctionComponent<CartItemProps> = ({
       </div>
     </div>
   );
-};
+});

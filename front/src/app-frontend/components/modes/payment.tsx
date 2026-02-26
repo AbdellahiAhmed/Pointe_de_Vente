@@ -56,6 +56,9 @@ export const PaymentMode = () => {
     data: terminals
   } = useApi<HydraCollection<Terminal>>('terminals', `${TERMINAL_LIST}?store.id=${store?.id}`);
 
+  const ordersRef = useRef(orders);
+  ordersRef.current = orders;
+
   const loadOrders = useCallback(async () => {
     setLoading(true);
     try {
@@ -66,7 +69,7 @@ export const PaymentMode = () => {
 
       const response = await fetchJson(`${ORDERS_LIST}?${query}`);
 
-      const prevIds = orders.map(item => item.id);
+      const prevIds = ordersRef.current.map(item => item.id);
       const newIds = response['hydra:member'].map((item: Order) => item.id);
 
       if( prevIds.toString() !== newIds.toString()) {
@@ -77,17 +80,15 @@ export const PaymentMode = () => {
     } finally {
       setLoading(false);
     }
-  }, [orders, filters]);
+  }, [filters]);
 
   useEffect(() => {
     loadOrders();
 
-    const timer = setInterval(() => {
-      loadOrders();
-    }, 5000);
+    const timer = setInterval(loadOrders, 5000);
 
     return () => clearInterval(timer);
-  }, [filters]);
+  }, [loadOrders]);
 
   useEffect(() => {
     if( order ) {

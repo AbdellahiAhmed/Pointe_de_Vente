@@ -9,6 +9,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ProductStoreRepository::class)
+ * @ORM\Table(indexes={
+ *     @ORM\Index(name="idx_ps_product_store", columns={"product_id", "store_id"})
+ * })
  */
 class ProductStore
 {

@@ -19,7 +19,13 @@ use ApiPlatform\Core\Annotation\ApiFilter;
 
 /**
  * @ORM\Entity(repositoryClass=OrderRepository::class)
- * @ORM\Table(name="`order`")
+ * @ORM\Table(name="`order`", indexes={
+ *     @ORM\Index(name="idx_order_store", columns={"store_id"}),
+ *     @ORM\Index(name="idx_order_terminal", columns={"terminal_id"}),
+ *     @ORM\Index(name="idx_order_created_at", columns={"created_at"}),
+ *     @ORM\Index(name="idx_order_status_deleted", columns={"is_deleted", "is_suspended", "is_returned"}),
+ *     @ORM\Index(name="idx_order_order_id", columns={"order_id"})
+ * })
  * @UniqueEntity(fields={"orderId"})
  * @Gedmo\Loggable()
  * @ApiResource(

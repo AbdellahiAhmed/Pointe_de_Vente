@@ -1,7 +1,9 @@
 import React, {
   FunctionComponent,
   useCallback,
+  useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { CartItem as CartItemModel } from "../../../api/model/cart.item";
@@ -301,42 +303,56 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
     [cartItem, added]
   );
 
-  const cartKeys = [keyCartUp, keyCartDown, keyCartLeft, keyCartRight, keyRemoveItem, keyCopyLast].filter(Boolean);
-  Mousetrap.bind(
-    cartKeys,
-    function (e: KeyboardEvent) {
-      if (document.body.classList.contains("ReactModal__Body--open")) return;
+  // Store latest callbacks in refs to avoid rebinding on every state change
+  const updateCartItemTypeRef = useRef(updateCartItemType);
+  updateCartItemTypeRef.current = updateCartItemType;
+  const updateCartItemRef = useRef(updateCartItem);
+  updateCartItemRef.current = updateCartItem;
+  const copyLastItemRef = useRef(copyLastItem);
+  copyLastItemRef.current = copyLastItem;
+  const appStateRef = useRef(appState);
+  appStateRef.current = appState;
 
+  useEffect(() => {
+    const cartKeys = [keyCartUp, keyCartDown, keyCartLeft, keyCartRight, keyRemoveItem, keyCopyLast].filter(Boolean);
+    if (cartKeys.length === 0) return;
+
+    const handler = (e: KeyboardEvent) => {
+      if (document.body.classList.contains("ReactModal__Body--open")) return;
       e.preventDefault();
-      if (!cartItem) {
-        setAppState((prev) => ({
-          ...prev,
-          cartItem: 0,
-        }));
+
+      const currentCartItem = appStateRef.current.cartItem;
+      if (!currentCartItem && currentCartItem !== 0) {
+        setAppState((prev) => ({ ...prev, cartItem: 0 }));
       }
 
       if (e.code === "Delete") {
         setAppState((prev) => ({
           ...prev,
-          added: added.filter((item, index) => index !== cartItem),
+          added: prev.added.filter((_, i) => i !== prev.cartItem),
         }));
       }
 
-      //update quantity of last added item
       if (e.code === "ArrowLeft" || e.code === "ArrowRight") {
-        updateCartItemType(e.code === "ArrowLeft" ? "left" : "right");
+        updateCartItemTypeRef.current(e.code === "ArrowLeft" ? "left" : "right");
       }
 
-      // Copy last item
       if (e.code === "ArrowDown" && e.shiftKey) {
-        copyLastItem();
+        copyLastItemRef.current();
+      } else if (e.code === "ArrowDown" || e.code === "ArrowUp") {
+        updateCartItemRef.current(e.code === "ArrowDown" ? "down" : "up");
       }
-      // Navigate cart items
-      else if (e.code === "ArrowDown" || e.code === "ArrowUp") {
-        updateCartItem(e.code === "ArrowDown" ? "down" : "up");
-      }
-    }
+    };
+
+    Mousetrap.bind(cartKeys, handler);
+    return () => { Mousetrap.unbind(cartKeys); };
+  }, [keyCartUp, keyCartDown, keyCartLeft, keyCartRight, keyRemoveItem, keyCopyLast]);
+
+  const totalQty = useMemo(() =>
+    added.reduce((prev, item) => parseFloat(item.quantity as unknown as string) + prev, 0),
+    [added]
   );
+  const totalAmount = useMemo(() => subTotal(added), [added]);
 
   return (
     <div className="table w-full" style={{ touchAction: 'manipulation' }}>
@@ -376,7 +392,7 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
       <div className="table-row-group">
         {added.map((item, index) => (
           <CartItem
-            key={index}
+            key={`${item.item.id}-${item.variant?.id ?? 'no'}-${index}`}
             onQuantityChange={onQuantityChange}
             onDiscountChange={onDiscountChange}
             onPriceChange={onPriceChange}
@@ -393,18 +409,15 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
           <div className="table-cell">{isReturnMode ? t("returns") : t("items")}</div>
           <div className="table-cell"></div>
           <div className="table-cell text-center p-2">
-            {isReturnMode
-              ? Math.abs(added.reduce((previous, item) => parseFloat(item.quantity as unknown as string) + previous, 0))
-              : added.reduce((previous, item) => parseFloat(item.quantity as unknown as string) + previous, 0)
-            }
+            {isReturnMode ? Math.abs(totalQty) : totalQty}
           </div>
           <div className="table-cell"></div>
           <div className="table-cell"></div>
           <div className="table-cell"></div>
           <div className="table-cell text-end p-2">
             {isReturnMode
-              ? withCurrency(Math.abs(subTotal(added)))
-              : withCurrency(subTotal(added))
+              ? withCurrency(Math.abs(totalAmount))
+              : withCurrency(totalAmount)
             }
           </div>
         </div>

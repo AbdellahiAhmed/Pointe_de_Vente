@@ -17,6 +17,11 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 
 /**
  * @ORM\Entity(repositoryClass=OrderProductRepository::class)
+ * @ORM\Table(indexes={
+ *     @ORM\Index(name="idx_op_order", columns={"orderId"}),
+ *     @ORM\Index(name="idx_op_product", columns={"product_id"}),
+ *     @ORM\Index(name="idx_op_created_at", columns={"created_at"})
+ * })
  * @Gedmo\Loggable()
  * @ApiResource(
  *     normalizationContext={"skip_null_values"=false},
