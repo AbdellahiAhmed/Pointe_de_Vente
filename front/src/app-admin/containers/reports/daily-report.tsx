@@ -55,7 +55,7 @@ export const DailyReport: FunctionComponent = () => {
   }, []);
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('fr-FR', {style: 'decimal', minimumFractionDigits: 2}).format(value) + ' MRU';
+    return '\u200E' + new Intl.NumberFormat('fr-FR', {style: 'decimal', minimumFractionDigits: 2}).format(value) + ' MRU\u200E';
   };
 
   const formatDate = (dateStr: string) => {
@@ -329,7 +329,7 @@ export const DailyReport: FunctionComponent = () => {
                           colors={{ scheme: 'paired' }}
                           arcLinkLabelsSkipAngle={10}
                           arcLabelsSkipAngle={10}
-                          valueFormat={(v) => new Intl.NumberFormat('fr-FR').format(v) + ' MRU'}
+                          valueFormat={(v) => '\u200E' + new Intl.NumberFormat('fr-FR').format(v) + ' MRU\u200E'}
                         />
                       </div>
                       <table className="table table-striped">
@@ -408,7 +408,7 @@ export const DailyReport: FunctionComponent = () => {
                       </tr>
                       <tr>
                         <td>{t('Total Discounts')}</td>
-                        <td className="text-end text-danger">-{formatCurrency(data.totalDiscounts)}</td>
+                        <td className="text-end text-danger" dir="ltr">-{formatCurrency(data.totalDiscounts)}</td>
                       </tr>
                       <tr className="table-light">
                         <td className="fw-bold">{t('Net Revenue')}</td>
@@ -416,7 +416,7 @@ export const DailyReport: FunctionComponent = () => {
                       </tr>
                       <tr>
                         <td>{t('Total Cost')} ({t('Cost Price')})</td>
-                        <td className="text-end text-danger">-{formatCurrency(data.totalCost)}</td>
+                        <td className="text-end text-danger" dir="ltr">-{formatCurrency(data.totalCost)}</td>
                       </tr>
                       <tr className="table-success">
                         <td className="fw-bold">{t('Gross Profit')}</td>

@@ -53,7 +53,7 @@ export const ProfitReport: FunctionComponent = () => {
   }, []);
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('fr-FR', {style: 'decimal', minimumFractionDigits: 2}).format(value) + ' MRU';
+    return '\u200E' + new Intl.NumberFormat('fr-FR', {style: 'decimal', minimumFractionDigits: 2}).format(value) + ' MRU\u200E';
   };
 
   return (
@@ -212,7 +212,7 @@ export const ProfitReport: FunctionComponent = () => {
                         ]}
                         tooltip={({ id, indexValue, value }) => (
                           <div style={{ padding: 8, background: '#fff', border: '1px solid #ccc', borderRadius: 4 }}>
-                            <strong>{indexValue}</strong> - {id}: {new Intl.NumberFormat('fr-FR').format(value as number)} MRU
+                            <strong>{indexValue}</strong> - {id}: {'\u200E'}{new Intl.NumberFormat('fr-FR').format(value as number)} MRU{'\u200E'}
                           </div>
                         )}
                       />

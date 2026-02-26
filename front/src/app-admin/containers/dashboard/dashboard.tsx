@@ -40,7 +40,7 @@ export const Dashboard: FunctionComponent<DashboardProps> = () => {
   }, []);
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('fr-FR', {style: 'decimal', minimumFractionDigits: 2}).format(value) + ' MRU';
+    return '\u200E' + new Intl.NumberFormat('fr-FR', {style: 'decimal', minimumFractionDigits: 2}).format(value) + ' MRU\u200E';
   };
 
   return (
@@ -227,11 +227,11 @@ export const Dashboard: FunctionComponent<DashboardProps> = () => {
                     </tr>
                     <tr>
                       <td className="text-muted">{t('Total Discounts')}</td>
-                      <td className="text-end text-danger">-{formatCurrency(data.totalDiscounts ?? 0)}</td>
+                      <td className="text-end text-danger" dir="ltr">-{formatCurrency(data.totalDiscounts ?? 0)}</td>
                     </tr>
                     <tr>
                       <td className="text-muted">{t('Total Cost')}</td>
-                      <td className="text-end text-danger">-{formatCurrency(data.totalCost ?? 0)}</td>
+                      <td className="text-end text-danger" dir="ltr">-{formatCurrency(data.totalCost ?? 0)}</td>
                     </tr>
                     <tr className="table-success">
                       <td className="fw-bold">{t('Gross Profit')}</td>

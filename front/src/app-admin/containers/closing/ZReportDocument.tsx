@@ -215,7 +215,7 @@ interface ZReportDocumentProps {
 }
 
 const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2 }).format(value) + ' MRU';
+  return '\u200E' + new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2 }).format(value) + ' MRU\u200E';
 };
 
 const formatDate = (dateStr: string) => {
@@ -359,7 +359,7 @@ const ZReportDocument: React.FC<ZReportDocumentProps> = ({ data, lang }) => {
             </View>
             {data.denominations.map((d, i) => (
               <View style={styles.tableRow} key={i}>
-                <Text style={[styles.col, textStyle]}>{d.value} MRU</Text>
+                <Text style={[styles.col, textStyle]}>{'\u200E'}{d.value} MRU{'\u200E'}</Text>
                 <Text style={[styles.col, textStyle]}>{d.count}</Text>
                 <Text style={[styles.colRight, textStyle]}>{formatCurrency(d.total)}</Text>
               </View>

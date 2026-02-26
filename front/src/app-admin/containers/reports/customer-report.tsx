@@ -49,7 +49,7 @@ export const CustomerReport: FunctionComponent = () => {
   }, []);
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('fr-FR', {minimumFractionDigits: 2}).format(value) + ' MRU';
+    return '\u200E' + new Intl.NumberFormat('fr-FR', {minimumFractionDigits: 2}).format(value) + ' MRU\u200E';
   };
 
   const getCreditStatus = (customer: CustomerData): { label: string; badgeClass: string } => {

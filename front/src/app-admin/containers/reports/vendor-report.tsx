@@ -47,7 +47,7 @@ export const VendorReport: FunctionComponent = () => {
   }, []);
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('fr-FR', {style: 'decimal', minimumFractionDigits: 2}).format(value) + ' MRU';
+    return '\u200E' + new Intl.NumberFormat('fr-FR', {style: 'decimal', minimumFractionDigits: 2}).format(value) + ' MRU\u200E';
   };
 
   return (
@@ -123,7 +123,7 @@ export const VendorReport: FunctionComponent = () => {
                         label={(d) => new Intl.NumberFormat('fr-FR').format(Number(d.value))}
                         tooltip={({ indexValue, value }) => (
                           <div style={{ padding: 8, background: '#fff', border: '1px solid #ccc', borderRadius: 4 }}>
-                            <strong>{indexValue}</strong>: {new Intl.NumberFormat('fr-FR').format(value as number)} MRU
+                            <strong>{indexValue}</strong>: {'\u200E'}{new Intl.NumberFormat('fr-FR').format(value as number)} MRU{'\u200E'}
                           </div>
                         )}
                       />
@@ -160,7 +160,7 @@ export const VendorReport: FunctionComponent = () => {
                             <td>{v.vendorName}</td>
                             <td className="text-end">{v.totalOrders}</td>
                             <td className="text-end">{formatCurrency(v.grossRevenue)}</td>
-                            <td className="text-end text-danger">-{formatCurrency(v.totalDiscounts)}</td>
+                            <td className="text-end text-danger" dir="ltr">-{formatCurrency(v.totalDiscounts)}</td>
                             <td className="text-end fw-bold">{formatCurrency(v.netRevenue)}</td>
                             <td className="text-end">{formatCurrency(v.averageBasket)}</td>
                           </tr>
@@ -175,7 +175,7 @@ export const VendorReport: FunctionComponent = () => {
                           <td className="text-end fw-bold">
                             {formatCurrency(data.vendors.reduce((s, v) => s + v.grossRevenue, 0))}
                           </td>
-                          <td className="text-end fw-bold text-danger">
+                          <td className="text-end fw-bold text-danger" dir="ltr">
                             -{formatCurrency(data.vendors.reduce((s, v) => s + v.totalDiscounts, 0))}
                           </td>
                           <td className="text-end fw-bold">

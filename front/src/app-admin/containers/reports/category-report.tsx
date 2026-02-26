@@ -49,7 +49,7 @@ export const CategoryReport: FunctionComponent = () => {
   }, []);
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('fr-FR', {style: 'decimal', minimumFractionDigits: 2}).format(value) + ' MRU';
+    return '\u200E' + new Intl.NumberFormat('fr-FR', {style: 'decimal', minimumFractionDigits: 2}).format(value) + ' MRU\u200E';
   };
 
   return (
@@ -128,7 +128,7 @@ export const CategoryReport: FunctionComponent = () => {
                         arcLinkLabelsTextColor="#333"
                         arcLinkLabelsThickness={2}
                         arcLinkLabelsColor={{ from: 'color' }}
-                        valueFormat={(v) => new Intl.NumberFormat('fr-FR').format(v) + ' MRU'}
+                        valueFormat={(v) => '\u200E' + new Intl.NumberFormat('fr-FR').format(v) + ' MRU\u200E'}
                       />
                     </div>
                   )}
