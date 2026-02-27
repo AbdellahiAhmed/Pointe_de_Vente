@@ -288,6 +288,11 @@ export const SaleClosing: FC<TaxProps> = (props) => {
         );
         const json = await response.json();
         setClosing(json.closing);
+
+        // After closing, fetch the new session — this will trigger the
+        // "Start day" modal so the user cannot make sales until a new
+        // session is opened.
+        await checkDayOpening();
       } else {
         // Update only or start day — use existing endpoint
         if (!values.updateOnly) {
@@ -305,10 +310,10 @@ export const SaleClosing: FC<TaxProps> = (props) => {
         );
         const json = await response.json();
         setClosing(json.closing);
-      }
 
-      setHideCloseButton(false);
-      setModal(false);
+        setHideCloseButton(false);
+        setModal(false);
+      }
     } catch (exception: any) {
       if (exception instanceof UnprocessableEntityException) {
         try {

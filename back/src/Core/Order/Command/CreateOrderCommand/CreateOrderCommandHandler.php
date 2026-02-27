@@ -19,6 +19,7 @@ use App\Entity\Store;
 use App\Entity\Tax;
 use App\Entity\Terminal;
 use App\Entity\User;
+use App\Entity\Closing;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -151,6 +152,20 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
             return CreateOrderCommandResult::createFromValidationErrorMessage('Terminal introuvable.');
         }
         $item->setTerminal($terminal);
+
+        // Block orders if no active session is open for this store/terminal
+        if (!$command->getIsSuspended()) {
+            $openSession = $this->getRepository(Closing::class)->findOneBy([
+                'store' => $store,
+                'terminal' => $terminal,
+                'closedAt' => null,
+            ]);
+            if ($openSession === null || $openSession->getOpeningBalance() === null) {
+                return CreateOrderCommandResult::createFromValidationErrorMessage(
+                    'La session est fermée. Veuillez ouvrir une nouvelle session avant de créer des commandes.'
+                );
+            }
+        }
 
         $item->setAdjustment($command->getAdjustment());
 
