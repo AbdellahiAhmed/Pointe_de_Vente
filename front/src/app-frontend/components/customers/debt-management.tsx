@@ -42,9 +42,7 @@ import {
   HttpException,
 } from "../../../lib/http/exception/http.exception";
 import { handleFormError } from "../../../lib/error/handle.form.error";
-import { Input } from "../../../app-common/components/input/input";
 import { Button } from "../../../app-common/components/input/button";
-import { ErrorBoundary } from "../../../app-common/components/error/error-boundary";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -81,7 +79,7 @@ const PaymentSchema = yup.object({
       const n = parseFloat(v ?? "");
       return !isNaN(n) && n > 0;
     }),
-  description: yup.string().trim().required(ValidationMessage.Required),
+  description: yup.string().default(""),
   paymentType: yup.string().required(ValidationMessage.Required),
 });
 
@@ -155,7 +153,7 @@ const PaymentHistory: FC<PaymentHistoryProps> = ({ payments }) => {
 
 interface InlinePaymentFormProps {
   customer: ReportCustomerItem;
-  onSuccess: (customerId: string, newPayment: CustomerPayment) => void;
+  onSuccess: (customerId: number | string, newPayment: CustomerPayment, paidAmount: number) => void;
   onCancel: () => void;
 }
 
@@ -185,11 +183,11 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
     setError,
     reset,
     formState: { errors },
-  } = useForm<PaymentFormValues>({
+  } = useForm({
     resolver: yupResolver(PaymentSchema),
     defaultValues: {
       amount: '',
-      description: '',
+      description: t("Debt payment"),
       paymentType: '',
     },
   });
@@ -201,7 +199,7 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
       const body: Record<string, any> = {
         customer: iri,
         amount: String(values.amount),
-        description: values.description,
+        description: values.description || t("Debt payment"),
       };
 
       if (values.paymentType) {
@@ -224,15 +222,22 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
         }
       }
 
+      const paidAmount = parseFloat(values.amount) || 0;
+
       notify({
         type: "success",
-        description: t("Payment recorded successfully"),
+        description: `${t("Payment recorded successfully")} — ${withCurrency(paidAmount)}`,
       });
 
       reset();
-      onSuccess(customer.id, response);
+      onSuccess(customer.id, response, paidAmount);
     } catch (exception: any) {
-      await handleFormError(exception, { setError: setError as any });
+      const err = exception as any;
+      if (err?.code === 403 || err?.response?.status === 403) {
+        notify({ type: "error", description: t("You do not have permission to record payments") });
+      } else {
+        await handleFormError(exception, { setError: setError as any });
+      }
     } finally {
       setSaving(false);
     }
@@ -240,6 +245,14 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
 
   return (
     <div className="bg-amber-50 border-b border-amber-200 px-4 py-4">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+          {t("Record payment for")} {customer.name}
+        </span>
+        <span className="text-xs text-amber-600 font-bold">
+          ({t("Outstanding")}: {withCurrency(customer.outstanding)})
+        </span>
+      </div>
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="flex flex-wrap items-end gap-3"
@@ -253,8 +266,7 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
             {...register("amount")}
             type="text"
             inputMode="decimal"
-            pattern="[0-9]*\.?[0-9]*"
-            placeholder="0"
+            placeholder={String(customer.outstanding)}
             className={`input w-full ${hasErrors(errors.amount) ? 'error' : ''}`}
             autoFocus
           />
@@ -283,15 +295,15 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
         {/* Description */}
         <div className="flex flex-col flex-1 min-w-[200px]">
           <label className="text-xs font-medium text-gray-600 mb-1">
-            {t("Note / Description")} <span className="text-red-500">*</span>
+            {t("Note / Description")}
           </label>
-          <Input
+          <input
             {...register("description")}
+            type="text"
             placeholder={t("e.g. Cash received")}
-            className="w-full"
-            hasError={hasErrors(errors.description)}
+            className="input w-full"
+            autoComplete="off"
           />
-          {getErrors(errors.description)}
         </div>
 
         {/* Actions */}
@@ -383,9 +395,9 @@ export const DebtManagement: FC = () => {
   // Client-side search
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Row expand state
+  // Row expand state (id can be number from report API or string)
   const [expandedRow, setExpandedRow] = useState<{
-    id: string;
+    id: string | number;
     panel: "history" | "payment";
   } | null>(null);
 
@@ -485,31 +497,52 @@ export const DebtManagement: FC = () => {
   // ---------------------------------------------------------------------------
 
   const togglePanel = (
-    id: string,
+    id: string | number,
     panel: "history" | "payment"
   ) => {
     setExpandedRow((prev) => {
-      if (prev?.id === id && prev?.panel === panel) return null;
+      // eslint-disable-next-line eqeqeq
+      if (prev?.id == id && prev?.panel === panel) return null;
       return { id, panel };
     });
   };
 
   const handlePaymentSuccess = (
-    customerId: string,
-    newPayment: CustomerPayment
+    customerId: number | string,
+    newPayment: CustomerPayment,
+    paidAmount: number
   ) => {
-    setCustomers((prev) =>
-      prev.map((c) => {
-        if (c.id !== customerId) return c;
-        const paidAmount = Number(newPayment.amount);
+    setApiTotals((prev) => ({
+      totalOutstanding: Math.max(0, prev.totalOutstanding - paidAmount),
+      totalCollected: prev.totalCollected + paidAmount,
+    }));
+
+    setCustomers((prev) => {
+      const updated = prev.map((c) => {
+        // eslint-disable-next-line eqeqeq
+        if (c.id != customerId) return c;
         return {
           ...c,
           outstanding: c.outstanding - paidAmount,
           payments: [newPayment, ...(c.payments ?? [])],
         };
-      })
-    );
-    setExpandedRow({ id: customerId, panel: "history" });
+      });
+
+      // eslint-disable-next-line eqeqeq
+      const target = updated.find((c) => c.id == customerId);
+      const cleared = !target || target.outstanding <= 0;
+
+      if (cleared) {
+        setExpandedRow(null);
+        setTimeout(() => {
+          notify({ type: "success", description: t("Customer debt fully cleared!") });
+        }, 100);
+        return updated.filter((c) => c.outstanding > 0);
+      }
+
+      setExpandedRow({ id: String(customerId), panel: "history" });
+      return updated;
+    });
   };
 
   // ---------------------------------------------------------------------------
@@ -706,11 +739,13 @@ export const DebtManagement: FC = () => {
               <tbody className="divide-y divide-gray-100">
                 {displayList.map((customer) => {
                   const outstanding = customer.outstanding;
+                  // eslint-disable-next-line eqeqeq
                   const isHistoryOpen =
-                    expandedRow?.id === customer.id &&
+                    expandedRow?.id == customer.id &&
                     expandedRow?.panel === "history";
+                  // eslint-disable-next-line eqeqeq
                   const isPaymentOpen =
-                    expandedRow?.id === customer.id &&
+                    expandedRow?.id == customer.id &&
                     expandedRow?.panel === "payment";
 
                   return (
@@ -798,13 +833,11 @@ export const DebtManagement: FC = () => {
                       {isPaymentOpen && (
                         <tr>
                           <td colSpan={6} className="p-0">
-                            <ErrorBoundary>
-                              <InlinePaymentForm
-                                customer={customer}
-                                onSuccess={handlePaymentSuccess}
-                                onCancel={() => setExpandedRow(null)}
-                              />
-                            </ErrorBoundary>
+                            <InlinePaymentForm
+                              customer={customer}
+                              onSuccess={handlePaymentSuccess}
+                              onCancel={() => setExpandedRow(null)}
+                            />
                           </td>
                         </tr>
                       )}
