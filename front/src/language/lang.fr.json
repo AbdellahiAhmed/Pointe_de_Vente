@@ -1059,5 +1059,13 @@
   "You do not have the required permissions": "Vous n'avez pas les droits nécessaires.",
   "Server error. Please try again or contact an administrator.": "Erreur serveur. Veuillez réessayer ou contacter un administrateur.",
   "No options": "Aucune option",
-  "No transactions found": "Aucune transaction trouvée"
+  "No transactions found": "Aucune transaction trouvée",
+  "System Setup": "Configuration du système",
+  "Activation Code": "Code d'activation",
+  "Activate": "Activer",
+  "Activating...": "Activation en cours...",
+  "System activated successfully": "Système activé avec succès",
+  "Invalid activation code": "Code d'activation invalide",
+  "System is already activated": "Le système est déjà activé",
+  "Enter the activation code to initialize the system": "Entrez le code d'activation pour initialiser le système"
 }

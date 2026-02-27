@@ -14,3 +14,7 @@ export const hasBootstrapped = createSelector(
 export const getBootstrapError = createSelector(
   [getState], state => state.error
 );
+
+export const getNeedsSetup = createSelector(
+  [getState], state => state.needsSetup
+);

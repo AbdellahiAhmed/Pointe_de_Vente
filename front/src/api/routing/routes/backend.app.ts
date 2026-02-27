@@ -155,3 +155,6 @@ export const SYSTEM_HEALTH = scopeUrl('/admin/system/health');
 
 export const BANK_JOURNAL_SUMMARY = scopeUrl('/admin/bank-journal/summary');
 export const BANK_JOURNAL_TRANSACTIONS = scopeUrl('/admin/bank-journal/:paymentId/transactions');
+
+export const SETUP_STATUS = scopeUrl('/setup/status');
+export const SETUP_ACTIVATE = scopeUrl('/setup/activate');

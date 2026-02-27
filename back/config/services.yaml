@@ -5,6 +5,7 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     PROJECT_DIR: "%kernel.project_dir%"
+    app.activation_code: '%env(APP_ACTIVATION_CODE)%'
 services:
     # default configuration for services in *this* file
     _defaults:

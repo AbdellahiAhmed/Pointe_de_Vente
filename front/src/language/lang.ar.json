@@ -1066,5 +1066,13 @@
   "You do not have the required permissions": "ليس لديك الصلاحيات اللازمة.",
   "Server error. Please try again or contact an administrator.": "خطأ في الخادم. يرجى المحاولة مرة أخرى أو الاتصال بالمسؤول.",
   "No options": "لا توجد خيارات",
-  "No transactions found": "لا توجد معاملات"
+  "No transactions found": "لا توجد معاملات",
+  "System Setup": "إعداد النظام",
+  "Activation Code": "رمز التفعيل",
+  "Activate": "تفعيل",
+  "Activating...": "جاري التفعيل...",
+  "System activated successfully": "تم تفعيل النظام بنجاح",
+  "Invalid activation code": "رمز التفعيل غير صحيح",
+  "System is already activated": "النظام مفعل بالفعل",
+  "Enter the activation code to initialize the system": "أدخل رمز التفعيل لبدء تشغيل النظام"
 }

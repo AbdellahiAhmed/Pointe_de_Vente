@@ -1,11 +1,11 @@
 import Login from './containers/login/login';
 import {BrowserRouter as Router, Route, useLocation} from "react-router-dom";
-import { FORGOT_PASSWORD, LOGIN, POS, RESET_PASSWORD, POS_V2, DASHBOARD, DEBT_MANAGEMENT, STOCK_ALERTS_PAGE } from "./routes/frontend.routes";
+import { FORGOT_PASSWORD, LOGIN, POS, RESET_PASSWORD, POS_V2, DASHBOARD, DEBT_MANAGEMENT, STOCK_ALERTS_PAGE, SETUP } from "./routes/frontend.routes";
 import {connect, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {RootState} from "../duck/_root/root.state";
 import {isUserLoggedIn} from "../duck/auth/auth.selector";
-import {getBootstrapError, hasBootstrapped} from "../duck/app/app.selector";
+import {getBootstrapError, getNeedsSetup, hasBootstrapped} from "../duck/app/app.selector";
 import {bootstrap} from "../duck/app/app.action";
 import {userLoggedOut} from "../duck/auth/auth.action";
 import {bindActionCreators, Dispatch} from 'redux';
@@ -20,6 +20,7 @@ import {ResetPassword} from "./containers/forgot/reset";
 import { Dashboard } from "./containers/dashboard/dashboard";
 import { DebtManagement } from "./components/customers/debt-management";
 import { StockAlerts } from "./components/stock/stock-alerts";
+import { Setup } from "../app-common/components/setup/setup";
 
 export interface AppProps {
   bootstrap: () => void;
@@ -27,6 +28,7 @@ export interface AppProps {
   isLoggedIn?: boolean;
   hasBootstrapped?: boolean;
   bootstrapError?: Error;
+  needsSetup?: boolean;
 }
 
 const AppComponent: FunctionComponent<AppProps> = (props) => {
@@ -48,7 +50,7 @@ const AppComponent: FunctionComponent<AppProps> = (props) => {
     return () => window.removeEventListener('unhandledrejection', handleException);
   }, []);
 
-  const {isLoggedIn, hasBootstrapped, bootstrapError} = props;
+  const {isLoggedIn, hasBootstrapped, bootstrapError, needsSetup} = props;
 
   if (!hasBootstrapped) {
     return null;
@@ -61,8 +63,12 @@ const AppComponent: FunctionComponent<AppProps> = (props) => {
       <Routes>
         <Route path={LOGIN} element={
           <>
-            {isLoggedIn ? <Navigate to={POS}/> : <Login/>}
+            {needsSetup ? <Navigate to={SETUP}/> : isLoggedIn ? <Navigate to={POS}/> : <Login/>}
           </>
+        }/>
+
+        <Route path={SETUP} element={
+          needsSetup ? <Setup loginRoute={LOGIN}/> : <Navigate to={LOGIN}/>
         }/>
 
         <Route path={FORGOT_PASSWORD} element={
@@ -95,6 +101,7 @@ export const App = connect(
     isLoggedIn: isUserLoggedIn(state),
     hasBootstrapped: hasBootstrapped(state),
     bootstrapError: getBootstrapError(state),
+    needsSetup: getNeedsSetup(state),
   }),
   (dispatch: Dispatch) =>
     bindActionCreators(

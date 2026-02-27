@@ -1,5 +1,5 @@
 import { Action, handleActions } from 'redux-actions';
-import { bootstrapDone, bootstrapError } from './app.action';
+import { bootstrapDone, bootstrapError, setNeedsSetup } from './app.action';
 import { AppState, INITIAL_STATE } from './app.state';
 
 export const appReducer = handleActions<AppState, any>({
@@ -10,6 +10,10 @@ export const appReducer = handleActions<AppState, any>({
 
   [bootstrapError.toString()]: (state: AppState, action: Action<Error>) => {
     return { ...state, error: action.payload };
+  },
+
+  [setNeedsSetup.toString()]: (state: AppState, action: Action<boolean>) => {
+    return { ...state, needsSetup: action.payload };
   }
 
 }, INITIAL_STATE);

@@ -4,6 +4,7 @@
 const staticRoute = (route: string) => route;
 
 export const LOGIN = staticRoute('/');
+export const SETUP = staticRoute('/setup');
 export const FORGOT_PASSWORD = staticRoute('/forgot-password');
 
 /**

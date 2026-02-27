@@ -54,6 +54,7 @@ security:
         # register route removed — no public registration allowed
         - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
         - { path: ^/api/media/.+/content, roles: PUBLIC_ACCESS }
+        - { path: ^/api/setup/, roles: PUBLIC_ACCESS }
         - { path: ^/api/admin, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/api/, roles: IS_AUTHENTICATED_FULLY }
 
