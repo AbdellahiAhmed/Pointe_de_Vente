@@ -56,7 +56,7 @@ export const ViewOrder: FunctionComponent<ViewOrderProps> = ({
             {t("Adjustment")}
           </div>
           <div className="border border-success-500 p-5 bg-success-100 text-success-900 rounded font-bold">
-            <div className="text-2xl" dir="ltr">{`= ${withCurrency(orderTotal)}`}</div>
+            <div className="text-2xl" dir="ltr">{withCurrency(orderTotal)}</div>
             {t("Total")}
           </div>
           <div className="border border-primary-500 p-5 bg-primary-100 text-primary-900 rounded">

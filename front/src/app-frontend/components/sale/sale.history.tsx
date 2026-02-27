@@ -58,7 +58,7 @@ import { HttpException } from "../../../lib/http/exception/http.exception";
 interface Props {}
 
 export const SaleHistory: FC<Props> = ({}) => {
-  const {t} = useTranslation();
+  const {t, i18n} = useTranslation();
   const [appState, setAppState] = useAtom(defaultState);
   const { customer } = appState;
 
@@ -94,7 +94,7 @@ export const SaleHistory: FC<Props> = ({}) => {
     columnHelper.accessor("createdAt", {
       header: t("Time"),
       cell: (info) =>
-        DateTime.fromISO(info.getValue()).toRelative({ base: DateTime.now() }),
+        DateTime.fromISO(info.getValue()).setLocale(i18n.language).toRelative({ base: DateTime.now() }),
     }),
     columnHelper.accessor("customer", {
       header: t("Customer"),
@@ -162,11 +162,11 @@ export const SaleHistory: FC<Props> = ({}) => {
     columnHelper.accessor("payments", {
       header: t("Total"),
       cell: (info) => (
-        <span dir="ltr">{`= ${withCurrency(
+        <span dir="ltr">{withCurrency(
           info.getValue().reduce((prev, payment) => {
             return payment.total + prev;
           }, 0)
-        )}`}</span>
+        )}</span>
       ),
       enableSorting: false,
     }),
@@ -292,12 +292,20 @@ export const SaleHistory: FC<Props> = ({}) => {
     }
   };
 
-  const orderStatus = (order: Order) => {
-    return order.status;
+  const normalizeStatus = (status: string): string => {
+    const match = Object.values(OrderStatus).find(
+      (v) => v.toLowerCase() === status.toLowerCase()
+    );
+    return match || status;
   };
 
-  const getOrderStatusClasses = (status: string) => {
+  const orderStatus = (order: Order) => {
+    return normalizeStatus(order.status);
+  };
+
+  const getOrderStatusClasses = (rawStatus: string) => {
     let classes: string;
+    const status = normalizeStatus(rawStatus);
     switch (status) {
       case "Deleted":
         classes = "border-danger-500 text-danger-500";
@@ -327,8 +335,9 @@ export const SaleHistory: FC<Props> = ({}) => {
     return classes;
   };
 
-  const getOrderStatusIcon = (status: string): IconProp => {
+  const getOrderStatusIcon = (rawStatus: string): IconProp => {
     let icon: IconProp;
+    const status = normalizeStatus(rawStatus);
     switch (status) {
       case "Deleted":
         icon = faTrash;
@@ -479,7 +488,8 @@ export const SaleHistory: FC<Props> = ({}) => {
 
   const totalAmount = useMemo(() => {
     return list.reduce((prev, order) => {
-      if (order.status !== "Deleted" && order.status !== "Returned") {
+      const s = normalizeStatus(order.status);
+      if (s !== OrderStatus.DELETED && s !== OrderStatus.RETURNED) {
         return (
           prev + order.payments.reduce((p, payment) => p + Number(payment.total), 0)
         );
@@ -491,7 +501,8 @@ export const SaleHistory: FC<Props> = ({}) => {
 
   const totalCost = useMemo(() => {
     return list.reduce((prev, order) => {
-      if (order.status !== "Deleted" && order.status !== "Returned") {
+      const s = normalizeStatus(order.status);
+      if (s !== OrderStatus.DELETED && s !== OrderStatus.RETURNED) {
         return (
           prev +
           order.items.reduce((p, item) => {
@@ -735,7 +746,7 @@ export const SaleHistory: FC<Props> = ({}) => {
             <div className="grid grid-cols-5 gap-4 mb-5">
               <div className="border border-primary-500 p-5 font-bold text-primary-500 rounded">
                 {t("Total Bills")}
-                <span className="float-end">{list.filter(o => o.status !== "Deleted" && o.status !== "Returned").length}</span>
+                <span className="float-end">{list.filter(o => normalizeStatus(o.status) !== OrderStatus.DELETED && normalizeStatus(o.status) !== OrderStatus.RETURNED).length}</span>
               </div>
               <div className="border border-primary-500 p-5 font-bold text-primary-500 rounded">
                 {t("Total Amount")}
