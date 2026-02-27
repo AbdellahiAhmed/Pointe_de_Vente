@@ -1058,5 +1058,6 @@
 
   "You do not have the required permissions": "Vous n'avez pas les droits nécessaires.",
   "Server error. Please try again or contact an administrator.": "Erreur serveur. Veuillez réessayer ou contacter un administrateur.",
-  "No options": "Aucune option"
+  "No options": "Aucune option",
+  "No transactions found": "Aucune transaction trouvée"
 }

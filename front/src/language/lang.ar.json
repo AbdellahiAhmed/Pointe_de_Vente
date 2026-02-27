@@ -1065,5 +1065,6 @@
 
   "You do not have the required permissions": "ليس لديك الصلاحيات اللازمة.",
   "Server error. Please try again or contact an administrator.": "خطأ في الخادم. يرجى المحاولة مرة أخرى أو الاتصال بالمسؤول.",
-  "No options": "لا توجد خيارات"
+  "No options": "لا توجد خيارات",
+  "No transactions found": "لا توجد معاملات"
 }
