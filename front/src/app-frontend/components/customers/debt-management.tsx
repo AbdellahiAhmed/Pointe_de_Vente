@@ -6,9 +6,6 @@ import React, {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { useForm } from "react-hook-form";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -36,12 +33,9 @@ import { CustomerPayment } from "../../../api/model/customer.payment";
 import { PaymentType } from "../../../api/model/payment.type";
 import { withCurrency } from "../../../lib/currency/currency";
 import { notify } from "../../../app-common/components/confirm/notification";
-import { getErrors, hasErrors } from "../../../lib/error/error";
-import { ValidationMessage } from "../../../api/model/validation";
 import {
   HttpException,
 } from "../../../lib/http/exception/http.exception";
-import { handleFormError } from "../../../lib/error/handle.form.error";
 import { Button } from "../../../app-common/components/input/button";
 
 // ---------------------------------------------------------------------------
@@ -59,29 +53,6 @@ interface ReportResponse {
   creditCustomers: number;
   totalCollected: number;
 }
-
-// Payment form field shape
-interface PaymentFormValues {
-  amount: string;
-  description: string;
-  paymentType: string;
-}
-
-// ---------------------------------------------------------------------------
-// Yup schema
-// ---------------------------------------------------------------------------
-
-const PaymentSchema = yup.object({
-  amount: yup
-    .string()
-    .required(ValidationMessage.Required)
-    .test("is-positive", "Amount must be greater than 0", (v) => {
-      const n = parseFloat(v ?? "");
-      return !isNaN(n) && n > 0;
-    }),
-  description: yup.string().default(""),
-  paymentType: yup.string().required(ValidationMessage.Required),
-});
 
 // ---------------------------------------------------------------------------
 // Helper: safe DateTime parsing (handles ISO 8601 and raw SQL formats)
@@ -165,6 +136,12 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
   const { t } = useTranslation();
   const [saving, setSaving] = useState(false);
   const [paymentTypes, setPaymentTypes] = useState<PaymentType[]>([]);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  // Form state (no yupResolver — manual validation to avoid version conflict)
+  const [amount, setAmount] = useState("");
+  const [paymentType, setPaymentType] = useState("");
+  const [description, setDescription] = useState<string>(String(t("Debt payment")));
 
   useEffect(() => {
     (async () => {
@@ -177,33 +154,34 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
     })();
   }, []);
 
-  const {
-    register,
-    handleSubmit,
-    setError,
-    reset,
-    formState: { errors },
-  } = useForm({
-    resolver: yupResolver(PaymentSchema),
-    defaultValues: {
-      amount: '',
-      description: t("Debt payment"),
-      paymentType: '',
-    },
-  });
+  const validate = (): boolean => {
+    const errs: Record<string, string> = {};
+    const n = parseFloat(amount);
+    if (!amount.trim() || isNaN(n) || n <= 0) {
+      errs.amount = t("Amount must be greater than 0");
+    }
+    if (!paymentType) {
+      errs.paymentType = t("Payment type is required");
+    }
+    setFormErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
 
-  const onSubmit = async (values: PaymentFormValues) => {
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
+
     setSaving(true);
     try {
       const iri = customer["@id"] ?? `/api/customers/${customer.id}`;
       const body: Record<string, any> = {
         customer: iri,
-        amount: String(values.amount),
-        description: values.description || t("Debt payment"),
+        amount: amount,
+        description: description || t("Debt payment"),
       };
 
-      if (values.paymentType) {
-        body.paymentType = `/api/payments/${values.paymentType}`;
+      if (paymentType) {
+        body.paymentType = `/api/payments/${paymentType}`;
       }
 
       const response: CustomerPayment = await fetchJson(CUSTOMER_PAYMENT_CREATE, {
@@ -215,28 +193,31 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
         response.createdAt = new Date().toISOString();
       }
 
-      if (!response.paymentType && values.paymentType) {
-        const pt = paymentTypes.find((p) => String(p.id) === values.paymentType);
+      if (!response.paymentType && paymentType) {
+        const pt = paymentTypes.find((p) => String(p.id) === paymentType);
         if (pt) {
           response.paymentType = { id: Number(pt.id), name: pt.name };
         }
       }
 
-      const paidAmount = parseFloat(values.amount) || 0;
+      const paidAmount = parseFloat(amount) || 0;
 
       notify({
         type: "success",
         description: `${t("Payment recorded successfully")} — ${withCurrency(paidAmount)}`,
       });
 
-      reset();
+      setAmount("");
+      setPaymentType("");
+      setDescription(String(t("Debt payment")));
+      setFormErrors({});
       onSuccess(customer.id, response, paidAmount);
     } catch (exception: any) {
       const err = exception as any;
       if (err?.code === 403 || err?.response?.status === 403) {
         notify({ type: "error", description: t("You do not have permission to record payments") });
       } else {
-        await handleFormError(exception, { setError: setError as any });
+        notify({ type: "error", description: t("Failed to save payment") });
       }
     } finally {
       setSaving(false);
@@ -253,24 +234,24 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
           ({t("Outstanding")}: {withCurrency(customer.outstanding)})
         </span>
       </div>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-wrap items-end gap-3"
-      >
+      <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3">
         {/* Amount */}
         <div className="flex flex-col min-w-[140px]">
           <label className="text-xs font-medium text-gray-600 mb-1">
             {t("Amount")} <span className="text-red-500">*</span>
           </label>
           <input
-            {...register("amount")}
             type="text"
             inputMode="decimal"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
             placeholder={String(customer.outstanding)}
-            className={`input w-full ${hasErrors(errors.amount) ? 'error' : ''}`}
+            className={`input w-full ${formErrors.amount ? 'error' : ''}`}
             autoFocus
           />
-          {getErrors(errors.amount)}
+          {formErrors.amount && (
+            <div className="text-danger-500 text-sm">{formErrors.amount}</div>
+          )}
         </div>
 
         {/* Payment Type */}
@@ -279,8 +260,9 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
             {t("Payment type")} <span className="text-red-500">*</span>
           </label>
           <select
-            {...register("paymentType")}
-            className={`input w-full ${hasErrors(errors.paymentType) ? "border-red-500" : ""}`}
+            value={paymentType}
+            onChange={(e) => setPaymentType(e.target.value)}
+            className={`input w-full ${formErrors.paymentType ? "border-red-500" : ""}`}
           >
             <option value="">{t("Select...")}</option>
             {paymentTypes.map((pt) => (
@@ -289,7 +271,9 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
               </option>
             ))}
           </select>
-          {getErrors(errors.paymentType)}
+          {formErrors.paymentType && (
+            <div className="text-danger-500 text-sm">{formErrors.paymentType}</div>
+          )}
         </div>
 
         {/* Description */}
@@ -298,8 +282,9 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
             {t("Note / Description")}
           </label>
           <input
-            {...register("description")}
             type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
             placeholder={t("e.g. Cash received")}
             className="input w-full"
             autoComplete="off"
