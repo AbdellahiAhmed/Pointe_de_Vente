@@ -3,7 +3,6 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowLeft,
+  faCheckCircle,
   faChevronDown,
   faChevronUp,
   faCreditCard,
@@ -28,7 +28,6 @@ import { DateTime } from "luxon";
 import { fetchJson, jsonRequest } from "../../../api/request/request";
 import {
   CUSTOMER_PAYMENT_CREATE,
-  CUSTOMER_LIST,
   REPORT_CUSTOMERS,
   PAYMENT_TYPE_LIST,
 } from "../../../api/routing/routes/backend.app";
@@ -52,8 +51,6 @@ import { ErrorBoundary } from "../../../app-common/components/error/error-bounda
 // ---------------------------------------------------------------------------
 
 interface ReportCustomerItem extends Customer {
-  // The report endpoint enriches each customer with aggregated totals.
-  // We use the base Customer fields and treat `outstanding` as the live debt.
   totalCollected?: number;
 }
 
@@ -62,6 +59,7 @@ interface ReportResponse {
   totalOutstanding: number;
   totalCustomers: number;
   creditCustomers: number;
+  totalCollected: number;
 }
 
 // Payment form field shape
@@ -96,14 +94,6 @@ function parseDate(raw: string | undefined | null): DateTime {
   const dt = DateTime.fromISO(raw);
   if (dt.isValid) return dt;
   return DateTime.fromSQL(raw);
-}
-
-// ---------------------------------------------------------------------------
-// Helper: effective outstanding (now already includes openingBalance from API)
-// ---------------------------------------------------------------------------
-
-function effectiveOutstanding(c: Customer): number {
-  return c.outstanding;
 }
 
 // ---------------------------------------------------------------------------
@@ -223,13 +213,10 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
         body: JSON.stringify(body),
       });
 
-      // API Platform may not return createdAt (not in serialization group),
-      // so we fill it in for local state display.
       if (!response.createdAt) {
         response.createdAt = new Date().toISOString();
       }
 
-      // Enrich paymentType for display if not returned by API
       if (!response.paymentType && values.paymentType) {
         const pt = paymentTypes.find((p) => String(p.id) === values.paymentType);
         if (pt) {
@@ -252,7 +239,7 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
   };
 
   return (
-    <div className="bg-amber-50 border-b border-amber-200 px-4 py-3">
+    <div className="bg-amber-50 border-b border-amber-200 px-4 py-4">
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="flex flex-wrap items-end gap-3"
@@ -389,17 +376,14 @@ export const DebtManagement: FC = () => {
 
   // Data state
   const [customers, setCustomers] = useState<ReportCustomerItem[]>([]);
+  const [apiTotals, setApiTotals] = useState<{ totalOutstanding: number; totalCollected: number }>({ totalOutstanding: 0, totalCollected: 0 });
   const [loading, setLoading] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
-  // Search state
+  // Client-side search
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<ReportCustomerItem[] | null>(null);
-  const [searching, setSearching] = useState(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
-  // Row expand state: maps customerId -> which panel is open
-  // "history" | "payment" | null
+  // Row expand state
   const [expandedRow, setExpandedRow] = useState<{
     id: string;
     panel: "history" | "payment";
@@ -412,14 +396,18 @@ export const DebtManagement: FC = () => {
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
   // ---------------------------------------------------------------------------
-  // Fetch all customers with debt from report endpoint
+  // Fetch customers with debt from report endpoint
   // ---------------------------------------------------------------------------
 
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const res: ReportResponse = await fetchJson(REPORT_CUSTOMERS);
+      const res: ReportResponse = await fetchJson(REPORT_CUSTOMERS + '?debtOnly=1');
       setCustomers(res.customers ?? []);
+      setApiTotals({
+        totalOutstanding: res.totalOutstanding ?? 0,
+        totalCollected: res.totalCollected ?? 0,
+      });
     } catch (e: any) {
       let msg = t("Failed to load customer data");
       if (e instanceof HttpException) {
@@ -441,94 +429,33 @@ export const DebtManagement: FC = () => {
   }, [loadData]);
 
   // ---------------------------------------------------------------------------
-  // Search handler (same detection logic as customer.search.tsx)
-  // ---------------------------------------------------------------------------
-
-  const searchCustomers = useCallback(
-    async (q: string) => {
-      if (q.trim().length < 1) {
-        setSearchResults(null);
-        return;
-      }
-      setSearching(true);
-      try {
-        const trimmed = q.trim();
-        const isPhone = /^\d[\d\s-]*$/.test(trimmed);
-        const param = isPhone
-          ? `phone=${encodeURIComponent(trimmed.replace(/[\s-]/g, ""))}`
-          : `name=${encodeURIComponent(trimmed)}`;
-
-        const res = await jsonRequest(`${CUSTOMER_LIST}?${param}`);
-        const data = await res.json();
-        const list: Customer[] = data["hydra:member"] ?? [];
-        setSearchResults(list as ReportCustomerItem[]);
-      } catch {
-        setSearchResults([]);
-      } finally {
-        setSearching(false);
-      }
-    },
-    []
-  );
-
-  const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setSearchQuery(val);
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (val.trim().length < 1) {
-      setSearchResults(null);
-      return;
-    }
-    debounceRef.current = setTimeout(() => searchCustomers(val), 300);
-  };
-
-  const clearSearch = () => {
-    setSearchQuery("");
-    setSearchResults(null);
-  };
-
-  // ---------------------------------------------------------------------------
-  // Displayed list: search results take priority, then all customers
+  // Client-side search (filter loaded customers by name or phone)
   // ---------------------------------------------------------------------------
 
   const displayList = useMemo((): ReportCustomerItem[] => {
-    const base = searchResults !== null ? searchResults : customers;
+    let base = customers;
+
+    if (searchQuery.trim().length > 0) {
+      const q = searchQuery.trim().toLowerCase();
+      const isPhone = /^\d[\d\s-]*$/.test(q);
+      base = customers.filter((c) => {
+        if (isPhone) {
+          return (c.phone ?? "").replace(/[\s-]/g, "").includes(q.replace(/[\s-]/g, ""));
+        }
+        return c.name.toLowerCase().includes(q);
+      });
+    }
 
     return [...base].sort((a, b) => {
       let cmp = 0;
       if (sortKey === "name") {
         cmp = a.name.localeCompare(b.name);
       } else {
-        cmp = effectiveOutstanding(a) - effectiveOutstanding(b);
+        cmp = a.outstanding - b.outstanding;
       }
       return sortDir === "asc" ? cmp : -cmp;
     });
-  }, [customers, searchResults, sortKey, sortDir]);
-
-  // ---------------------------------------------------------------------------
-  // Summary totals (always from the full customer list, not filtered)
-  // ---------------------------------------------------------------------------
-
-  const totals = useMemo(() => {
-    const withDebt = customers.filter((c) => effectiveOutstanding(c) !== 0);
-    const totalDebt = customers.reduce(
-      (acc, c) => {
-        const o = effectiveOutstanding(c);
-        return o > 0 ? acc + o : acc;
-      },
-      0
-    );
-    const totalCollected = customers.reduce(
-      (acc, c) =>
-        acc +
-        (c.payments ?? []).reduce(
-          (sum, p) => sum + Number(p.amount),
-          0
-        ),
-      0
-    );
-    return { totalDebt, withDebtCount: withDebt.length, totalCollected };
-  }, [customers]);
+  }, [customers, searchQuery, sortKey, sortDir]);
 
   // ---------------------------------------------------------------------------
   // Sort toggle
@@ -567,12 +494,10 @@ export const DebtManagement: FC = () => {
     });
   };
 
-  // Called when a payment is saved successfully
   const handlePaymentSuccess = (
     customerId: string,
     newPayment: CustomerPayment
   ) => {
-    // Update the customer in local state
     setCustomers((prev) =>
       prev.map((c) => {
         if (c.id !== customerId) return c;
@@ -584,8 +509,6 @@ export const DebtManagement: FC = () => {
         };
       })
     );
-
-    // Collapse the payment form, open history so user sees the new entry
     setExpandedRow({ id: customerId, panel: "history" });
   };
 
@@ -605,7 +528,7 @@ export const DebtManagement: FC = () => {
   };
 
   // ---------------------------------------------------------------------------
-  // Debt color helper
+  // Debt severity helpers
   // ---------------------------------------------------------------------------
 
   const debtColorClass = (amount: number): string => {
@@ -613,6 +536,12 @@ export const DebtManagement: FC = () => {
     if (amount >= 10000) return "text-red-600 font-bold";
     if (amount >= 2000) return "text-amber-600 font-semibold";
     return "text-amber-500";
+  };
+
+  const rowBgClass = (amount: number): string => {
+    if (amount >= 10000) return "bg-red-50/50 hover:bg-red-50";
+    if (amount >= 2000) return "bg-amber-50/30 hover:bg-amber-50/50";
+    return "hover:bg-gray-50";
   };
 
   // ---------------------------------------------------------------------------
@@ -668,19 +597,19 @@ export const DebtManagement: FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <SummaryCard
           label={t("Total outstanding debt")}
-          value={withCurrency(totals.totalDebt)}
+          value={withCurrency(apiTotals.totalOutstanding)}
           accent="amber"
           icon={<FontAwesomeIcon icon={faMoneyBillWave} />}
         />
         <SummaryCard
           label={t("Customers with debt")}
-          value={String(totals.withDebtCount)}
+          value={String(customers.length)}
           accent="blue"
           icon={<FontAwesomeIcon icon={faUsers} />}
         />
         <SummaryCard
           label={t("Total collected")}
-          value={withCurrency(totals.totalCollected)}
+          value={withCurrency(apiTotals.totalCollected)}
           accent="green"
           icon={<FontAwesomeIcon icon={faHistory} />}
         />
@@ -690,14 +619,13 @@ export const DebtManagement: FC = () => {
       <div className="flex items-center gap-2">
         <div className="relative flex-1 max-w-lg">
           <FontAwesomeIcon
-            icon={searching ? faSpinner : faMagnifyingGlass}
-            spin={searching}
+            icon={faMagnifyingGlass}
             className="absolute start-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
           />
           <input
             type="text"
             value={searchQuery}
-            onChange={onSearchChange}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t("Search by name or phone...")}
             className="input w-full ps-9 pe-8"
             autoComplete="off"
@@ -706,7 +634,7 @@ export const DebtManagement: FC = () => {
             <button
               type="button"
               className="absolute end-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              onClick={clearSearch}
+              onClick={() => setSearchQuery("")}
               aria-label={t("Clear search")}
             >
               <FontAwesomeIcon icon={faXmark} />
@@ -714,9 +642,9 @@ export const DebtManagement: FC = () => {
           )}
         </div>
 
-        {searchResults !== null && (
+        {searchQuery.trim() && (
           <span className="text-sm text-gray-500">
-            {searchResults.length} {t("results")}
+            {displayList.length} {t("results")}
           </span>
         )}
       </div>
@@ -727,6 +655,21 @@ export const DebtManagement: FC = () => {
           <div className="flex items-center justify-center py-16 text-gray-400">
             <FontAwesomeIcon icon={faSpinner} spin className="me-3 text-xl" />
             {t("Loading...")}
+          </div>
+        ) : displayList.length === 0 && initialized ? (
+          /* Empty state */
+          <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+            <FontAwesomeIcon icon={faCheckCircle} className="text-4xl text-green-300 mb-3" />
+            <p className="text-base font-semibold text-gray-500">
+              {searchQuery
+                ? t("No customers match your search")
+                : t("All debts are cleared")}
+            </p>
+            {!searchQuery && (
+              <p className="text-sm text-gray-400 mt-1">
+                {t("No customer has an outstanding balance")}
+              </p>
+            )}
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -761,21 +704,8 @@ export const DebtManagement: FC = () => {
               </thead>
 
               <tbody className="divide-y divide-gray-100">
-                {displayList.length === 0 && initialized && (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="py-12 text-center text-gray-400"
-                    >
-                      {searchQuery
-                        ? t("No customers match your search")
-                        : t("No customer debt records found")}
-                    </td>
-                  </tr>
-                )}
-
                 {displayList.map((customer) => {
-                  const outstanding = effectiveOutstanding(customer);
+                  const outstanding = customer.outstanding;
                   const isHistoryOpen =
                     expandedRow?.id === customer.id &&
                     expandedRow?.panel === "history";
@@ -786,26 +716,26 @@ export const DebtManagement: FC = () => {
                   return (
                     <React.Fragment key={customer.id}>
                       {/* Main row */}
-                      <tr className="hover:bg-gray-50 transition-colors">
+                      <tr className={`transition-colors ${rowBgClass(outstanding)}`}>
                         {/* Name */}
-                        <td className="px-4 py-3 font-medium text-gray-800">
+                        <td className="px-4 py-4 font-medium text-gray-800">
                           {customer.name}
                         </td>
 
                         {/* Phone */}
-                        <td className="px-4 py-3 text-gray-500">
+                        <td className="px-4 py-4 text-gray-500">
                           {customer.phone ?? "-"}
                         </td>
 
                         {/* Outstanding */}
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-4">
                           <span className={debtColorClass(outstanding)}>
                             {withCurrency(outstanding)}
                           </span>
                         </td>
 
                         {/* Credit limit */}
-                        <td className="px-4 py-3 text-gray-500">
+                        <td className="px-4 py-4 text-gray-500">
                           {customer.creditLimit
                             ? withCurrency(customer.creditLimit)
                             : (
@@ -816,20 +746,18 @@ export const DebtManagement: FC = () => {
                         </td>
 
                         {/* Last payment */}
-                        <td className="px-4 py-3 text-gray-500 text-xs">
+                        <td className="px-4 py-4 text-gray-500 text-xs">
                           <span dir="ltr" className="inline-block">
                             {lastPaymentDate(customer)}
                           </span>
                         </td>
 
                         {/* Actions */}
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-4">
                           <div className="flex items-center justify-end gap-2">
-                            {/* Record payment button */}
                             <Button
                               type="button"
                               variant={isPaymentOpen ? "warning" : "primary"}
-                              size="sm"
                               onClick={() =>
                                 togglePanel(customer.id, "payment")
                               }
@@ -842,11 +770,9 @@ export const DebtManagement: FC = () => {
                               {t("Payment")}
                             </Button>
 
-                            {/* History toggle button */}
                             <Button
                               type="button"
                               variant="secondary"
-                              size="sm"
                               onClick={() =>
                                 togglePanel(customer.id, "history")
                               }

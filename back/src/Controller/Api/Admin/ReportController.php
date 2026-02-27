@@ -539,6 +539,7 @@ class ReportController extends AbstractController
         $this->denyAccessUnlessGranted(ReportVoter::VIEW);
 
         $conn = $this->em->getConnection();
+        $debtOnly = $request->query->getBoolean('debtOnly', false);
 
         // Single query: aggregate credit sales and payments per customer
         $sql = '
@@ -552,7 +553,9 @@ class ReportController extends AbstractController
                 FROM `order` o
                 JOIN order_payment op ON op.order_id = o.id
                 JOIN payment pt ON pt.id = op.type_id
-                WHERE o.is_deleted = 0 AND o.is_returned = 0 AND o.is_suspended = 0
+                WHERE COALESCE(o.is_deleted, 0) = 0
+                    AND COALESCE(o.is_returned, 0) = 0
+                    AND COALESCE(o.is_suspended, 0) = 0
                     AND pt.type = :creditType
                 GROUP BY o.customer_id
             ) cs ON cs.customer_id = c.id
@@ -599,13 +602,21 @@ class ReportController extends AbstractController
 
         $data = [];
         $totalOutstanding = 0;
+        $totalCollected = 0;
         $creditCustomers = 0;
         foreach ($rows as $row) {
             $openingBalance = (float) $row['opening_balance'];
             $totalSales = (float) $row['total_sales'];
             $totalPaid = (float) $row['total_paid'];
             $outstanding = $openingBalance + $totalSales - $totalPaid;
+
+            // In debtOnly mode, skip customers with no positive debt
+            if ($debtOnly && $outstanding <= 0) {
+                continue;
+            }
+
             $totalOutstanding += $outstanding;
+            $totalCollected += $totalPaid;
             if ($row['allow_credit_sale']) {
                 $creditCustomers++;
             }
@@ -630,6 +641,7 @@ class ReportController extends AbstractController
             'totalOutstanding' => round($totalOutstanding, 2),
             'totalCustomers' => count($data),
             'creditCustomers' => $creditCustomers,
+            'totalCollected' => round($totalCollected, 2),
         ]);
     }
 }
