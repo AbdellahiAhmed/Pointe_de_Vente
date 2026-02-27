@@ -479,9 +479,9 @@ export const SaleHistory: FC<Props> = ({}) => {
 
   const totalAmount = useMemo(() => {
     return list.reduce((prev, order) => {
-      if (order.status !== "Deleted") {
+      if (order.status !== "Deleted" && order.status !== "Returned") {
         return (
-          prev + order.payments.reduce((p, payment) => p + Number(payment.received), 0)
+          prev + order.payments.reduce((p, payment) => p + Number(payment.total), 0)
         );
       }
 
@@ -491,11 +491,11 @@ export const SaleHistory: FC<Props> = ({}) => {
 
   const totalCost = useMemo(() => {
     return list.reduce((prev, order) => {
-      if (order.status !== "Deleted") {
+      if (order.status !== "Deleted" && order.status !== "Returned") {
         return (
           prev +
           order.items.reduce((p, item) => {
-            return p + Number(item.product?.cost || 0) * Number(item.quantity);
+            return p + Number(item.costAtSale ?? item.product?.cost ?? 0) * Number(item.quantity);
           }, 0)
         );
       }
@@ -735,7 +735,7 @@ export const SaleHistory: FC<Props> = ({}) => {
             <div className="grid grid-cols-5 gap-4 mb-5">
               <div className="border border-primary-500 p-5 font-bold text-primary-500 rounded">
                 {t("Total Bills")}
-                <span className="float-end">{list.length}</span>
+                <span className="float-end">{list.filter(o => o.status !== "Deleted" && o.status !== "Returned").length}</span>
               </div>
               <div className="border border-primary-500 p-5 font-bold text-primary-500 rounded">
                 {t("Total Amount")}

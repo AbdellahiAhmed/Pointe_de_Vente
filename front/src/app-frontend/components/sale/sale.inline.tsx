@@ -449,14 +449,16 @@ export const CloseSaleInline: FC<Props> = ({
     }
 
     const prevPayments = [...payments];
-    const prevTotal = prevPayments.reduce(
+    const prevReceived = prevPayments.reduce(
       (sum, p) => sum + Number(p.received),
       0
     );
+    const remaining = ft - prevReceived;
+    const changeDueForThis = amount > remaining ? amount - remaining : 0;
     prevPayments.push({
-      total: ft,
+      total: Math.min(amount, remaining),
       received: amount,
-      due: ft - (prevTotal + amount),
+      due: changeDueForThis,
       type: payment,
     });
 

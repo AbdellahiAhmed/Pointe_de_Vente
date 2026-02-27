@@ -300,15 +300,30 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
         $orderTotal = 0;
         if(null !== $payments = $command->getPayments()){
             foreach($payments as $paymentDto){
-                $payment = new OrderPayment();
-                $payment->setTotal($paymentDto->getTotal());
-                $payment->setType(
-                    $paymentTypeMap[$paymentDto->getType()->getId()] ?? null
-                );
-                $payment->setDue($paymentDto->getDue());
-                $payment->setReceived($paymentDto->getReceived());
+                $ptId = $paymentDto->getType()->getId();
+                $paymentType = $paymentTypeMap[$ptId] ?? null;
+                if ($paymentType === null) {
+                    return CreateOrderCommandResult::createFromValidationErrorMessage(
+                        'Type de paiement introuvable (ID: ' . $ptId . ').'
+                    );
+                }
 
-                $orderTotal += $paymentDto->getTotal();
+                $received = (float) $paymentDto->getReceived();
+                $total = (float) $paymentDto->getTotal();
+                if ($received < 0) {
+                    return CreateOrderCommandResult::createFromValidationErrorMessage(
+                        'Le montant reçu ne peut pas être négatif.'
+                    );
+                }
+
+                $payment = new OrderPayment();
+                $payment->setTotal($total);
+                $payment->setType($paymentType);
+                // Recalculate due server-side: due = received - total (change to give back)
+                $payment->setDue(max(0, round($received - $total, 2)));
+                $payment->setReceived($received);
+
+                $orderTotal += $total;
 
                 $item->addPayment($payment);
             }

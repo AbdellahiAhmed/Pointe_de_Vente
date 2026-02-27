@@ -21,8 +21,8 @@ export const ViewOrder: FunctionComponent<ViewOrderProps> = ({
   };
 
   const itemsTotal = useMemo(() => {
-    return order.items.reduce((prev, item) => (
-      (prev + (Number(item.quantity) * Number(item.price))) + item.taxesTotal - Number(item.discount)
+    return (order.items ?? []).reduce((prev, item) => (
+      (prev + (Number(item.quantity) * Number(item.price))) + Number(item.taxesTotal ?? 0) - Number(item.discount ?? 0)
     ), 0);
   }, [order]);
 
@@ -62,8 +62,8 @@ export const ViewOrder: FunctionComponent<ViewOrderProps> = ({
           <div className="border border-primary-500 p-5 bg-primary-100 text-primary-900 rounded">
             <div className="text-sm font-bold uppercase">{t("Payments")}</div>
             <ul className="font-normal">
-              {order.payments.map(item => (
-                <li key={item["@id"]} className="font-bold">{item.type?.name}: <span className="float-end">{withCurrency(item.received)}</span></li>
+              {(order.payments ?? []).map(item => (
+                <li key={item["@id"]} className="font-bold">{item.type?.name ?? '-'}: <span className="float-end">{withCurrency(item.received ?? 0)}</span></li>
               ))}
             </ul>
           </div>
@@ -91,7 +91,7 @@ export const ViewOrder: FunctionComponent<ViewOrderProps> = ({
           {order.items.map((item, index) => (
             <tr key={index} className="hover:bg-gray-100">
               <td>
-                {item.product.name}
+                {item.product?.name ?? '-'}
                 {item.variant && (
                   <>
                     <br/>
