@@ -13,6 +13,7 @@ import {FunctionComponent, useEffect} from "react";
 import {useLogout} from "../duck/auth/hooks/useLogout";
 import {Navigate, Routes} from 'react-router';
 import {Error404} from "../app-common/components/error/404";
+import {ErrorBoundary} from "../app-common/components/error/error-boundary";
 import {ForgotPassword} from "./containers/forgot/forgot";
 import { Pos } from "./containers/dashboard/pos";
 import {ResetPassword} from "./containers/forgot/reset";
@@ -55,6 +56,7 @@ const AppComponent: FunctionComponent<AppProps> = (props) => {
 
 
   return (
+    <ErrorBoundary>
     <Router>
       <Routes>
         <Route path={LOGIN} element={
@@ -84,6 +86,7 @@ const AppComponent: FunctionComponent<AppProps> = (props) => {
         <Route path="*" element={<Error404/>}/>
       </Routes>
     </Router>
+    </ErrorBoundary>
   );
 };
 

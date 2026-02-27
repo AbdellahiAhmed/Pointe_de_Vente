@@ -14,6 +14,7 @@ import {Dashboard} from "./containers/dashboard/dashboard";
 import {useLogout} from "../duck/auth/hooks/useLogout";
 import {Navigate, Routes} from 'react-router';
 import {Error404} from "../app-common/components/error/404";
+import {ErrorBoundary} from "../app-common/components/error/error-boundary";
 import {Users} from "./containers/dashboard/users";
 import {ForgotPassword} from "./containers/forgot/forgot";
 import {Profile} from "./containers/dashboard/profile/profile";
@@ -66,6 +67,7 @@ const AppComponent: FunctionComponent<AppProps> = (props) => {
 
 
   return (
+    <ErrorBoundary>
     <Router>
       <Routes>
         <Route path={LOGIN} element={
@@ -106,6 +108,7 @@ const AppComponent: FunctionComponent<AppProps> = (props) => {
         <Route path="*" element={<Error404/>}/>
       </Routes>
     </Router>
+    </ErrorBoundary>
   );
 };
 

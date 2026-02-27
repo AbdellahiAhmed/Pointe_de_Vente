@@ -45,6 +45,7 @@ import {
 import { handleFormError } from "../../../lib/error/handle.form.error";
 import { Input } from "../../../app-common/components/input/input";
 import { Button } from "../../../app-common/components/input/button";
+import { ErrorBoundary } from "../../../app-common/components/error/error-boundary";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -219,89 +220,84 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
   };
 
   return (
-    <tr>
-      <td
-        colSpan={6}
-        className="bg-amber-50 border-b border-amber-200 px-4 py-3"
+    <div className="bg-amber-50 border-b border-amber-200 px-4 py-3">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-wrap items-end gap-3"
       >
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-wrap items-end gap-3"
-        >
-          {/* Amount */}
-          <div className="flex flex-col min-w-[140px]">
-            <label className="text-xs font-medium text-gray-600 mb-1">
-              {t("Amount")} <span className="text-red-500">*</span>
-            </label>
-            <Input
-              {...register("amount")}
-              type="number"
-              placeholder="0"
-              className="w-full"
-              hasError={hasErrors(errors.amount)}
-              autoFocus
-            />
-            {getErrors(errors.amount)}
-          </div>
+        {/* Amount */}
+        <div className="flex flex-col min-w-[140px]">
+          <label className="text-xs font-medium text-gray-600 mb-1">
+            {t("Amount")} <span className="text-red-500">*</span>
+          </label>
+          <Input
+            {...register("amount")}
+            type="number"
+            placeholder="0"
+            className="w-full"
+            hasError={hasErrors(errors.amount)}
+            autoFocus
+          />
+          {getErrors(errors.amount)}
+        </div>
 
-          {/* Payment Type */}
-          <div className="flex flex-col min-w-[160px]">
-            <label className="text-xs font-medium text-gray-600 mb-1">
-              {t("Payment type")} <span className="text-red-500">*</span>
-            </label>
-            <select
-              {...register("paymentType")}
-              className={`input w-full ${hasErrors(errors.paymentType) ? "border-red-500" : ""}`}
-            >
-              <option value="">{t("Select...")}</option>
-              {paymentTypes.map((pt) => (
-                <option key={pt.id} value={pt.id}>
-                  {pt.name}
-                </option>
-              ))}
-            </select>
-            {getErrors(errors.paymentType)}
-          </div>
+        {/* Payment Type */}
+        <div className="flex flex-col min-w-[160px]">
+          <label className="text-xs font-medium text-gray-600 mb-1">
+            {t("Payment type")} <span className="text-red-500">*</span>
+          </label>
+          <select
+            {...register("paymentType")}
+            className={`input w-full ${hasErrors(errors.paymentType) ? "border-red-500" : ""}`}
+          >
+            <option value="">{t("Select...")}</option>
+            {paymentTypes.map((pt) => (
+              <option key={pt.id} value={pt.id}>
+                {pt.name}
+              </option>
+            ))}
+          </select>
+          {getErrors(errors.paymentType)}
+        </div>
 
-          {/* Description */}
-          <div className="flex flex-col flex-1 min-w-[200px]">
-            <label className="text-xs font-medium text-gray-600 mb-1">
-              {t("Note / Description")} <span className="text-red-500">*</span>
-            </label>
-            <Input
-              {...register("description")}
-              placeholder={t("e.g. Cash received")}
-              className="w-full"
-              hasError={hasErrors(errors.description)}
-            />
-            {getErrors(errors.description)}
-          </div>
+        {/* Description */}
+        <div className="flex flex-col flex-1 min-w-[200px]">
+          <label className="text-xs font-medium text-gray-600 mb-1">
+            {t("Note / Description")} <span className="text-red-500">*</span>
+          </label>
+          <Input
+            {...register("description")}
+            placeholder={t("e.g. Cash received")}
+            className="w-full"
+            hasError={hasErrors(errors.description)}
+          />
+          {getErrors(errors.description)}
+        </div>
 
-          {/* Actions */}
-          <div className="flex gap-2 pb-0.5">
-            <Button variant="warning" type="submit" disabled={saving}>
-              {saving ? (
-                <>
-                  <FontAwesomeIcon icon={faSpinner} spin className="me-2" />
-                  {t("Saving...")}
-                </>
-              ) : (
-                t("Save")
-              )}
-            </Button>
-            <Button
-              variant="secondary"
-              type="button"
-              onClick={onCancel}
-              disabled={saving}
-            >
-              <FontAwesomeIcon icon={faXmark} className="me-1" />
-              {t("Cancel")}
-            </Button>
-          </div>
-        </form>
-      </td>
-    </tr>
+        {/* Actions */}
+        <div className="flex gap-2 pb-0.5">
+          <Button variant="warning" type="submit" disabled={saving}>
+            {saving ? (
+              <>
+                <FontAwesomeIcon icon={faSpinner} spin className="me-2" />
+                {t("Saving...")}
+              </>
+            ) : (
+              t("Save")
+            )}
+          </Button>
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={onCancel}
+            disabled={saving}
+          >
+            <FontAwesomeIcon icon={faXmark} className="me-1" />
+            {t("Cancel")}
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 };
 
@@ -838,11 +834,17 @@ export const DebtManagement: FC = () => {
 
                       {/* Inline payment form */}
                       {isPaymentOpen && (
-                        <InlinePaymentForm
-                          customer={customer}
-                          onSuccess={handlePaymentSuccess}
-                          onCancel={() => setExpandedRow(null)}
-                        />
+                        <tr>
+                          <td colSpan={6} className="p-0">
+                            <ErrorBoundary>
+                              <InlinePaymentForm
+                                customer={customer}
+                                onSuccess={handlePaymentSuccess}
+                                onCancel={() => setExpandedRow(null)}
+                              />
+                            </ErrorBoundary>
+                          </td>
+                        </tr>
                       )}
 
                       {/* Payment history sub-rows */}
