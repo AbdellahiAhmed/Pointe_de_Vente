@@ -143,6 +143,8 @@ class BankJournalController extends AbstractController
             ->select('p.id, p.name, p.type, p.category')
             ->from(Payment::class, 'p')
             ->where('p.isActive = true')
+            ->andWhere('p.category != :creditCategory')
+            ->setParameter('creditCategory', Payment::CATEGORY_CREDIT)
             ->orderBy('p.name', 'ASC')
             ->getQuery()
             ->getResult();
@@ -167,7 +169,9 @@ class BankJournalController extends AbstractController
             ->select('p.id AS paymentId', 'COALESCE(SUM(op.received), 0) AS total')
             ->from(OrderPayment::class, 'op')
             ->join('op.type', 'p')
-            ->join('op.order', 'o');
+            ->join('op.order', 'o')
+            ->where('p.category != :creditCategory')
+            ->setParameter('creditCategory', Payment::CATEGORY_CREDIT);
 
         $this->applyValidOrderConditions($qbSales);
         $this->applyDateAndStoreFilters($qbSales, 'o.createdAt', $dateFrom, $dateTo, $storeId);
@@ -187,7 +191,9 @@ class BankJournalController extends AbstractController
             ->select('p.id AS paymentId', 'COALESCE(SUM(op.received), 0) AS total')
             ->from(OrderPayment::class, 'op')
             ->join('op.type', 'p')
-            ->join('op.order', 'o');
+            ->join('op.order', 'o')
+            ->where('p.category != :creditCategory')
+            ->setParameter('creditCategory', Payment::CATEGORY_CREDIT);
 
         $this->applyReturnOrderConditions($qbRefunds);
         $this->applyDateAndStoreFilters($qbRefunds, 'o.createdAt', $dateFrom, $dateTo, $storeId);
@@ -303,6 +309,12 @@ class BankJournalController extends AbstractController
         $payment = $this->em->find(Payment::class, $paymentId);
         if ($payment === null) {
             return $responseFactory->notFound('Payment type not found.');
+        }
+
+        if ($payment->getCategory() === Payment::CATEGORY_CREDIT) {
+            return $responseFactory->json([
+                'error' => 'Credit payment types do not have a bank journal.',
+            ], 400);
         }
 
         $dateFrom = $this->parseDate($request->query->get('dateFrom'));

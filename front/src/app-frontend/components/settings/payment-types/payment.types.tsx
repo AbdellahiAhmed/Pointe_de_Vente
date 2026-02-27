@@ -98,21 +98,26 @@ export const PaymentTypes = () => {
       cell: (info) => {
         const ptId = Number(info.getValue());
         const summary = bankSummary[ptId];
+        const isCredit = info.row.original.type === 'credit';
         return (
           <>
-            <Button
-              type="button"
-              variant="warning"
-              className="w-[40px]"
-              onClick={() => {
-                if (summary) setBalanceDetail(summary);
-              }}
-              tabIndex={-1}
-              title={summary ? `${t("Balance")}: ${withCurrency(summary.balance)}` : t("Balance")}
-            >
-              <FontAwesomeIcon icon={faLandmark} />
-            </Button>
-            <span className="mx-2 text-gray-300">|</span>
+            {!isCredit && (
+              <>
+                <Button
+                  type="button"
+                  variant="warning"
+                  className="w-[40px]"
+                  onClick={() => {
+                    if (summary) setBalanceDetail(summary);
+                  }}
+                  tabIndex={-1}
+                  title={summary ? `${t("Balance")}: ${withCurrency(summary.balance)}` : t("Balance")}
+                >
+                  <FontAwesomeIcon icon={faLandmark} />
+                </Button>
+                <span className="mx-2 text-gray-300">|</span>
+              </>
+            )}
             <Button
               type="button"
               variant="primary"
