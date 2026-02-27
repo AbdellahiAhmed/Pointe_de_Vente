@@ -1,4 +1,6 @@
-import html2pdf from 'html2pdf.js';
+// Use the self-contained bundle that includes html2canvas
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+import html2pdf from 'html2pdf.js/dist/html2pdf.bundle.min.js';
 
 interface ZReportSnapshot {
   zReportNumber: number;
@@ -181,27 +183,35 @@ function buildHtml(data: ZReportSnapshot): string {
 export async function generateZReportArabicPdf(data: ZReportSnapshot): Promise<Blob> {
   const html = buildHtml(data);
 
-  // Create a temporary container
+  // Create a temporary container — must be rendered (not display:none) for html2canvas
   const container = document.createElement('div');
   container.innerHTML = html;
-  container.style.position = 'absolute';
-  container.style.left = '-9999px';
+  container.style.position = 'fixed';
+  container.style.left = '0';
   container.style.top = '0';
+  container.style.opacity = '0';
+  container.style.pointerEvents = 'none';
+  container.style.zIndex = '-9999';
   document.body.appendChild(container);
 
   const element = container.firstElementChild as HTMLElement;
 
   try {
-    const blob: Blob = await html2pdf()
-      .set({
-        margin: 0,
-        filename: `z-report-${data.zReportNumber}-ar.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' },
-      })
-      .from(element)
-      .outputPdf('blob');
+    // html2pdf returns a thenable Worker — use .then() for reliable promise resolution
+    const pdfFn = (typeof html2pdf === 'function') ? html2pdf : (html2pdf as any).default;
+    const blob: Blob = await new Promise((resolve, reject) => {
+      pdfFn()
+        .set({
+          margin: [10, 10, 10, 10],
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, logging: false },
+          jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' },
+        })
+        .from(element)
+        .outputPdf('blob')
+        .then((result: Blob) => resolve(result))
+        .catch((err: Error) => reject(err));
+    });
 
     return blob;
   } finally {
