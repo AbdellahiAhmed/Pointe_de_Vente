@@ -95,11 +95,23 @@ class BankJournalController extends AbstractController
     // Standard Order validity conditions reused across multiple queries
     // -------------------------------------------------------------------------
 
+    /**
+     * Standard filters for regular (non-return) sales orders.
+     */
     private function applyValidOrderConditions(\Doctrine\ORM\QueryBuilder $qb): void
     {
         $qb->andWhere('o.isDeleted = false')
            ->andWhere('o.isReturned = false')
            ->andWhere('o.isSuspended != true OR o.isSuspended IS NULL');
+    }
+
+    /**
+     * Filters for return/refund orders (money going OUT).
+     */
+    private function applyReturnOrderConditions(\Doctrine\ORM\QueryBuilder $qb): void
+    {
+        $qb->andWhere('o.isDeleted = false')
+           ->andWhere('o.isReturned = true');
     }
 
     // -------------------------------------------------------------------------
@@ -165,6 +177,26 @@ class BankJournalController extends AbstractController
             $id = (int) $row['paymentId'];
             if (isset($indexed[$id])) {
                 $indexed[$id]['totalIn'] += (float) $row['total'];
+            }
+        }
+
+        // ------------------------------------------------------------------
+        // 2b. Outflows — refunds (OrderPayment on returned orders)
+        // ------------------------------------------------------------------
+        $qbRefunds = $this->em->createQueryBuilder()
+            ->select('p.id AS paymentId', 'COALESCE(SUM(op.received), 0) AS total')
+            ->from(OrderPayment::class, 'op')
+            ->join('op.type', 'p')
+            ->join('op.order', 'o');
+
+        $this->applyReturnOrderConditions($qbRefunds);
+        $this->applyDateAndStoreFilters($qbRefunds, 'o.createdAt', $dateFrom, $dateTo, $storeId);
+        $qbRefunds->groupBy('p.id');
+
+        foreach ($qbRefunds->getQuery()->getResult() as $row) {
+            $id = (int) $row['paymentId'];
+            if (isset($indexed[$id])) {
+                $indexed[$id]['totalOut'] += (float) $row['total'];
             }
         }
 
@@ -310,6 +342,38 @@ class BankJournalController extends AbstractController
                 'description' => $row['description'],
                 'amountIn'    => round((float) $row['amount'], 2),
                 'amountOut'   => 0.0,
+            ];
+        }
+
+        // ------------------------------------------------------------------
+        // Query A2: Refunds (OrderPayment on returned orders) — outflow
+        // ------------------------------------------------------------------
+        $qbRefunds = $this->em->createQueryBuilder()
+            ->select(
+                'o.createdAt AS date',
+                'o.orderId   AS reference',
+                'o.description AS description',
+                'op.received AS amount'
+            )
+            ->from(OrderPayment::class, 'op')
+            ->join('op.type', 'p')
+            ->join('op.order', 'o')
+            ->where('p.id = :paymentId')
+            ->setParameter('paymentId', $paymentId);
+
+        $this->applyReturnOrderConditions($qbRefunds);
+        $this->applyDateAndStoreFilters($qbRefunds, 'o.createdAt', $dateFrom, $dateTo, $storeId);
+
+        foreach ($qbRefunds->getQuery()->getResult() as $row) {
+            $rows[] = [
+                'date'        => $row['date'] instanceof \DateTimeInterface
+                                    ? $row['date']->format('Y-m-d H:i:s')
+                                    : (string) $row['date'],
+                'type'        => 'refund',
+                'reference'   => $row['reference'] !== null ? '#' . $row['reference'] : null,
+                'description' => $row['description'],
+                'amountIn'    => 0.0,
+                'amountOut'   => round((float) $row['amount'], 2),
             ];
         }
 

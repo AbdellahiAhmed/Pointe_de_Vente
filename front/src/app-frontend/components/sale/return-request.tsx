@@ -189,21 +189,6 @@ export const ReturnRequest: FC<ReturnRequestProps> = ({ open, onClose, onSuccess
     }));
   };
 
-  const allSelected = returnableItems.length > 0 &&
-    returnableItems.every((item) => lines[item.id]?.included);
-  const someSelected = returnableItems.some((item) => lines[item.id]?.included) && !allSelected;
-
-  const toggleAll = () => {
-    const newValue = !allSelected;
-    setLines((prev) => {
-      const updated = { ...prev };
-      for (const item of returnableItems) {
-        updated[item.id] = { ...updated[item.id], included: newValue };
-      }
-      return updated;
-    });
-  };
-
   const setLineQty = (id: number, raw: string, max: number) => {
     const parsed = parseInt(raw, 10);
     const clamped = isNaN(parsed) ? 1 : Math.min(Math.max(1, parsed), max);
@@ -280,6 +265,21 @@ export const ReturnRequest: FC<ReturnRequestProps> = ({ open, onClose, onSuccess
   const returnableItems = order
     ? order.items.filter((i) => !i.isReturned)
     : [];
+
+  const allSelected = returnableItems.length > 0 &&
+    returnableItems.every((item) => lines[item.id]?.included);
+  const someSelected = returnableItems.some((item) => lines[item.id]?.included) && !allSelected;
+
+  const toggleAll = () => {
+    const newValue = !allSelected;
+    setLines((prev) => {
+      const updated = { ...prev };
+      for (const item of returnableItems) {
+        updated[item.id] = { ...updated[item.id], included: newValue };
+      }
+      return updated;
+    });
+  };
 
   // ---------------------------------------------------------------------------
   // Render

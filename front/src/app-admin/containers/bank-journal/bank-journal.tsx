@@ -79,6 +79,8 @@ const txTypeBadge = (type: string): string => {
   switch (type) {
     case 'sale':
       return 'bg-success';
+    case 'refund':
+      return 'bg-warning';
     case 'expense':
       return 'bg-danger';
     case 'debt_payment':
@@ -92,6 +94,8 @@ const txTypeLabel = (type: string, t: (key: string) => string): string => {
   switch (type) {
     case 'sale':
       return t('Sale');
+    case 'refund':
+      return t('Refund');
     case 'expense':
       return t('Expense');
     case 'debt_payment':
