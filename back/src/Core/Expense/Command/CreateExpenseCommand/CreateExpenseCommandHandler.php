@@ -2,6 +2,7 @@
 
 namespace App\Core\Expense\Command\CreateExpenseCommand;
 
+use App\Entity\Payment;
 use App\Entity\Store;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Core\Entity\EntityManager\EntityManager;
@@ -32,6 +33,12 @@ class CreateExpenseCommandHandler extends EntityManager implements CreateExpense
         }
         $item->setStore($store);
 
+        if ($command->getPaymentType() !== null) {
+            $paymentType = $this->getRepository(Payment::class)->find($command->getPaymentType());
+            if ($paymentType !== null) {
+                $item->setPaymentType($paymentType);
+            }
+        }
 
         //validate item before creation
         $violations = $this->validator->validate($item);

@@ -61,6 +61,12 @@ class CustomerPayment
      */
     private $description;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Payment::class)
+     * @Groups({"customer.read"})
+     */
+    private $paymentType;
+
     public function __construct()
     {
         $this->uuid = Uuid::uuid4();
@@ -115,6 +121,18 @@ class CustomerPayment
     public function setDescription(?string $description): self
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getPaymentType(): ?Payment
+    {
+        return $this->paymentType;
+    }
+
+    public function setPaymentType(?Payment $paymentType): self
+    {
+        $this->paymentType = $paymentType;
 
         return $this;
     }

@@ -7,4 +7,6 @@ export interface Expense extends HydraId, HydraType {
   amount: number;
   createdAt: string;
   store: Store;
+  paymentTypeName?: string;
+  paymentTypeId?: number;
 }

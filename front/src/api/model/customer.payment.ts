@@ -7,4 +7,5 @@ export interface CustomerPayment extends HydraId, HydraType {
   description: string;
   order?: Omit<Order, "customer"|"payments">;
   createdAt: string;
+  paymentType?: { id: number; name: string; "@id"?: string };
 }

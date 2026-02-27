@@ -29,6 +29,11 @@ class CreateExpenseCommand
      */
     private $createdAt;
 
+    /**
+     * @var int|null
+     */
+    private $paymentType = null;
+
     public function setAmount(?float $amount)
     {
         $this->amount = $amount;
@@ -81,5 +86,21 @@ class CreateExpenseCommand
     public function setCreatedAt(\DateTimeImmutable $createdAt): void
     {
         $this->createdAt = $createdAt;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getPaymentType(): ?int
+    {
+        return $this->paymentType;
+    }
+
+    /**
+     * @param int|null $paymentType
+     */
+    public function setPaymentType(?int $paymentType): void
+    {
+        $this->paymentType = $paymentType;
     }
 }

@@ -30,9 +30,11 @@ import {
   CUSTOMER_PAYMENT_CREATE,
   CUSTOMER_LIST,
   REPORT_CUSTOMERS,
+  PAYMENT_TYPE_LIST,
 } from "../../../api/routing/routes/backend.app";
 import { Customer } from "../../../api/model/customer";
 import { CustomerPayment } from "../../../api/model/customer.payment";
+import { PaymentType } from "../../../api/model/payment.type";
 import { withCurrency } from "../../../lib/currency/currency";
 import { notify } from "../../../app-common/components/confirm/notification";
 import { getErrors, hasErrors } from "../../../lib/error/error";
@@ -65,6 +67,7 @@ interface ReportResponse {
 interface PaymentFormValues {
   amount: number;
   description: string;
+  paymentType: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -78,6 +81,7 @@ const PaymentSchema = yup.object({
     .positive(ValidationMessage.Positive)
     .required(ValidationMessage.Required),
   description: yup.string().trim().required(ValidationMessage.Required),
+  paymentType: yup.string().required(ValidationMessage.Required),
 });
 
 // ---------------------------------------------------------------------------
@@ -112,7 +116,7 @@ const PaymentHistory: FC<PaymentHistoryProps> = ({ payments }) => {
   if (sorted.length === 0) {
     return (
       <tr>
-        <td colSpan={3} className="py-3 text-center text-sm text-gray-400 italic">
+        <td colSpan={4} className="py-3 text-center text-sm text-gray-400 italic">
           {t("No payment history")}
         </td>
       </tr>
@@ -130,6 +134,9 @@ const PaymentHistory: FC<PaymentHistoryProps> = ({ payments }) => {
           </td>
           <td className="py-2 text-sm font-semibold text-green-700">
             {withCurrency(p.amount)}
+          </td>
+          <td className="py-2 text-sm text-gray-500">
+            {p.paymentType?.name ?? "-"}
           </td>
           <td className="py-2 pe-4 text-sm text-gray-600">{p.description}</td>
         </tr>
@@ -155,6 +162,18 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
 }) => {
   const { t } = useTranslation();
   const [saving, setSaving] = useState(false);
+  const [paymentTypes, setPaymentTypes] = useState<PaymentType[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await jsonRequest(PAYMENT_TYPE_LIST);
+        const json = await res.json();
+        const list: PaymentType[] = json["hydra:member"] ?? [];
+        setPaymentTypes(list.filter((p) => p.isActive));
+      } catch {}
+    })();
+  }, []);
 
   const {
     register,
@@ -170,11 +189,15 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
     setSaving(true);
     try {
       const iri = customer["@id"] ?? `/api/customers/${customer.id}`;
-      const body = {
+      const body: Record<string, any> = {
         customer: iri,
         amount: String(values.amount),
         description: values.description,
       };
+
+      if (values.paymentType) {
+        body.paymentType = `/api/payments/${values.paymentType}`;
+      }
 
       const response: CustomerPayment = await fetchJson(CUSTOMER_PAYMENT_CREATE, {
         method: "POST",
@@ -189,7 +212,7 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
       reset();
       onSuccess(customer.id, response);
     } catch (exception: any) {
-      await handleFormError(exception, { setError });
+      await handleFormError(exception, { setError: setError as any });
     } finally {
       setSaving(false);
     }
@@ -219,6 +242,25 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
               autoFocus
             />
             {getErrors(errors.amount)}
+          </div>
+
+          {/* Payment Type */}
+          <div className="flex flex-col min-w-[160px]">
+            <label className="text-xs font-medium text-gray-600 mb-1">
+              {t("Payment type")} <span className="text-red-500">*</span>
+            </label>
+            <select
+              {...register("paymentType")}
+              className={`input w-full ${hasErrors(errors.paymentType) ? "border-red-500" : ""}`}
+            >
+              <option value="">{t("Select...")}</option>
+              {paymentTypes.map((pt) => (
+                <option key={pt.id} value={pt.id}>
+                  {pt.name}
+                </option>
+              ))}
+            </select>
+            {getErrors(errors.paymentType)}
           </div>
 
           {/* Description */}
@@ -826,6 +868,9 @@ export const DebtManagement: FC = () => {
                                     </th>
                                     <th className="text-start py-1.5 font-medium">
                                       {t("Amount")}
+                                    </th>
+                                    <th className="text-start py-1.5 font-medium">
+                                      {t("Payment type")}
                                     </th>
                                     <th className="text-start pe-4 py-1.5 font-medium">
                                       {t("Description")}

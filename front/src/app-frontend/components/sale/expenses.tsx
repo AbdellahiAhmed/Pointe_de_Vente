@@ -5,10 +5,11 @@ import {DateTime} from "luxon";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faSearch} from "@fortawesome/free-solid-svg-icons";
 import {Modal} from "../../../app-common/components/modal/modal";
-import {fetchJson} from "../../../api/request/request";
+import {fetchJson, jsonRequest} from "../../../api/request/request";
 import {useForm} from "react-hook-form";
 import {Expense} from "../../../api/model/expense";
-import {EXPENSE_CREATE, EXPENSE_LIST} from "../../../api/routing/routes/backend.app";
+import {EXPENSE_CREATE, EXPENSE_LIST, PAYMENT_TYPE_LIST} from "../../../api/routing/routes/backend.app";
+import {PaymentType} from "../../../api/model/payment.type";
 import {Trans, useTranslation} from "react-i18next";
 import {handleFormError} from "../../../lib/error/handle.form.error";
 import {Loader} from "../../../app-common/components/loader/loader";
@@ -28,7 +29,8 @@ interface ExpensesProps{
 
 const ValidationSchema = yup.object({
   description: yup.string().required(ValidationMessage.Required),
-  amount: yup.string().required(ValidationMessage.Required)
+  amount: yup.string().required(ValidationMessage.Required),
+  paymentType: yup.string().required(ValidationMessage.Required)
 });
 
 export const Expenses: FC<ExpensesProps> = (props) => {
@@ -37,8 +39,20 @@ export const Expenses: FC<ExpensesProps> = (props) => {
   const [isLoading, setLoading] = useState(false);
   const [list, setList] = useState<Expense[]>([]);
   const [filters, setFilters] = useState<any>();
+  const [paymentTypes, setPaymentTypes] = useState<PaymentType[]>([]);
 
   const store = useSelector(getStore);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await jsonRequest(PAYMENT_TYPE_LIST);
+        const json = await res.json();
+        const list: PaymentType[] = json["hydra:member"] ?? [];
+        setPaymentTypes(list.filter((p) => p.isActive));
+      } catch {}
+    })();
+  }, []);
 
   const {register, handleSubmit, reset} = useForm();
   const loadExpenses = async (values?: any) => {
@@ -89,12 +103,14 @@ export const Expenses: FC<ExpensesProps> = (props) => {
   const createExpense = async (values: any) => {
     setCreating(true);
     try {
+      const { paymentType, ...rest } = values;
       await fetchJson(EXPENSE_CREATE, {
         method: 'POST',
         body: JSON.stringify({
-          ...values,
+          ...rest,
           dateTime: DateTime.now().toISO(),
-          store: store?.id
+          store: store?.id,
+          paymentType: paymentType ? Number(paymentType) : null
         })
       });
 
@@ -125,7 +141,7 @@ export const Expenses: FC<ExpensesProps> = (props) => {
       }} title={t("Expenses")} size="full">
         <form onSubmit={createHandleSubmit(createExpense)}>
           <h3 className="text-lg">{t("Add new expenses")}</h3>
-          <div className="grid grid-cols-7 gap-4 mb-5">
+          <div className="grid grid-cols-9 gap-4 mb-5">
             <div className="col-span-3">
               <Input {...createRegister('description')}
                      type="text"
@@ -141,7 +157,7 @@ export const Expenses: FC<ExpensesProps> = (props) => {
                 </div>
               )}
             </div>
-            <div className="col-span-3">
+            <div className="col-span-2">
               <Input {...createRegister('amount')}
                      type="number"
                      placeholder={t("Expense Amount")}
@@ -156,7 +172,25 @@ export const Expenses: FC<ExpensesProps> = (props) => {
                 </div>
               )}
             </div>
-            <div>
+            <div className="col-span-2">
+              <select
+                {...createRegister('paymentType')}
+                className={`input w-full ${hasErrors(createErrors.paymentType) ? 'border-danger-500' : ''}`}
+              >
+                <option value="">{t("Payment type")}</option>
+                {paymentTypes.map((pt) => (
+                  <option key={pt.id} value={pt.id}>{pt.name}</option>
+                ))}
+              </select>
+              {createErrors.paymentType && (
+                <div className="text-danger-500 text-sm">
+                  <Trans>
+                    {createErrors.paymentType.message}
+                  </Trans>
+                </div>
+              )}
+            </div>
+            <div className="col-span-2">
               <Button variant="primary" className="w-full" type="submit"
                       disabled={creating}>
                 {creating ? t('Adding...') : (
@@ -219,6 +253,7 @@ export const Expenses: FC<ExpensesProps> = (props) => {
               <tr>
                 <th>{t("Time")}</th>
                 <th>{t("Description")}</th>
+                <th>{t("Payment type")}</th>
                 <th>{t("Amount")}</th>
               </tr>
               </thead>
@@ -227,6 +262,7 @@ export const Expenses: FC<ExpensesProps> = (props) => {
                 <tr key={index} className="hover:bg-gray-100">
                   <td title={order.createdAt}>{DateTime.fromISO(order.createdAt).toRelative({base: DateTime.now()})}</td>
                   <td>{order.description}</td>
+                  <td>{order.paymentTypeName ?? '-'}</td>
                   <td>{withCurrency(order.amount)}</td>
                 </tr>
               ))}

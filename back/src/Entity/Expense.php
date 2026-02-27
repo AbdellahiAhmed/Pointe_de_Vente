@@ -63,6 +63,11 @@ class Expense
      */
     private $store;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Payment::class)
+     */
+    private $paymentType;
+
     public function __construct()
     {
         $this->uuid = Uuid::uuid4();
@@ -117,6 +122,18 @@ class Expense
     public function setStore(?Store $store): self
     {
         $this->store = $store;
+
+        return $this;
+    }
+
+    public function getPaymentType(): ?Payment
+    {
+        return $this->paymentType;
+    }
+
+    public function setPaymentType(?Payment $paymentType): self
+    {
+        $this->paymentType = $paymentType;
 
         return $this;
     }

@@ -30,6 +30,11 @@ class CreateExpenseRequestDto
      */
     private $dateTime;
 
+    /**
+     * @var int|null
+     */
+    private $paymentType = null;
+
     public function setAmount(?float $amount)
     {
         $this->amount = $amount;
@@ -78,7 +83,7 @@ class CreateExpenseRequestDto
         $dto->description = $data['description'] ?? null;
         $dto->dateTime = $data['dateTime'] ?? null;
         $dto->store = $data['store'] ?? null;
-
+        $dto->paymentType = isset($data['paymentType']) ? (int) $data['paymentType'] : null;
 
         return $dto;
     }
@@ -94,5 +99,6 @@ class CreateExpenseRequestDto
             $command->setCreatedAt(Carbon::now()->toDateTimeImmutable());
         }
         $command->setStore($this->store);
+        $command->setPaymentType($this->paymentType);
     }
 }

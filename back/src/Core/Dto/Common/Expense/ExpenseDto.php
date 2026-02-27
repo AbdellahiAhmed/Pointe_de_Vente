@@ -38,6 +38,16 @@ class ExpenseDto
     private $store;
 
     /**
+     * @var string|null
+     */
+    private $paymentTypeName;
+
+    /**
+     * @var int|null
+     */
+    private $paymentTypeId;
+
+    /**
      * @return float
      */
     public function getAmount(): float
@@ -127,6 +137,21 @@ class ExpenseDto
 
         $dto->setStore(StoreDto::createFromStore($expense->getStore()));
 
+        if ($expense->getPaymentType() !== null) {
+            $dto->paymentTypeName = $expense->getPaymentType()->getName();
+            $dto->paymentTypeId = $expense->getPaymentType()->getId();
+        }
+
         return $dto;
+    }
+
+    public function getPaymentTypeName(): ?string
+    {
+        return $this->paymentTypeName;
+    }
+
+    public function getPaymentTypeId(): ?int
+    {
+        return $this->paymentTypeId;
     }
 }
