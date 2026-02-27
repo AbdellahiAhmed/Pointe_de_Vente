@@ -293,7 +293,8 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
       </div>
 
       <form onSubmit={onSubmit}>
-        {/* Row: Amount + Type + Add button */}
+        {/* Row: Amount + Type + Add button — hidden when full amount is allocated */}
+        {remaining > 0.01 && (
         <div className="flex flex-wrap items-end gap-3 mb-3">
           <div className="flex flex-col min-w-[140px]">
             <label className="text-xs font-medium text-gray-600 mb-1">
@@ -338,13 +339,14 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
             variant="primary"
             type="button"
             onClick={addSplit}
-            disabled={saving || remaining <= 0}
+            disabled={saving}
             title={t("Add split")}
           >
             <FontAwesomeIcon icon={faPlus} className="me-1" />
             {t("Add")}
           </Button>
         </div>
+        )}
 
         {/* Splits list */}
         {splits.length > 0 && (
