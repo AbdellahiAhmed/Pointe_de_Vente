@@ -1,6 +1,5 @@
-// Use the self-contained bundle that includes html2canvas
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-import html2pdf from 'html2pdf.js/dist/html2pdf.bundle.min.js';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 interface ZReportSnapshot {
   zReportNumber: number;
@@ -183,7 +182,7 @@ function buildHtml(data: ZReportSnapshot): string {
 export async function generateZReportArabicPdf(data: ZReportSnapshot): Promise<Blob> {
   const html = buildHtml(data);
 
-  // Create a temporary container — must be rendered (not display:none) for html2canvas
+  // Create a temporary container — must be visible for html2canvas to render
   const container = document.createElement('div');
   container.innerHTML = html;
   container.style.position = 'fixed';
@@ -197,23 +196,44 @@ export async function generateZReportArabicPdf(data: ZReportSnapshot): Promise<B
   const element = container.firstElementChild as HTMLElement;
 
   try {
-    // html2pdf returns a thenable Worker — use .then() for reliable promise resolution
-    const pdfFn = (typeof html2pdf === 'function') ? html2pdf : (html2pdf as any).default;
-    const blob: Blob = await new Promise((resolve, reject) => {
-      pdfFn()
-        .set({
-          margin: [10, 10, 10, 10],
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, logging: false },
-          jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' },
-        })
-        .from(element)
-        .outputPdf('blob')
-        .then((result: Blob) => resolve(result))
-        .catch((err: Error) => reject(err));
+    // Step 1: Render HTML to canvas using html2canvas
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
     });
 
-    return blob;
+    // Step 2: Convert canvas to image data
+    const imgData = canvas.toDataURL('image/jpeg', 0.98);
+
+    // Step 3: Create PDF with jsPDF
+    const pdfDoc = new jsPDF({
+      unit: 'pt',
+      format: 'a4',
+      orientation: 'portrait',
+    });
+
+    const pageWidth = pdfDoc.internal.pageSize.getWidth();
+    const pageHeight = pdfDoc.internal.pageSize.getHeight();
+    const margin = 10;
+
+    // Scale the image to fit the page with margins
+    const availableWidth = pageWidth - margin * 2;
+    const availableHeight = pageHeight - margin * 2;
+    const imgRatio = canvas.height / canvas.width;
+    let imgWidth = availableWidth;
+    let imgHeight = imgWidth * imgRatio;
+
+    // If image is taller than the page, scale down
+    if (imgHeight > availableHeight) {
+      imgHeight = availableHeight;
+      imgWidth = imgHeight / imgRatio;
+    }
+
+    pdfDoc.addImage(imgData, 'JPEG', margin, margin, imgWidth, imgHeight);
+
+    // Step 4: Output as blob
+    return pdfDoc.output('blob');
   } finally {
     document.body.removeChild(container);
   }

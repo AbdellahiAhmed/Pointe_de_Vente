@@ -44,7 +44,7 @@ export const ZReportPage: FunctionComponent = () => {
     try {
       const res = await jsonRequest(CLOSING_ZREPORT_DATA.replace(':id', closingId));
       const snapshot = await res.json();
-      // Arabic: use html2pdf (browser renders Arabic perfectly)
+      // Arabic: use html2canvas + jsPDF (browser renders Arabic perfectly)
       // French: use react-pdf (vector PDF with correct Latin metrics)
       const blob = lang === 'ar'
         ? await generateZReportArabicPdf(snapshot)
@@ -55,7 +55,8 @@ export const ZReportPage: FunctionComponent = () => {
       a.download = `z-report-${snapshot.zReportNumber}-${lang}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
-    } catch {
+    } catch (err) {
+      console.error('Z-Report PDF error:', err);
       notify({type: 'error', description: t('Failed to download Z-Report PDF.')});
     } finally {
       setDownloading(null);
