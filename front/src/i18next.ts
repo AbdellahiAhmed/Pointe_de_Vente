@@ -20,7 +20,8 @@ i18n
       escapeValue: false // react already safes from xss => https://www.i18next.com/translation-function/interpolation#unescape
     },
     saveMissing: true,
-    saveMissingTo: "current"
+    saveMissingTo: "current",
+    keySeparator: false
   });
 
 export default i18n;

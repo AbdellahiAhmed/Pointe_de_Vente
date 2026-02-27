@@ -1018,5 +1018,15 @@
   "No anomalies detected — system is healthy": "لم يتم اكتشاف أي مشاكل — النظام سليم",
   "No anomalies for this filter": "لا توجد مشاكل لهذا الفلتر",
   "Name": "الاسم",
-  "Detail": "التفاصيل"
+  "Detail": "التفاصيل",
+  "Debt payment": "دفع الدين",
+  "Amount must be greater than 0": "يجب أن يكون المبلغ أكبر من 0",
+  "Payment type is required": "نوع الدفع مطلوب",
+  "You do not have permission to record payments": "ليس لديك صلاحية لتسجيل المدفوعات",
+  "Failed to save payment": "فشل في حفظ الدفعة",
+  "Record payment for": "تسجيل دفعة لـ",
+  "Select...": "اختر...",
+  "Customer debt fully cleared!": "تم تسوية دين العميل بالكامل!",
+  "All debts are cleared": "جميع الديون مسددة",
+  "No customer has an outstanding balance": "لا يوجد عميل لديه رصيد مستحق"
 }

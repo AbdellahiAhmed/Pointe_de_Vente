@@ -1010,5 +1010,16 @@
   "View": "Voir",
   "Address": "Adresse",
   "Erreur de chargement des données.": "Erreur de chargement des données.",
-  "Failed to download Z-Report PDF.": "Échec du téléchargement du rapport Z en PDF."
+  "Failed to download Z-Report PDF.": "Échec du téléchargement du rapport Z en PDF.",
+  "Refresh": "Actualiser",
+  "Debt payment": "Paiement de dette",
+  "Amount must be greater than 0": "Le montant doit être supérieur à 0",
+  "Payment type is required": "Le type de paiement est requis",
+  "You do not have permission to record payments": "Vous n'avez pas les droits pour enregistrer des paiements",
+  "Failed to save payment": "Échec de l'enregistrement du paiement",
+  "Record payment for": "Enregistrer un paiement pour",
+  "Select...": "Sélectionner...",
+  "Customer debt fully cleared!": "Dette du client entièrement réglée !",
+  "All debts are cleared": "Toutes les dettes sont réglées",
+  "No customer has an outstanding balance": "Aucun client n'a de solde impayé"
 }
