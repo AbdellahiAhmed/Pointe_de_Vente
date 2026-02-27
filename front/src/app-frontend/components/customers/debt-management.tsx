@@ -76,10 +76,27 @@ interface PaymentFormValues {
 // ---------------------------------------------------------------------------
 
 const PaymentSchema = yup.object({
-  amount: yup.string().required(ValidationMessage.Required),
+  amount: yup
+    .string()
+    .required(ValidationMessage.Required)
+    .test("is-positive", "Amount must be greater than 0", (v) => {
+      const n = parseFloat(v ?? "");
+      return !isNaN(n) && n > 0;
+    }),
   description: yup.string().trim().required(ValidationMessage.Required),
   paymentType: yup.string().required(ValidationMessage.Required),
 });
+
+// ---------------------------------------------------------------------------
+// Helper: safe DateTime parsing (handles ISO 8601 and raw SQL formats)
+// ---------------------------------------------------------------------------
+
+function parseDate(raw: string | undefined | null): DateTime {
+  if (!raw) return DateTime.now();
+  const dt = DateTime.fromISO(raw);
+  if (dt.isValid) return dt;
+  return DateTime.fromSQL(raw);
+}
 
 // ---------------------------------------------------------------------------
 // Helper: effective outstanding (now already includes openingBalance from API)
@@ -103,8 +120,8 @@ const PaymentHistory: FC<PaymentHistoryProps> = ({ payments }) => {
   const sorted = useMemo(
     () =>
       [...payments].sort((a, b) => {
-        const da = DateTime.fromISO(a.createdAt).toMillis();
-        const db = DateTime.fromISO(b.createdAt).toMillis();
+        const da = parseDate(a.createdAt).toMillis();
+        const db = parseDate(b.createdAt).toMillis();
         return db - da;
       }),
     [payments]
@@ -126,7 +143,7 @@ const PaymentHistory: FC<PaymentHistoryProps> = ({ payments }) => {
         <tr key={p.id} className="bg-gray-50 border-b border-gray-100 last:border-0">
           <td className="ps-10 py-2 text-xs text-gray-500 w-40">
             <span dir="ltr" className="inline-block">
-              {DateTime.fromISO(p.createdAt).toFormat("dd/MM/yyyy HH:mm")}
+              {parseDate(p.createdAt).toFormat("dd/MM/yyyy HH:mm")}
             </span>
           </td>
           <td className="py-2 text-sm font-semibold text-green-700">
@@ -167,7 +184,7 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
         const res = await jsonRequest(PAYMENT_TYPE_LIST);
         const json = await res.json();
         const list: PaymentType[] = json["hydra:member"] ?? [];
-        setPaymentTypes(list.filter((p) => p.isActive));
+        setPaymentTypes(list.filter((p) => p.isActive && p.category !== 'credit'));
       } catch {}
     })();
   }, []);
@@ -205,6 +222,20 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
         method: "POST",
         body: JSON.stringify(body),
       });
+
+      // API Platform may not return createdAt (not in serialization group),
+      // so we fill it in for local state display.
+      if (!response.createdAt) {
+        response.createdAt = new Date().toISOString();
+      }
+
+      // Enrich paymentType for display if not returned by API
+      if (!response.paymentType && values.paymentType) {
+        const pt = paymentTypes.find((p) => String(p.id) === values.paymentType);
+        if (pt) {
+          response.paymentType = { id: Number(pt.id), name: pt.name };
+        }
+      }
 
       notify({
         type: "success",
@@ -479,9 +510,12 @@ export const DebtManagement: FC = () => {
   // ---------------------------------------------------------------------------
 
   const totals = useMemo(() => {
-    const withDebt = customers.filter((c) => effectiveOutstanding(c) > 0);
-    const totalDebt = withDebt.reduce(
-      (acc, c) => acc + effectiveOutstanding(c),
+    const withDebt = customers.filter((c) => effectiveOutstanding(c) !== 0);
+    const totalDebt = customers.reduce(
+      (acc, c) => {
+        const o = effectiveOutstanding(c);
+        return o > 0 ? acc + o : acc;
+      },
       0
     );
     const totalCollected = customers.reduce(
@@ -564,10 +598,10 @@ export const DebtManagement: FC = () => {
     if (payments.length === 0) return t("Never");
     const sorted = [...payments].sort(
       (a, b) =>
-        DateTime.fromISO(b.createdAt).toMillis() -
-        DateTime.fromISO(a.createdAt).toMillis()
+        parseDate(b.createdAt).toMillis() -
+        parseDate(a.createdAt).toMillis()
     );
-    return DateTime.fromISO(sorted[0].createdAt).toFormat("dd/MM/yyyy HH:mm");
+    return parseDate(sorted[0].createdAt).toFormat("dd/MM/yyyy HH:mm");
   };
 
   // ---------------------------------------------------------------------------

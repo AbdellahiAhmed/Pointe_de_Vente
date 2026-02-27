@@ -568,18 +568,32 @@ class ReportController extends AbstractController
 
         // Batch-load all payments in one query, grouped by customer
         $paymentsSql = '
-            SELECT cp.customer_id, cp.id, cp.amount, cp.description, cp.created_at
+            SELECT cp.customer_id, cp.id, cp.amount, cp.description, cp.created_at,
+                pt.id AS payment_type_id, pt.name AS payment_type_name
             FROM customer_payment cp
+            LEFT JOIN payment pt ON pt.id = cp.payment_type_id
             ORDER BY cp.created_at DESC
         ';
         $allPayments = $conn->fetchAllAssociative($paymentsSql);
         $paymentsByCustomer = [];
         foreach ($allPayments as $p) {
+            $createdAt = $p['created_at'];
+            // Convert MySQL datetime to ISO 8601 format
+            if ($createdAt !== null) {
+                try {
+                    $createdAt = (new \DateTime($createdAt))->format('c');
+                } catch (\Exception $e) {}
+            }
+
             $paymentsByCustomer[$p['customer_id']][] = [
                 'id' => (int) $p['id'],
                 'amount' => (float) $p['amount'],
                 'description' => $p['description'],
-                'createdAt' => $p['created_at'],
+                'createdAt' => $createdAt,
+                'paymentType' => $p['payment_type_id'] ? [
+                    'id' => (int) $p['payment_type_id'],
+                    'name' => $p['payment_type_name'],
+                ] : null,
             ];
         }
 

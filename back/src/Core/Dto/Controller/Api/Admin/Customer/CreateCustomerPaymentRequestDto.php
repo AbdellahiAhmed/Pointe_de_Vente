@@ -26,6 +26,11 @@ class CreateCustomerPaymentRequestDto
      */
     private $orderId;
 
+    /**
+     * @var int|null
+     */
+    private $paymentTypeId;
+
 
     public static function createFromRequest(Request $request): self
     {
@@ -35,6 +40,7 @@ class CreateCustomerPaymentRequestDto
         $dto->amount = $data['amount'] ?? null;
         $dto->description = $data['description'] ?? null;
         $dto->orderId = $data['orderId'] ?? null;
+        $dto->paymentTypeId = isset($data['paymentTypeId']) ? (int) $data['paymentTypeId'] : null;
 
         return $dto;
     }
@@ -85,6 +91,22 @@ class CreateCustomerPaymentRequestDto
     public function setOrderId(?int $orderId): void
     {
         $this->orderId = $orderId;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getPaymentTypeId(): ?int
+    {
+        return $this->paymentTypeId;
+    }
+
+    /**
+     * @param int|null $paymentTypeId
+     */
+    public function setPaymentTypeId(?int $paymentTypeId): void
+    {
+        $this->paymentTypeId = $paymentTypeId;
     }
 
 }

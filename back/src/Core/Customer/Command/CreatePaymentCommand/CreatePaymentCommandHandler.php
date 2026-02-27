@@ -4,6 +4,7 @@ namespace App\Core\Customer\Command\CreatePaymentCommand;
 
 use App\Entity\CustomerPayment;
 use App\Entity\Order;
+use App\Entity\Payment;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Core\Entity\EntityManager\EntityManager;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -36,6 +37,13 @@ class CreatePaymentCommandHandler extends EntityManager implements CreatePayment
             return CreatePaymentCommandResult::createFromValidationErrorMessage('Client introuvable.');
         }
         $item->setCustomer($customer);
+
+        if ($command->getPaymentTypeId() !== null) {
+            $paymentType = $this->getRepository(Payment::class)->find($command->getPaymentTypeId());
+            if ($paymentType !== null) {
+                $item->setPaymentType($paymentType);
+            }
+        }
 
         //validate item before creation
         $violations = $this->validator->validate($item);

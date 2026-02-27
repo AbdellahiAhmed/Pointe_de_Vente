@@ -161,6 +161,7 @@ class CustomerController extends AbstractController
         $command->setCustomerId($id);
         $command->setDescription($requestDto->getDescription());
         $command->setOrderId($requestDto->getOrderId());
+        $command->setPaymentTypeId($requestDto->getPaymentTypeId());
 
         $result = $handler->handle($command);
 

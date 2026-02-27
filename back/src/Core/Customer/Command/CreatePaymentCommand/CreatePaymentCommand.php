@@ -28,6 +28,11 @@ class CreatePaymentCommand
     private $customerId;
 
     /**
+     * @var int|null
+     */
+    private $paymentTypeId;
+
+    /**
      * @var UserInterface
      */
     private $user;
@@ -110,5 +115,21 @@ class CreatePaymentCommand
     public function setUser(UserInterface $user): void
     {
         $this->user = $user;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getPaymentTypeId(): ?int
+    {
+        return $this->paymentTypeId;
+    }
+
+    /**
+     * @param int|null $paymentTypeId
+     */
+    public function setPaymentTypeId(?int $paymentTypeId): void
+    {
+        $this->paymentTypeId = $paymentTypeId;
     }
 }
