@@ -1028,5 +1028,11 @@
   "Select...": "اختر...",
   "Customer debt fully cleared!": "تم تسوية دين العميل بالكامل!",
   "All debts are cleared": "جميع الديون مسددة",
-  "No customer has an outstanding balance": "لا يوجد عميل لديه رصيد مستحق"
+  "No customer has an outstanding balance": "لا يوجد عميل لديه رصيد مستحق",
+  "Add": "إضافة",
+  "Add split": "إضافة جزء",
+  "Remove": "حذف",
+  "Total": "الإجمالي",
+  "Remaining": "المتبقي",
+  "Split total exceeds outstanding": "إجمالي الأقساط يتجاوز المستحق"
 }

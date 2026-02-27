@@ -1021,5 +1021,11 @@
   "Select...": "Sélectionner...",
   "Customer debt fully cleared!": "Dette du client entièrement réglée !",
   "All debts are cleared": "Toutes les dettes sont réglées",
-  "No customer has an outstanding balance": "Aucun client n'a de solde impayé"
+  "No customer has an outstanding balance": "Aucun client n'a de solde impayé",
+  "Add": "Ajouter",
+  "Add split": "Ajouter une partie",
+  "Remove": "Supprimer",
+  "Total": "Total",
+  "Remaining": "Restant",
+  "Split total exceeds outstanding": "Le total dépasse le montant dû"
 }

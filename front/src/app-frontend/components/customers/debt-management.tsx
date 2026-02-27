@@ -17,7 +17,9 @@ import {
   faHistory,
   faMagnifyingGlass,
   faMoneyBillWave,
+  faPlus,
   faSpinner,
+  faTrash,
   faUsers,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
@@ -122,9 +124,15 @@ const PaymentHistory: FC<PaymentHistoryProps> = ({ payments }) => {
 // Sub-component: Inline payment form
 // ---------------------------------------------------------------------------
 
+interface SplitItem {
+  amount: number;
+  paymentTypeId: string;
+  paymentTypeName: string;
+}
+
 interface InlinePaymentFormProps {
   customer: ReportCustomerItem;
-  onSuccess: (customerId: number | string, newPayment: CustomerPayment, paidAmount: number) => void;
+  onSuccess: (customerId: number | string, newPayments: CustomerPayment[], paidAmount: number) => void;
   onCancel: () => void;
 }
 
@@ -138,10 +146,16 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
   const [paymentTypes, setPaymentTypes] = useState<PaymentType[]>([]);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  // Form state (no yupResolver — manual validation to avoid version conflict)
+  // Input fields for adding a split
   const [amount, setAmount] = useState("");
   const [paymentType, setPaymentType] = useState("");
   const [description, setDescription] = useState<string>(String(t("Debt payment")));
+
+  // Split payments list
+  const [splits, setSplits] = useState<SplitItem[]>([]);
+
+  const splitsTotal = useMemo(() => splits.reduce((s, i) => s + i.amount, 0), [splits]);
+  const remaining = customer.outstanding - splitsTotal;
 
   useEffect(() => {
     (async () => {
@@ -154,78 +168,121 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
     })();
   }, []);
 
-  const validate = (): boolean => {
+  // --- Add a split entry ---
+  const addSplit = () => {
     const errs: Record<string, string> = {};
     const n = parseFloat(amount);
     if (!amount.trim() || isNaN(n) || n <= 0) {
       errs.amount = t("Amount must be greater than 0");
+    } else if (n > remaining + 0.01) {
+      errs.amount = t("Split total exceeds outstanding");
     }
     if (!paymentType) {
       errs.paymentType = t("Payment type is required");
     }
     setFormErrors(errs);
-    return Object.keys(errs).length === 0;
+    if (Object.keys(errs).length > 0) return;
+
+    const pt = paymentTypes.find((p) => String(p.id) === paymentType);
+    setSplits((prev) => [
+      ...prev,
+      { amount: n, paymentTypeId: paymentType, paymentTypeName: pt?.name ?? "" },
+    ]);
+    setAmount("");
+    setPaymentType("");
+    setFormErrors({});
   };
 
+  // --- Remove a split entry ---
+  const removeSplit = (index: number) => {
+    setSplits((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // --- Submit: POST each split as a separate CustomerPayment ---
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+
+    // If no splits added yet, treat the current input fields as a single payment
+    let toSubmit = splits;
+    if (toSubmit.length === 0) {
+      const errs: Record<string, string> = {};
+      const n = parseFloat(amount);
+      if (!amount.trim() || isNaN(n) || n <= 0) {
+        errs.amount = t("Amount must be greater than 0");
+      }
+      if (!paymentType) {
+        errs.paymentType = t("Payment type is required");
+      }
+      setFormErrors(errs);
+      if (Object.keys(errs).length > 0) return;
+
+      const pt = paymentTypes.find((p) => String(p.id) === paymentType);
+      toSubmit = [{ amount: n, paymentTypeId: paymentType, paymentTypeName: pt?.name ?? "" }];
+    }
 
     setSaving(true);
-    try {
-      const iri = customer["@id"] ?? `/api/customers/${customer.id}`;
-      const body: Record<string, any> = {
-        customer: iri,
-        amount: amount,
-        description: description || t("Debt payment"),
-      };
+    const iri = customer["@id"] ?? `/api/customers/${customer.id}`;
+    const desc = description || t("Debt payment");
+    const successPayments: CustomerPayment[] = [];
+    let totalPaid = 0;
 
-      if (paymentType) {
-        body.paymentType = `/api/payments/${paymentType}`;
-      }
+    for (const split of toSubmit) {
+      try {
+        const body: Record<string, any> = {
+          customer: iri,
+          amount: String(split.amount),
+          description: desc,
+          paymentType: `/api/payments/${split.paymentTypeId}`,
+        };
 
-      const response: CustomerPayment = await fetchJson(CUSTOMER_PAYMENT_CREATE, {
-        method: "POST",
-        body: JSON.stringify(body),
-      });
+        const response: CustomerPayment = await fetchJson(CUSTOMER_PAYMENT_CREATE, {
+          method: "POST",
+          body: JSON.stringify(body),
+        });
 
-      if (!response.createdAt) {
-        response.createdAt = new Date().toISOString();
-      }
-
-      if (!response.paymentType && paymentType) {
-        const pt = paymentTypes.find((p) => String(p.id) === paymentType);
-        if (pt) {
-          response.paymentType = { id: Number(pt.id), name: pt.name };
+        if (!response.createdAt) response.createdAt = new Date().toISOString();
+        if (!response.paymentType) {
+          response.paymentType = {
+            id: Number(split.paymentTypeId),
+            name: split.paymentTypeName,
+          };
         }
+
+        successPayments.push(response);
+        totalPaid += split.amount;
+      } catch (exception: any) {
+        const err = exception as any;
+        if (err?.code === 403 || err?.response?.status === 403) {
+          notify({ type: "error", description: t("You do not have permission to record payments") });
+        } else {
+          notify({
+            type: "error",
+            description: `${t("Failed to save payment")} (${split.paymentTypeName} ${withCurrency(split.amount)})`,
+          });
+        }
+        break;
       }
+    }
 
-      const paidAmount = parseFloat(amount) || 0;
+    setSaving(false);
 
+    if (successPayments.length > 0) {
       notify({
         type: "success",
-        description: `${t("Payment recorded successfully")} — ${withCurrency(paidAmount)}`,
+        description: `${t("Payment recorded successfully")} — ${withCurrency(totalPaid)}`,
       });
-
+      setSplits([]);
       setAmount("");
       setPaymentType("");
       setDescription(String(t("Debt payment")));
       setFormErrors({});
-      onSuccess(customer.id, response, paidAmount);
-    } catch (exception: any) {
-      const err = exception as any;
-      if (err?.code === 403 || err?.response?.status === 403) {
-        notify({ type: "error", description: t("You do not have permission to record payments") });
-      } else {
-        notify({ type: "error", description: t("Failed to save payment") });
-      }
-    } finally {
-      setSaving(false);
+      onSuccess(customer.id, successPayments, totalPaid);
     }
   };
 
   return (
     <div className="bg-amber-50 border-b border-amber-200 px-4 py-4">
+      {/* Header */}
       <div className="flex items-center gap-2 mb-3">
         <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
           {t("Record payment for")} {customer.name}
@@ -234,84 +291,138 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
           ({t("Outstanding")}: {withCurrency(customer.outstanding)})
         </span>
       </div>
-      <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3">
-        {/* Amount */}
-        <div className="flex flex-col min-w-[140px]">
-          <label className="text-xs font-medium text-gray-600 mb-1">
-            {t("Amount")} <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            inputMode="decimal"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder={String(customer.outstanding)}
-            className={`input w-full ${formErrors.amount ? 'error' : ''}`}
-            autoFocus
-          />
-          {formErrors.amount && (
-            <div className="text-danger-500 text-sm">{formErrors.amount}</div>
-          )}
-        </div>
 
-        {/* Payment Type */}
-        <div className="flex flex-col min-w-[160px]">
-          <label className="text-xs font-medium text-gray-600 mb-1">
-            {t("Payment type")} <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={paymentType}
-            onChange={(e) => setPaymentType(e.target.value)}
-            className={`input w-full ${formErrors.paymentType ? "border-red-500" : ""}`}
-          >
-            <option value="">{t("Select...")}</option>
-            {paymentTypes.map((pt) => (
-              <option key={pt.id} value={pt.id}>
-                {pt.name}
-              </option>
-            ))}
-          </select>
-          {formErrors.paymentType && (
-            <div className="text-danger-500 text-sm">{formErrors.paymentType}</div>
-          )}
-        </div>
-
-        {/* Description */}
-        <div className="flex flex-col flex-1 min-w-[200px]">
-          <label className="text-xs font-medium text-gray-600 mb-1">
-            {t("Note / Description")}
-          </label>
-          <input
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder={t("e.g. Cash received")}
-            className="input w-full"
-            autoComplete="off"
-          />
-        </div>
-
-        {/* Actions */}
-        <div className="flex gap-2 pb-0.5">
-          <Button variant="warning" type="submit" disabled={saving}>
-            {saving ? (
-              <>
-                <FontAwesomeIcon icon={faSpinner} spin className="me-2" />
-                {t("Saving...")}
-              </>
-            ) : (
-              t("Save")
+      <form onSubmit={onSubmit}>
+        {/* Row: Amount + Type + Add button */}
+        <div className="flex flex-wrap items-end gap-3 mb-3">
+          <div className="flex flex-col min-w-[140px]">
+            <label className="text-xs font-medium text-gray-600 mb-1">
+              {t("Amount")} <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              inputMode="decimal"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder={String(remaining > 0 ? remaining : customer.outstanding)}
+              className={`input w-full ${formErrors.amount ? "border-red-500" : ""}`}
+              autoFocus
+              disabled={saving}
+            />
+            {formErrors.amount && (
+              <div className="text-danger-500 text-xs mt-0.5">{formErrors.amount}</div>
             )}
-          </Button>
+          </div>
+
+          <div className="flex flex-col min-w-[160px]">
+            <label className="text-xs font-medium text-gray-600 mb-1">
+              {t("Payment type")} <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={paymentType}
+              onChange={(e) => setPaymentType(e.target.value)}
+              className={`input w-full ${formErrors.paymentType ? "border-red-500" : ""}`}
+              disabled={saving}
+            >
+              <option value="">{t("Select...")}</option>
+              {paymentTypes.map((pt) => (
+                <option key={pt.id} value={pt.id}>{pt.name}</option>
+              ))}
+            </select>
+            {formErrors.paymentType && (
+              <div className="text-danger-500 text-xs mt-0.5">{formErrors.paymentType}</div>
+            )}
+          </div>
+
           <Button
-            variant="secondary"
+            variant="primary"
             type="button"
-            onClick={onCancel}
-            disabled={saving}
+            onClick={addSplit}
+            disabled={saving || remaining <= 0}
+            title={t("Add split")}
           >
-            <FontAwesomeIcon icon={faXmark} className="me-1" />
-            {t("Cancel")}
+            <FontAwesomeIcon icon={faPlus} className="me-1" />
+            {t("Add")}
           </Button>
+        </div>
+
+        {/* Splits list */}
+        {splits.length > 0 && (
+          <div className="bg-white border border-amber-200 rounded-lg mb-3 overflow-hidden">
+            {splits.map((s, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between px-3 py-2 border-b border-amber-100 last:border-0"
+              >
+                <span className="text-sm font-medium text-gray-700">
+                  {s.paymentTypeName}
+                </span>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-bold text-green-700">
+                    {withCurrency(s.amount)}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeSplit(i)}
+                    className="text-red-400 hover:text-red-600 p-1"
+                    disabled={saving}
+                    title={t("Remove")}
+                  >
+                    <FontAwesomeIcon icon={faTrash} className="text-xs" />
+                  </button>
+                </div>
+              </div>
+            ))}
+            {/* Totals bar */}
+            <div className="flex items-center justify-between px-3 py-2 bg-amber-100/50 text-xs font-semibold">
+              <span className="text-gray-600">
+                {t("Total")}: {withCurrency(splitsTotal)}
+              </span>
+              <span className={remaining > 0 ? "text-amber-600" : "text-green-600"}>
+                {t("Remaining")}: {withCurrency(Math.max(0, remaining))}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Description + Actions */}
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="flex flex-col flex-1 min-w-[200px]">
+            <label className="text-xs font-medium text-gray-600 mb-1">
+              {t("Note / Description")}
+            </label>
+            <input
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder={t("e.g. Cash received")}
+              className="input w-full"
+              autoComplete="off"
+              disabled={saving}
+            />
+          </div>
+
+          <div className="flex gap-2 pb-0.5">
+            <Button variant="warning" type="submit" disabled={saving}>
+              {saving ? (
+                <>
+                  <FontAwesomeIcon icon={faSpinner} spin className="me-2" />
+                  {t("Saving...")}
+                </>
+              ) : (
+                t("Save")
+              )}
+            </Button>
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={onCancel}
+              disabled={saving}
+            >
+              <FontAwesomeIcon icon={faXmark} className="me-1" />
+              {t("Cancel")}
+            </Button>
+          </div>
         </div>
       </form>
     </div>
@@ -494,7 +605,7 @@ export const DebtManagement: FC = () => {
 
   const handlePaymentSuccess = (
     customerId: number | string,
-    newPayment: CustomerPayment,
+    newPayments: CustomerPayment[],
     paidAmount: number
   ) => {
     setApiTotals((prev) => ({
@@ -509,7 +620,7 @@ export const DebtManagement: FC = () => {
         return {
           ...c,
           outstanding: c.outstanding - paidAmount,
-          payments: [newPayment, ...(c.payments ?? [])],
+          payments: [...newPayments, ...(c.payments ?? [])],
         };
       });
 
