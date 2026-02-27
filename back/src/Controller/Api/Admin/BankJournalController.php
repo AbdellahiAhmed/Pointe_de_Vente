@@ -130,7 +130,7 @@ class BankJournalController extends AbstractController
      */
     public function summary(Request $request, ApiResponseFactory $responseFactory): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_MANAGER');
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         $dateFrom = $this->parseDate($request->query->get('dateFrom'));
         $dateTo   = $this->parseDate($request->query->get('dateTo'));
