@@ -12,6 +12,7 @@ export const Dashboard: FunctionComponent<DashboardProps> = () => {
   const {t} = useTranslation();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [lowStockCount, setLowStockCount] = useState<number>(0);
 
   useEffect(() => {
@@ -21,7 +22,7 @@ export const Dashboard: FunctionComponent<DashboardProps> = () => {
         const json = await response.json();
         setData(json);
       } catch {
-        // silently handled — dashboard shows zeros on failure
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -51,6 +52,13 @@ export const Dashboard: FunctionComponent<DashboardProps> = () => {
         {title: t('Dashboard'), current: true},
       ]}
     >
+      {error && (
+        <div className="alert alert-danger d-flex align-items-center mb-3" role="alert">
+          <i className="bi bi-exclamation-triangle-fill me-2"></i>
+          {t('Failed to load data')}
+        </div>
+      )}
+
       {/* KPI Cards - Row 1 */}
       <div className="row">
         <div className="col-xxl-4 col-md-4">

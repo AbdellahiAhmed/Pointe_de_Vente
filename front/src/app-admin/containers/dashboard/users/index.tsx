@@ -135,7 +135,7 @@ export const Users = () => {
       });
       fetchUsers();
     } catch {
-      // silently handled
+      notify({type: 'error', description: t('Failed to update user status')});
     }
   };
 

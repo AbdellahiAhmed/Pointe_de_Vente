@@ -52,7 +52,7 @@ export const ZReportPage: FunctionComponent = () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `z-report-${snapshot.zReportNumber}-${lang}.pdf`;
+      a.download = `z-report-${snapshot?.zReportNumber ?? closingId}-${lang}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
     } catch (err) {

@@ -209,7 +209,8 @@ export const SystemHealth: FunctionComponent = () => {
                   </thead>
                   <tbody>
                     {filtered.map(anomaly => {
-                      const config = severityConfig[anomaly.severity];
+                      const config = severityConfig[anomaly.severity as keyof typeof severityConfig]
+                        ?? {bg: 'bg-secondary', icon: 'bi-question-circle', label: anomaly.severity};
                       return (
                         <tr key={anomaly.id}>
                           <td>
