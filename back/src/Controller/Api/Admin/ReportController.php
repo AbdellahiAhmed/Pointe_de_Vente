@@ -625,11 +625,11 @@ class ReportController extends AbstractController
             ];
         }
 
-        return $this->withCache($responseFactory->json([
+        return $responseFactory->json([
             'customers' => $data,
             'totalOutstanding' => round($totalOutstanding, 2),
             'totalCustomers' => count($data),
             'creditCustomers' => $creditCustomers,
-        ]), 180);
+        ]);
     }
 }

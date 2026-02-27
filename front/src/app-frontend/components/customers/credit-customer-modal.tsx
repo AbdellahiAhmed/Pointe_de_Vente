@@ -365,7 +365,7 @@ export const CreditCustomerModal: FC<CreditCustomerModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowCreateForm(true)}
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-amber-500 hover:bg-amber-600 active:bg-amber-700 transition-colors px-4 py-2 rounded-lg shadow-sm"
+                  className="inline-flex items-center gap-2 text-sm font-bold border-2 border-amber-500 bg-amber-500 text-white hover:bg-amber-600 hover:border-amber-600 active:bg-amber-700 transition-colors px-5 py-2.5 rounded-lg shadow-sm"
                 >
                   <FontAwesomeIcon icon={faUserPlus} />
                   {t("Create new customer")}
@@ -380,7 +380,7 @@ export const CreditCustomerModal: FC<CreditCustomerModalProps> = ({
               <button
                 type="button"
                 onClick={() => setShowCreateForm(true)}
-                className="w-full flex items-center justify-center gap-2 text-sm font-semibold text-amber-600 border-2 border-dashed border-amber-300 hover:border-amber-500 hover:bg-amber-50 transition-colors px-4 py-2.5 rounded-lg"
+                className="w-full flex items-center justify-center gap-2 text-sm font-bold border-2 border-dashed border-amber-400 bg-amber-50 text-amber-700 hover:border-amber-500 hover:bg-amber-100 transition-colors px-4 py-2.5 rounded-lg"
               >
                 <FontAwesomeIcon icon={faUserPlus} />
                 {t("New customer +")}
@@ -455,10 +455,10 @@ export const CreditCustomerModal: FC<CreditCustomerModalProps> = ({
                 </div>
 
                 {/* Allow credit toggle */}
-                <div className="flex items-center justify-between py-1">
+                <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white border border-gray-200">
                   <label
                     htmlFor="ccm-allow-credit"
-                    className="text-sm font-semibold text-gray-700 cursor-pointer select-none"
+                    className="text-sm font-bold text-gray-800 cursor-pointer select-none"
                   >
                     {t("Allow credit")}
                   </label>
@@ -474,12 +474,12 @@ export const CreditCustomerModal: FC<CreditCustomerModalProps> = ({
                         creditLimit: !prev.allowCreditSale ? prev.creditLimit : "",
                       }))
                     }
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 ${
-                      form.allowCreditSale ? "bg-amber-500" : "bg-gray-300"
+                    className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 ${
+                      form.allowCreditSale ? "bg-amber-500 border-amber-500" : "bg-gray-300 border-gray-300"
                     }`}
                   >
                     <span
-                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                      className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
                         form.allowCreditSale ? "translate-x-5" : "translate-x-0"
                       }`}
                     />
@@ -525,15 +525,14 @@ export const CreditCustomerModal: FC<CreditCustomerModalProps> = ({
                     type="button"
                     onClick={handleCancelCreate}
                     disabled={creating}
-                    className="px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-60 disabled:cursor-not-allowed transition-colors rounded-lg"
+                    className="px-4 py-2.5 text-sm font-semibold rounded-lg border-2 border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                   >
                     {t("Cancel")}
                   </button>
                   <button
                     type="submit"
                     disabled={creating}
-                    className="flex-1 inline-flex items-center justify-center gap-2 text-sm font-bold py-2.5 px-4 rounded-lg shadow-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                    style={{ backgroundColor: '#f59e0b', color: '#fff' }}
+                    className="flex-1 inline-flex items-center justify-center gap-2 text-sm font-bold py-2.5 px-4 rounded-lg shadow-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed border-2 border-amber-500 bg-amber-500 text-white hover:bg-amber-600 hover:border-amber-600 active:bg-amber-700"
                   >
                     {creating ? (
                       <>
