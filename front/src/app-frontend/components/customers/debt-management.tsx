@@ -66,7 +66,7 @@ interface ReportResponse {
 
 // Payment form field shape
 interface PaymentFormValues {
-  amount: number;
+  amount: string;
   description: string;
   paymentType: string;
 }
@@ -76,11 +76,7 @@ interface PaymentFormValues {
 // ---------------------------------------------------------------------------
 
 const PaymentSchema = yup.object({
-  amount: yup
-    .number()
-    .typeError(ValidationMessage.Number)
-    .positive(ValidationMessage.Positive)
-    .required(ValidationMessage.Required),
+  amount: yup.string().required(ValidationMessage.Required),
   description: yup.string().trim().required(ValidationMessage.Required),
   paymentType: yup.string().required(ValidationMessage.Required),
 });
