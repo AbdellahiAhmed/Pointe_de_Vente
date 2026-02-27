@@ -82,6 +82,7 @@ function buildHtml(data: ZReportSnapshot): string {
   padding: 30px;
   width: 595px;
   color: #000;
+  background-color: #fff;
   direction: rtl;
 ">
   <!-- Header -->
@@ -201,6 +202,14 @@ export async function generateZReportArabicPdf(data: ZReportSnapshot): Promise<B
       scale: 2,
       useCORS: true,
       logging: false,
+      backgroundColor: '#ffffff',
+      onclone: (clonedDoc: Document) => {
+        // Bootstrap 5.3+ uses oklch() colors that html2canvas cannot parse.
+        // Override with standard color values in the cloned document.
+        const style = clonedDoc.createElement('style');
+        style.textContent = '*, *::before, *::after { background-color: transparent !important; } :root, html, body { background-color: #fff !important; color: #000 !important; }';
+        clonedDoc.head.appendChild(style);
+      },
     });
 
     // Step 2: Convert canvas to image data
