@@ -30,4 +30,6 @@ export const INVENTORY_ALERTS = staticRoute('/inventory/alerts');
 export const RETURN_REQUESTS = staticRoute('/returns');
 export const CUSTOMERS_REPORT = staticRoute('/customers');
 
+export const BANK_JOURNAL = staticRoute('/bank-journal');
+
 export const SYSTEM_HEALTH = staticRoute('/system/health');

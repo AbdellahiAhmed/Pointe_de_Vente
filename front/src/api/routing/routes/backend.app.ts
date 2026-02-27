@@ -152,3 +152,6 @@ export const RETURN_REQUEST_REJECT = scopeUrl('/admin/return-requests/:id/reject
 export const RETURN_REQUEST_PROCESS_REFUND = scopeUrl('/admin/return-requests/:id/process-refund');
 
 export const SYSTEM_HEALTH = scopeUrl('/admin/system/health');
+
+export const BANK_JOURNAL_SUMMARY = scopeUrl('/admin/bank-journal/summary');
+export const BANK_JOURNAL_TRANSACTIONS = scopeUrl('/admin/bank-journal/:paymentId/transactions');

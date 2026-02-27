@@ -1,6 +1,6 @@
 import Login from './containers/login/login';
 import {BrowserRouter as Router, Route, useLocation} from "react-router-dom";
-import {DASHBOARD, FORGOT_PASSWORD, LOGIN, PROFILE, USERS, USERS_CREATE, USERS_EDIT, REPORTS_SALES, REPORTS_PROFIT, REPORTS_DAILY, REPORTS_VENDOR, REPORTS_CATEGORY, Z_REPORTS, INVENTORY_ALERTS, RETURN_REQUESTS, CUSTOMERS_REPORT, SYSTEM_HEALTH} from "./routes/frontend.routes";
+import {DASHBOARD, FORGOT_PASSWORD, LOGIN, PROFILE, USERS, USERS_CREATE, USERS_EDIT, REPORTS_SALES, REPORTS_PROFIT, REPORTS_DAILY, REPORTS_VENDOR, REPORTS_CATEGORY, Z_REPORTS, BANK_JOURNAL, INVENTORY_ALERTS, RETURN_REQUESTS, CUSTOMERS_REPORT, SYSTEM_HEALTH} from "./routes/frontend.routes";
 import {connect, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {RootState} from "../duck/_root/root.state";
@@ -28,6 +28,7 @@ import {CategoryReport} from "./containers/reports/category-report";
 import {ReturnRequests} from "./containers/returns/return-requests";
 import {CustomerReport} from "./containers/reports/customer-report";
 import {SystemHealth} from "./containers/system/system-health";
+import {BankJournal} from "./containers/bank-journal/bank-journal";
 
 export interface AppProps {
   bootstrap: () => void;
@@ -93,6 +94,7 @@ const AppComponent: FunctionComponent<AppProps> = (props) => {
         <Route path={REPORTS_VENDOR} element={<RequireAuth><RequireRole role="ROLE_MANAGER"><VendorReport/></RequireRole></RequireAuth>}/>
         <Route path={REPORTS_CATEGORY} element={<RequireAuth><RequireRole role="ROLE_MANAGER"><CategoryReport/></RequireRole></RequireAuth>}/>
         <Route path={Z_REPORTS} element={<RequireAuth><RequireRole role="ROLE_MANAGER"><ZReportPage/></RequireRole></RequireAuth>}/>
+        <Route path={BANK_JOURNAL} element={<RequireAuth><RequireRole role="ROLE_MANAGER"><BankJournal/></RequireRole></RequireAuth>}/>
 
         <Route path={INVENTORY_ALERTS} element={<RequireAuth><RequireRole role="ROLE_MANAGER"><StockAlerts/></RequireRole></RequireAuth>}/>
         <Route path={RETURN_REQUESTS} element={<RequireAuth><RequireRole role="ROLE_MANAGER"><ReturnRequests/></RequireRole></RequireAuth>}/>

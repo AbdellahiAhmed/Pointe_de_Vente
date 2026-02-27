@@ -2,7 +2,7 @@ import {useSelector} from "react-redux";
 import {isUserLoggedIn} from "../../../duck/auth/auth.selector";
 import React from "react";
 import {Link, useLocation} from "react-router-dom";
-import {DASHBOARD, REPORTS_SALES, REPORTS_PROFIT, REPORTS_DAILY, REPORTS_VENDOR, REPORTS_CATEGORY, Z_REPORTS, USERS, INVENTORY_ALERTS, RETURN_REQUESTS, CUSTOMERS_REPORT, SYSTEM_HEALTH} from "../../routes/frontend.routes";
+import {DASHBOARD, REPORTS_SALES, REPORTS_PROFIT, REPORTS_DAILY, REPORTS_VENDOR, REPORTS_CATEGORY, Z_REPORTS, USERS, INVENTORY_ALERTS, RETURN_REQUESTS, CUSTOMERS_REPORT, BANK_JOURNAL, SYSTEM_HEALTH} from "../../routes/frontend.routes";
 import classNames from "classnames";
 import {useTranslation} from "react-i18next";
 import {useHasRole} from "../../../duck/auth/hooks/useHasRole";
@@ -85,6 +85,15 @@ export const Sidebar = () => {
               )} to={Z_REPORTS}>
                 <i className="bi bi-file-earmark-pdf"></i>
                 <span>{t('Z-Reports')}</span>
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link className={classNames(
+                "nav-link", location.pathname === BANK_JOURNAL ? 'active' : 'collapsed'
+              )} to={BANK_JOURNAL}>
+                <i className="bi bi-bank"></i>
+                <span>{t('Bank Journal')}</span>
               </Link>
             </li>
           </>
