@@ -182,7 +182,7 @@ export const SaleHistory: FC<Props> = ({}) => {
             icon={getOrderStatusIcon(info.getValue())}
             className="me-1"
           />{" "}
-          {orderStatus(info.row.original)}
+          {t(orderStatus(info.row.original))}
         </span>
       ),
     }),
@@ -288,7 +288,7 @@ export const SaleHistory: FC<Props> = ({}) => {
 
       setExpenses(json.list);
     } catch (e) {
-      notify({ type: 'error', description: 'An error occurred' });
+      notify({ type: 'error', description: t('An error occurred') });
     }
   };
 
@@ -390,7 +390,7 @@ export const SaleHistory: FC<Props> = ({}) => {
 
       setModal(false);
     } catch (e) {
-      notify({ type: 'error', description: 'An error occurred' });
+      notify({ type: 'error', description: t('An error occurred') });
     } finally {
       setUnsuspending(false);
     }
@@ -427,7 +427,7 @@ export const SaleHistory: FC<Props> = ({}) => {
 
       loadList();
     } catch (e) {
-      notify({ type: 'error', description: 'An error occurred' });
+      notify({ type: 'error', description: t('An error occurred') });
     } finally {
       setDeleting(false);
     }
@@ -449,7 +449,7 @@ export const SaleHistory: FC<Props> = ({}) => {
           const body = await e.response.json();
           msg = body["hydra:description"] || body.detail || msg;
         } catch {}
-        if (e.code === 403) msg = "Vous n'avez pas les droits nécessaires.";
+        if (e.code === 403) msg = t("You do not have the required permissions");
       }
       notify({ type: 'error', description: msg });
     } finally {
@@ -520,7 +520,7 @@ export const SaleHistory: FC<Props> = ({}) => {
           0
         );
       } else {
-        const cash = "Cash";
+        const cash = t("Cash Sale");
         if (!customers[cash]) {
           customers[cash] = 0;
         }
@@ -684,11 +684,11 @@ export const SaleHistory: FC<Props> = ({}) => {
                   <div className="h-[300px]">
                     <Bar
                       data={[
-                        { id: "Sale", value: totalAmount.toFixed(2) },
-                        { id: "Cost", value: totalCost.toFixed(2) },
-                        { id: "Discount", value: discountTotal.toFixed(2) },
-                        { id: "Tax", value: taxTotal.toFixed(2) },
-                        { id: "Expense", value: totalExpenses.toFixed(2) },
+                        { id: t("Sale"), value: totalAmount.toFixed(2) },
+                        { id: t("Cost"), value: totalCost.toFixed(2) },
+                        { id: t("Discount"), value: discountTotal.toFixed(2) },
+                        { id: t("Tax"), value: taxTotal.toFixed(2) },
+                        { id: t("Expense"), value: totalExpenses.toFixed(2) },
                       ]}
                       // keys={['value']}
                       margin={{

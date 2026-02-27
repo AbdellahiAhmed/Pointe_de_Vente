@@ -106,7 +106,7 @@ export const PosMode = () => {
       await localforage.setItem('list', freshList);
       setList(freshList);
     } catch (e) {
-      notify({ type: 'error', description: 'An error occurred' });
+      notify({ type: 'error', description: t('An error occurred') });
     }
   }, []);
 

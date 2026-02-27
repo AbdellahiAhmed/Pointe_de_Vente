@@ -1054,5 +1054,9 @@
   "No anomalies for this filter": "Aucune anomalie pour ce filtre",
   "Transactions pagination": "Pagination des transactions",
   "Failed to load data": "Échec du chargement des données",
-  "Failed to update user status": "Échec de la mise à jour du statut"
+  "Failed to update user status": "Échec de la mise à jour du statut",
+
+  "You do not have the required permissions": "Vous n'avez pas les droits nécessaires.",
+  "Server error. Please try again or contact an administrator.": "Erreur serveur. Veuillez réessayer ou contacter un administrateur.",
+  "No options": "Aucune option"
 }

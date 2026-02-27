@@ -525,7 +525,7 @@ export const DebtManagement: FC = () => {
           const body = await e.response.json();
           msg = body["hydra:description"] || body.detail || msg;
         } catch {}
-        if (e.code === 403) msg = "Vous n'avez pas les droits nécessaires.";
+        if (e.code === 403) msg = t("You do not have the required permissions");
       }
       notify({ type: "error", description: msg });
     } finally {

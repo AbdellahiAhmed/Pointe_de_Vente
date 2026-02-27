@@ -3,6 +3,7 @@ import Select, { GroupBase, Props } from "react-select";
 import { Theme } from "react-select/dist/declarations/src/";
 // @ts-ignore
 import Spinner from "../../../assets/images/spinner.svg";
+import { useTranslation } from "react-i18next";
 
 const primaryColor = "0 70 254";
 const focusRingColor = "152 189 254";
@@ -61,10 +62,13 @@ export function ReactSelect<
   IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>
 >(props: Props<Option, IsMulti, Group>) {
+  const { t } = useTranslation();
   return (
     <Select
       closeMenuOnSelect={!props.isMulti}
       menuPortalTarget={document.body}
+      placeholder={t("Select...")}
+      noOptionsMessage={() => t("No options")}
       {...props}
       theme={themeConfig}
       styles={styleConfig}

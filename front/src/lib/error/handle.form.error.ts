@@ -1,6 +1,7 @@
 import { HttpException, UnprocessableEntityException } from '../http/exception/http.exception';
 import { ConstraintViolation, ValidationResult } from '../validator/validation.result';
 import { notify } from '../../app-common/components/confirm/notification';
+import i18n from 'i18next';
 
 interface HandleFormErrorOptions {
   setError?: (name: string, error: { message: string; type: string }) => void;
@@ -60,10 +61,10 @@ export const handleFormError = async (
 
     // User-friendly messages for common codes
     if (exception.code === 403) {
-      msg = "Vous n'avez pas les droits nécessaires pour cette action.";
+      msg = i18n.t("You do not have the required permissions");
     } else if (exception.code >= 500) {
       msg = msg === exception.message
-        ? 'Erreur serveur. Veuillez réessayer ou contacter un administrateur.'
+        ? i18n.t("Server error. Please try again or contact an administrator.")
         : msg;
     }
 

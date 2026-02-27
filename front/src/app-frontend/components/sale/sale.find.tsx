@@ -46,7 +46,7 @@ export const SaleFind = ({
         onError();
       }
     } catch ( e ) {
-      notify({ type: 'error', description: 'An error occurred' });
+      notify({ type: 'error', description: t('An error occurred') });
     } finally {
       setLoading(false)
     }

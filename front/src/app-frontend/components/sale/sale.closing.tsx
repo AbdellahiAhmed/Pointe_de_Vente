@@ -154,7 +154,7 @@ export const SaleClosing: FC<TaxProps> = (props) => {
           const body = await e.response.json();
           msg = body["hydra:description"] || body.detail || msg;
         } catch {}
-        if (e.code === 403) msg = "Vous n'avez pas les droits nécessaires.";
+        if (e.code === 403) msg = t("You do not have the required permissions");
         notify({ type: "error", description: msg });
       }
     }
@@ -330,7 +330,7 @@ export const SaleClosing: FC<TaxProps> = (props) => {
           const body = await exception.response.json();
           msg = body["hydra:description"] || body.detail || msg;
         } catch {}
-        if (exception.code === 403) msg = "Vous n'avez pas les droits nécessaires.";
+        if (exception.code === 403) msg = t("You do not have the required permissions");
         notify({ type: "error", description: msg });
         // If session already closed, refresh to get new session
         await checkDayOpening();

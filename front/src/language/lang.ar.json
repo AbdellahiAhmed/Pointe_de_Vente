@@ -1061,5 +1061,9 @@
   "No anomalies for this filter": "لا توجد حالات شاذة لهذا الفلتر",
   "Transactions pagination": "ترقيم المعاملات",
   "Failed to load data": "فشل في تحميل البيانات",
-  "Failed to update user status": "فشل في تحديث حالة المستخدم"
+  "Failed to update user status": "فشل في تحديث حالة المستخدم",
+
+  "You do not have the required permissions": "ليس لديك الصلاحيات اللازمة.",
+  "Server error. Please try again or contact an administrator.": "خطأ في الخادم. يرجى المحاولة مرة أخرى أو الاتصال بالمسؤول.",
+  "No options": "لا توجد خيارات"
 }
