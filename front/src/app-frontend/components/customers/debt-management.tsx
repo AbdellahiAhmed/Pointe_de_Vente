@@ -180,6 +180,11 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
     formState: { errors },
   } = useForm<PaymentFormValues>({
     resolver: yupResolver(PaymentSchema),
+    defaultValues: {
+      amount: '',
+      description: '',
+      paymentType: '',
+    },
   });
 
   const onSubmit = async (values: PaymentFormValues) => {
@@ -226,12 +231,13 @@ const InlinePaymentForm: FC<InlinePaymentFormProps> = ({
           <label className="text-xs font-medium text-gray-600 mb-1">
             {t("Amount")} <span className="text-red-500">*</span>
           </label>
-          <Input
+          <input
             {...register("amount")}
-            type="number"
+            type="text"
+            inputMode="decimal"
+            pattern="[0-9]*\.?[0-9]*"
             placeholder="0"
-            className="w-full"
-            hasError={hasErrors(errors.amount)}
+            className={`input w-full ${hasErrors(errors.amount) ? 'error' : ''}`}
             autoFocus
           />
           {getErrors(errors.amount)}
