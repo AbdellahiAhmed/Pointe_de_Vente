@@ -736,7 +736,7 @@ export const PrintZReport = (data: ZReportData) => {
 const ZReportMarkup: FC<{ data: ZReportData }> = ({ data }) => {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.dir(i18n.language) === 'rtl';
-  const cashSales = data.payments['cash'] ?? data.payments['Espèces'] ?? 0;
+  const varianceValue = data.totalSales + data.openingBalance - data.expenses;
 
   return (
     <div style={{ width: '3.5in' }} dir={isRtl ? 'rtl' : 'ltr'}>
@@ -773,15 +773,23 @@ const ZReportMarkup: FC<{ data: ZReportData }> = ({ data }) => {
                 <td><strong>{t('Closed at')}:</strong></td>
                 <td style={{ textAlign: 'right' }} dir="ltr">{data.closedAt}</td>
               </tr>
-              <tr>
-                <td><strong>{t('Total orders')}:</strong></td>
-                <td style={{ textAlign: 'right' }}>{data.totalOrders}</td>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Opening balance */}
+        <div style={{ padding: '6px 4px', borderBottom: '1px dashed #808080' }}>
+          <table style={{ width: '100%', fontSize: 11 }}>
+            <tbody>
+              <tr style={{ fontWeight: 'bold' }}>
+                <td>{t('Opening balance')}</td>
+                <td dir="ltr" style={{ textAlign: 'left' }}>{withCurrency(data.openingBalance)}</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        {/* Sales by payment type */}
+        {/* Sales Summary */}
         <div style={{ padding: '6px 4px' }}>
           <div style={{ fontWeight: 'bold', marginBottom: 4, textAlign: 'center' }}>
             {t('Sales Summary')}
@@ -795,63 +803,29 @@ const ZReportMarkup: FC<{ data: ZReportData }> = ({ data }) => {
                 </tr>
               ))}
               <tr style={{ borderTop: '1px dashed #808080', fontWeight: 'bold' }}>
-                <td style={{ padding: '4px 0' }}>{t('Total sales')}</td>
-                <td dir="ltr" style={{ textAlign: 'left', padding: '4px 0' }}>{withCurrency(data.totalSales)}</td>
+                <td style={{ padding: '4px 0' }}>
+                  {t('Total orders')}: {data.totalOrders}
+                </td>
+                <td dir="ltr" style={{ textAlign: 'left', padding: '4px 0' }}>
+                  {t('Total sales')}: {withCurrency(data.totalSales)}
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        {/* Cash flow */}
+        {/* Expenses & Variance */}
         <div style={{ padding: '6px 4px', borderTop: '1px dashed #808080' }}>
-          <div style={{ fontWeight: 'bold', marginBottom: 4, textAlign: 'center' }}>
-            {t('Cash Flow')}
-          </div>
           <table style={{ width: '100%', fontSize: 11 }}>
             <tbody>
-              <tr>
-                <td>{t('Opening balance')}</td>
-                <td dir="ltr" style={{ textAlign: 'left' }}>{withCurrency(data.openingBalance)}</td>
-              </tr>
-              <tr>
-                <td>{t('Cash added')}</td>
-                <td dir="ltr" style={{ textAlign: 'left' }}>{`+ ${withCurrency(data.cashAdded)}`}</td>
-              </tr>
-              <tr>
-                <td>{t('Cash withdrawn')}</td>
-                <td dir="ltr" style={{ textAlign: 'left' }}>{`- ${withCurrency(data.cashWithdrawn)}`}</td>
-              </tr>
               <tr>
                 <td>{t('Expenses')}</td>
-                <td dir="ltr" style={{ textAlign: 'left' }}>{`- ${withCurrency(data.expenses)}`}</td>
+                <td dir="ltr" style={{ textAlign: 'left' }}>{withCurrency(data.expenses)}</td>
               </tr>
-              <tr>
-                <td>{t('Cash sales')}</td>
-                <td dir="ltr" style={{ textAlign: 'left' }}>{`+ ${withCurrency(cashSales)}`}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        {/* Cash reconciliation */}
-        <div style={{ padding: '6px 4px', borderTop: '1px dashed #808080' }}>
-          <div style={{ fontWeight: 'bold', marginBottom: 4, textAlign: 'center' }}>
-            {t('Cash Reconciliation')}
-          </div>
-          <table style={{ width: '100%', fontSize: 11 }}>
-            <tbody>
-              <tr style={{ fontWeight: 'bold' }}>
-                <td>{t('Expected cash')}</td>
-                <td dir="ltr" style={{ textAlign: 'left' }}>{withCurrency(data.expectedCash)}</td>
-              </tr>
-              <tr>
-                <td>{t('Cash counted')}</td>
-                <td dir="ltr" style={{ textAlign: 'left' }}>{withCurrency(data.cashCounted)}</td>
-              </tr>
-              <tr style={{ fontWeight: 'bold', color: data.variance >= 0 ? '#16a34a' : '#dc2626' }}>
-                <td>{t('Variance')}</td>
-                <td dir="ltr" style={{ textAlign: 'left' }}>
-                  {`${data.variance >= 0 ? '+' : ''}${withCurrency(data.variance)}`}
+              <tr style={{ fontWeight: 'bold', borderTop: '1px dashed #808080', color: varianceValue >= 0 ? '#16a34a' : '#dc2626' }}>
+                <td style={{ padding: '4px 0' }}>{t('Variance')}</td>
+                <td dir="ltr" style={{ textAlign: 'left', padding: '4px 0' }}>
+                  {withCurrency(varianceValue)}
                 </td>
               </tr>
             </tbody>

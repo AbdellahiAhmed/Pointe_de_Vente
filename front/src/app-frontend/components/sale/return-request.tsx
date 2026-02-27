@@ -189,6 +189,21 @@ export const ReturnRequest: FC<ReturnRequestProps> = ({ open, onClose, onSuccess
     }));
   };
 
+  const allSelected = returnableItems.length > 0 &&
+    returnableItems.every((item) => lines[item.id]?.included);
+  const someSelected = returnableItems.some((item) => lines[item.id]?.included) && !allSelected;
+
+  const toggleAll = () => {
+    const newValue = !allSelected;
+    setLines((prev) => {
+      const updated = { ...prev };
+      for (const item of returnableItems) {
+        updated[item.id] = { ...updated[item.id], included: newValue };
+      }
+      return updated;
+    });
+  };
+
   const setLineQty = (id: number, raw: string, max: number) => {
     const parsed = parseInt(raw, 10);
     const clamped = isNaN(parsed) ? 1 : Math.min(Math.max(1, parsed), max);
@@ -473,7 +488,17 @@ export const ReturnRequest: FC<ReturnRequestProps> = ({ open, onClose, onSuccess
                   <table className="table border border-collapse" style={{ width: "100%", minWidth: 520 }}>
                     <thead>
                       <tr>
-                        <th style={{ width: 36 }}></th>
+                        <th style={{ width: 36, textAlign: "center", verticalAlign: "middle" }}>
+                          <input
+                            type="checkbox"
+                            className="form-check-input"
+                            style={{ width: 18, height: 18, cursor: "pointer" }}
+                            checked={allSelected}
+                            ref={(el) => { if (el) el.indeterminate = someSelected; }}
+                            onChange={toggleAll}
+                            title={t("Select all")}
+                          />
+                        </th>
                         <th className="text-start">{t("Product")}</th>
                         <th className="text-end" style={{ width: 90 }}>
                           {t("Price")}

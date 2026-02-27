@@ -273,29 +273,32 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
         newCartItem = 0;
       }
 
+      // Display is reversed (newest first), so:
+      // Up on screen = toward newer items = higher original index
+      // Down on screen = toward older items = lower original index
       if (direction === "up") {
-        if (cartItem !== 0) {
-          setAppState((prev) => ({
-            ...prev,
-            cartItem: Number(newCartItem) - 1,
-          }));
-        } else if (cartItem === 0) {
-          setAppState((prev) => ({
-            ...prev,
-            cartItem: addedItems - 1,
-          }));
-        }
-      }
-      if (direction === "down") {
         if (newCartItem + 1 < addedItems) {
           setAppState((prev) => ({
             ...prev,
             cartItem: Number(newCartItem) + 1,
           }));
-        } else if (newCartItem + 1 >= addedItems) {
+        } else {
           setAppState((prev) => ({
             ...prev,
             cartItem: 0,
+          }));
+        }
+      }
+      if (direction === "down") {
+        if (newCartItem > 0) {
+          setAppState((prev) => ({
+            ...prev,
+            cartItem: Number(newCartItem) - 1,
+          }));
+        } else {
+          setAppState((prev) => ({
+            ...prev,
+            cartItem: addedItems - 1,
           }));
         }
       }
@@ -390,18 +393,22 @@ export const CartContainer: FunctionComponent<CartContainerProps> = ({
         </div>
       </div>
       <div className="table-row-group">
-        {added.map((item, index) => (
-          <CartItem
-            key={`${item.item.id}-${item.variant?.id ?? 'no'}-${index}`}
-            onQuantityChange={onQuantityChange}
-            onDiscountChange={onDiscountChange}
-            onPriceChange={onPriceChange}
-            deleteItem={deleteItem}
-            item={item}
-            index={index}
-            onCheck={onCheck}
-          />
-        ))}
+        {[...added].map((_, i, arr) => {
+          const originalIndex = arr.length - 1 - i;
+          const item = added[originalIndex];
+          return (
+            <CartItem
+              key={`${item.item.id}-${item.variant?.id ?? 'no'}-${originalIndex}`}
+              onQuantityChange={onQuantityChange}
+              onDiscountChange={onDiscountChange}
+              onPriceChange={onPriceChange}
+              deleteItem={deleteItem}
+              item={item}
+              index={originalIndex}
+              onCheck={onCheck}
+            />
+          );
+        })}
       </div>
       <div className="table-footer-group">
         <div className={classNames("table-row font-bold", isReturnMode && "text-danger-500")}>
