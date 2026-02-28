@@ -2,9 +2,12 @@ import React, {FunctionComponent, useEffect, useState} from 'react';
 import {DashboardLayout} from "../layout/dashboard.layout";
 import {useTranslation} from "react-i18next";
 import {jsonRequest} from "../../../api/request/request";
-import {REPORT_DAILY, STOCK_ALERTS} from "../../../api/routing/routes/backend.app";
+import {REPORT_DAILY, REPORT_WEEKLY, STOCK_ALERTS} from "../../../api/routing/routes/backend.app";
 import {Link} from "react-router-dom";
 import {REPORTS_SALES, REPORTS_PROFIT, REPORTS_DAILY} from "../../routes/frontend.routes";
+import {ResponsiveLine} from '@nivo/line';
+import {ResponsiveBar} from '@nivo/bar';
+import {ResponsivePie} from '@nivo/pie';
 
 export interface DashboardProps {}
 
@@ -14,6 +17,7 @@ export const Dashboard: FunctionComponent<DashboardProps> = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [lowStockCount, setLowStockCount] = useState<number>(0);
+  const [weeklyData, setWeeklyData] = useState<any>(null);
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -36,8 +40,17 @@ export const Dashboard: FunctionComponent<DashboardProps> = () => {
       } catch (e) { /* ignore */ }
     };
 
+    const fetchWeekly = async () => {
+      try {
+        const response = await jsonRequest(REPORT_WEEKLY);
+        const json = await response.json();
+        setWeeklyData(json);
+      } catch { /* ignore */ }
+    };
+
     fetchDashboard();
     fetchLowStock();
+    fetchWeekly();
   }, []);
 
   const formatCurrency = (value: number) => {
@@ -153,6 +166,137 @@ export const Dashboard: FunctionComponent<DashboardProps> = () => {
           </div>
         </div>
       </div>
+
+      {/* Charts */}
+      {weeklyData && (
+        <div className="row">
+          {/* Sales trend line chart */}
+          <div className="col-lg-8">
+            <div className="card">
+              <div className="card-body">
+                <h5 className="card-title">{t('Sales Trend')} <span>| {t('Last 7 days')}</span></h5>
+                <div style={{height: 300}}>
+                  <ResponsiveLine
+                    data={[{
+                      id: t('Revenue'),
+                      data: (weeklyData.daily || []).map((d: any) => ({
+                        x: d.label,
+                        y: d.revenue,
+                      })),
+                    }]}
+                    margin={{top: 20, right: 20, bottom: 50, left: 60}}
+                    xScale={{type: 'point'}}
+                    yScale={{type: 'linear', min: 0, max: 'auto'}}
+                    curve="catmullRom"
+                    axisBottom={{tickSize: 5, tickPadding: 5}}
+                    axisLeft={{
+                      tickSize: 5,
+                      tickPadding: 5,
+                      format: (v: number) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v.toString(),
+                    }}
+                    enablePoints={true}
+                    pointSize={8}
+                    pointColor={{theme: 'background'}}
+                    pointBorderWidth={2}
+                    pointBorderColor={{from: 'serieColor'}}
+                    enableArea={true}
+                    areaOpacity={0.1}
+                    colors={['#4361ee']}
+                    enableGridX={false}
+                    useMesh={true}
+                    tooltip={({point}) => (
+                      <div style={{background: '#fff', padding: '8px 12px', border: '1px solid #ddd', borderRadius: 4, fontSize: 13}}>
+                        <strong>{point.data.xFormatted}</strong>: {formatCurrency(point.data.y as number)}
+                      </div>
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Payment pie chart */}
+          <div className="col-lg-4">
+            <div className="card">
+              <div className="card-body">
+                <h5 className="card-title">{t('Payments')} <span>| {t('Last 7 days')}</span></h5>
+                <div style={{height: 300}}>
+                  {weeklyData.payments?.length > 0 ? (
+                    <ResponsivePie
+                      data={(weeklyData.payments || []).map((p: any) => ({
+                        id: p.paymentType,
+                        label: p.paymentType,
+                        value: p.amount,
+                      }))}
+                      margin={{top: 20, right: 20, bottom: 20, left: 20}}
+                      innerRadius={0.5}
+                      padAngle={1}
+                      cornerRadius={3}
+                      activeOuterRadiusOffset={8}
+                      colors={{scheme: 'nivo'}}
+                      enableArcLabels={true}
+                      enableArcLinkLabels={true}
+                      arcLinkLabelsSkipAngle={10}
+                      arcLinkLabelsTextColor="#333"
+                      arcLinkLabelsThickness={2}
+                      arcLabelsSkipAngle={10}
+                      tooltip={({datum}) => (
+                        <div style={{background: '#fff', padding: '8px 12px', border: '1px solid #ddd', borderRadius: 4, fontSize: 13}}>
+                          <strong>{datum.label}</strong>: {formatCurrency(datum.value)}
+                        </div>
+                      )}
+                    />
+                  ) : (
+                    <div className="text-center text-muted py-5">{t('No data')}</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Top Products Bar Chart */}
+      {weeklyData?.topProducts?.length > 0 && (
+        <div className="row">
+          <div className="col-12">
+            <div className="card">
+              <div className="card-body">
+                <h5 className="card-title">{t('Top 5 Products')} <span>| {t('Last 7 days')}</span></h5>
+                <div style={{height: 300}}>
+                  <ResponsiveBar
+                    data={(weeklyData.topProducts || []).map((p: any) => ({
+                      product: p.productName.length > 15 ? p.productName.substring(0, 15) + '...' : p.productName,
+                      [t('Quantity')]: p.totalQty,
+                      [t('Revenue')]: p.revenue,
+                    }))}
+                    keys={[t('Revenue')]}
+                    indexBy="product"
+                    margin={{top: 20, right: 20, bottom: 60, left: 60}}
+                    padding={0.3}
+                    layout="horizontal"
+                    valueScale={{type: 'linear'}}
+                    indexScale={{type: 'band', round: true}}
+                    colors={['#2ec4b6']}
+                    axisBottom={{
+                      tickSize: 5,
+                      tickPadding: 5,
+                      format: (v: number) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v.toString(),
+                    }}
+                    labelSkipWidth={12}
+                    enableGridY={false}
+                    tooltip={({indexValue, value}) => (
+                      <div style={{background: '#fff', padding: '8px 12px', border: '1px solid #ddd', borderRadius: 4, fontSize: 13}}>
+                        <strong>{indexValue}</strong>: {formatCurrency(value as number)}
+                      </div>
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="row">
         <div className="col-lg-8">

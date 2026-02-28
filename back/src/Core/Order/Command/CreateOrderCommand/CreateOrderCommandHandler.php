@@ -20,6 +20,7 @@ use App\Entity\Tax;
 use App\Entity\Terminal;
 use App\Entity\User;
 use App\Entity\Closing;
+use App\Entity\StockMovement;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -272,15 +273,30 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
 
             // manage product quantity — skip for suspended (held) orders
             if(!$command->getIsSuspended() && $product->getManageInventory()){
-                $store = null;
+                $productStore = null;
                 foreach($product->getStores() as $s){
                     if($s->getStore()->getId() === $item->getStore()->getId()){
-                        $store = $s;
+                        $productStore = $s;
                         break;
                     }
                 }
-                if($store !== null) {
-                    $store->setQuantity((string)max(0, (float)$store->getQuantity() - (float)$orderProduct->getQuantity()));
+                if($productStore !== null) {
+                    $qtyBefore = (float) $productStore->getQuantity();
+                    $qtySold = (float) $orderProduct->getQuantity();
+                    $qtyAfter = max(0, $qtyBefore - $qtySold);
+                    $productStore->setQuantity((string) $qtyAfter);
+
+                    $movement = new StockMovement();
+                    $movement->setProduct($product);
+                    $movement->setProductStore($productStore);
+                    $movement->setStore($item->getStore());
+                    $movement->setQuantityBefore((string) $qtyBefore);
+                    $movement->setQuantityAfter((string) $qtyAfter);
+                    $movement->setQuantityChanged((string) -$qtySold);
+                    $movement->setType(StockMovement::TYPE_SALE);
+                    $movement->setReference($item->getOrderId());
+                    $movement->setUser($user);
+                    $this->em->persist($movement);
                 }
             }
 

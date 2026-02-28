@@ -1,0 +1,67 @@
+version: "3.8"
+
+services:
+  php:
+    build:
+      context: ./back
+      target: app_php
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_ENV: prod
+      DATABASE_URL: "mysql://pos_user:${DB_PASSWORD}@db:3306/pos_db?serverVersion=mariadb-10.6.0"
+    env_file:
+      - ./back/.env.local
+    volumes:
+      - php_socket:/var/run/php
+      - uploads:/srv/app/public/uploads
+    healthcheck:
+      test: ["CMD", "docker-healthcheck"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  caddy:
+    build:
+      context: ./back
+      target: app_caddy
+    restart: unless-stopped
+    depends_on:
+      - php
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - php_socket:/var/run/php
+      - caddy_data:/data
+      - caddy_config:/config
+      - uploads:/srv/app/public/uploads
+    environment:
+      SERVER_NAME: "${SERVER_NAME:-localhost}"
+
+  db:
+    image: mariadb:10.6
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
+      MARIADB_DATABASE: pos_db
+      MARIADB_USER: pos_user
+      MARIADB_PASSWORD: "${DB_PASSWORD}"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    # Do NOT expose ports externally — only accessible from within the Docker network
+
+volumes:
+  php_socket:
+  uploads:
+  caddy_data:
+  caddy_config:
+  db_data:

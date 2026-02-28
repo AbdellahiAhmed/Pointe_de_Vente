@@ -6,6 +6,7 @@ use App\Core\Entity\EntityManager\EntityManager;
 use App\Entity\Order;
 use App\Entity\OrderStatus;
 use App\Entity\ProductStore;
+use App\Entity\StockMovement;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -55,9 +56,22 @@ class RefundOrderCommandHandler extends EntityManager implements RefundOrderComm
                     'store' => $store,
                 ]);
                 if ($productStore !== null) {
-                    $productStore->setQuantity(
-                        (string) ((float) $productStore->getQuantity() + $returnQty)
-                    );
+                    $qtyBefore = (float) $productStore->getQuantity();
+                    $qtyAfter = $qtyBefore + $returnQty;
+                    $productStore->setQuantity((string) $qtyAfter);
+
+                    $movement = new StockMovement();
+                    $movement->setProduct($product);
+                    $movement->setProductStore($productStore);
+                    $movement->setStore($store);
+                    $movement->setQuantityBefore((string) $qtyBefore);
+                    $movement->setQuantityAfter((string) $qtyAfter);
+                    $movement->setQuantityChanged((string) $returnQty);
+                    $movement->setType(StockMovement::TYPE_RETURN);
+                    $movement->setReference($item->getOrderId());
+                    $movement->setReason('Order refund');
+                    $movement->setUser($item->getUser());
+                    $this->em->persist($movement);
                 }
             }
 

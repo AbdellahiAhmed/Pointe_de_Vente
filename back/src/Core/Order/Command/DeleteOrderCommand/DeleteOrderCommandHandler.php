@@ -5,6 +5,7 @@ namespace App\Core\Order\Command\DeleteOrderCommand;
 use App\Core\Entity\EntityManager\EntityManager;
 use App\Entity\Order;
 use App\Entity\OrderStatus;
+use App\Entity\StockMovement;
 use App\Repository\ProductStoreRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -56,7 +57,22 @@ class DeleteOrderCommandHandler extends EntityManager implements DeleteOrderComm
                         'store'   => $store,
                     ]);
                     if ($productStore) {
-                        $productStore->setQuantity((string) ((float) $productStore->getQuantity() + $qty));
+                        $qtyBefore = (float) $productStore->getQuantity();
+                        $qtyAfter = $qtyBefore + $qty;
+                        $productStore->setQuantity((string) $qtyAfter);
+
+                        $movement = new StockMovement();
+                        $movement->setProduct($product);
+                        $movement->setProductStore($productStore);
+                        $movement->setStore($store);
+                        $movement->setQuantityBefore((string) $qtyBefore);
+                        $movement->setQuantityAfter((string) $qtyAfter);
+                        $movement->setQuantityChanged((string) $qty);
+                        $movement->setType(StockMovement::TYPE_RETURN);
+                        $movement->setReference($item->getOrderId());
+                        $movement->setReason('Order deleted');
+                        $movement->setUser($item->getUser());
+                        $this->em->persist($movement);
                     }
                 }
 

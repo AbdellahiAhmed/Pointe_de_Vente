@@ -2,7 +2,7 @@ import {useSelector} from "react-redux";
 import {isUserLoggedIn} from "../../../duck/auth/auth.selector";
 import React from "react";
 import {Link, useLocation} from "react-router-dom";
-import {DASHBOARD, REPORTS_SALES, REPORTS_PROFIT, REPORTS_DAILY, REPORTS_VENDOR, REPORTS_CATEGORY, Z_REPORTS, USERS, INVENTORY_ALERTS, RETURN_REQUESTS, CUSTOMERS_REPORT, BANK_JOURNAL, SYSTEM_HEALTH} from "../../routes/frontend.routes";
+import {DASHBOARD, REPORTS_SALES, REPORTS_PROFIT, REPORTS_DAILY, REPORTS_VENDOR, REPORTS_CATEGORY, Z_REPORTS, USERS, INVENTORY_ALERTS, STOCK_ADJUSTMENT, STOCK_MOVEMENTS, RETURN_REQUESTS, CUSTOMERS_REPORT, BANK_JOURNAL, SYSTEM_HEALTH, AUDIT_LOG} from "../../routes/frontend.routes";
 import classNames from "classnames";
 import {useTranslation} from "react-i18next";
 import {useHasRole} from "../../../duck/auth/hooks/useHasRole";
@@ -114,6 +114,24 @@ export const Sidebar = () => {
 
             <li className="nav-item">
               <Link className={classNames(
+                "nav-link", location.pathname === STOCK_ADJUSTMENT ? 'active' : 'collapsed'
+              )} to={STOCK_ADJUSTMENT}>
+                <i className="bi bi-sliders"></i>
+                <span>{t('Stock Adjustment')}</span>
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link className={classNames(
+                "nav-link", location.pathname === STOCK_MOVEMENTS ? 'active' : 'collapsed'
+              )} to={STOCK_MOVEMENTS}>
+                <i className="bi bi-clock-history"></i>
+                <span>{t('Stock Movements')}</span>
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link className={classNames(
                 "nav-link", location.pathname === RETURN_REQUESTS ? 'active' : 'collapsed'
               )} to={RETURN_REQUESTS}>
                 <i className="bi bi-arrow-return-left"></i>
@@ -142,6 +160,15 @@ export const Sidebar = () => {
               )} to={USERS}>
                 <i className="bi bi-people"></i>
                 <span>{t('Users')}</span>
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link className={classNames(
+                "nav-link", location.pathname === AUDIT_LOG ? 'active' : 'collapsed'
+              )} to={AUDIT_LOG}>
+                <i className="bi bi-journal-text"></i>
+                <span>{t('Audit Log')}</span>
               </Link>
             </li>
 

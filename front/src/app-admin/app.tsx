@@ -1,6 +1,6 @@
 import Login from './containers/login/login';
 import {BrowserRouter as Router, Route, useLocation} from "react-router-dom";
-import {DASHBOARD, FORGOT_PASSWORD, LOGIN, PROFILE, USERS, USERS_CREATE, USERS_EDIT, REPORTS_SALES, REPORTS_PROFIT, REPORTS_DAILY, REPORTS_VENDOR, REPORTS_CATEGORY, Z_REPORTS, BANK_JOURNAL, INVENTORY_ALERTS, RETURN_REQUESTS, CUSTOMERS_REPORT, SYSTEM_HEALTH, SETUP} from "./routes/frontend.routes";
+import {DASHBOARD, FORGOT_PASSWORD, LOGIN, PROFILE, USERS, USERS_CREATE, USERS_EDIT, REPORTS_SALES, REPORTS_PROFIT, REPORTS_DAILY, REPORTS_VENDOR, REPORTS_CATEGORY, Z_REPORTS, BANK_JOURNAL, INVENTORY_ALERTS, STOCK_ADJUSTMENT, STOCK_MOVEMENTS, RETURN_REQUESTS, CUSTOMERS_REPORT, SYSTEM_HEALTH, AUDIT_LOG, SETUP} from "./routes/frontend.routes";
 import {connect, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {RootState} from "../duck/_root/root.state";
@@ -22,6 +22,8 @@ import {SalesReport} from "./containers/reports/sales-report";
 import {ProfitReport} from "./containers/reports/profit-report";
 import {DailyReport} from "./containers/reports/daily-report";
 import {StockAlerts} from "./containers/inventory/stock-alerts";
+import {StockAdjustment} from "./containers/inventory/stock-adjustment";
+import {StockMovements} from "./containers/inventory/stock-movements";
 import {RequireRole} from "../app-common/components/auth/RequireRole";
 import {ZReportPage} from "./containers/closing/z-report-page";
 import {VendorReport} from "./containers/reports/vendor-report";
@@ -30,6 +32,7 @@ import {ReturnRequests} from "./containers/returns/return-requests";
 import {CustomerReport} from "./containers/reports/customer-report";
 import {SystemHealth} from "./containers/system/system-health";
 import {BankJournal} from "./containers/bank-journal/bank-journal";
+import {AuditLog} from "./containers/audit/audit-log";
 import {Setup} from "../app-common/components/setup/setup";
 
 export interface AppProps {
@@ -105,10 +108,13 @@ const AppComponent: FunctionComponent<AppProps> = (props) => {
         <Route path={BANK_JOURNAL} element={<RequireAuth><RequireRole role="ROLE_MANAGER"><BankJournal/></RequireRole></RequireAuth>}/>
 
         <Route path={INVENTORY_ALERTS} element={<RequireAuth><RequireRole role="ROLE_MANAGER"><StockAlerts/></RequireRole></RequireAuth>}/>
+        <Route path={STOCK_ADJUSTMENT} element={<RequireAuth><RequireRole role="ROLE_MANAGER"><StockAdjustment/></RequireRole></RequireAuth>}/>
+        <Route path={STOCK_MOVEMENTS} element={<RequireAuth><RequireRole role="ROLE_MANAGER"><StockMovements/></RequireRole></RequireAuth>}/>
         <Route path={RETURN_REQUESTS} element={<RequireAuth><RequireRole role="ROLE_MANAGER"><ReturnRequests/></RequireRole></RequireAuth>}/>
         <Route path={CUSTOMERS_REPORT} element={<RequireAuth><RequireRole role="ROLE_MANAGER"><CustomerReport/></RequireRole></RequireAuth>}/>
 
         <Route path={SYSTEM_HEALTH} element={<RequireAuth><RequireRole role="ROLE_ADMIN"><SystemHealth/></RequireRole></RequireAuth>}/>
+        <Route path={AUDIT_LOG} element={<RequireAuth><RequireRole role="ROLE_ADMIN"><AuditLog/></RequireRole></RequireAuth>}/>
 
         {/*if nothing matches show 404*/}
         <Route path="*" element={<Error404/>}/>

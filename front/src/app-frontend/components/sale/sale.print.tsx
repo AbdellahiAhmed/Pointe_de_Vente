@@ -13,12 +13,35 @@ import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import {useTranslation} from "react-i18next";
 import {withCurrency} from "../../../lib/currency/currency";
+import {QRCodeSVG} from "qrcode.react";
+import { isConnected as isEscPosConnected } from "../../../core/printing/esc-pos-printer";
+import { buildSaleReceipt } from "../../../core/printing/receipt-builder";
 
 interface SalePrintProps {
   order: Order;
 }
 
-export const PrintOrder = (order: Order) => {
+export const PrintOrder = async (order: Order) => {
+  // If ESC/POS thermal printer is connected, use it directly
+  if (isEscPosConnected()) {
+    try {
+      const posSettings = getPosSettings();
+      const rb = buildSaleReceipt(order, {
+        storeName: posSettings.receiptStoreName || 'Shop',
+        storePhone: posSettings.receiptStorePhone || undefined,
+        storeAddress: posSettings.receiptStoreAddress || undefined,
+        headerText: posSettings.receiptHeaderText || undefined,
+        footerText: posSettings.receiptFooterText || undefined,
+        openDrawer: true,
+      });
+      await rb.print();
+      return;
+    } catch (e) {
+      console.warn('ESC/POS print failed, falling back to HTML popup', e);
+    }
+  }
+
+  // Fallback: HTML popup + window.print()
   const myWindow: any = window.open('', '_blank', 'height=500,width=500');
 
   if (!myWindow) {
@@ -98,17 +121,9 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
   const {t, i18n} = useTranslation();
   const isRtl = i18n.dir(i18n.language) === 'rtl';
   const startAlign = isRtl ? 'right' as const : 'left' as const;
-  const endAlign = isRtl ? 'left' as const : 'right' as const;
-  const floatStart = isRtl ? 'right' as const : 'left' as const;
-  const [settings, setSettings] = useState<Setting[]>([]);
 
   // Detect if this is a return order
   const isReturn = !!order.returnedFrom;
-
-  // Color scheme: blue for sales, red for returns
-  const headerBg = isReturn ? '#fde8e8' : 'rgb(200, 224, 235)';
-  const headerColor = isReturn ? '#991b1b' : 'inherit';
-  const accentBg = isReturn ? 'rgba(253, 232, 232, 0.18)' : 'rgba(218, 232, 239, 0.18)';
 
   // Read POS settings from localStorage
   const posSettings = useMemo(() => getPosSettings(), []);
@@ -117,16 +132,6 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
   const storeAddress = posSettings.receiptStoreAddress || '';
   const headerText = posSettings.receiptHeaderText || '';
   const footerText = posSettings.receiptFooterText || t("Thank you for your visit");
-
-  useEffect(() => {
-    localforage.getItem('settings').then((data: any) => {
-      if(data) {
-        let settings: Setting[] = JSON.parse(data);
-        settings = settings.filter(item => item.type === SettingTypes.TYPE_RECEIPT);
-        setSettings(settings)
-      }
-    }).catch(() => {});
-  }, []);
 
   const itemsTotal = useMemo(() => {
     const raw = order.items.reduce((prev, item) => ((item.price * item.quantity) + item.taxesTotal - item.discount) + prev, 0);
@@ -138,11 +143,9 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
     if(order?.discount && order?.discount?.amount) {
       amount -= order?.discount?.amount
     }
-
     if(order?.tax && order?.tax?.amount){
       amount += order?.tax?.amount;
     }
-
     return isReturn ? Math.abs(amount) : amount;
   }, [order, isReturn]);
 
@@ -155,349 +158,303 @@ export const SalePrintMarkup = ({order}: {order: Order}) => {
     return isReturn ? Math.abs(raw) : raw;
   }, [order, isReturn]);
 
+  // Shared styles
+  const separator: React.CSSProperties = {
+    borderTop: '1px dashed #808080',
+    margin: '4px 0',
+  };
+
+  const thickSeparator: React.CSSProperties = {
+    borderTop: '2px dashed #333',
+    margin: '4px 0',
+  };
+
   return (
-    <div id="SaleInvoice3InchOffline" style={{width: "3.5in"}} dir={isRtl ? 'rtl' : 'ltr'}>
+    <div style={{width: "3.5in"}} dir={isRtl ? 'rtl' : 'ltr'}>
       <div
-        id="margindiv3inch"
-        className="setReceiptWidth3Inch"
         style={{
           border: "none",
           fontSize: 11,
           fontWeight: "normal",
           fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-          margin: 0
+          margin: 0,
         }}
       >
-        <img
-          id="imgPreview3inch"
-          src=""
-          alt="logo"
-          style={{width: "100%", height: 100, display: "none"}}
-        />
-        <div
-          style={{
-            textAlign: "center",
-            background: headerBg,
-            color: headerColor,
-            padding: "6px 6px"
-          }}
-        >
-          <h3
-            className="h3Style"
-            id="InvoiceCaption3Inch"
-            style={{margin: "0 0", color: headerColor}}
-          >
-            {isReturn ? t("Return Receipt") : t("Sale Receipt")}
-          </h3>
-          {isReturn && (
-            <div style={{fontSize: 9, color: '#991b1b', marginTop: 2}}>
-              بون إرجاع
+        {/* ═══ Store Header ═══ */}
+        <div style={{textAlign: "center", padding: "10px 6px"}}>
+          <div style={{fontSize: 18, fontWeight: "bold", marginBottom: 2}}>
+            {storeName}
+          </div>
+          {storeAddress && (
+            <div style={{fontSize: 10, color: '#555'}}>{storeAddress}</div>
+          )}
+          {storePhone && (
+            <div style={{fontSize: 10, color: '#555'}}>{storePhone}</div>
+          )}
+          {headerText && (
+            <div style={{fontSize: 10, fontStyle: 'italic', color: '#555', marginTop: 2}}>
+              {headerText}
             </div>
           )}
         </div>
-        <div
-          style={{
-            textAlign: "center",
-            background: accentBg,
-            padding: "5px 5px"
-          }}
-          id="ShopSection"
-        >
-          <h3 className="h3Style" id="shopName3Inch" style={{margin: "0 0"}}>
-            {storeName}
-          </h3>
-          {storePhone && (
-            <h5 className="h5Style" style={{margin: 0, fontSize: 10}}>
-              {storePhone}
-            </h5>
-          )}
-          {storeAddress && (
-            <h5 className="h5Style" style={{margin: 0, fontSize: 10}}>
-              {storeAddress}
-            </h5>
-          )}
-          {headerText && (
-            <h5 className="h5Style" style={{margin: '2px 0 0', fontSize: 10, fontStyle: 'italic'}}>
-              {headerText}
-            </h5>
-          )}
+
+        <div style={thickSeparator} />
+
+        {/* ═══ Receipt Type Badge ═══ */}
+        <div style={{
+          textAlign: "center",
+          background: isReturn ? '#fde8e8' : '#f0f7fb',
+          padding: "4px 6px",
+        }}>
+          <strong style={{
+            fontSize: 12,
+            color: isReturn ? '#991b1b' : '#1e3a5f',
+            textTransform: 'uppercase' as const,
+            letterSpacing: 1,
+          }}>
+            {isReturn ? t("Return Receipt") : t("Sale Receipt")}
+          </strong>
         </div>
-        <div
-          style={{
-            textAlign: "center",
-            background: accentBg,
-            padding: "5px 2px"
-          }}
-        >
-          <h4
-            className="h4Style"
-            style={{margin: "0 0", fontWeight: "normal"}}
-            id="RegisterSection"
-          >
-            <span id="saleId3Inch" style={{float: floatStart}}>
-              {isReturn ? t("Return #") : t("Receipt #")}: {order.orderId}
-            </span>
-            <span id="RegisterCode3Inch" style={{float: endAlign, display: 'none'}}>
-              {t("Register")}: RegDF01
-            </span>
-          </h4>
-          <h4
-            className="h4Style"
-            id="saleDate3Inch"
-            style={{
-              textAlign: startAlign,
-              margin: "0 0",
-              fontWeight: "normal",
-              clear: "both"
-            }}
-          >
-            {t("Date")}: {DateTime.fromISO(order.createdAt).toFormat(import.meta.env.VITE_DATE_TIME_FORMAT as string)}
-          </h4>
+
+        {/* ═══ Prominent Order Number ═══ */}
+        <div style={{
+          textAlign: "center",
+          padding: "8px 6px 6px",
+        }}>
+          <div style={{
+            fontSize: 24,
+            fontWeight: "bold",
+            letterSpacing: 2,
+            color: isReturn ? '#991b1b' : '#000',
+          }}>
+            #{order.orderId}
+          </div>
+        </div>
+
+        <div style={separator} />
+
+        {/* ═══ Date / Vendor / Customer ═══ */}
+        <div style={{padding: "4px 6px", fontSize: 11}}>
+          <table style={{width: '100%', fontSize: 11}}>
+            <tbody>
+              <tr>
+                <td><strong>{t("Date")}:</strong></td>
+                <td style={{textAlign: 'right'}} dir="ltr">
+                  {DateTime.fromISO(order.createdAt).toFormat('dd/MM/yyyy HH:mm')}
+                </td>
+              </tr>
+              {order.user && (
+                <tr>
+                  <td><strong>{t("Vendor")}:</strong></td>
+                  <td style={{textAlign: 'right'}}>{order.user.displayName}</td>
+                </tr>
+              )}
+              {order.customer && (
+                <tr>
+                  <td><strong>{t("Customer Name")}:</strong></td>
+                  <td style={{textAlign: 'right'}}>{order.customer.name}</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
 
         {/* Original order reference for returns */}
         {isReturn && order.returnedFrom && (
-          <div style={{
-            textAlign: "center",
-            background: '#fef2f2',
-            padding: '4px 6px',
-            borderBottom: '1px dashed #fca5a5',
-            fontSize: 11,
-            color: '#991b1b',
-          }}>
-            <strong>{t("Original Order #")}:</strong> {order.returnedFrom.orderId}
-          </div>
+          <>
+            <div style={separator} />
+            <div style={{
+              textAlign: "center",
+              background: '#fef2f2',
+              padding: '4px 6px',
+              fontSize: 11,
+              color: '#991b1b',
+            }}>
+              <strong>{t("Original Order #")}:</strong> {order.returnedFrom.orderId}
+            </div>
+          </>
         )}
 
-        {order.customer && (
-          <div id="customerNameOffline_Div3Inch">
-            <span>
-              <strong>{t("Customer Name")}: </strong> {order.customer.name}
-            </span>
-          </div>
-        )}
+        <div style={thickSeparator} />
 
-        <br/>
-        <div className="col-sm-12">
-          <table
-            className="col-sm-12"
-            id="saleLineItemTable3Inch"
-            style={{borderCollapse: "collapse", fontSize: 11}}
-            border={0}
-          >
-            <thead
-              style={{
-                borderTop: "dashed 1px #808080",
-                borderBottom: "dashed 1px #808080"
-              }}
-            >
-            <tr style={{background: headerBg}}>
-              <td style={{width: 150, textAlign: startAlign}}>
+        {/* ═══ Items Table ═══ */}
+        <table style={{borderCollapse: "collapse", fontSize: 11, width: "100%"}} border={0}>
+          <thead>
+            <tr style={{
+              background: isReturn ? '#fde8e8' : '#f0f7fb',
+              borderBottom: '1px dashed #808080',
+            }}>
+              <td style={{width: '45%', textAlign: startAlign, padding: '4px 4px'}}>
                 <strong>{t("Item")}</strong>
               </td>
-              <td
-                style={{width: 75, textAlign: "right"}}
-                id="HeaderPriceColumn"
-              >
+              <td style={{width: '18%', textAlign: 'right', padding: '4px 2px'}}>
                 <strong>{t("Price")}</strong>
               </td>
-              <td style={{textAlign: "right", display: "none"}} id="Space"/>
-              <td style={{width: 50, textAlign: "right"}} id="HeaderQtyColumn">
+              <td style={{width: '12%', textAlign: 'center', padding: '4px 2px'}}>
                 <strong>{t("Qty")}</strong>
               </td>
-              <td
-                style={{
-                  width: 63,
-                  textAlign: "right",
-                  paddingRight: 4,
-                }}
-                className="GSTClm"
-              >
-                <strong>{t("GST")}</strong>
-              </td>
-              <td
-                className="DiscColumnData3Inch"
-                style={{width: 50, textAlign: "right"}}
-                id="DiscountColumnHeader"
-              >
-                <strong>{t("Disc.")}</strong>
-              </td>
-              <td
-                style={{width: 63, textAlign: "right", paddingRight: 4}}
-                id="HeaderAmtColumn"
-              >
+              <td style={{width: '25%', textAlign: 'right', padding: '4px 4px'}}>
                 <strong>{t("Amount")}</strong>
               </td>
             </tr>
-            </thead>
-            <tbody id="saleLineItemTableBody3Inch">
+          </thead>
+          <tbody>
             {order.items.map((item, index) => {
               const qty = isReturn ? Math.abs(item.quantity) : item.quantity;
               const rowTotal = isReturn
                 ? Math.abs((item.price * item.quantity) + item.taxesTotal - item.discount)
                 : (item.price * item.quantity) + item.taxesTotal - item.discount;
               return (
-              <tr key={index}>
-                <td
-                  style={{textAlign: "right", display: "none"}}
-                  className="GSTClm"
-                />
-                <td style={{textAlign: startAlign}}>
-                  {item.product.name}
-                  {item.variant && (
-                    <>
-                      <div className="ms-1">- {item.variant.attributeValue}</div>
-                    </>
-                  )}
-                </td>
-                <td style={{textAlign: "right"}}><span dir="ltr">{item.price}</span></td>
-                <td style={{textAlign: "right"}}><span dir="ltr">{qty}</span></td>
-                <td
-                  style={{textAlign: "right", display: "none"}}
-                  className="GSTClm"
-                />
-                <td
-                  style={{textAlign: "right"}}
-                ><span dir="ltr">{Math.abs(item.taxesTotal)}</span></td>
-                <td
-                  className="DiscColumnData3Inch"
-                  style={{textAlign: "right"}}
-                >
-                  <span dir="ltr">{Math.abs(item.discount)}</span>
-                </td>
-                <td style={{textAlign: "right"}}><span dir="ltr">{rowTotal}</span></td>
-              </tr>
+                <tr key={index} style={{borderBottom: '1px dotted #ddd'}}>
+                  <td style={{textAlign: startAlign, padding: '3px 4px'}}>
+                    {item.product.name}
+                    {item.variant && (
+                      <div style={{fontSize: 9, color: '#666', paddingLeft: 8}}>
+                        {item.variant.attributeValue}
+                      </div>
+                    )}
+                  </td>
+                  <td style={{textAlign: 'right', padding: '3px 2px'}}>
+                    <span dir="ltr">{withCurrency(item.price)}</span>
+                  </td>
+                  <td style={{textAlign: 'center', padding: '3px 2px'}}>
+                    <span dir="ltr">{qty}</span>
+                  </td>
+                  <td style={{textAlign: 'right', padding: '3px 4px'}}>
+                    <span dir="ltr">{withCurrency(rowTotal)}</span>
+                  </td>
+                </tr>
               );
             })}
-            <tr
-              style={{
-                borderTop: "dashed 1px #808080",
-                borderBottom: "dashed 1px #808080"
-              }}
-            >
-              <td
-                style={{textAlign: "right", display: "none"}}
-                className="GSTClm"
-              />
-              <td style={{textAlign: startAlign}}>{t("Total")}:</td>
-              <td style={{textAlign: "right"}}/>
-              <td style={{textAlign: "right"}}><span dir="ltr">{itemsQuantity}</span></td>
-              <td
-                style={{textAlign: "right"}}
-                className="GSTClm"
-              ></td>
-              <td></td>
-              <td style={{textAlign: "right"}}><span dir="ltr">{itemsTotal}</span></td>
+            {/* Items subtotal row */}
+            <tr style={{borderTop: '1px dashed #808080'}}>
+              <td style={{textAlign: startAlign, padding: '4px 4px'}}>
+                <strong>{t("Total")}:</strong>
+              </td>
+              <td />
+              <td style={{textAlign: 'center', padding: '4px 2px'}}>
+                <strong>{itemsQuantity}</strong>
+              </td>
+              <td style={{textAlign: 'right', padding: '4px 4px'}}>
+                <strong><span dir="ltr">{withCurrency(itemsTotal)}</span></strong>
+              </td>
             </tr>
-            </tbody>
-          </table>
-          <table
-            style={{borderCollapse: "collapse", fontSize: 11, width: "100%"}}
-            border={0}
-          >
-            <tbody id="DiscountTable3Inch">
+          </tbody>
+        </table>
+
+        <div style={separator} />
+
+        {/* ═══ Totals Section ═══ */}
+        <table style={{borderCollapse: "collapse", fontSize: 11, width: "100%"}} border={0}>
+          <tbody>
             {order.discount && (
               <tr>
-                <td style={{textAlign: "right", width: "60%"}}>{t("Disc")}:</td>
-                <td style={{textAlign: "right", width: "40%"}}><span dir="ltr">{isReturn ? Math.abs(order.discount.amount) : order.discount.amount}</span></td>
+                <td style={{textAlign: 'right', width: '60%', padding: '2px 4px'}}>{t("Disc")}:</td>
+                <td style={{textAlign: 'right', width: '40%', padding: '2px 4px'}}>
+                  <span dir="ltr">{withCurrency(isReturn ? Math.abs(order.discount.amount) : order.discount.amount)}</span>
+                </td>
               </tr>
             )}
             {order.tax && (
               <tr>
-                <td style={{textAlign: "right", width: "60%"}}>{t("Tax")}@{order.tax.rate}:</td>
-                <td style={{textAlign: "right", width: "40%"}}><span dir="ltr">{isReturn ? Math.abs(order.tax.amount) : order.tax.amount}</span></td>
+                <td style={{textAlign: 'right', width: '60%', padding: '2px 4px'}}>
+                  {t("Tax")}@{order.tax.rate}:
+                </td>
+                <td style={{textAlign: 'right', width: '40%', padding: '2px 4px'}}>
+                  <span dir="ltr">{withCurrency(isReturn ? Math.abs(order.tax.amount) : order.tax.amount)}</span>
+                </td>
               </tr>
             )}
-
-            <tr>
-              <td style={{textAlign: "right", width: "60%"}}>
-                <strong>{isReturn ? t("Refund Total") : t("Net Total")}:</strong>
-              </td>
-              <td style={{textAlign: "right", width: "40%"}}>
-                <strong style={isReturn ? {color: '#991b1b'} : undefined}><span dir="ltr">{netTotal}</span></strong>
-              </td>
-            </tr>
             {order.adjustment && (
               <tr>
-                <td style={{textAlign: "right", width: "60%"}}>
-                  <strong>{t("Adjustment")}:</strong>
+                <td style={{textAlign: 'right', width: '60%', padding: '2px 4px'}}>
+                  {t("Adjustment")}:
                 </td>
-                <td style={{textAlign: "right", width: "40%"}}>
-                  <strong><span dir="ltr">{order.adjustment}</span></strong>
+                <td style={{textAlign: 'right', width: '40%', padding: '2px 4px'}}>
+                  <span dir="ltr">{withCurrency(order.adjustment)}</span>
                 </td>
               </tr>
             )}
+          </tbody>
+        </table>
+
+        {/* ═══ Net Total (prominent) ═══ */}
+        <div style={{
+          ...thickSeparator,
+          borderTopWidth: 2,
+        }} />
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          padding: '6px 6px',
+          fontSize: 15,
+          fontWeight: 'bold',
+          background: isReturn ? '#fde8e8' : '#f0f7fb',
+        }}>
+          <span>{isReturn ? t("Refund Total") : t("Net Total")}</span>
+          <span dir="ltr" style={isReturn ? {color: '#991b1b'} : undefined}>
+            {withCurrency(netTotal)}
+          </span>
+        </div>
+        <div style={{
+          ...thickSeparator,
+          borderTopWidth: 2,
+        }} />
+
+        {/* ═══ Payments ═══ */}
+        <table style={{borderCollapse: "collapse", fontSize: 11, width: "100%"}} border={0}>
+          <tbody>
             {order.payments.map((item, index) => (
               <tr key={index}>
-                <td style={{textAlign: "right", width: "60%"}}>{item.type?.name} {t("Amount")}</td>
-                <td style={{textAlign: "right", width: "40%"}}><span dir="ltr">{isReturn ? Math.abs(item.received) : item.received}</span></td>
+                <td style={{textAlign: 'right', width: '60%', padding: '2px 4px'}}>
+                  {item.type?.name}:
+                </td>
+                <td style={{textAlign: 'right', width: '40%', padding: '2px 4px'}}>
+                  <span dir="ltr">{withCurrency(isReturn ? Math.abs(item.received) : item.received)}</span>
+                </td>
               </tr>
             ))}
-
             {!isReturn && (
-            <tr
-              style={{
-                borderTop: "dashed 1px #808080",
-                borderBottom: "dashed 1px #808080"
-              }}
-            >
-              <td style={{textAlign: "right", width: "60%"}}>
-                <strong>{t("Change due")}:</strong>
-              </td>
-              <td style={{textAlign: "right", width: "40%"}}>
-                <strong><span dir="ltr">{changeDue}</span></strong>
-              </td>
-            </tr>
+              <tr style={{borderTop: '1px dashed #808080'}}>
+                <td style={{textAlign: 'right', width: '60%', padding: '4px 4px'}}>
+                  <strong>{t("Change due")}:</strong>
+                </td>
+                <td style={{textAlign: 'right', width: '40%', padding: '4px 4px'}}>
+                  <strong><span dir="ltr">{withCurrency(changeDue)}</span></strong>
+                </td>
+              </tr>
             )}
-            </tbody>
-          </table>
+          </tbody>
+        </table>
+
+        {/* ═══ QR Code ═══ */}
+        {order.orderId && (
+          <>
+            <div style={separator} />
+            <div style={{textAlign: "center", padding: "8px 0"}}>
+              <QRCodeSVG value={order.orderId} size={80} level="L" />
+            </div>
+          </>
+        )}
+
+        {/* ═══ Footer ═══ */}
+        <div style={separator} />
+        <div style={{
+          textAlign: "center",
+          padding: "6px 4px",
+          fontSize: 11,
+        }}>
+          {footerText}
         </div>
-        <div id="salePersonOffline_Div3Inch"/>
-        <div id="Comments_div3Inch"/>
-        <br/>
-        <div
-          style={{textAlign: "center", background: accentBg}}
-          hidden={true}
-        >
-          <h4
-            className="h4Style"
-            id="ShopBasedInvoiceFooter13Inch"
-            style={{margin: "0 0", padding: "0 0"}}
-          ></h4>
-          <h4
-            className="h4Style"
-            id="ShopBasedInvoiceFooter23Inch"
-            style={{margin: "0 0", padding: "0 0"}}
-          ></h4>
-        </div>
-        <div
-          style={{
-            left: "1%",
-            textAlign: "center",
-            background: accentBg
-          }}
-        >
-          <h4
-            className="h4Style"
-            id="SystemBasedInvoiceFooter3Inch"
-            style={{margin: "0 0", padding: "0 0", fontWeight: "normal"}}
-          >
-            {footerText}
-          </h4>
-        </div>
-        <div style={{color: "black", padding: "2px 0px"}}>
-          <h5
-            className="h5Style"
-            style={{
-              margin: "5px 0",
-              padding: "0 0",
-              fontWeight: "normal",
-              display: "none"
-            }}
-            id="fbrComments3InchOffline"
-          >
-            {t("Verify this invoice through FBR TaxAsaan MobileApp or SMS at 9966 and win exciting prizes in draw")}{" "}
-          </h5>
+
+        {/* Printed timestamp */}
+        <div style={{
+          textAlign: "center",
+          fontSize: 9,
+          color: '#999',
+          padding: '2px 0 6px',
+        }}>
+          {DateTime.now().toFormat('dd/MM/yyyy HH:mm')}
         </div>
       </div>
     </div>

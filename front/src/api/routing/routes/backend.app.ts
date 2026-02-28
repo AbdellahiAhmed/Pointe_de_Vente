@@ -131,8 +131,11 @@ export const TERMINAL_EDIT = scopeUrl('/admin/terminal/:id');
 export const REPORT_SALES = scopeUrl('/admin/report/sales');
 export const REPORT_PROFIT = scopeUrl('/admin/report/profit');
 export const REPORT_DAILY = scopeUrl('/admin/report/daily');
+export const REPORT_WEEKLY = scopeUrl('/admin/report/weekly');
 
 export const STOCK_ALERTS = scopeUrl('/admin/stock/alerts');
+export const STOCK_ADJUSTMENT = scopeUrl('/admin/stock/adjustment');
+export const STOCK_MOVEMENTS = scopeUrl('/admin/stock/movements');
 
 export const CLOSING_CLOSE = scopeUrl('/admin/closing/:id/close');
 export const CLOSING_ZREPORT_DATA = scopeUrl('/admin/closing/:id/z-report-data');
@@ -155,6 +158,8 @@ export const SYSTEM_HEALTH = scopeUrl('/admin/system/health');
 
 export const BANK_JOURNAL_SUMMARY = scopeUrl('/admin/bank-journal/summary');
 export const BANK_JOURNAL_TRANSACTIONS = scopeUrl('/admin/bank-journal/:paymentId/transactions');
+
+export const AUDIT_LOG = scopeUrl('/admin/audit/log');
 
 export const SETUP_STATUS = scopeUrl('/setup/status');
 export const SETUP_ACTIVATE = scopeUrl('/setup/activate');

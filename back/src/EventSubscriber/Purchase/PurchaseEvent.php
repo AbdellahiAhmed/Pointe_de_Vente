@@ -4,6 +4,7 @@ namespace App\EventSubscriber\Purchase;
 
 use App\Entity\ProductStore;
 use App\Entity\Purchase;
+use App\Entity\StockMovement;
 use Doctrine\ORM\EntityManagerInterface;
 
 class PurchaseEvent
@@ -100,8 +101,22 @@ class PurchaseEvent
                     $item->getItem()->addStore($productStore);
                 }
 
-                $productStore->setQuantity((string)((float)$productStore->getQuantity() + (float)$item->getQuantity()));
+                $qtyBefore = (float) $productStore->getQuantity();
+                $qtyAdded = (float) $item->getQuantity();
+                $qtyAfter = $qtyBefore + $qtyAdded;
+                $productStore->setQuantity((string) $qtyAfter);
                 $this->entityManager->persist($productStore);
+
+                $movement = new StockMovement();
+                $movement->setProduct($item->getItem());
+                $movement->setProductStore($productStore);
+                $movement->setStore($purchase->getStore());
+                $movement->setQuantityBefore((string) $qtyBefore);
+                $movement->setQuantityAfter((string) $qtyAfter);
+                $movement->setQuantityChanged((string) $qtyAdded);
+                $movement->setType(StockMovement::TYPE_PURCHASE);
+                $movement->setReference($purchase->getId() ? 'PO-' . $purchase->getId() : null);
+                $this->entityManager->persist($movement);
 
                 foreach($item->getVariants() as $variant){
                     $variant->getVariant()->setQuantity((string)((float)$variant->getVariant()->getQuantity() + (float)$variant->getQuantity()));

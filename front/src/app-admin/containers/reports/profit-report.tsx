@@ -1,10 +1,11 @@
-import React, {FunctionComponent, useEffect, useState} from 'react';
+import React, {FunctionComponent, useEffect, useRef, useState} from 'react';
 import {DashboardLayout} from "../layout/dashboard.layout";
 import {useTranslation} from "react-i18next";
 import {jsonRequest} from "../../../api/request/request";
 import {REPORT_PROFIT} from "../../../api/routing/routes/backend.app";
 import {DASHBOARD, REPORTS_PROFIT} from "../../routes/frontend.routes";
 import {ResponsiveBar} from '@nivo/bar';
+import {exportElementToPdf} from '../../../core/pdf/report-pdf-exporter';
 
 interface ProfitData {
   dateFrom: string;
@@ -33,6 +34,14 @@ export const ProfitReport: FunctionComponent = () => {
   const [error, setError] = useState<string | null>(null);
   const [dateFrom, setDateFrom] = useState(new Date().toISOString().split('T')[0]);
   const [dateTo, setDateTo] = useState(new Date().toISOString().split('T')[0]);
+  const reportRef = useRef<HTMLDivElement>(null);
+
+  const handleExportPdf = async () => {
+    if (!reportRef.current) return;
+    await exportElementToPdf(reportRef.current, {
+      filename: `profit-report-${dateFrom || 'today'}-${dateTo || 'today'}.pdf`,
+    });
+  };
 
   const fetchReport = async () => {
     setLoading(true);
@@ -88,6 +97,9 @@ export const ProfitReport: FunctionComponent = () => {
                   <button className="btn btn-outline-secondary ms-2" onClick={() => window.print()}>
                     <i className="bi bi-printer me-1"></i> {t('Print Report')}
                   </button>
+                  <button className="btn btn-outline-danger ms-2" onClick={handleExportPdf} disabled={loading || !data}>
+                    <i className="bi bi-file-earmark-pdf me-1"></i> {t('Export PDF')}
+                  </button>
                 </div>
               </div>
             </div>
@@ -105,7 +117,7 @@ export const ProfitReport: FunctionComponent = () => {
           <p className="mt-2">{t('Loading...')}</p>
         </div>
       ) : data ? (
-        <>
+        <div ref={reportRef}>
           {/* KPI Cards */}
           <div className="row">
             <div className="col-xxl-3 col-md-6">
@@ -267,7 +279,7 @@ export const ProfitReport: FunctionComponent = () => {
               </div>
             </div>
           </div>
-        </>
+        </div>
       ) : (
         <p className="text-muted">{t('No data available')}</p>
       )}

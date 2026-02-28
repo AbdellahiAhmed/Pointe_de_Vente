@@ -10,9 +10,12 @@ import classNames from "classnames";
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
 import { applyLocale } from "../../../lib/rtl";
 import { useHasRole } from "../../../duck/auth/hooks/useHasRole";
+import { useOnlineStatus } from "../../../core/hooks/useOnlineStatus";
+import { Tooltip } from "antd";
 
 export const TopbarRight = () => {
   const { t } = useTranslation();
+  const isOnline = useOnlineStatus();
   const [defaultAppState, setDefaultAppState] = useAtom(defaultData);
   const { defaultMode } = defaultAppState;
 
@@ -37,7 +40,24 @@ export const TopbarRight = () => {
 
   return (
     <>
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-center">
+        {/* Online / Offline indicator */}
+        <Tooltip title={isOnline ? t("Online") : t("Offline")}>
+          <span
+            style={{
+              display: 'inline-block',
+              width: 10,
+              height: 10,
+              borderRadius: '50%',
+              backgroundColor: isOnline ? '#16a34a' : '#dc2626',
+              boxShadow: isOnline
+                ? '0 0 6px rgba(22,163,74,0.6)'
+                : '0 0 6px rgba(220,38,38,0.6)',
+              marginInlineEnd: 4,
+            }}
+          />
+        </Tooltip>
+
         {isManager && (
           <Button
             size="lg"

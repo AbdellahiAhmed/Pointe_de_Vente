@@ -1,10 +1,11 @@
-import React, {FunctionComponent, useEffect, useState} from 'react';
+import React, {FunctionComponent, useEffect, useRef, useState} from 'react';
 import {DashboardLayout} from "../layout/dashboard.layout";
 import {useTranslation} from "react-i18next";
 import {jsonRequest} from "../../../api/request/request";
 import {REPORT_CATEGORY} from "../../../api/routing/routes/backend.app";
 import {DASHBOARD, REPORTS_CATEGORY} from "../../routes/frontend.routes";
 import {ResponsivePie} from '@nivo/pie';
+import {exportElementToPdf} from '../../../core/pdf/report-pdf-exporter';
 
 interface CategoryData {
   dateFrom: string;
@@ -29,6 +30,14 @@ export const CategoryReport: FunctionComponent = () => {
   const [error, setError] = useState<string | null>(null);
   const [dateFrom, setDateFrom] = useState(new Date().toISOString().split('T')[0]);
   const [dateTo, setDateTo] = useState(new Date().toISOString().split('T')[0]);
+  const reportRef = useRef<HTMLDivElement>(null);
+
+  const handleExportPdf = async () => {
+    if (!reportRef.current) return;
+    await exportElementToPdf(reportRef.current, {
+      filename: `category-report-${dateFrom || 'today'}-${dateTo || 'today'}.pdf`,
+    });
+  };
 
   const fetchReport = async () => {
     setLoading(true);
@@ -84,6 +93,9 @@ export const CategoryReport: FunctionComponent = () => {
                   <button className="btn btn-outline-secondary ms-2" onClick={() => window.print()}>
                     <i className="bi bi-printer me-1"></i> {t('Print Report')}
                   </button>
+                  <button className="btn btn-outline-danger ms-2" onClick={handleExportPdf} disabled={loading || !data}>
+                    <i className="bi bi-file-earmark-pdf me-1"></i> {t('Export PDF')}
+                  </button>
                 </div>
               </div>
             </div>
@@ -101,7 +113,7 @@ export const CategoryReport: FunctionComponent = () => {
           <p className="mt-2">{t('Loading...')}</p>
         </div>
       ) : data ? (
-        <>
+        <div ref={reportRef}>
           {/* Pie chart for revenue distribution */}
           <div className="row mb-4">
             <div className="col-12">
@@ -211,7 +223,7 @@ export const CategoryReport: FunctionComponent = () => {
               </div>
             </div>
           </div>
-        </>
+        </div>
       ) : (
         <p className="text-muted">{t('No data available')}</p>
       )}

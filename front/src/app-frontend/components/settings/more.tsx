@@ -21,6 +21,7 @@ import {
   faReceipt,
   faExclamationTriangle,
   faKeyboard,
+  faPrint,
 } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "../../../app-common/components/input/button";
 import { Input } from "../../../app-common/components/input/input";
@@ -53,6 +54,12 @@ import { defaultData, defaultState } from "../../../store/jotai";
 import { useHasRole } from "../../../duck/auth/hooks/useHasRole";
 import { ReturnRequestsInline } from "./returns/return-requests-inline";
 import { ShortcutSettings } from "./shortcuts/shortcut-settings";
+import {
+  isWebSerialSupported,
+  isConnected as isEscPosConnected,
+  connectPrinter,
+  disconnectPrinter,
+} from "../../../core/printing/esc-pos-printer";
 
 interface Props {
 }
@@ -124,6 +131,20 @@ export const More: FC<Props> = ({}) => {
   }, [progress]);
 
   const [isLoading, setLoading] = useState(false);
+  const [printerConnected, setPrinterConnected] = useState(isEscPosConnected());
+
+  const handleTogglePrinter = async () => {
+    if (printerConnected) {
+      await disconnectPrinter();
+      setPrinterConnected(false);
+    } else {
+      const ok = await connectPrinter();
+      setPrinterConnected(ok);
+      if (!ok) {
+        messageApi.error(t("Failed to connect printer"));
+      }
+    }
+  };
 
   const clearCache = async () => {
     setLoading(true);
@@ -443,6 +464,32 @@ export const More: FC<Props> = ({}) => {
                             />
                           </div>
                         </div>
+                        {/* Thermal Printer Connection */}
+                        {isWebSerialSupported() && (
+                          <div className="settings-card__row">
+                            <div>
+                              <div className="settings-card__row-label">
+                                <FontAwesomeIcon icon={faPrint} style={{marginInlineEnd: 6}} />
+                                {t("Thermal Printer")}
+                              </div>
+                              <div className="settings-card__row-description">
+                                {printerConnected
+                                  ? t("Thermal printer connected — receipts will print directly")
+                                  : t("Connect a USB thermal printer (ESC/POS) for direct printing")}
+                              </div>
+                            </div>
+                            <div className="settings-card__row-control">
+                              <Button
+                                variant={printerConnected ? "danger" : "primary"}
+                                size="sm"
+                                onClick={handleTogglePrinter}
+                              >
+                                {printerConnected ? t("Disconnect") : t("Connect")}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+
                         <div style={{padding: '12px 0', borderTop: '1px solid var(--pos-border)'}}>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>

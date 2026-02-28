@@ -27,6 +27,8 @@ export const REPORTS_CATEGORY = staticRoute('/reports/category');
 export const Z_REPORTS = staticRoute('/reports/z-reports');
 
 export const INVENTORY_ALERTS = staticRoute('/inventory/alerts');
+export const STOCK_ADJUSTMENT = staticRoute('/inventory/adjustment');
+export const STOCK_MOVEMENTS = staticRoute('/inventory/movements');
 
 export const RETURN_REQUESTS = staticRoute('/returns');
 export const CUSTOMERS_REPORT = staticRoute('/customers');
@@ -34,3 +36,4 @@ export const CUSTOMERS_REPORT = staticRoute('/customers');
 export const BANK_JOURNAL = staticRoute('/bank-journal');
 
 export const SYSTEM_HEALTH = staticRoute('/system/health');
+export const AUDIT_LOG = staticRoute('/audit/log');

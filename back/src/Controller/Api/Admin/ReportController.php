@@ -644,4 +644,110 @@ class ReportController extends AbstractController
             'totalCollected' => round($totalCollected, 2),
         ]);
     }
+
+    /**
+     * @Route("/weekly", name="weekly", methods={"GET"})
+     */
+    public function weekly(Request $request, ApiResponseFactory $responseFactory)
+    {
+        $this->denyAccessUnlessGranted(ReportVoter::VIEW);
+
+        $storeId = $request->query->get('store');
+        $days = 7;
+        $result = [];
+
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $date = (new \DateTime())->modify("-{$i} days")->format('Y-m-d');
+
+            $qb = $this->em->createQueryBuilder()
+                ->select(
+                    'COUNT(o.id) as totalOrders',
+                    'COALESCE(SUM(op.price * op.quantity), 0) as grossRevenue',
+                    'COALESCE(SUM(op.discount), 0) as totalDiscounts'
+                )
+                ->from(OrderProduct::class, 'op')
+                ->join('op.order', 'o')
+                ->where('DATE(o.createdAt) = :date')
+                ->andWhere('o.isDeleted = false')
+                ->andWhere('o.isReturned = false')
+                ->andWhere('o.isSuspended != true OR o.isSuspended IS NULL')
+                ->setParameter('date', $date);
+
+            if ($storeId) {
+                $qb->andWhere('o.store = :store')->setParameter('store', $storeId);
+            }
+
+            $row = $qb->getQuery()->getSingleResult();
+            $gross = (float) $row['grossRevenue'];
+            $discounts = (float) $row['totalDiscounts'];
+
+            $result[] = [
+                'date' => $date,
+                'label' => (new \DateTime($date))->format('D'),
+                'orders' => (int) $row['totalOrders'],
+                'revenue' => round($gross - $discounts, 2),
+            ];
+        }
+
+        // Top 5 products this week
+        $weekStart = (new \DateTime())->modify('-6 days')->format('Y-m-d');
+        $qbTop = $this->em->createQueryBuilder()
+            ->select(
+                'p.name as productName',
+                'SUM(op.quantity) as totalQty',
+                'SUM(op.price * op.quantity - op.discount) as revenue'
+            )
+            ->from(OrderProduct::class, 'op')
+            ->join('op.order', 'o')
+            ->join('op.product', 'p')
+            ->where('DATE(o.createdAt) >= :weekStart')
+            ->andWhere('o.isDeleted = false')
+            ->andWhere('o.isReturned = false')
+            ->andWhere('o.isSuspended != true OR o.isSuspended IS NULL')
+            ->groupBy('p.id')
+            ->orderBy('totalQty', 'DESC')
+            ->setMaxResults(5)
+            ->setParameter('weekStart', $weekStart);
+
+        if ($storeId) {
+            $qbTop->andWhere('o.store = :store')->setParameter('store', $storeId);
+        }
+
+        $topProducts = $qbTop->getQuery()->getResult();
+
+        // Payment breakdown this week
+        $qbPay = $this->em->createQueryBuilder()
+            ->select(
+                'pt.name as paymentType',
+                'SUM(opay.received) as amount'
+            )
+            ->from(OrderPayment::class, 'opay')
+            ->join('opay.order', 'o')
+            ->join('opay.type', 'pt')
+            ->where('DATE(o.createdAt) >= :weekStart')
+            ->andWhere('o.isDeleted = false')
+            ->andWhere('o.isReturned = false')
+            ->andWhere('o.isSuspended != true OR o.isSuspended IS NULL')
+            ->groupBy('pt.id')
+            ->setParameter('weekStart', $weekStart);
+
+        if ($storeId) {
+            $qbPay->andWhere('o.store = :store')->setParameter('store', $storeId);
+        }
+
+        $payments = $qbPay->getQuery()->getResult();
+
+        return $this->withCache($responseFactory->json([
+            'daily' => $result,
+            'topProducts' => array_map(fn($p) => [
+                'productName' => $p['productName'],
+                'totalQty' => (float) $p['totalQty'],
+                'revenue' => round((float) $p['revenue'], 2),
+            ], $topProducts),
+            'payments' => array_map(fn($p) => [
+                'paymentType' => $p['paymentType'],
+                'amount' => round((float) $p['amount'], 2),
+            ], $payments),
+        ]), 120);
+    }
 }

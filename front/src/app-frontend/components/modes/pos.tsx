@@ -42,6 +42,7 @@ import { QuantityChangeModal } from "../sale/quantity-change.modal";
 import { PriceChangeModal } from "../sale/price-change.modal";
 import { ReturnRequest } from "../sale/return-request";
 import { PendingRefunds } from "../sale/pending-refunds";
+import { useBarcodeScanner } from "../../../core/hooks/useBarcodeScanner";
 
 enum SearchModes {
   sale = "sale",
@@ -617,6 +618,13 @@ export const PosMode = () => {
       keys.forEach(k => Mousetrap.unbind(k));
     };
   }, [getSelectedCartItem, added, appState.cartItem, quantityModalOpen, priceModalOpen, returnRequestOpen, modal, keyChangeQty, keyChangePrice, keyFocusSearch, keyReturnReq, keyTriggerPay, keyRemoveItem, keyCloseModal]);
+
+  // ── Barcode Scanner ──
+  const handleBarcodeScan = useCallback((barcode: string) => {
+    searchAction({ q: barcode, quantity: 1 });
+  }, [itemsMap, added, store]);
+
+  useBarcodeScanner({ onScan: handleBarcodeScan });
 
   const handleQuantityConfirm = useCallback((newQuantity: number) => {
     if (!selectedCartItem) return;
