@@ -1156,7 +1156,7 @@
   "health.credit_exceeded": "هذا العميل تجاوز حد الائتمان: المستحق {{outstanding}} من أصل حد {{limit}}.",
   "health.duplicate_barcode": "هذا الباركود مستخدم لعدة منتجات: {{products}}. صحح التكرار.",
   "health.active_but_deleted": "هذا المنتج نشط لكنه حُذف بتاريخ {{date}}. قم بتعطيله أو استعادته.",
-  "health.payment_mismatch": "المبالغ غير متطابقة: المستلم ({{received}}) + المتبقي ({{due}}) ≠ الإجمالي ({{total}}). راجع هذا الدفع.",
+  "health.payment_mismatch": "مجموع المدفوعات ({{received}}) لا يتطابق مع إجمالي الطلب ({{total}}). فرق {{diff}}. راجع المدفوعات.",
   "health.min_exceeds_price": "الحد الأدنى للسعر ({{minPrice}}) أعلى من سعر البيع ({{salePrice}}). صحح أحدهما.",
   "health.zero_price": "سعر البيع غير مسجل. لا يمكن بيع هذا المنتج بشكل صحيح.",
   "health.order_conflict": "هذا الطلب به حالات متناقضة ({{flags}}). راجع سجله.",

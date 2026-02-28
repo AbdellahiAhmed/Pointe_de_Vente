@@ -1149,7 +1149,7 @@
   "health.credit_exceeded": "Ce client a dépassé sa limite de crédit : encours {{outstanding}} sur une limite de {{limit}}.",
   "health.duplicate_barcode": "Ce code-barres est utilisé par plusieurs produits : {{products}}. Corrigez les doublons.",
   "health.active_but_deleted": "Ce produit est marqué actif mais a été supprimé le {{date}}. Désactivez-le ou restaurez-le.",
-  "health.payment_mismatch": "Les montants ne correspondent pas : reçu ({{received}}) + reste dû ({{due}}) ≠ total ({{total}}). Vérifiez ce paiement.",
+  "health.payment_mismatch": "La somme des paiements ({{received}}) ne correspond pas au total de la commande ({{total}}). Écart de {{diff}}. Vérifiez les paiements.",
   "health.min_exceeds_price": "Le prix minimum ({{minPrice}}) est supérieur au prix de vente ({{salePrice}}). Corrigez l'un des deux.",
   "health.zero_price": "Le prix de vente n'est pas renseigné. Ce produit ne peut pas être vendu correctement.",
   "health.order_conflict": "Cette commande a des états contradictoires ({{flags}}). Vérifiez son historique.",

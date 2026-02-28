@@ -164,23 +164,26 @@ class SystemHealthController extends AbstractController
                 (int)$row['id'], 'product');
         }
 
-        // Check 9: Payment formula violations
+        // Check 9: Payment formula violations (order-level: total from products vs sum of received)
         $rows = $conn->fetchAllAssociative(
-            'SELECT op.id, op.total, op.received, op.due, o.order_id
-             FROM order_payment op
-             JOIN `order` o ON o.id = op.order_id
-             WHERE ABS((op.received + op.due) - op.total) > 0.01
-             AND o.is_deleted = 0
+            'SELECT o.id, o.order_id,
+                    COALESCE(SUM(oi.price * oi.quantity), 0) + COALESCE(o.adjustment, 0) AS order_total,
+                    (SELECT COALESCE(SUM(p.received), 0) FROM order_payment p WHERE p.order_id = o.id AND p.deleted_at IS NULL) AS total_paid
+             FROM `order` o
+             LEFT JOIN order_product oi ON oi.orderId = o.id
+             WHERE o.is_deleted = 0 AND o.is_returned = 0 AND o.is_suspended = 0
+             GROUP BY o.id
+             HAVING ABS(total_paid - order_total) > 0.01
              LIMIT 50'
         );
         foreach ($rows as $row) {
             $a('payment-formula-' . $row['id'], 'critical', 'Payment', sprintf('#%s', $row['order_id']),
                 'health.payment_mismatch', [
-                    'total' => number_format((float)$row['total'], 2),
-                    'received' => number_format((float)$row['received'], 2),
-                    'due' => number_format((float)$row['due'], 2),
+                    'total' => number_format((float)$row['order_total'], 2),
+                    'received' => number_format((float)$row['total_paid'], 2),
+                    'diff' => number_format(abs((float)$row['order_total'] - (float)$row['total_paid']), 2),
                 ],
-                (int)$row['id'], 'order_payment');
+                (int)$row['id'], 'order');
         }
 
         // Check 10: Products with min_price > base_price
