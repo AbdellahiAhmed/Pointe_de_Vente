@@ -31,6 +31,20 @@ class SystemHealthController extends AbstractController
         $conn = $this->em->getConnection();
         $anomalies = [];
 
+        // Helper: build anomaly with messageKey + params for frontend translation
+        $a = function(string $id, string $severity, string $category, string $title, string $messageKey, array $messageParams, int $entityId, string $entityType) use (&$anomalies) {
+            $anomalies[] = [
+                'id' => $id,
+                'severity' => $severity,
+                'category' => $category,
+                'title' => $title,
+                'messageKey' => $messageKey,
+                'messageParams' => $messageParams,
+                'entityId' => $entityId,
+                'entityType' => $entityType,
+            ];
+        };
+
         // Check 1: Products with absurd cost or price (> 1,000,000 MRU)
         $threshold = 1000000;
         $rows = $conn->fetchAllAssociative(
@@ -38,20 +52,9 @@ class SystemHealthController extends AbstractController
             ['t' => $threshold]
         );
         foreach ($rows as $row) {
-            $anomalies[] = [
-                'id' => 'product-absurd-price-' . $row['id'],
-                'severity' => 'critical',
-                'category' => 'product',
-                'title' => $row['name'],
-                'detail' => sprintf(
-                    'Cost: %s MRU, Price: %s MRU (threshold: %s MRU)',
-                    number_format((float)$row['cost'], 2),
-                    number_format((float)$row['base_price'], 2),
-                    number_format($threshold, 0)
-                ),
-                'entityId' => (int)$row['id'],
-                'entityType' => 'product',
-            ];
+            $a('product-absurd-price-' . $row['id'], 'critical', 'Product', $row['name'],
+                'health.absurd_price', ['cost' => number_format((float)$row['cost'], 2), 'price' => number_format((float)$row['base_price'], 2)],
+                (int)$row['id'], 'product');
         }
 
         // Check 2: Products with sale price < cost (negative margin)
@@ -59,19 +62,9 @@ class SystemHealthController extends AbstractController
             'SELECT id, name, cost, base_price FROM product WHERE cost > 0 AND base_price > 0 AND base_price < cost AND is_active = 1 AND deleted_at IS NULL'
         );
         foreach ($rows as $row) {
-            $anomalies[] = [
-                'id' => 'product-negative-margin-' . $row['id'],
-                'severity' => 'warning',
-                'category' => 'product',
-                'title' => $row['name'],
-                'detail' => sprintf(
-                    'Sale price (%s) < Cost (%s) — negative margin',
-                    number_format((float)$row['base_price'], 2),
-                    number_format((float)$row['cost'], 2)
-                ),
-                'entityId' => (int)$row['id'],
-                'entityType' => 'product',
-            ];
+            $a('product-negative-margin-' . $row['id'], 'warning', 'Product', $row['name'],
+                'health.negative_margin', ['salePrice' => number_format((float)$row['base_price'], 2), 'cost' => number_format((float)$row['cost'], 2)],
+                (int)$row['id'], 'product');
         }
 
         // Check 3: Active products with zero or null cost
@@ -79,15 +72,9 @@ class SystemHealthController extends AbstractController
             'SELECT id, name, cost FROM product WHERE (cost IS NULL OR cost = 0) AND is_active = 1 AND deleted_at IS NULL'
         );
         foreach ($rows as $row) {
-            $anomalies[] = [
-                'id' => 'product-zero-cost-' . $row['id'],
-                'severity' => 'info',
-                'category' => 'product',
-                'title' => $row['name'],
-                'detail' => 'Cost is 0 or not set — profit calculations will be inaccurate',
-                'entityId' => (int)$row['id'],
-                'entityType' => 'product',
-            ];
+            $a('product-zero-cost-' . $row['id'], 'info', 'Product', $row['name'],
+                'health.zero_cost', [],
+                (int)$row['id'], 'product');
         }
 
         // Check 4: OrderProducts with absurd costAtSale
@@ -101,19 +88,9 @@ class SystemHealthController extends AbstractController
             ['t' => $threshold]
         );
         foreach ($rows as $row) {
-            $anomalies[] = [
-                'id' => 'order-absurd-cost-' . $row['id'],
-                'severity' => 'critical',
-                'category' => 'order',
-                'title' => sprintf('Order #%s — %s', $row['order_id'], $row['name']),
-                'detail' => sprintf(
-                    'Cost at sale: %s MRU (threshold: %s MRU)',
-                    number_format((float)$row['cost_at_sale'], 2),
-                    number_format($threshold, 0)
-                ),
-                'entityId' => (int)$row['id'],
-                'entityType' => 'order_product',
-            ];
+            $a('order-absurd-cost-' . $row['id'], 'critical', 'Order', sprintf('#%s — %s', $row['order_id'], $row['name']),
+                'health.absurd_cost_at_sale', ['cost' => number_format((float)$row['cost_at_sale'], 2)],
+                (int)$row['id'], 'order_product');
         }
 
         // Check 5: Products with negative stock
@@ -125,19 +102,9 @@ class SystemHealthController extends AbstractController
              WHERE ps.quantity < 0 AND p.is_active = 1 AND p.deleted_at IS NULL'
         );
         foreach ($rows as $row) {
-            $anomalies[] = [
-                'id' => 'product-negative-stock-' . $row['id'] . '-' . md5($row['store_name']),
-                'severity' => 'warning',
-                'category' => 'stock',
-                'title' => $row['name'],
-                'detail' => sprintf(
-                    'Negative stock: %s in store "%s"',
-                    number_format((float)$row['quantity'], 2),
-                    $row['store_name']
-                ),
-                'entityId' => (int)$row['id'],
-                'entityType' => 'product',
-            ];
+            $a('product-negative-stock-' . $row['id'] . '-' . md5($row['store_name']), 'warning', 'Stock', $row['name'],
+                'health.negative_stock', ['qty' => number_format((float)$row['quantity'], 2), 'store' => $row['store_name']],
+                (int)$row['id'], 'product');
         }
 
         // Check 6: Customers exceeding credit limit
@@ -167,23 +134,13 @@ class SystemHealthController extends AbstractController
             $outstanding = (float)$row['opening_balance'] + (float)$row['total_credit'] - (float)$row['total_paid'];
             $limit = (float)$row['credit_limit'];
             if ($outstanding > $limit && $limit > 0) {
-                $anomalies[] = [
-                    'id' => 'customer-over-limit-' . $row['id'],
-                    'severity' => 'warning',
-                    'category' => 'customer',
-                    'title' => $row['name'],
-                    'detail' => sprintf(
-                        'Outstanding: %s MRU exceeds limit: %s MRU',
-                        number_format($outstanding, 2),
-                        number_format($limit, 2)
-                    ),
-                    'entityId' => (int)$row['id'],
-                    'entityType' => 'customer',
-                ];
+                $a('customer-over-limit-' . $row['id'], 'warning', 'Customer', $row['name'],
+                    'health.credit_exceeded', ['outstanding' => number_format($outstanding, 2), 'limit' => number_format($limit, 2)],
+                    (int)$row['id'], 'customer');
             }
         }
 
-        // Check 7: Duplicate active barcodes — scanning conflicts
+        // Check 7: Duplicate active barcodes
         $rows = $conn->fetchAllAssociative(
             "SELECT barcode, COUNT(*) as cnt, GROUP_CONCAT(id) as ids, GROUP_CONCAT(name SEPARATOR ' | ') as names
              FROM product
@@ -191,34 +148,23 @@ class SystemHealthController extends AbstractController
              GROUP BY barcode HAVING cnt > 1"
         );
         foreach ($rows as $row) {
-            $anomalies[] = [
-                'id' => 'product-duplicate-barcode-' . md5($row['barcode']),
-                'severity' => 'critical',
-                'category' => 'product',
-                'title' => sprintf('Barcode "%s" (%d products)', $row['barcode'], (int)$row['cnt']),
-                'detail' => sprintf('Shared by: %s (IDs: %s)', $row['names'], $row['ids']),
-                'entityId' => (int)explode(',', $row['ids'])[0],
-                'entityType' => 'product',
-            ];
+            $a('product-duplicate-barcode-' . md5($row['barcode']), 'critical', 'Product',
+                sprintf('%s (%d)', $row['barcode'], (int)$row['cnt']),
+                'health.duplicate_barcode', ['products' => $row['names']],
+                (int)explode(',', $row['ids'])[0], 'product');
         }
 
-        // Check 8: Products active but soft-deleted — data inconsistency
+        // Check 8: Products active but soft-deleted
         $rows = $conn->fetchAllAssociative(
             'SELECT id, name, deleted_at FROM product WHERE deleted_at IS NOT NULL AND is_active = 1 LIMIT 50'
         );
         foreach ($rows as $row) {
-            $anomalies[] = [
-                'id' => 'product-active-deleted-' . $row['id'],
-                'severity' => 'critical',
-                'category' => 'product',
-                'title' => $row['name'],
-                'detail' => sprintf('Soft-deleted on %s but still marked active', $row['deleted_at']),
-                'entityId' => (int)$row['id'],
-                'entityType' => 'product',
-            ];
+            $a('product-active-deleted-' . $row['id'], 'critical', 'Product', $row['name'],
+                'health.active_but_deleted', ['date' => $row['deleted_at']],
+                (int)$row['id'], 'product');
         }
 
-        // Check 9: Payment formula violations — total != received + due
+        // Check 9: Payment formula violations
         $rows = $conn->fetchAllAssociative(
             'SELECT op.id, op.total, op.received, op.due, o.order_id
              FROM order_payment op
@@ -228,60 +174,37 @@ class SystemHealthController extends AbstractController
              LIMIT 50'
         );
         foreach ($rows as $row) {
-            $anomalies[] = [
-                'id' => 'payment-formula-' . $row['id'],
-                'severity' => 'critical',
-                'category' => 'payment',
-                'title' => sprintf('Order #%s', $row['order_id']),
-                'detail' => sprintf(
-                    'Total: %s, Received: %s, Due: %s — mismatch',
-                    number_format((float)$row['total'], 2),
-                    number_format((float)$row['received'], 2),
-                    number_format((float)$row['due'], 2)
-                ),
-                'entityId' => (int)$row['id'],
-                'entityType' => 'order_payment',
-            ];
+            $a('payment-formula-' . $row['id'], 'critical', 'Payment', sprintf('#%s', $row['order_id']),
+                'health.payment_mismatch', [
+                    'total' => number_format((float)$row['total'], 2),
+                    'received' => number_format((float)$row['received'], 2),
+                    'due' => number_format((float)$row['due'], 2),
+                ],
+                (int)$row['id'], 'order_payment');
         }
 
-        // Check 10: Products with min_price > base_price — config error
+        // Check 10: Products with min_price > base_price
         $rows = $conn->fetchAllAssociative(
             'SELECT id, name, min_price, base_price FROM product
              WHERE min_price IS NOT NULL AND min_price > 0 AND base_price > 0
              AND min_price > base_price AND is_active = 1 AND deleted_at IS NULL'
         );
         foreach ($rows as $row) {
-            $anomalies[] = [
-                'id' => 'product-min-exceeds-base-' . $row['id'],
-                'severity' => 'warning',
-                'category' => 'product',
-                'title' => $row['name'],
-                'detail' => sprintf(
-                    'Min price (%s) > Sale price (%s)',
-                    number_format((float)$row['min_price'], 2),
-                    number_format((float)$row['base_price'], 2)
-                ),
-                'entityId' => (int)$row['id'],
-                'entityType' => 'product',
-            ];
+            $a('product-min-exceeds-base-' . $row['id'], 'warning', 'Product', $row['name'],
+                'health.min_exceeds_price', ['minPrice' => number_format((float)$row['min_price'], 2), 'salePrice' => number_format((float)$row['base_price'], 2)],
+                (int)$row['id'], 'product');
         }
 
-        // Check 11: Active products with zero sale price — can't sell
+        // Check 11: Active products with zero sale price
         $rows = $conn->fetchAllAssociative(
             'SELECT id, name, base_price FROM product
              WHERE (base_price IS NULL OR base_price = 0) AND is_active = 1
              AND (is_available IS NULL OR is_available = 1) AND deleted_at IS NULL'
         );
         foreach ($rows as $row) {
-            $anomalies[] = [
-                'id' => 'product-zero-price-' . $row['id'],
-                'severity' => 'warning',
-                'category' => 'product',
-                'title' => $row['name'],
-                'detail' => 'Sale price is 0 or not set — product cannot be sold correctly',
-                'entityId' => (int)$row['id'],
-                'entityType' => 'product',
-            ];
+            $a('product-zero-price-' . $row['id'], 'warning', 'Product', $row['name'],
+                'health.zero_price', [],
+                (int)$row['id'], 'product');
         }
 
         // Check 12: Orders with inconsistent state flags
@@ -295,18 +218,12 @@ class SystemHealthController extends AbstractController
             if ($row['is_deleted']) $flags[] = 'deleted';
             if ($row['is_returned']) $flags[] = 'returned';
             if ($row['is_suspended']) $flags[] = 'suspended';
-            $anomalies[] = [
-                'id' => 'order-inconsistent-flags-' . $row['id'],
-                'severity' => 'warning',
-                'category' => 'order',
-                'title' => sprintf('Order #%s', $row['order_id']),
-                'detail' => sprintf('Conflicting flags: %s', implode(' + ', $flags)),
-                'entityId' => (int)$row['id'],
-                'entityType' => 'order',
-            ];
+            $a('order-inconsistent-flags-' . $row['id'], 'warning', 'Order', sprintf('#%s', $row['order_id']),
+                'health.order_conflict', ['flags' => implode(' + ', $flags)],
+                (int)$row['id'], 'order');
         }
 
-        // Check 13: Inventory discrepancy — product.quantity vs sum(product_store.quantity)
+        // Check 13: Inventory discrepancy
         $rows = $conn->fetchAllAssociative(
             'SELECT p.id, p.name, p.quantity as master_qty, COALESCE(SUM(ps.quantity), 0) as store_total
              FROM product p
@@ -317,23 +234,16 @@ class SystemHealthController extends AbstractController
              LIMIT 50'
         );
         foreach ($rows as $row) {
-            $anomalies[] = [
-                'id' => 'product-inventory-mismatch-' . $row['id'],
-                'severity' => 'warning',
-                'category' => 'stock',
-                'title' => $row['name'],
-                'detail' => sprintf(
-                    'Master qty: %s, Store total: %s — discrepancy: %s',
-                    number_format((float)$row['master_qty'], 2),
-                    number_format((float)$row['store_total'], 2),
-                    number_format(abs((float)$row['master_qty'] - (float)$row['store_total']), 2)
-                ),
-                'entityId' => (int)$row['id'],
-                'entityType' => 'product',
-            ];
+            $a('product-inventory-mismatch-' . $row['id'], 'warning', 'Stock', $row['name'],
+                'health.inventory_mismatch', [
+                    'expected' => number_format((float)$row['master_qty'], 2),
+                    'actual' => number_format((float)$row['store_total'], 2),
+                    'diff' => number_format(abs((float)$row['master_qty'] - (float)$row['store_total']), 2),
+                ],
+                (int)$row['id'], 'product');
         }
 
-        // Check 14: Unclosed sessions — closing records open > 24 hours
+        // Check 14: Unclosed sessions
         $rows = $conn->fetchAllAssociative(
             'SELECT c.id, c.date_from, s.name as store_name, t.code as terminal_code
              FROM closing c
@@ -343,36 +253,24 @@ class SystemHealthController extends AbstractController
              LIMIT 50'
         );
         foreach ($rows as $row) {
-            $anomalies[] = [
-                'id' => 'closing-unclosed-' . $row['id'],
-                'severity' => 'warning',
-                'category' => 'closing',
-                'title' => sprintf('%s — %s', $row['store_name'] ?? 'Unknown', $row['terminal_code'] ?? 'Unknown'),
-                'detail' => sprintf('Session opened %s — still not closed (>24h)', $row['date_from']),
-                'entityId' => (int)$row['id'],
-                'entityType' => 'closing',
-            ];
+            $a('closing-unclosed-' . $row['id'], 'warning', 'Closing', sprintf('%s — %s', $row['store_name'] ?? '?', $row['terminal_code'] ?? '?'),
+                'health.unclosed_session', ['date' => $row['date_from']],
+                (int)$row['id'], 'closing');
         }
 
-        // Check 15: Products without barcode — can't be scanned at POS
+        // Check 15: Products without barcode
         $rows = $conn->fetchAllAssociative(
             "SELECT id, name FROM product
              WHERE (barcode IS NULL OR barcode = '') AND is_active = 1 AND deleted_at IS NULL
              LIMIT 50"
         );
         foreach ($rows as $row) {
-            $anomalies[] = [
-                'id' => 'product-no-barcode-' . $row['id'],
-                'severity' => 'info',
-                'category' => 'product',
-                'title' => $row['name'],
-                'detail' => 'No barcode set — product cannot be scanned at POS',
-                'entityId' => (int)$row['id'],
-                'entityType' => 'product',
-            ];
+            $a('product-no-barcode-' . $row['id'], 'info', 'Product', $row['name'],
+                'health.no_barcode', [],
+                (int)$row['id'], 'product');
         }
 
-        // Check 16: Products without category — organization issue
+        // Check 16: Products without category
         $rows = $conn->fetchAllAssociative(
             'SELECT p.id, p.name FROM product p
              LEFT JOIN product_category pc ON pc.product_id = p.id
@@ -380,15 +278,9 @@ class SystemHealthController extends AbstractController
              LIMIT 50'
         );
         foreach ($rows as $row) {
-            $anomalies[] = [
-                'id' => 'product-no-category-' . $row['id'],
-                'severity' => 'info',
-                'category' => 'product',
-                'title' => $row['name'],
-                'detail' => 'No category assigned — product won\'t appear in category filters',
-                'entityId' => (int)$row['id'],
-                'entityType' => 'product',
-            ];
+            $a('product-no-category-' . $row['id'], 'info', 'Product', $row['name'],
+                'health.no_category', [],
+                (int)$row['id'], 'product');
         }
 
         // Build summary

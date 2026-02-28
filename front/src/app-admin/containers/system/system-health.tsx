@@ -10,7 +10,8 @@ interface Anomaly {
   severity: 'critical' | 'warning' | 'info';
   category: string;
   title: string;
-  detail: string;
+  messageKey: string;
+  messageParams: Record<string, string>;
   entityId: number;
   entityType: string;
 }
@@ -30,9 +31,9 @@ interface HealthData {
 type SeverityFilter = 'all' | 'critical' | 'warning' | 'info';
 
 const severityConfig = {
-  critical: {bg: 'bg-danger', icon: 'bi-exclamation-octagon-fill', label: 'Critical'},
-  warning: {bg: 'bg-warning text-dark', icon: 'bi-exclamation-triangle-fill', label: 'Warning'},
-  info: {bg: 'bg-info text-dark', icon: 'bi-info-circle-fill', label: 'Info'},
+  critical: {bg: 'bg-danger', icon: 'bi-exclamation-octagon-fill'},
+  warning: {bg: 'bg-warning text-dark', icon: 'bi-exclamation-triangle-fill'},
+  info: {bg: 'bg-info text-dark', icon: 'bi-info-circle-fill'},
 };
 
 export const SystemHealth: FunctionComponent = () => {
@@ -61,6 +62,10 @@ export const SystemHealth: FunctionComponent = () => {
   }, []);
 
   const filtered = data?.anomalies.filter(a => filter === 'all' || a.severity === filter) || [];
+
+  const detailMessage = (anomaly: Anomaly): string => {
+    return t(anomaly.messageKey, anomaly.messageParams || {});
+  };
 
   return (
     <DashboardLayout
@@ -136,38 +141,21 @@ export const SystemHealth: FunctionComponent = () => {
           <div className="card">
             <div className="card-body py-3">
               <div className="d-flex align-items-center gap-2">
-                <button
-                  className={`btn btn-sm ${filter === 'all' ? 'btn-primary' : 'btn-outline-primary'}`}
-                  onClick={() => setFilter('all')}
-                >
+                <button className={`btn btn-sm ${filter === 'all' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setFilter('all')}>
                   {t('All')} ({data ? data.anomalies.length : 0})
                 </button>
-                <button
-                  className={`btn btn-sm ${filter === 'critical' ? 'btn-danger' : 'btn-outline-danger'}`}
-                  onClick={() => setFilter('critical')}
-                >
+                <button className={`btn btn-sm ${filter === 'critical' ? 'btn-danger' : 'btn-outline-danger'}`} onClick={() => setFilter('critical')}>
                   {t('Critical')} ({data?.summary.critical || 0})
                 </button>
-                <button
-                  className={`btn btn-sm ${filter === 'warning' ? 'btn-warning' : 'btn-outline-warning'}`}
-                  onClick={() => setFilter('warning')}
-                >
+                <button className={`btn btn-sm ${filter === 'warning' ? 'btn-warning' : 'btn-outline-warning'}`} onClick={() => setFilter('warning')}>
                   {t('Warning')} ({data?.summary.warning || 0})
                 </button>
-                <button
-                  className={`btn btn-sm ${filter === 'info' ? 'btn-info' : 'btn-outline-info'}`}
-                  onClick={() => setFilter('info')}
-                >
+                <button className={`btn btn-sm ${filter === 'info' ? 'btn-info' : 'btn-outline-info'}`} onClick={() => setFilter('info')}>
                   {t('Info')} ({data?.summary.info || 0})
                 </button>
                 <div className="ms-auto">
-                  <button
-                    className="btn btn-sm btn-outline-secondary"
-                    onClick={fetchHealth}
-                    disabled={loading}
-                  >
-                    <i className={`bi bi-arrow-clockwise ${loading ? 'spin' : ''}`}></i>{' '}
-                    {t('Refresh')}
+                  <button className="btn btn-sm btn-outline-secondary" onClick={fetchHealth} disabled={loading}>
+                    <i className={`bi bi-arrow-clockwise ${loading ? 'spin' : ''}`}></i> {t('Refresh')}
                   </button>
                 </div>
               </div>
@@ -181,9 +169,7 @@ export const SystemHealth: FunctionComponent = () => {
         <div className="col-12">
           <div className="card">
             <div className="card-body">
-              {error && (
-                <div className="alert alert-danger">{error}</div>
-              )}
+              {error && <div className="alert alert-danger">{error}</div>}
               {loading ? (
                 <div className="text-center py-4">
                   <div className="spinner-border" role="status">
@@ -210,20 +196,18 @@ export const SystemHealth: FunctionComponent = () => {
                   <tbody>
                     {filtered.map(anomaly => {
                       const config = severityConfig[anomaly.severity as keyof typeof severityConfig]
-                        ?? {bg: 'bg-secondary', icon: 'bi-question-circle', label: anomaly.severity};
+                        ?? {bg: 'bg-secondary', icon: 'bi-question-circle'};
                       return (
                         <tr key={anomaly.id}>
                           <td>
                             <span className={`badge ${config.bg}`}>
                               <i className={`bi ${config.icon} me-1`}></i>
-                              {t(config.label)}
+                              {t(anomaly.severity === 'critical' ? 'Critical' : anomaly.severity === 'warning' ? 'Warning' : 'Info')}
                             </span>
                           </td>
-                          <td>
-                            <span className="text-capitalize">{anomaly.category}</span>
-                          </td>
+                          <td>{t(anomaly.category)}</td>
                           <td className="fw-semibold">{anomaly.title}</td>
-                          <td className="text-muted">{anomaly.detail}</td>
+                          <td className="text-muted">{detailMessage(anomaly)}</td>
                         </tr>
                       );
                     })}

@@ -76,10 +76,24 @@ export const AuditLog: FunctionComponent = () => {
 
   const handleFilter = () => fetchEntries(1);
 
+  const formatEntityName = (cls: string): string => {
+    const short = cls.includes('\\') ? cls.split('\\').pop() || cls : cls;
+    return t(short);
+  };
+
+  const formatValue = (value: any): string => {
+    if (value === null || value === undefined) return '-';
+    if (typeof value === 'object') {
+      if (value.id) return `#${value.id}`;
+      return JSON.stringify(value);
+    }
+    return String(value);
+  };
+
   const formatData = (data: Record<string, any> | null): string => {
     if (!data || Object.keys(data).length === 0) return '-';
     return Object.entries(data)
-      .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
+      .map(([key, value]) => `${t(key)}: ${formatValue(value)}`)
       .join(', ');
   };
 
@@ -177,7 +191,7 @@ export const AuditLog: FunctionComponent = () => {
                                 {t(entry.action === 'create' ? 'Create' : entry.action === 'update' ? 'Update' : entry.action === 'remove' ? 'Delete' : entry.action)}
                               </span>
                             </td>
-                            <td>{entry.objectClass}</td>
+                            <td>{formatEntityName(entry.objectClass)}</td>
                             <td>{entry.objectId}</td>
                             <td style={{maxWidth: 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
                               <small title={formatData(entry.data)}>{formatData(entry.data)}</small>
