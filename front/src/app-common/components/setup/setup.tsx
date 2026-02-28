@@ -27,6 +27,8 @@ export const Setup: FC<SetupProps> = ({loginRoute}) => {
         method: 'POST',
         body: JSON.stringify({
           activationCode: values.activationCode,
+          storeName: values.storeName,
+          terminalCode: values.terminalCode,
         }),
       });
 
@@ -104,6 +106,48 @@ export const Setup: FC<SetupProps> = ({loginRoute}) => {
                   )}
                   control={control}
                   defaultValue=""
+                />
+              </div>
+              <div>
+                <label htmlFor="storeName" className="form-label">
+                  {t("Store Name")}
+                </label>
+                <Controller
+                  name="storeName"
+                  render={(props) => (
+                    <input
+                      onChange={props.field.onChange}
+                      value={props.field.value}
+                      type="text"
+                      id="storeName"
+                      className="input w-full"
+                      placeholder={t("e.g. My Store")}
+                    />
+                  )}
+                  control={control}
+                  defaultValue=""
+                  rules={{required: true}}
+                />
+              </div>
+              <div>
+                <label htmlFor="terminalCode" className="form-label">
+                  {t("Terminal Code")}
+                </label>
+                <Controller
+                  name="terminalCode"
+                  render={(props) => (
+                    <input
+                      onChange={props.field.onChange}
+                      value={props.field.value}
+                      type="text"
+                      id="terminalCode"
+                      className="input w-full"
+                      placeholder={t("e.g. T1")}
+                    />
+                  )}
+                  control={control}
+                  defaultValue=""
+                  rules={{required: true}}
                 />
               </div>
               <div>

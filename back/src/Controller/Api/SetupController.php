@@ -53,14 +53,25 @@ class SetupController extends AbstractController
             return $responseFactory->validationError('Invalid activation code.', 422);
         }
 
+        // Validate store name and terminal code
+        $storeName = trim($data['storeName'] ?? '');
+        $terminalCode = trim($data['terminalCode'] ?? '');
+
+        if ($storeName === '') {
+            return $responseFactory->validationError('Store name is required.', 422);
+        }
+        if ($terminalCode === '') {
+            return $responseFactory->validationError('Terminal code is required.', 422);
+        }
+
         // Create store
         $store = new Store();
-        $store->setName('Main');
+        $store->setName($storeName);
         $entityManager->persist($store);
 
         // Create terminal
         $terminal = new Terminal();
-        $terminal->setCode('A1');
+        $terminal->setCode($terminalCode);
         $terminal->setStore($store);
         $entityManager->persist($terminal);
 

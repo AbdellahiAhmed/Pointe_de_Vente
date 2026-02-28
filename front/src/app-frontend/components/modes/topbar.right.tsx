@@ -2,13 +2,14 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../app-common/components/input/button";
 import { Modal } from "../../../app-common/components/modal/modal";
-import { useAtom } from "jotai";
-import { defaultData, defaultState, PosModes } from "../../../store/jotai";
+import { useAtom, useSetAtom } from "jotai";
+import { defaultData, defaultState, PosModes, appModeAtom } from "../../../store/jotai";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faGlobe } from "@fortawesome/free-solid-svg-icons";
 import classNames from "classnames";
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
 import { applyLocale } from "../../../lib/rtl";
+import { useHasRole } from "../../../duck/auth/hooks/useHasRole";
 
 export const TopbarRight = () => {
   const { t } = useTranslation();
@@ -16,6 +17,8 @@ export const TopbarRight = () => {
   const { defaultMode } = defaultAppState;
 
   const [appState, setAppState] = useAtom(defaultState);
+  const setAppMode = useSetAtom(appModeAtom);
+  const isManager = useHasRole('ROLE_MANAGER');
 
   const [modal, setModal] = useState(false);
   const [locale, setLocale] = useState(localStorage.getItem('locale') ?? 'fr');
@@ -35,6 +38,21 @@ export const TopbarRight = () => {
   return (
     <>
       <div className="flex gap-2">
+        {isManager && (
+          <Button
+            size="lg"
+            variant="secondary"
+            onClick={() => {
+              setAppMode('admin');
+              window.location.href = '/dashboard';
+            }}
+            title={t("Administration")}
+            style={{backgroundColor: '#0d6efd', color: '#fff', borderColor: '#0d6efd'}}
+          >
+            <i className="bi bi-speedometer2 me-2"></i>
+            {t("Administration")}
+          </Button>
+        )}
         <Button size="lg" variant="secondary" onClick={toggleLocale} title={locale === 'fr' ? 'العربية' : 'Français'}>
           <FontAwesomeIcon icon={faGlobe} className="me-2"/>
           {locale === 'fr' ? 'AR' : 'FR'}

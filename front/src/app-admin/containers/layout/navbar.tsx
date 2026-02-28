@@ -10,6 +10,8 @@ import { applyLocale } from "../../../lib/rtl";
 import classNames from "classnames";
 import {jsonRequest} from "../../../api/request/request";
 import {UPDATE_LOCALE} from "../../../api/routing/routes/backend.app";
+import {useSetAtom} from "jotai";
+import {appModeAtom} from "../../../store/jotai";
 
 
 const Navigation = () => {
@@ -20,6 +22,7 @@ const Navigation = () => {
   const [logoutState, logoutAction] = useLogout();
   const navigate = useNavigate();
 
+  const setAppMode = useSetAtom(appModeAtom);
   const [locale, setLocale] = useState(localStorage.getItem('locale') ?? 'fr');
 
   const updateLocale = async (lang: string) => {
@@ -66,6 +69,19 @@ const Navigation = () => {
       </div>
       <nav className="header-nav ms-auto">
         <ul className="d-flex align-items-center">
+          <li className="nav-item pe-3">
+            <button
+              className="btn btn-success btn-sm d-flex align-items-center gap-2"
+              onClick={() => {
+                setAppMode('pos');
+                window.location.href = '/pos';
+              }}
+              title={t('Open POS')}
+            >
+              <i className="bi bi-cash-register"></i>
+              <span className="d-none d-md-inline">{t('Open POS')}</span>
+            </button>
+          </li>
           <li className="nav-item dropdown pe-3">
             <a className="nav-link d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
               <span className="dropdown-toggle ps-2">{locale}</span>

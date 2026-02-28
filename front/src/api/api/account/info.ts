@@ -2,6 +2,7 @@ import {jsonRequest} from '../../request/request';
 import {User} from "../../model/user";
 import {AUTH_INFO} from '../../routing/routes/backend.app';
 import {HttpException, UnauthorizedException} from '../../exception';
+import {getAppMode} from '../../../store/jotai';
 
 export interface AuthInfoResponse {
   code: number;
@@ -23,7 +24,7 @@ export async function getAuthInfo(role?: string): Promise<AuthInfoResponse> {
   if (role) {
     url += '?role=' + role;
   } else {
-    url += '?role=' + (import.meta.env.VITE_APP_TYPE === 'frontend' ? 'ROLE_USER' : 'ROLE_ADMIN')
+    url += '?role=' + (getAppMode() === 'pos' ? 'ROLE_USER' : 'ROLE_ADMIN')
   }
 
   let response: Response;

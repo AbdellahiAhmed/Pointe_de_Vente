@@ -1067,5 +1067,11 @@
   "System activated successfully": "Système activé avec succès",
   "Invalid activation code": "Code d'activation invalide",
   "System is already activated": "Le système est déjà activé",
-  "Enter the activation code to initialize the system": "Entrez le code d'activation pour initialiser le système"
+  "Enter the activation code to initialize the system": "Entrez le code d'activation pour initialiser le système",
+  "Store Name": "Nom du magasin",
+  "Terminal Code": "Code du terminal",
+  "e.g. My Store": "ex. Ma Boutique",
+  "e.g. T1": "ex. T1",
+  "Store name is required": "Le nom du magasin est obligatoire",
+  "Terminal code is required": "Le code du terminal est obligatoire"
 }

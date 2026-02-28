@@ -14,6 +14,18 @@ export enum PosModes {
   payment = "payment",
 }
 
+export type AppMode = 'pos' | 'admin';
+
+export const appModeAtom = atomWithStorage<AppMode>('app-mode', 'admin');
+
+/** Synchronous read of app mode from localStorage — safe to call outside React components */
+export function getAppMode(): AppMode {
+  const stored = localStorage.getItem('app-mode');
+  if (stored === '"pos"' || stored === 'pos') return 'pos';
+  if (stored === '"admin"' || stored === 'admin') return 'admin';
+  return 'admin';
+}
+
 export interface DefaultStateInterface {
   q: string;
   added: CartItem[];

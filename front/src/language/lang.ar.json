@@ -1074,5 +1074,11 @@
   "System activated successfully": "تم تفعيل النظام بنجاح",
   "Invalid activation code": "رمز التفعيل غير صحيح",
   "System is already activated": "النظام مفعل بالفعل",
-  "Enter the activation code to initialize the system": "أدخل رمز التفعيل لبدء تشغيل النظام"
+  "Enter the activation code to initialize the system": "أدخل رمز التفعيل لبدء تشغيل النظام",
+  "Store Name": "اسم المتجر",
+  "Terminal Code": "رمز الطرفية",
+  "e.g. My Store": "مثال: متجري",
+  "e.g. T1": "مثال: T1",
+  "Store name is required": "اسم المتجر مطلوب",
+  "Terminal code is required": "رمز الطرفية مطلوب"
 }
