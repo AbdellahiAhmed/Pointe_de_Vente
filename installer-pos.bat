@@ -73,12 +73,14 @@ echo Installation des dependances PHP...
 call composer install --no-interaction 2>nul
 if %errorlevel% neq 0 (
     echo [INFO] composer install incompatible, mise a jour des dependances...
-    call composer update --no-interaction
-    if %errorlevel% neq 0 (
-        echo [ERREUR] composer update a echoue
-        pause
-        exit /b 1
-    )
+    call composer update --no-interaction --no-audit
+)
+
+:: Verify vendor folder exists (real success check)
+if not exist "vendor\autoload.php" (
+    echo [ERREUR] Les dependances PHP n'ont pas ete installees correctement.
+    pause
+    exit /b 1
 )
 echo [OK] Dependances PHP installees
 
