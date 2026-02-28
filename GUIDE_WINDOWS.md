@@ -57,18 +57,25 @@ notepad .env.local
 
 Coller ce contenu dans le notepad et sauvegarder :
 
+- **Si Laragon utilise MySQL (par defaut) :**
+```
+DATABASE_URL="mysql://root:@127.0.0.1:3306/polymer?serverVersion=8.0"
+```
+
+- **Si Laragon utilise MariaDB :**
 ```
 DATABASE_URL="mysql://root:@127.0.0.1:3306/polymer?serverVersion=mariadb-10.6.0"
 ```
 
 > **Note :** Laragon utilise `root` sans mot de passe par defaut. Le port est `3306` (pas 3307 comme Docker).
+> Pour verifier : dans le terminal Laragon, tapez `mysql --version`.
 
 Puis installer les dependances et creer les tables :
 
 ```
 composer update --no-interaction
 php bin/console lexik:jwt:generate-keypair
-php bin/console doctrine:schema:update --force
+php bin/console doctrine:schema:update --force --complete
 ```
 
 > **Note :** On utilise `composer update` (pas `install`) car la version de PHP sur votre machine peut differer de celle du developpeur.

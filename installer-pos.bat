@@ -62,7 +62,13 @@ cd /d "%PROJECT_DIR%back"
 
 if not exist ".env.local" (
     echo Creation de .env.local...
-    echo DATABASE_URL="mysql://root:@127.0.0.1:3306/polymer?serverVersion=mariadb-10.6.0"> .env.local
+    :: Detect MySQL vs MariaDB
+    mysql --version 2>nul | findstr /i "mariadb" >nul 2>&1
+    if %errorlevel% equ 0 (
+        echo DATABASE_URL="mysql://root:@127.0.0.1:3306/polymer?serverVersion=mariadb-10.6.0"> .env.local
+    ) else (
+        echo DATABASE_URL="mysql://root:@127.0.0.1:3306/polymer?serverVersion=8.0"> .env.local
+    )
     echo [OK] .env.local cree
 ) else (
     echo [OK] .env.local existe deja
@@ -100,7 +106,7 @@ echo [OK] Base de donnees prete
 
 echo.
 echo Creation des tables...
-php bin/console doctrine:schema:update --force
+php bin/console doctrine:schema:update --force --complete
 php bin/console doctrine:migrations:version --add --all --no-interaction 2>nul
 echo [OK] Tables creees
 
