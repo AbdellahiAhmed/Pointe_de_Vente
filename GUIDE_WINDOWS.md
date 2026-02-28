@@ -66,10 +66,12 @@ DATABASE_URL="mysql://root:@127.0.0.1:3306/polymer?serverVersion=mariadb-10.6.0"
 Puis installer les dependances et creer les tables :
 
 ```
-composer install
+composer update --no-interaction
 php bin/console lexik:jwt:generate-keypair
 php bin/console doctrine:migrations:migrate --no-interaction
 ```
+
+> **Note :** On utilise `composer update` (pas `install`) car la version de PHP sur votre machine peut differer de celle du developpeur.
 
 ### Etape 5 — (Optionnel) Charger les donnees de test
 

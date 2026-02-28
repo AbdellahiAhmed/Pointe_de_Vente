@@ -69,12 +69,16 @@ if not exist ".env.local" (
 )
 
 echo.
-echo Installation des dependances PHP (composer install)...
-call composer install --no-interaction
+echo Installation des dependances PHP...
+call composer install --no-interaction 2>nul
 if %errorlevel% neq 0 (
-    echo [ERREUR] composer install a echoue
-    pause
-    exit /b 1
+    echo [INFO] composer install incompatible, mise a jour des dependances...
+    call composer update --no-interaction
+    if %errorlevel% neq 0 (
+        echo [ERREUR] composer update a echoue
+        pause
+        exit /b 1
+    )
 )
 echo [OK] Dependances PHP installees
 
