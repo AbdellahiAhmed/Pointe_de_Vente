@@ -68,10 +68,11 @@ Puis installer les dependances et creer les tables :
 ```
 composer update --no-interaction
 php bin/console lexik:jwt:generate-keypair
-php bin/console doctrine:migrations:migrate --no-interaction
+php bin/console doctrine:schema:update --force
 ```
 
 > **Note :** On utilise `composer update` (pas `install`) car la version de PHP sur votre machine peut differer de celle du developpeur.
+> On utilise `schema:update` (pas `migrations:migrate`) car les migrations historiques peuvent avoir des conflits sur une base neuve.
 
 ### Etape 5 — (Optionnel) Charger les donnees de test
 

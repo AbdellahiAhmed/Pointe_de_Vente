@@ -99,8 +99,9 @@ php bin/console doctrine:database:create --if-not-exists
 echo [OK] Base de donnees prete
 
 echo.
-echo Application des migrations...
-php bin/console doctrine:migrations:migrate --no-interaction
+echo Creation des tables...
+php bin/console doctrine:schema:update --force
+php bin/console doctrine:migrations:version --add --all --no-interaction 2>nul
 echo [OK] Tables creees
 
 echo.
