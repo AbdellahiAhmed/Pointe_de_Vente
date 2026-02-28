@@ -37,6 +37,10 @@ security:
             stateless: true
             refresh_jwt: ~
 
+        setup:
+            pattern: ^/api/setup/
+            security: false
+
         api:
             pattern: ^/api/
             stateless: true
