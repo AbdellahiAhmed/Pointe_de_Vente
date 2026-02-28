@@ -29,7 +29,7 @@ class PurchaseEvent
             $qty = (float) $item->getQuantity();
             if($qty <= 0){
                 throw new \InvalidArgumentException(
-                    sprintf('La quantité doit être supérieure à zéro pour "%s".', $item->getItem()->getName())
+                    sprintf('Quantity must be greater than zero for "%s".', $item->getItem()->getName())
                 );
             }
 

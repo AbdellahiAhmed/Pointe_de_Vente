@@ -82,7 +82,7 @@ class UpdateOrderCommandHandler extends EntityManager implements UpdateOrderComm
                 $customer = $item->getCustomer();
                 if($customer === null || !$customer->getAllowCreditSale()){
                     return UpdateOrderCommandResult::createFromValidationErrorMessage(
-                        'Ce client n\'est pas autorisé à acheter à crédit.'
+                        'This customer is not authorized to buy on credit.'
                     );
                 }
                 $creditLimit = (float) $customer->getCreditLimit();
@@ -99,7 +99,7 @@ class UpdateOrderCommandHandler extends EntityManager implements UpdateOrderComm
                     if(($outstanding + $totalCreditRequested) > $creditLimit){
                         return UpdateOrderCommandResult::createFromValidationErrorMessage(
                             sprintf(
-                                'Limite de crédit dépassée. Limite: %.2f, Utilisé: %.2f, Demandé: %.2f.',
+                                'Credit limit exceeded. Limit: %.2f, Used: %.2f, Requested: %.2f.',
                                 $creditLimit,
                                 $outstanding,
                                 $totalCreditRequested
@@ -142,7 +142,7 @@ class UpdateOrderCommandHandler extends EntityManager implements UpdateOrderComm
             /** @var Discount $discount */
             $discount = $this->getRepository(Discount::class)->find($command->getDiscount()->getId());
             if($discount === null){
-                return UpdateOrderCommandResult::createFromValidationErrorMessage('Remise introuvable.');
+                return UpdateOrderCommandResult::createFromValidationErrorMessage('Discount type not found.');
             }
 
             $orderDiscount = new OrderDiscount();
@@ -168,7 +168,7 @@ class UpdateOrderCommandHandler extends EntityManager implements UpdateOrderComm
             /** @var Tax $tax */
             $tax = $this->getRepository(Tax::class)->find($command->getTax()->getId());
             if($tax === null){
-                return UpdateOrderCommandResult::createFromValidationErrorMessage('Taxe introuvable.');
+                return UpdateOrderCommandResult::createFromValidationErrorMessage('Tax type not found.');
             }
             $orderTax = new OrderTax();
             $orderTax->setType($tax);

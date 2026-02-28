@@ -29,7 +29,7 @@ class CreateExpenseCommandHandler extends EntityManager implements CreateExpense
         $item->setUser($command->getUser());
         $store = $this->getRepository(Store::class)->find($command->getStore());
         if ($store === null) {
-            return CreateExpenseCommandResult::createFromValidationErrorMessage('Magasin introuvable.');
+            return CreateExpenseCommandResult::createFromValidationErrorMessage('Store not found.');
         }
         $item->setStore($store);
 

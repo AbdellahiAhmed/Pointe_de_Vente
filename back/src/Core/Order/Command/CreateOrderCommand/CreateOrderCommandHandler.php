@@ -61,7 +61,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
         if($command->getReturnedFrom() !== null) {
             $returnedFrom = $this->getRepository(Order::class)->find($command->getReturnedFrom());
             if ($returnedFrom === null) {
-                return CreateOrderCommandResult::createFromValidationErrorMessage('Commande d\'origine introuvable pour le retour.');
+                return CreateOrderCommandResult::createFromValidationErrorMessage('Original order not found for return.');
             }
             $item->setReturnedFrom($returnedFrom);
 
@@ -75,7 +75,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
         if($command->getCustomerId() !== null) {
             $customer = $this->getRepository(Customer::class)->find($command->getCustomerId());
             if ($customer === null) {
-                return CreateOrderCommandResult::createFromValidationErrorMessage('Client introuvable.');
+                return CreateOrderCommandResult::createFromValidationErrorMessage('Customer not found.');
             }
             $item->setCustomer($customer);
         } elseif($command->getCustomer() !== null and trim($command->getCustomer()) !== ''){
@@ -116,7 +116,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
                 $customer = $item->getCustomer();
                 if($customer === null || !$customer->getAllowCreditSale()){
                     return CreateOrderCommandResult::createFromValidationErrorMessage(
-                        'Ce client n\'est pas autorisé à acheter à crédit.'
+                        'This customer is not authorized to buy on credit.'
                     );
                 }
                 $creditLimit = (float) $customer->getCreditLimit();
@@ -125,7 +125,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
                     if(($outstanding + $totalCreditRequested) > $creditLimit){
                         return CreateOrderCommandResult::createFromValidationErrorMessage(
                             sprintf(
-                                'Limite de crédit dépassée. Limite: %.2f, Utilisé: %.2f, Demandé: %.2f.',
+                                'Credit limit exceeded. Limit: %.2f, Used: %.2f, Requested: %.2f.',
                                 $creditLimit,
                                 $outstanding,
                                 $totalCreditRequested
@@ -138,19 +138,19 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
 
         $user = $this->getRepository(User::class)->find($command->getUserId());
         if ($user === null) {
-            return CreateOrderCommandResult::createFromValidationErrorMessage('Utilisateur introuvable.');
+            return CreateOrderCommandResult::createFromValidationErrorMessage('User not found.');
         }
         $item->setUser($user);
 
         $store = $this->getRepository(Store::class)->find($command->getStore());
         if ($store === null) {
-            return CreateOrderCommandResult::createFromValidationErrorMessage('Magasin introuvable.');
+            return CreateOrderCommandResult::createFromValidationErrorMessage('Store not found.');
         }
         $item->setStore($store);
 
         $terminal = $this->getRepository(Terminal::class)->find($command->getTerminal());
         if ($terminal === null) {
-            return CreateOrderCommandResult::createFromValidationErrorMessage('Terminal introuvable.');
+            return CreateOrderCommandResult::createFromValidationErrorMessage('Terminal not found.');
         }
         $item->setTerminal($terminal);
 
@@ -211,7 +211,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
             $product = $productMap[$itemDto->getProduct()->getId()] ?? null;
             if($product === null){
                 return CreateOrderCommandResult::createFromValidationErrorMessage(
-                    'Produit introuvable.'
+                    'Product not found.'
                 );
             }
             $orderProduct->setProduct($product);
@@ -224,7 +224,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
             if ($itemDiscount > 0 && $itemPrice > 0 && $itemDiscount >= $itemPrice) {
                 return CreateOrderCommandResult::createFromValidationErrorMessage(
                     sprintf(
-                        'La remise (%.2f) ne peut pas dépasser le prix de vente (%.2f) pour "%s".',
+                        'Discount (%.2f) cannot exceed selling price (%.2f) for "%s".',
                         $itemDiscount,
                         $itemPrice,
                         $product->getName()
@@ -243,7 +243,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
             if($minPrice > 0 && $itemPrice > 0 && $itemPrice < $minPrice){
                 return CreateOrderCommandResult::createFromValidationErrorMessage(
                     sprintf(
-                        'Le prix de vente (%.2f) est inférieur au prix minimum (%.2f) pour "%s".',
+                        'Selling price (%.2f) is below minimum price (%.2f) for "%s".',
                         $itemPrice,
                         $minPrice,
                         $product->getName()
@@ -320,7 +320,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
                 $paymentType = $paymentTypeMap[$ptId] ?? null;
                 if ($paymentType === null) {
                     return CreateOrderCommandResult::createFromValidationErrorMessage(
-                        'Type de paiement introuvable (ID: ' . $ptId . ').'
+                        'Payment type not found (ID: ' . $ptId . ').'
                     );
                 }
 
@@ -328,7 +328,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
                 $total = (float) $paymentDto->getTotal();
                 if ($received < 0) {
                     return CreateOrderCommandResult::createFromValidationErrorMessage(
-                        'Le montant reçu ne peut pas être négatif.'
+                        'Received amount cannot be negative.'
                     );
                 }
 
@@ -348,7 +348,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
         if(null !== $command->getDiscount()){
             $discount = $this->getRepository(Discount::class)->find($command->getDiscount()->getId());
             if ($discount === null) {
-                return CreateOrderCommandResult::createFromValidationErrorMessage('Type de remise introuvable.');
+                return CreateOrderCommandResult::createFromValidationErrorMessage('Discount type not found.');
             }
 
             $orderDiscount = new OrderDiscount();
@@ -366,7 +366,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
         if(null !== $command->getTax()){
             $tax = $this->getRepository(Tax::class)->find($command->getTax()->getId());
             if ($tax === null) {
-                return CreateOrderCommandResult::createFromValidationErrorMessage('Type de taxe introuvable.');
+                return CreateOrderCommandResult::createFromValidationErrorMessage('Tax type not found.');
             }
             $orderTax = new OrderTax();
             $orderTax->setType($tax);

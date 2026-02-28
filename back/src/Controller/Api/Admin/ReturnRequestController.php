@@ -85,7 +85,7 @@ class ReturnRequestController extends AbstractController
             // Prevent returning already-returned items
             if ($orderProduct->getIsReturned()) {
                 return $responseFactory->validationError(
-                    sprintf('Le produit "%s" a déjà été retourné.', $orderProduct->getProduct() ? $orderProduct->getProduct()->getName() : '#'.$itemData['orderProductId'])
+                    sprintf('Product "%s" has already been returned.', $orderProduct->getProduct() ? $orderProduct->getProduct()->getName() : '#'.$itemData['orderProductId'])
                 );
             }
 
@@ -93,11 +93,11 @@ class ReturnRequestController extends AbstractController
             $returnQty = abs((int) $itemData['quantity']);
             $soldQty = abs((int) $orderProduct->getQuantity());
             if ($returnQty <= 0) {
-                return $responseFactory->validationError('La quantité de retour doit être supérieure à zéro.');
+                return $responseFactory->validationError('Return quantity must be greater than zero.');
             }
             if ($returnQty > $soldQty) {
                 return $responseFactory->validationError(
-                    sprintf('La quantité de retour (%d) ne peut pas dépasser la quantité vendue (%d) pour "%s".',
+                    sprintf('Return quantity (%d) cannot exceed sold quantity (%d) for "%s".',
                         $returnQty, $soldQty,
                         $orderProduct->getProduct() ? $orderProduct->getProduct()->getName() : '#'.$itemData['orderProductId']
                     )

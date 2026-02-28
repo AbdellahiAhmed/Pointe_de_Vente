@@ -27,7 +27,7 @@ class CreateTerminalCommandHandler extends EntityManager implements CreateTermin
         $item->setDescription($command->getDescription());
         $store = $this->getRepository(Store::class)->find($command->getStore());
         if ($store === null) {
-            return CreateTerminalCommandResult::createFromValidationErrorMessage('Magasin introuvable.');
+            return CreateTerminalCommandResult::createFromValidationErrorMessage('Store not found.');
         }
         $item->setStore($store);
 

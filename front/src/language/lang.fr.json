@@ -1246,5 +1246,26 @@
   "Cash added": "Espèces ajoutées",
   "Cash withdrawn": "Espèces retirées",
   "Expected cash": "Espèces attendues",
-  "Cash counted": "Espèces comptées"
+  "Cash counted": "Espèces comptées",
+
+  "Original order not found for return.": "Commande d'origine introuvable pour le retour.",
+  "Customer not found.": "Client introuvable.",
+  "This customer is not authorized to buy on credit.": "Ce client n'est pas autorisé à acheter à crédit.",
+  "Credit limit exceeded. Limit: %.2f, Used: %.2f, Requested: %.2f.": "Limite de crédit dépassée. Limite : %.2f, Utilisé : %.2f, Demandé : %.2f.",
+  "User not found.": "Utilisateur introuvable.",
+  "Store not found.": "Magasin introuvable.",
+  "Terminal not found.": "Terminal introuvable.",
+  "Payment type not found (ID: ": "Type de paiement introuvable (ID : ",
+  "Received amount cannot be negative.": "Le montant reçu ne peut pas être négatif.",
+  "Discount type not found.": "Type de remise introuvable.",
+  "Tax type not found.": "Type de taxe introuvable.",
+  "Product not found.": "Produit introuvable.",
+  "Discount (%.2f) cannot exceed selling price (%.2f) for \"%s\".": "La remise (%.2f) ne peut pas dépasser le prix de vente (%.2f) pour \"%s\".",
+  "Selling price (%.2f) is below minimum price (%.2f) for \"%s\".": "Le prix de vente (%.2f) est inférieur au prix minimum (%.2f) pour \"%s\".",
+  "Order not found.": "Commande introuvable.",
+  "Product \"%s\" has already been returned.": "Le produit \"%s\" a déjà été retourné.",
+  "Return quantity must be greater than zero.": "La quantité de retour doit être supérieure à zéro.",
+  "Return quantity (%d) cannot exceed sold quantity (%d) for \"%s\".": "La quantité de retour (%d) ne peut pas dépasser la quantité vendue (%d) pour \"%s\".",
+  "Payment amount must be greater than zero.": "Le montant du paiement doit être supérieur à zéro.",
+  "Quantity must be greater than zero for \"%s\".": "La quantité doit être supérieure à zéro pour \"%s\"."
 }

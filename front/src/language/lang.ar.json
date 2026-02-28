@@ -1253,5 +1253,26 @@
   "Cash added": "نقد مضاف",
   "Cash withdrawn": "نقد مسحوب",
   "Expected cash": "النقد المتوقع",
-  "Cash counted": "النقد المعدود"
+  "Cash counted": "النقد المعدود",
+
+  "Original order not found for return.": "الطلب الأصلي غير موجود للإرجاع.",
+  "Customer not found.": "العميل غير موجود.",
+  "This customer is not authorized to buy on credit.": "هذا العميل غير مصرح له بالشراء بالائتمان.",
+  "Credit limit exceeded. Limit: %.2f, Used: %.2f, Requested: %.2f.": "تم تجاوز حد الائتمان. الحد: %.2f، المستخدم: %.2f، المطلوب: %.2f.",
+  "User not found.": "المستخدم غير موجود.",
+  "Store not found.": "المتجر غير موجود.",
+  "Terminal not found.": "الطرفية غير موجودة.",
+  "Payment type not found (ID: ": "نوع الدفع غير موجود (المعرف: ",
+  "Received amount cannot be negative.": "لا يمكن أن يكون المبلغ المستلم سالباً.",
+  "Discount type not found.": "نوع الخصم غير موجود.",
+  "Tax type not found.": "نوع الضريبة غير موجود.",
+  "Product not found.": "المنتج غير موجود.",
+  "Discount (%.2f) cannot exceed selling price (%.2f) for \"%s\".": "الخصم (%.2f) لا يمكن أن يتجاوز سعر البيع (%.2f) لـ \"%s\".",
+  "Selling price (%.2f) is below minimum price (%.2f) for \"%s\".": "سعر البيع (%.2f) أقل من الحد الأدنى للسعر (%.2f) لـ \"%s\".",
+  "Order not found.": "الطلب غير موجود.",
+  "Product \"%s\" has already been returned.": "المنتج \"%s\" تم إرجاعه بالفعل.",
+  "Return quantity must be greater than zero.": "كمية الإرجاع يجب أن تكون أكبر من صفر.",
+  "Return quantity (%d) cannot exceed sold quantity (%d) for \"%s\".": "كمية الإرجاع (%d) لا يمكن أن تتجاوز الكمية المباعة (%d) لـ \"%s\".",
+  "Payment amount must be greater than zero.": "مبلغ الدفع يجب أن يكون أكبر من صفر.",
+  "Quantity must be greater than zero for \"%s\".": "الكمية يجب أن تكون أكبر من صفر لـ \"%s\"."
 }
