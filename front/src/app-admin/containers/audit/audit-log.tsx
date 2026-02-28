@@ -27,6 +27,12 @@ const ENTITY_TYPES = [
   'Category', 'Payment', 'Discount', 'Tax', 'Expense',
 ];
 
+// Fields to never show (internal/technical)
+const HIDDEN_FIELDS = new Set([
+  'lat', 'lng', 'salt', 'roles', 'password', 'isDispatched',
+  'returnedFrom', 'deletedAt', 'updatedAt', 'createdAt',
+]);
+
 export const AuditLog: FunctionComponent = () => {
   const {t} = useTranslation();
 
@@ -82,19 +88,35 @@ export const AuditLog: FunctionComponent = () => {
   };
 
   const formatValue = (value: any): string => {
-    if (value === null || value === undefined) return '-';
+    if (value === null || value === undefined) return '';
+    if (typeof value === 'boolean') return value ? t('Yes') : t('No');
     if (typeof value === 'object') {
       if (value.id) return `#${value.id}`;
       return JSON.stringify(value);
     }
-    return String(value);
+    const str = String(value);
+    // Translate known status values
+    const knownValues: Record<string, string> = {
+      'Completed': t('Completed'), 'Pending': t('Pending'),
+      'RETURNED': t('Returned'), 'Cancelled': t('Cancelled'),
+      'true': t('Yes'), 'false': t('No'),
+    };
+    return knownValues[str] || str;
   };
 
-  const formatData = (data: Record<string, any> | null): string => {
-    if (!data || Object.keys(data).length === 0) return '-';
+  const formatData = (data: Record<string, any> | null): Array<{label: string, value: string}> => {
+    if (!data || Object.keys(data).length === 0) return [];
     return Object.entries(data)
-      .map(([key, value]) => `${t(key)}: ${formatValue(value)}`)
-      .join(', ');
+      .filter(([key, value]) => {
+        if (HIDDEN_FIELDS.has(key)) return false;
+        if (value === null || value === undefined || value === '' || value === '-') return false;
+        return true;
+      })
+      .map(([key, value]) => ({
+        label: t('field.' + key, {defaultValue: t(key, {defaultValue: key})}),
+        value: formatValue(value),
+      }))
+      .filter(item => item.value !== '');
   };
 
   return (
@@ -193,8 +215,20 @@ export const AuditLog: FunctionComponent = () => {
                             </td>
                             <td>{formatEntityName(entry.objectClass)}</td>
                             <td>{entry.objectId}</td>
-                            <td style={{maxWidth: 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
-                              <small title={formatData(entry.data)}>{formatData(entry.data)}</small>
+                            <td style={{maxWidth: 500}}>
+                              {(() => {
+                                const items = formatData(entry.data);
+                                if (items.length === 0) return <span className="text-muted">-</span>;
+                                return (
+                                  <div className="d-flex flex-wrap gap-1">
+                                    {items.map((item, i) => (
+                                      <span key={i} className="badge bg-light text-dark border" style={{fontSize: '0.75rem', fontWeight: 'normal'}}>
+                                        <strong>{item.label}</strong>: {item.value}
+                                      </span>
+                                    ))}
+                                  </div>
+                                );
+                              })()}
                             </td>
                           </tr>
                         ))}
