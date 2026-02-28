@@ -123,7 +123,7 @@ echo.
 cd /d "%PROJECT_DIR%front"
 
 echo Installation des dependances Node (npm install)...
-call npm install
+call npm install --legacy-peer-deps
 if %errorlevel% neq 0 (
     echo [ERREUR] npm install a echoue
     pause
