@@ -1244,5 +1244,14 @@
   "field.tax": "الضريبة",
   "field.manageInventory": "إدارة المخزون",
   "field.manage_inventory": "إدارة المخزون",
-  "field.code": "الرمز"
+  "field.code": "الرمز",
+
+  "Order placed on hold": "تم تعليق الطلب",
+  "Session is closed. Please open a new session before creating orders.": "الجلسة مغلقة. يرجى فتح جلسة جديدة قبل إنشاء الطلبات.",
+  "{{barcode}} not found": "{{barcode}} غير موجود",
+  "Cash Reconciliation": "تسوية الصندوق",
+  "Cash added": "نقد مضاف",
+  "Cash withdrawn": "نقد مسحوب",
+  "Expected cash": "النقد المتوقع",
+  "Cash counted": "النقد المعدود"
 }

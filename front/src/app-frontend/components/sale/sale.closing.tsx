@@ -358,7 +358,7 @@ export const SaleClosing: FC<TaxProps> = (props) => {
         list.reduce((prev: number, current) => current.amount + prev, 0)
       );
     } catch {
-      notify({ type: "error", description: t("Erreur de chargement des données.") });
+      notify({ type: "error", description: t("An error occurred while loading data") });
       setExpenses(0);
     }
   };

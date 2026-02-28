@@ -693,7 +693,7 @@ export const PrintZReport = (data: ZReportData) => {
 const ZReportMarkup: FC<{ data: ZReportData }> = ({ data }) => {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.dir(i18n.language) === 'rtl';
-  const varianceValue = data.totalSales + data.openingBalance - data.expenses;
+  const varianceValue = data.variance;
 
   return (
     <div style={{ width: '3.5in' }} dir={isRtl ? 'rtl' : 'ltr'}>
@@ -771,13 +771,32 @@ const ZReportMarkup: FC<{ data: ZReportData }> = ({ data }) => {
           </table>
         </div>
 
-        {/* Expenses & Variance */}
+        {/* Cash Reconciliation */}
         <div style={{ padding: '6px 4px', borderTop: '1px dashed #808080' }}>
+          <div style={{ fontWeight: 'bold', marginBottom: 4, textAlign: 'center' }}>
+            {t('Cash Reconciliation')}
+          </div>
           <table style={{ width: '100%', fontSize: 11 }}>
             <tbody>
               <tr>
+                <td>{t('Cash added')}</td>
+                <td dir="ltr" style={{ textAlign: 'left' }}>{withCurrency(data.cashAdded)}</td>
+              </tr>
+              <tr>
+                <td>{t('Cash withdrawn')}</td>
+                <td dir="ltr" style={{ textAlign: 'left' }}>{withCurrency(data.cashWithdrawn)}</td>
+              </tr>
+              <tr>
                 <td>{t('Expenses')}</td>
                 <td dir="ltr" style={{ textAlign: 'left' }}>{withCurrency(data.expenses)}</td>
+              </tr>
+              <tr style={{ borderTop: '1px dotted #ccc', fontWeight: 'bold' }}>
+                <td style={{ padding: '3px 0' }}>{t('Expected cash')}</td>
+                <td dir="ltr" style={{ textAlign: 'left', padding: '3px 0' }}>{withCurrency(data.expectedCash)}</td>
+              </tr>
+              <tr>
+                <td>{t('Cash counted')}</td>
+                <td dir="ltr" style={{ textAlign: 'left' }}>{withCurrency(data.cashCounted)}</td>
               </tr>
               <tr style={{ fontWeight: 'bold', borderTop: '1px dashed #808080', color: varianceValue >= 0 ? '#16a34a' : '#dc2626' }}>
                 <td style={{ padding: '4px 0' }}>{t('Variance')}</td>

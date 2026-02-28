@@ -163,7 +163,7 @@ class CreateOrderCommandHandler extends EntityManager implements CreateOrderComm
             ]);
             if ($openSession === null || $openSession->getOpeningBalance() === null) {
                 return CreateOrderCommandResult::createFromValidationErrorMessage(
-                    'La session est fermée. Veuillez ouvrir une nouvelle session avant de créer des commandes.'
+                    'Session is closed. Please open a new session before creating orders.'
                 );
             }
         }

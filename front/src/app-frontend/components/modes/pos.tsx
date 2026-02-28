@@ -249,7 +249,7 @@ export const PosMode = () => {
         } else {
           notify({
             type: "error",
-            description: `${values.q} not found`,
+            description: t('{{barcode}} not found', { barcode: values.q }),
             placement: "top",
             duration: 1,
           });

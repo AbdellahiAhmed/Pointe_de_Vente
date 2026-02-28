@@ -273,11 +273,13 @@ export const CloseSaleInline: FC<Props> = ({
 
       const json = await response.json();
 
-      if( json.order && (json.order.status === OrderStatus.COMPLETED || json.order.status === OrderStatus.HOLD) ) {
+      if( json.order && (json.order.status === OrderStatus.COMPLETED || json.order.status === OrderStatus.ON_HOLD || json.order.isSuspended) ) {
         resetFields();
         setPayments([]);
 
-        if( json.order.status === OrderStatus.COMPLETED ) {
+        if( json.order.isSuspended ) {
+          notify({ type: 'success', description: t('Order placed on hold') });
+        } else if( json.order.status === OrderStatus.COMPLETED ) {
           onSale && onSale();
           // Show success toast with optional print
           showSaleSuccess(json.order, !!refundingFrom);

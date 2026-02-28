@@ -1237,5 +1237,14 @@
   "field.tax": "Taxe",
   "field.manageInventory": "Gérer le stock",
   "field.manage_inventory": "Gérer le stock",
-  "field.code": "Code"
+  "field.code": "Code",
+
+  "Order placed on hold": "Commande mise en attente",
+  "Session is closed. Please open a new session before creating orders.": "La session est fermée. Veuillez ouvrir une nouvelle session avant de créer des commandes.",
+  "{{barcode}} not found": "{{barcode}} introuvable",
+  "Cash Reconciliation": "Réconciliation de caisse",
+  "Cash added": "Espèces ajoutées",
+  "Cash withdrawn": "Espèces retirées",
+  "Expected cash": "Espèces attendues",
+  "Cash counted": "Espèces comptées"
 }
