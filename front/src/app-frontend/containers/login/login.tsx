@@ -91,21 +91,22 @@ const Login = () => {
         setModal(true);
       }
     } catch (err: any) {
-      if (err instanceof ForbiddenException) {
-        const res = await err.response.json();
-        setErrorMessage(t(res.message));
-        return;
-      }
-
-      if (err instanceof UnauthorizedException) {
-        const res = await err.response.json();
-        setErrorMessage(t(res.message));
-        return;
-      }
-
       if (err instanceof HttpException) {
-        setErrorMessage(err.message);
+        try {
+          const res = await err.response.json();
+          const msg = res?.message || res?.detail || err.message;
+          setErrorMessage(t(msg));
+        } catch {
+          if (err.code >= 500) {
+            setErrorMessage(t('A server error occurred. Please check that the backend is configured correctly.'));
+          } else {
+            setErrorMessage(t(err.message));
+          }
+        }
+        return;
       }
+
+      setErrorMessage(t('Unable to connect to the server. Please check your connection.'));
     } finally {
       setLoading(false);
     }
