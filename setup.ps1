@@ -6,8 +6,6 @@
 #    ou: clic droit > "Executer avec PowerShell"
 # ============================================================
 
-$ErrorActionPreference = "Stop"
-
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Cyan
 Write-Host "  POS Pointe de Vente - Installation"        -ForegroundColor Cyan
@@ -16,9 +14,8 @@ Write-Host ""
 
 # 1. Check Docker
 Write-Host "[1/7] Verification de Docker..." -ForegroundColor Yellow
-try {
-    docker info 2>$null | Out-Null
-} catch {
+$dockerCheck = docker version 2>&1
+if ($LASTEXITCODE -ne 0) {
     Write-Host "ERREUR: Docker n'est pas installe ou pas demarre." -ForegroundColor Red
     Write-Host "Telechargez Docker Desktop: https://www.docker.com/products/docker-desktop/"
     exit 1
@@ -28,11 +25,8 @@ Write-Host "  OK" -ForegroundColor Green
 # 2. Create .env.local for Docker
 Write-Host "[2/7] Configuration backend..." -ForegroundColor Yellow
 if (-not (Test-Path "back\.env.local")) {
-    @"
-APP_ENV=dev
-APP_DEBUG=1
-DATABASE_URL="mysql://root:root@db:3306/polymer?serverVersion=mariadb-10.6.0&charset=utf8mb4"
-"@ | Out-File -FilePath "back\.env.local" -Encoding utf8NoBOM
+    $envContent = "APP_ENV=dev`nAPP_DEBUG=1`nDATABASE_URL=`"mysql://root:root@db:3306/polymer?serverVersion=mariadb-10.6.0&charset=utf8mb4`""
+    [System.IO.File]::WriteAllText("$PWD\back\.env.local", $envContent, [System.Text.UTF8Encoding]::new($false))
     Write-Host "  back\.env.local cree" -ForegroundColor Green
 } else {
     Write-Host "  back\.env.local existe deja" -ForegroundColor Green
@@ -41,22 +35,23 @@ DATABASE_URL="mysql://root:root@db:3306/polymer?serverVersion=mariadb-10.6.0&cha
 # 3. Build and start containers
 Write-Host "[3/7] Construction des containers Docker..." -ForegroundColor Yellow
 Push-Location back
-docker compose down --remove-orphans 2>$null
-docker compose build --quiet
+docker compose down --remove-orphans 2>&1 | Out-Null
+docker compose build
+if ($LASTEXITCODE -ne 0) { Write-Host "ERREUR: Build echoue." -ForegroundColor Red; Pop-Location; exit 1 }
 docker compose up -d
+if ($LASTEXITCODE -ne 0) { Write-Host "ERREUR: Demarrage echoue." -ForegroundColor Red; Pop-Location; exit 1 }
 Write-Host "  3 containers demarres (nginx, php, mariadb)" -ForegroundColor Green
 
 # 4. Wait for MariaDB
 Write-Host "[4/7] Attente de MariaDB..." -ForegroundColor Yellow
 $ready = $false
 for ($i = 0; $i -lt 30; $i++) {
-    try {
-        docker compose exec -T db mariadb --user=root --password=root -e "SELECT 1" 2>$null | Out-Null
+    docker compose exec -T db mariadb --user=root --password=root -e "SELECT 1" 2>&1 | Out-Null
+    if ($LASTEXITCODE -eq 0) {
         $ready = $true
         break
-    } catch {
-        Start-Sleep -Seconds 1
     }
+    Start-Sleep -Seconds 1
 }
 if (-not $ready) {
     Write-Host "ERREUR: MariaDB n'a pas demarre apres 30 secondes." -ForegroundColor Red
@@ -79,7 +74,7 @@ docker compose exec -T php bash -c "cd /var/www/html/polymer && php -d memory_li
 docker compose exec -T php bash -c "cd /var/www/html/polymer && php -d memory_limit=512M bin/console doctrine:migrations:version --add --all --no-interaction 2>&1"
 
 # Create refresh_tokens table
-docker compose exec -T db mariadb --user=root --password=root polymer -e "CREATE TABLE IF NOT EXISTS refresh_tokens (id INT AUTO_INCREMENT NOT NULL, refresh_token VARCHAR(128) NOT NULL, username VARCHAR(255) NOT NULL, valid DATETIME NOT NULL, UNIQUE INDEX UNIQ_9BACE7E1C74F2195 (refresh_token), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;" 2>$null
+docker compose exec -T db mariadb --user=root --password=root polymer -e "CREATE TABLE IF NOT EXISTS refresh_tokens (id INT AUTO_INCREMENT NOT NULL, refresh_token VARCHAR(128) NOT NULL, username VARCHAR(255) NOT NULL, valid DATETIME NOT NULL, UNIQUE INDEX UNIQ_9BACE7E1C74F2195 (refresh_token), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;" 2>&1 | Out-Null
 Write-Host "  OK - Toutes les tables creees" -ForegroundColor Green
 
 # 7. Generate JWT keys + clear cache
