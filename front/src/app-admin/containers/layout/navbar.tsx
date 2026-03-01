@@ -27,12 +27,12 @@ const Navigation = () => {
 
   const updateLocale = async (lang: string) => {
     setLocale(lang);
-    // set on server
-    await jsonRequest(UPDATE_LOCALE, {
+    await applyLocale(lang);
+    // save on server in background (don't block UI)
+    jsonRequest(UPDATE_LOCALE, {
       method: 'POST',
       body: JSON.stringify({ locale: lang })
-    });
-    await applyLocale(lang);
+    }).catch(() => {});
   };
 
 
@@ -91,7 +91,7 @@ const Navigation = () => {
                 <a href="#" className={classNames(
                   'dropdown-item d-flex align-items-center',
                   locale === 'fr' ? 'active' : ''
-                )} onClick={() => updateLocale('fr')}>
+                )} onClick={(e) => { e.preventDefault(); updateLocale('fr'); }}>
                   <span>FR - Français</span>
                 </a>
               </li>
@@ -101,7 +101,7 @@ const Navigation = () => {
                     'dropdown-item d-flex align-items-center',
                     locale === 'ar' ? 'active' : ''
                   )
-                } onClick={() => updateLocale('ar')}>
+                } onClick={(e) => { e.preventDefault(); updateLocale('ar'); }}>
                   <span>AR - العربية</span>
                 </a>
               </li>
