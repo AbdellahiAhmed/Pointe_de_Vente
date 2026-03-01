@@ -15,10 +15,19 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 import { Provider as JotaiProvider, useAtom, useSetAtom } from "jotai";
 import { ConfigProvider } from "antd";
-import { appModeAtom, AppMode } from "./store/jotai";
+import { appModeAtom, AppMode, getAppMode } from "./store/jotai";
 import { getAuthorizedUser } from "./duck/auth/auth.selector";
 import { useSelector } from "react-redux";
 import "./types.d.ts";
+
+/** Detect which app mode matches the current URL */
+const ADMIN_ROUTES = ['/dashboard', '/users', '/profile', '/reports', '/inventory', '/returns', '/customers', '/bank-journal', '/system', '/audit'];
+function detectModeFromUrl(): AppMode | null {
+  const path = window.location.pathname;
+  if (path.startsWith('/pos')) return 'pos';
+  if (ADMIN_ROUTES.some(r => path.startsWith(r))) return 'admin';
+  return null;
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,6 +51,14 @@ const AppModeRouter = () => {
   const [appMode, setAppMode] = useAtom(appModeAtom);
   const user = useSelector(getAuthorizedUser);
 
+  // Sync app mode from URL on mount (handles page refresh & direct navigation)
+  useEffect(() => {
+    const urlMode = detectModeFromUrl();
+    if (urlMode && urlMode !== appMode) {
+      setAppMode(urlMode);
+    }
+  }, []);
+
   // Security: force ROLE_VENDEUR users back to POS if they somehow land in admin mode
   useEffect(() => {
     if (appMode === 'admin' && user && user.roles) {
@@ -49,20 +66,25 @@ const AppModeRouter = () => {
         (r: string) => r === 'ROLE_ADMIN' || r === 'ROLE_MANAGER'
       );
       if (!hasAdminAccess) {
+        window.history.replaceState(null, '', '/pos');
         setAppMode('pos');
       }
     }
   }, [appMode, user]);
 
-  // If user is vendeur-only and mode is admin, render POS anyway (before atom update propagates)
+  // Use URL-based detection for the very first render to avoid flash
+  const urlMode = detectModeFromUrl();
+  const initialMode = urlMode ?? appMode;
+
+  // If user is vendeur-only and mode is admin, render POS anyway
   const effectiveMode = (() => {
-    if (appMode === 'admin' && user && user.roles) {
+    if (initialMode === 'admin' && user && user.roles) {
       const hasAdminAccess = user.roles.some(
         (r: string) => r === 'ROLE_ADMIN' || r === 'ROLE_MANAGER'
       );
       if (!hasAdminAccess) return 'pos';
     }
-    return appMode;
+    return initialMode;
   })();
 
   return effectiveMode === 'pos' ? <Frontend /> : <Admin />;

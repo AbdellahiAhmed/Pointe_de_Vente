@@ -63,8 +63,8 @@ export const TopbarRight = () => {
             size="lg"
             variant="secondary"
             onClick={() => {
+              window.history.replaceState(null, '', '/dashboard');
               setAppMode('admin');
-              window.location.href = '/dashboard';
             }}
             title={t("Administration")}
             style={{backgroundColor: '#0d6efd', color: '#fff', borderColor: '#0d6efd'}}

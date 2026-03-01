@@ -73,8 +73,8 @@ const Navigation = () => {
             <button
               className="btn btn-success btn-sm d-flex align-items-center gap-2"
               onClick={() => {
+                window.history.replaceState(null, '', '/pos');
                 setAppMode('pos');
-                window.location.href = '/pos';
               }}
               title={t('Open POS')}
             >
