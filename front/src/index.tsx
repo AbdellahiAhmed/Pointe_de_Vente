@@ -15,7 +15,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 import { Provider as JotaiProvider, useAtom, useSetAtom } from "jotai";
 import { ConfigProvider } from "antd";
-import { appModeAtom, AppMode, getAppMode } from "./store/jotai";
+import { appModeAtom, AppMode } from "./store/jotai";
 import { getAuthorizedUser } from "./duck/auth/auth.selector";
 import { useSelector } from "react-redux";
 import "./types.d.ts";
