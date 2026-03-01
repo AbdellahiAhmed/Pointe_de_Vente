@@ -54,7 +54,7 @@ export const ApplyTax: FC<TaxProps> = ({ children }) => {
           onClick={() => {
             setAppState((prev) => ({
               ...prev,
-              data: undefined,
+              tax: undefined,
             }));
             setModal(false);
           }}

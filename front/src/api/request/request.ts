@@ -10,9 +10,8 @@ import Cookies from 'js-cookie';
 export const request = async (input: RequestInfo, init: RequestInit = {}): Promise<Response> => {
   const defaultHeaders = fetchConfig.headers || {};
   const initHeaders = init.headers || {};
-  const authHeader = {
-    'Authorization': 'Bearer ' + Cookies.get('JWT') || ''
-  };
+  const jwt = Cookies.get('JWT');
+  const authHeader = jwt ? { 'Authorization': 'Bearer ' + jwt } : {};
 
   init = {
     ...fetchConfig,

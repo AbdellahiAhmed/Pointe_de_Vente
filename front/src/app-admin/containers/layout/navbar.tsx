@@ -3,7 +3,7 @@ import {useSelector} from "react-redux";
 import {getAuthorizedUser, isUserLoggedIn} from "../../../duck/auth/auth.selector";
 import {useLogout} from "../../../duck/auth/hooks/useLogout";
 import {useNavigate} from "react-router";
-import {LOGIN, PROFILE} from "../../routes/frontend.routes";
+import {LOGIN, PROFILE, DASHBOARD} from "../../routes/frontend.routes";
 import {useTranslation} from "react-i18next";
 import {Link} from "react-router-dom";
 import { applyLocale } from "../../../lib/rtl";
@@ -61,10 +61,10 @@ const Navigation = () => {
   return (
     <header id="header" className="header fixed-top d-flex align-items-center">
       <div className="d-flex align-items-center justify-content-between">
-        <a href="/" className="logo d-flex align-items-center">
+        <Link to={DASHBOARD} className="logo d-flex align-items-center">
           <i className="bi bi-shop fs-4 me-2"></i>
           <span className="d-none d-lg-block">{import.meta.env.VITE_WEBSITE_NAME}</span>
-        </a>
+        </Link>
         <i className="bi bi-list toggle-sidebar-btn" onClick={toggleSidebar}></i>
       </div>
       <nav className="header-nav ms-auto">
