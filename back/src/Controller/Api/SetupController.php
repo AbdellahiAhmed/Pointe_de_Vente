@@ -74,6 +74,54 @@ class SetupController extends AbstractController
     }
 
     /**
+     * @Route("/api/setup/test-login", name="setup_test_login", methods={"POST"})
+     */
+    public function testLogin(
+        Request                     $request,
+        EntityManagerInterface      $entityManager,
+        UserPasswordHasherInterface $passwordHasher
+    ): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $steps = [];
+
+        // Step 1: check raw body
+        $steps['raw_body'] = $request->getContent();
+        $steps['parsed_data'] = $data;
+        $steps['username_received'] = $data['username'] ?? '(missing)';
+        $steps['password_received'] = $data['password'] ?? '(missing)';
+        $steps['password_length'] = strlen($data['password'] ?? '');
+
+        // Step 2: find user
+        $user = $entityManager->getRepository(User::class)->findOneBy(['username' => $data['username'] ?? '']);
+        $steps['user_found'] = $user !== null;
+
+        if ($user) {
+            $steps['user_id'] = $user->getId();
+            $steps['user_active'] = $user->getIsActive();
+            $steps['user_roles'] = $user->getRoles();
+            $steps['password_hash_prefix'] = substr($user->getPassword(), 0, 20) . '...';
+            $steps['salt'] = $user->getSalt();
+
+            // Step 3: verify password using PHP directly
+            $steps['php_password_verify'] = password_verify($data['password'] ?? '', $user->getPassword());
+
+            // Step 4: verify using Symfony hasher
+            try {
+                $steps['symfony_hasher_valid'] = $passwordHasher->isPasswordValid($user, $data['password'] ?? '');
+            } catch (\Exception $e) {
+                $steps['symfony_hasher_error'] = $e->getMessage();
+            }
+
+            // Step 5: user identifier
+            $steps['user_identifier'] = $user->getUserIdentifier();
+            $steps['user_identifier_type'] = gettype($user->getUserIdentifier());
+        }
+
+        return new JsonResponse($steps);
+    }
+
+    /**
      * @Route("/api/setup/activate", name="setup_activate", methods={"POST"})
      */
     public function activate(
