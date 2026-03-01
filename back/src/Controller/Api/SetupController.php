@@ -30,6 +30,50 @@ class SetupController extends AbstractController
     }
 
     /**
+     * @Route("/api/setup/diagnostic", name="setup_diagnostic", methods={"GET"})
+     */
+    public function diagnostic(): JsonResponse
+    {
+        $checks = [];
+
+        // Check JWT keys
+        $projectDir = $this->getParameter('kernel.project_dir');
+        $privateKeyPath = $projectDir . '/config/jwt/private.pem';
+        $publicKeyPath = $projectDir . '/config/jwt/public.pem';
+
+        $checks['private_key_exists'] = file_exists($privateKeyPath);
+        $checks['public_key_exists'] = file_exists($publicKeyPath);
+
+        if ($checks['private_key_exists']) {
+            $passphrase = $this->getParameter('lexik_jwt_authentication.pass_phrase');
+            $privateKey = file_get_contents($privateKeyPath);
+            $key = openssl_pkey_get_private($privateKey, $passphrase);
+            $checks['private_key_readable'] = $key !== false;
+            if (!$checks['private_key_readable']) {
+                $checks['private_key_error'] = openssl_error_string() ?: 'Wrong passphrase or corrupted key';
+            }
+        }
+
+        // Check OpenSSL
+        $checks['openssl_loaded'] = extension_loaded('openssl');
+        $checks['openssl_version'] = defined('OPENSSL_VERSION_TEXT') ? OPENSSL_VERSION_TEXT : 'N/A';
+
+        // Check PHP version
+        $checks['php_version'] = PHP_VERSION;
+
+        $allOk = ($checks['private_key_exists'] ?? false)
+            && ($checks['public_key_exists'] ?? false)
+            && ($checks['private_key_readable'] ?? false)
+            && ($checks['openssl_loaded'] ?? false);
+
+        return new JsonResponse([
+            'status' => $allOk ? 'ok' : 'error',
+            'checks' => $checks,
+            'hint' => !$allOk ? 'Run: php bin/console lexik:jwt:generate-keypair --overwrite' : null,
+        ]);
+    }
+
+    /**
      * @Route("/api/setup/activate", name="setup_activate", methods={"POST"})
      */
     public function activate(

@@ -12,7 +12,8 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::EXCEPTION => ['onKernelException', -10],
+            // High priority to intercept before Symfony's default HTML error handler
+            KernelEvents::EXCEPTION => ['onKernelException', 200],
         ];
     }
 
@@ -30,11 +31,17 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
             ? $exception->getStatusCode()
             : 500;
 
+        // Build a clear error message
+        $message = $exception->getMessage();
+        if ($statusCode >= 500) {
+            // Include the exception class for easier debugging
+            $class = (new \ReflectionClass($exception))->getShortName();
+            $message = sprintf('[%s] %s', $class, $message);
+        }
+
         $response = new JsonResponse([
             'code' => $statusCode,
-            'message' => $statusCode >= 500
-                ? 'Internal server error: ' . $exception->getMessage()
-                : $exception->getMessage(),
+            'message' => $message,
         ], $statusCode);
 
         $event->setResponse($response);

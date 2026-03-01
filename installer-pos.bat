@@ -99,6 +99,15 @@ if not exist "config\jwt\private.pem" (
     echo [OK] Cles JWT existent deja
 )
 
+:: Verify JWT keys work
+echo Verification des cles JWT...
+php -r "if(!extension_loaded('openssl')){echo '[ERREUR] Extension OpenSSL manquante!'.PHP_EOL;exit(1);}$k=openssl_pkey_get_private(file_get_contents('config/jwt/private.pem'),'02c408a5b20f898de8cae04903fa28ca');if(!$k){echo '[ERREUR] Cle JWT invalide. Regeneration...'.PHP_EOL;exit(1);}echo '[OK] Cles JWT valides'.PHP_EOL;"
+if %errorlevel% neq 0 (
+    echo Regeneration des cles JWT...
+    php bin/console lexik:jwt:generate-keypair --overwrite
+    echo [OK] Cles JWT regenerees
+)
+
 echo.
 echo Creation de la base de donnees...
 php bin/console doctrine:database:create --if-not-exists
