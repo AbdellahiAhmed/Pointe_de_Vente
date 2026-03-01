@@ -25,7 +25,7 @@ Write-Host "  OK" -ForegroundColor Green
 # 2. Create .env.local for Docker
 Write-Host "[2/7] Configuration backend..." -ForegroundColor Yellow
 if (-not (Test-Path "back\.env.local")) {
-    $envContent = "APP_ENV=dev`nAPP_DEBUG=1`nDATABASE_URL=`"mysql://root:root@db:3306/polymer?serverVersion=mariadb-10.6.0&charset=utf8mb4`""
+    $envContent = "APP_ENV=prod`nAPP_DEBUG=0`nDATABASE_URL=`"mysql://root:root@db:3306/polymer?serverVersion=mariadb-10.6.0&charset=utf8mb4`""
     [System.IO.File]::WriteAllText("$PWD\back\.env.local", $envContent, [System.Text.UTF8Encoding]::new($false))
     Write-Host "  back\.env.local cree" -ForegroundColor Green
 } else {
@@ -80,7 +80,8 @@ Write-Host "  OK - Toutes les tables creees" -ForegroundColor Green
 # 7. Generate JWT keys + clear cache
 Write-Host "[7/7] Generation des cles JWT..." -ForegroundColor Yellow
 docker compose exec -T php bash -c "cd /var/www/html/polymer && php -d memory_limit=512M bin/console lexik:jwt:generate-keypair --overwrite 2>&1"
-docker compose exec -T php bash -c "cd /var/www/html/polymer && php -d memory_limit=512M bin/console cache:clear 2>&1"
+docker compose exec -T php bash -c "cd /var/www/html/polymer && php -d memory_limit=512M bin/console cache:clear --env=prod 2>&1"
+docker compose exec -T php bash -c "cd /var/www/html/polymer && php -d memory_limit=512M bin/console cache:warmup --env=prod 2>&1"
 Write-Host "  OK" -ForegroundColor Green
 
 Pop-Location

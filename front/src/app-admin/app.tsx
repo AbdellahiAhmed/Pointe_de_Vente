@@ -9,31 +9,33 @@ import {getBootstrapError, getNeedsSetup, hasBootstrapped} from "../duck/app/app
 import {bootstrap} from "../duck/app/app.action";
 import {userLoggedOut} from "../duck/auth/auth.action";
 import {bindActionCreators, Dispatch} from 'redux';
-import {FunctionComponent, useEffect} from "react";
+import {FunctionComponent, lazy, Suspense, useEffect} from "react";
 import {Dashboard} from "./containers/dashboard/dashboard";
 import {useLogout} from "../duck/auth/hooks/useLogout";
 import {Navigate, Routes} from 'react-router';
 import {Error404} from "../app-common/components/error/404";
 import {ErrorBoundary} from "../app-common/components/error/error-boundary";
-import {Users} from "./containers/dashboard/users";
 import {ForgotPassword} from "./containers/forgot/forgot";
 import {Profile} from "./containers/dashboard/profile/profile";
-import {SalesReport} from "./containers/reports/sales-report";
-import {ProfitReport} from "./containers/reports/profit-report";
-import {DailyReport} from "./containers/reports/daily-report";
-import {StockAlerts} from "./containers/inventory/stock-alerts";
-import {StockAdjustment} from "./containers/inventory/stock-adjustment";
-import {StockMovements} from "./containers/inventory/stock-movements";
 import {RequireRole} from "../app-common/components/auth/RequireRole";
-import {ZReportPage} from "./containers/closing/z-report-page";
-import {VendorReport} from "./containers/reports/vendor-report";
-import {CategoryReport} from "./containers/reports/category-report";
-import {ReturnRequests} from "./containers/returns/return-requests";
-import {CustomerReport} from "./containers/reports/customer-report";
-import {SystemHealth} from "./containers/system/system-health";
-import {BankJournal} from "./containers/bank-journal/bank-journal";
-import {AuditLog} from "./containers/audit/audit-log";
 import {Setup} from "../app-common/components/setup/setup";
+
+// Lazy-loaded pages (reports, inventory, admin)
+const Users = lazy(() => import('./containers/dashboard/users').then(m => ({default: m.Users})));
+const SalesReport = lazy(() => import('./containers/reports/sales-report').then(m => ({default: m.SalesReport})));
+const ProfitReport = lazy(() => import('./containers/reports/profit-report').then(m => ({default: m.ProfitReport})));
+const DailyReport = lazy(() => import('./containers/reports/daily-report').then(m => ({default: m.DailyReport})));
+const VendorReport = lazy(() => import('./containers/reports/vendor-report').then(m => ({default: m.VendorReport})));
+const CategoryReport = lazy(() => import('./containers/reports/category-report').then(m => ({default: m.CategoryReport})));
+const ZReportPage = lazy(() => import('./containers/closing/z-report-page').then(m => ({default: m.ZReportPage})));
+const BankJournal = lazy(() => import('./containers/bank-journal/bank-journal').then(m => ({default: m.BankJournal})));
+const StockAlerts = lazy(() => import('./containers/inventory/stock-alerts').then(m => ({default: m.StockAlerts})));
+const StockAdjustment = lazy(() => import('./containers/inventory/stock-adjustment').then(m => ({default: m.StockAdjustment})));
+const StockMovements = lazy(() => import('./containers/inventory/stock-movements').then(m => ({default: m.StockMovements})));
+const ReturnRequests = lazy(() => import('./containers/returns/return-requests').then(m => ({default: m.ReturnRequests})));
+const CustomerReport = lazy(() => import('./containers/reports/customer-report').then(m => ({default: m.CustomerReport})));
+const SystemHealth = lazy(() => import('./containers/system/system-health').then(m => ({default: m.SystemHealth})));
+const AuditLog = lazy(() => import('./containers/audit/audit-log').then(m => ({default: m.AuditLog})));
 
 export interface AppProps {
   bootstrap: () => void;
@@ -74,6 +76,7 @@ const AppComponent: FunctionComponent<AppProps> = (props) => {
   return (
     <ErrorBoundary>
     <Router>
+      <Suspense fallback={<div className="d-flex justify-content-center align-items-center" style={{minHeight: '60vh'}}><div className="spinner-border text-primary" role="status"><span className="visually-hidden">Loading...</span></div></div>}>
       <Routes>
         <Route path={LOGIN} element={
           <>
@@ -119,6 +122,7 @@ const AppComponent: FunctionComponent<AppProps> = (props) => {
         {/*if nothing matches show 404*/}
         <Route path="*" element={<Error404/>}/>
       </Routes>
+      </Suspense>
     </Router>
     </ErrorBoundary>
   );

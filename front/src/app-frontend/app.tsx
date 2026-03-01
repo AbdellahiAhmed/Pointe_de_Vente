@@ -9,7 +9,7 @@ import {getBootstrapError, getNeedsSetup, hasBootstrapped} from "../duck/app/app
 import {bootstrap} from "../duck/app/app.action";
 import {userLoggedOut} from "../duck/auth/auth.action";
 import {bindActionCreators, Dispatch} from 'redux';
-import {FunctionComponent, useEffect} from "react";
+import {FunctionComponent, lazy, Suspense, useEffect} from "react";
 import {useLogout} from "../duck/auth/hooks/useLogout";
 import {Navigate, Routes} from 'react-router';
 import {Error404} from "../app-common/components/error/404";
@@ -18,9 +18,11 @@ import {ForgotPassword} from "./containers/forgot/forgot";
 import { Pos } from "./containers/dashboard/pos";
 import {ResetPassword} from "./containers/forgot/reset";
 import { Dashboard } from "./containers/dashboard/dashboard";
-import { DebtManagement } from "./components/customers/debt-management";
-import { StockAlerts } from "./components/stock/stock-alerts";
 import { Setup } from "../app-common/components/setup/setup";
+
+// Lazy-loaded secondary pages
+const DebtManagement = lazy(() => import('./components/customers/debt-management').then(m => ({default: m.DebtManagement})));
+const StockAlerts = lazy(() => import('./components/stock/stock-alerts').then(m => ({default: m.StockAlerts})));
 
 export interface AppProps {
   bootstrap: () => void;
@@ -60,6 +62,7 @@ const AppComponent: FunctionComponent<AppProps> = (props) => {
   return (
     <ErrorBoundary>
     <Router>
+      <Suspense fallback={<div className="d-flex justify-content-center align-items-center" style={{minHeight: '60vh'}}><div className="spinner-border text-primary" role="status"><span className="visually-hidden">Loading...</span></div></div>}>
       <Routes>
         <Route path={LOGIN} element={
           <>
@@ -91,6 +94,7 @@ const AppComponent: FunctionComponent<AppProps> = (props) => {
         {/*if nothing matches show 404*/}
         <Route path="*" element={<Error404/>}/>
       </Routes>
+      </Suspense>
     </Router>
     </ErrorBoundary>
   );

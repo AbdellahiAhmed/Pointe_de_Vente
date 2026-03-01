@@ -36,8 +36,8 @@ echo -e "${GREEN}  OK${NC}"
 echo -e "${YELLOW}[2/7]${NC} Configuration backend..."
 if [ ! -f back/.env.local ]; then
     cat > back/.env.local << 'ENVEOF'
-APP_ENV=dev
-APP_DEBUG=1
+APP_ENV=prod
+APP_DEBUG=0
 DATABASE_URL="mysql://root:root@db:3306/polymer?serverVersion=mariadb-10.6.0&charset=utf8mb4"
 ENVEOF
     echo -e "${GREEN}  back/.env.local créé${NC}"
@@ -93,7 +93,8 @@ echo -e "${GREEN}  OK - Toutes les tables créées${NC}"
 echo -e "${YELLOW}[7/7]${NC} Génération des clés JWT..."
 docker compose exec -T php bash -c "cd /var/www/html/polymer && \
     php -d memory_limit=512M bin/console lexik:jwt:generate-keypair --overwrite 2>&1 && \
-    php -d memory_limit=512M bin/console cache:clear 2>&1" | tail -1
+    php -d memory_limit=512M bin/console cache:clear --env=prod 2>&1 && \
+    php -d memory_limit=512M bin/console cache:warmup --env=prod 2>&1" | tail -1
 echo -e "${GREEN}  OK${NC}"
 
 cd ..

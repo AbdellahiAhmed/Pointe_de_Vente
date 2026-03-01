@@ -32,7 +32,7 @@ export default defineConfig({
   ],
   build: {
     sourcemap: false,
-    cssCodeSplit: false,
+    cssCodeSplit: true,
     rollupOptions: {
       output: {
         manualChunks: {
