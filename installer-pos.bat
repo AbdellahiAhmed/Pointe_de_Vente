@@ -114,10 +114,19 @@ php bin/console doctrine:database:create --if-not-exists
 echo [OK] Base de donnees prete
 
 echo.
-echo Creation des tables...
-php bin/console doctrine:schema:update --force --complete
+echo Creation des tables (methode 1: schema:create)...
+php bin/console doctrine:schema:create --no-interaction 2>nul
+if %errorlevel% neq 0 (
+    echo [INFO] Tables existent deja, mise a jour du schema...
+    php bin/console doctrine:schema:update --force --complete
+)
+
+echo.
+echo Verification et correction des tables manquantes...
+php bin/console app:setup:verify --fix
+echo [OK] Toutes les tables verifiees
+
 php bin/console doctrine:migrations:version --add --all --no-interaction 2>nul
-echo [OK] Tables creees
 
 echo.
 echo Vider le cache...
@@ -156,6 +165,7 @@ echo  ║                                           ║
 echo  ║   Premiere connexion :                    ║
 echo  ║   L'app affichera un formulaire           ║
 echo  ║   Code activation : MCSPVD               ║
+echo  ║   Login : admin / mcs123                  ║
 echo  ╚═══════════════════════════════════════════╝
 echo.
 pause
