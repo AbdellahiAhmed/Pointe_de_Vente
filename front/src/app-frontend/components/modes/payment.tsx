@@ -157,11 +157,13 @@ export const PaymentMode = () => {
     }
   });
 
-  const [windowHeight, setWindowHeight] = useState(0);
+  const [windowHeight, setWindowHeight] = useState(
+    typeof window !== "undefined" ? window.innerHeight - 150 : 0
+  );
   useEffect(() => {
-    if( typeof window !== "undefined" ) {
-      setWindowHeight(window.innerHeight - 150);
-    }
+    const updateHeight = () => setWindowHeight(window.innerHeight - 150);
+    window.addEventListener('resize', updateHeight);
+    return () => window.removeEventListener('resize', updateHeight);
   }, []);
 
   const columns = React.useMemo(

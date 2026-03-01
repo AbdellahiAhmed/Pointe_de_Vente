@@ -1,6 +1,6 @@
 import Login from './containers/login/login';
 import {BrowserRouter as Router, Route, useLocation} from "react-router-dom";
-import { FORGOT_PASSWORD, LOGIN, POS, RESET_PASSWORD, POS_V2, DASHBOARD, DEBT_MANAGEMENT, STOCK_ALERTS_PAGE, SETUP } from "./routes/frontend.routes";
+import { FORGOT_PASSWORD, LOGIN, POS, RESET_PASSWORD, DASHBOARD, DEBT_MANAGEMENT, STOCK_ALERTS_PAGE, SETUP } from "./routes/frontend.routes";
 import {connect, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {RootState} from "../duck/_root/root.state";
